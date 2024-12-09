@@ -14,6 +14,25 @@ export function UserInfoProvider({ children }) {
   const [createdAt, setCreatedAt] = useState("");
   const { token } = useAuth();
 
+  async function fetchAvatar() {
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/user/profile-image`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          responseType: "blob", // Вказуємо, що ми очікуємо Blob-дані
+        }
+      );
+      const imageBlob = new Blob([response.data]);
+      const imageObjectURL = URL.createObjectURL(imageBlob);
+      setAvatar(imageObjectURL); // Задаємо отриманий URL як джерело для зображення
+    } catch (error) {
+      console.error("Помилка завантаження зображення:", error);
+    }
+  }
+
   async function getUserInfo() {
     if (!token) return;
 
@@ -26,7 +45,6 @@ export function UserInfoProvider({ children }) {
     const { username, avatar, createdAt } = response.data;
 
     setUserName((n) => username);
-    // setAvatar((a) => avatar);
     setCreatedAt((c) => createdAt);
   }
 
@@ -37,6 +55,7 @@ export function UserInfoProvider({ children }) {
     setAvatar,
     createdAt,
     setCreatedAt,
+    fetchAvatar,
     getUserInfo,
   };
 

@@ -3,84 +3,18 @@ import { Card, Button, Alert } from "react-bootstrap";
 import { useAuth } from "../contexts/AuthContext";
 import { useUserInfo } from "../contexts/UserInfoContext";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 
 export default function DashBoard() {
   const [error, setError] = useState("");
-  const { currentUser, token, logout } = useAuth();
-  const { userName, avatar, setAvatar, createdAt, getUserInfo } = useUserInfo();
+  const { currentUser, logout } = useAuth();
+  const { userName, avatar, fetchAvatar, createdAt, getUserInfo } =
+    useUserInfo();
   const navigate = useNavigate();
 
-  const [file, setFile] = useState(null);
-  const [message, setMessage] = useState("");
-  // const [imageSrc, setImageSrc] = useState(null);
-  const [preview, setPreview] = useState(null);
-
-  const fetchImage = async () => {
-    try {
-      const response = await axios.get(
-        `http://localhost:5000/user/profile-image`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          responseType: "blob", // Вказуємо, що ми очікуємо Blob-дані
-        }
-      );
-      const imageBlob = new Blob([response.data]);
-      const imageObjectURL = URL.createObjectURL(imageBlob);
-      setAvatar(imageObjectURL); // Задаємо отриманий URL як джерело для зображення
-    } catch (error) {
-      console.error("Помилка завантаження зображення:", error);
-    }
-  };
-
-  // Завантажуємо зображення при першому рендері
-  useEffect(() => {
-    fetchImage();
-    console.log("fetched");
-  }, []);
-
-  // Обробник вибору файлу
-  const handleFileChange = (event) => {
-    const selectedFile = event.target.files[0];
-    setFile(selectedFile);
-    setPreview(URL.createObjectURL(selectedFile)); // Створюємо preview URL
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    if (!file) {
-      setMessage("Будь ласка, виберіть файл!");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("profileImage", file); // Додаємо файл у FormData
-
-    try {
-      const response = await axios.post(
-        "http://localhost:5000/user/profile-image",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setMessage("Файл успішно завантажено!");
-      fetchImage();
-
-      console.log("Відповідь сервера:", response.data);
-    } catch (error) {
-      setMessage("Помилка завантаження файлу.");
-      console.error("Помилка:", error.response?.data || error.message);
-    }
-  };
-
+  // вантажу інформацію з БД та аватарку
   useEffect(() => {
     getUserInfo();
+    fetchAvatar();
   }, []);
 
   async function handleLogOut() {
@@ -131,27 +65,6 @@ export default function DashBoard() {
         <Button variant="link" onClick={handleLogOut}>
           Log Out
         </Button>
-      </div>
-      <div>
-        <form onSubmit={handleSubmit}>
-          <input type="file" onChange={handleFileChange} />
-          <button type="submit">Завантажити</button>
-        </form>
-        {message && <p>{message}</p>}
-
-        <div>
-          {avatar ? (
-            <img src={avatar} alt="Profile" />
-          ) : (
-            <p>Завантаження зображення...</p>
-          )}
-          <br /> <br />
-          <img
-            src={preview || avatar || "/default-avatar.png"}
-            alt="User Avatar"
-            style={{ width: "100px", height: "100px", borderRadius: "50%" }}
-          />
-        </div>
       </div>
     </>
   );

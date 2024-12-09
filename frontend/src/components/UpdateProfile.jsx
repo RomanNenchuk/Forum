@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Form, Card, Button, Alert } from "react-bootstrap";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import { useUserInfo } from "../contexts/UserInfoContext.jsx";
@@ -11,10 +11,15 @@ export default function UpdateProfile() {
   const passwordForReauthRef = useRef();
   const passwordRef = useRef();
   const passwordConfirmRef = useRef();
+  const imageInputRef = useRef();
   const { currentUser, token, updateUserPassword, updateUserEmail } = useAuth();
-  const { userName, setUserName, avatar, setAvatar } = useUserInfo();
+  const { userName, setUserName, avatar, fetchAvatar } = useUserInfo();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [image, setImage] = useState(null);
+  const [message, setMessage] = useState("");
+  const [preview, setPreview] = useState(null);
   const navigate = useNavigate();
 
   const isGoogleSignIn = currentUser.providerData.some(
@@ -89,12 +94,79 @@ export default function UpdateProfile() {
     }
   }
 
+  // Обробник вибору файлу
+  async function handleImageChange(e) {
+    const selectedFile = e.target.files[0];
+    setImage(selectedFile);
+    setPreview(URL.createObjectURL(selectedFile)); // Створюємо preview URL
+  }
+
+  async function handleChangeAvatar(e) {
+    e.preventDefault();
+    if (!image) {
+      setMessage("Будь ласка, виберіть файл!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("profileImage", image); // Додаємо файл у FormData
+
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/user/profile-image",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setMessage("Файл успішно завантажено!");
+      fetchAvatar();
+
+      console.log("Відповідь сервера:", response.data);
+    } catch (error) {
+      setMessage("Помилка завантаження файлу.");
+      console.error("Помилка:", error.response?.data || error.message);
+    }
+  }
+
+  async function handleImageClick() {
+    imageInputRef.current.click();
+  }
+
+  useEffect(() => {
+    fetchAvatar();
+  }, []);
+
   return (
     <>
       <Card>
         <Card.Body>
           <h2 className="text-center mb-4">Update Profile</h2>
           {error && <Alert variant="danger">{error}</Alert>}
+          {/* {message && <p>{message}</p>} */}
+          <form className="text-center mb-4" onSubmit={handleChangeAvatar}>
+            <img
+              src={avatar || preview || "/default-avatar.png"}
+              alt="User Avatar"
+              onClick={handleImageClick}
+              style={{
+                width: "100px",
+                height: "100px",
+                borderRadius: "50%",
+                border: "1px solid #000",
+              }}
+            />
+            <input
+              type="file"
+              ref={imageInputRef}
+              onChange={handleImageChange}
+              style={{ display: "none" }}
+            />
+            <button type="submit">Change</button>
+          </form>
           <Form onSubmit={handleSubmit}>
             <Form.Group id="name">
               <Form.Label>Full Name</Form.Label>
