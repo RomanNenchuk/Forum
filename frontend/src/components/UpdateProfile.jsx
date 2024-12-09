@@ -13,7 +13,8 @@ export default function UpdateProfile() {
   const passwordConfirmRef = useRef();
   const imageInputRef = useRef();
   const { currentUser, token, updateUserPassword, updateUserEmail } = useAuth();
-  const { userName, setUserName, avatar, fetchAvatar } = useUserInfo();
+  const { userName, setUserName, avatar, fetchAvatar, getUserInfo } =
+    useUserInfo();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -137,6 +138,7 @@ export default function UpdateProfile() {
   }
 
   useEffect(() => {
+    getUserInfo();
     fetchAvatar();
   }, []);
 
@@ -149,15 +151,10 @@ export default function UpdateProfile() {
           {/* {message && <p>{message}</p>} */}
           <form className="text-center mb-4" onSubmit={handleChangeAvatar}>
             <img
-              src={avatar || preview || "/default-avatar.png"}
+              src={preview || avatar || "/default-avatar.png"}
               alt="User Avatar"
               onClick={handleImageClick}
-              style={{
-                width: "100px",
-                height: "100px",
-                borderRadius: "50%",
-                border: "1px solid #000",
-              }}
+              className="profile-image"
             />
             <input
               type="file"

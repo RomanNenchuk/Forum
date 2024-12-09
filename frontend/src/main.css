@@ -1,0 +1,10 @@
+.profile-image {
+  object-fit: cover;
+  width: auto;
+  height: 100px;
+  aspect-ratio: 1 / 1; /* Співвідношення сторін 1:1 */
+  overflow: hidden;
+  border-radius: 50%;
+  border: 1px solid #000;
+  /* overflow: hidden; */
+}

@@ -37,12 +37,7 @@ export default function DashBoard() {
             <img
               src={avatar || "/default-avatar.png"}
               alt="User Avatar"
-              style={{
-                width: "100px",
-                height: "100px",
-                borderRadius: "50%",
-                border: "1px solid #000",
-              }}
+              className="profile-image"
             />
           </div>
           <div>

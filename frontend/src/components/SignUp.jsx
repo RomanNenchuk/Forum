@@ -10,7 +10,7 @@ export default function SignUp() {
   const passwordRef = useRef();
   const passwordConfirmRef = useRef();
   const nameRef = useRef();
-  const { currentUser, signup, loginWithGoogle } = useAuth();
+  const { signup, loginWithGoogle } = useAuth();
   const { setUserName, setAvatar, setCreatedAt } = useUserInfo();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
