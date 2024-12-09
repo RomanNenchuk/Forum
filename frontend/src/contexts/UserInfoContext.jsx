@@ -22,30 +22,46 @@ export function UserInfoProvider({ children }) {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          responseType: "blob", // Вказуємо, що ми очікуємо Blob-дані
+          responseType: "blob", // Очікуємо Blob-дані
         }
       );
+
+      // Цей код написано, щоб при відсутності аватарки на стороні сервера нам не кидало помилку
+      const isJson =
+        response.headers["content-type"]?.includes("application/json");
+      if (isJson) {
+        const text = await response.data.text(); // Конвертуємо Blob у текст
+        const json = JSON.parse(text); // Парсимо JSON
+
+        if (json.hasAvatar === false) return console.log("Аватар не знайдено");
+      }
+
+      // Інакше отримуємо цей бінарний файл і зберігаємо його у внутрішній пам'яті браузера
       const imageBlob = new Blob([response.data]);
       const imageObjectURL = URL.createObjectURL(imageBlob);
       setAvatar(imageObjectURL); // Задаємо отриманий URL як джерело для зображення
     } catch (error) {
-      console.error("Помилка завантаження зображення:", error);
+      console.log("Аватар не знайдено");
     }
   }
 
   async function getUserInfo() {
     if (!token) return;
 
-    const response = await axios.get("http://localhost:5000/user/info", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    try {
+      const response = await axios.get("http://localhost:5000/user/info", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    const { username, avatar, createdAt } = response.data;
+      const { username, avatar, createdAt } = response.data;
 
-    setUserName((n) => username);
-    setCreatedAt((c) => createdAt);
+      setUserName((n) => username);
+      setCreatedAt((c) => createdAt);
+    } catch (error) {
+      console.log("Даних про користувача не знайдено" + error);
+    }
   }
 
   const value = {

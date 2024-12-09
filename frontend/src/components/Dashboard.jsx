@@ -33,7 +33,7 @@ export default function DashBoard() {
         <Card.Body>
           <h2 className="text-center mb-4">Profile</h2>
           {error && <Alert variant="danger">{error}</Alert>}
-          <div className="text-center mb-4">
+          <div className="text-center mb-4 profile-image-container">
             <img
               src={avatar || "/default-avatar.png"}
               alt="User Avatar"

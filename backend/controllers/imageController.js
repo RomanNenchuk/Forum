@@ -69,6 +69,6 @@ export const getImage = (req, res) => {
     console.log("Exists");
     res.status(200).sendFile(filePath);
   } else {
-    res.status(404).json({ error: "Not found" });
+    res.status(200).json({ hasAvatar: false });
   }
 };

@@ -3,6 +3,7 @@ import { Form, Card, Button, Alert } from "react-bootstrap";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import { useUserInfo } from "../contexts/UserInfoContext.jsx";
 import { Link, useNavigate } from "react-router-dom";
+import styles from "./UpdateProfile.module.css";
 import axios from "axios";
 
 export default function UpdateProfile() {
@@ -12,7 +13,14 @@ export default function UpdateProfile() {
   const passwordRef = useRef();
   const passwordConfirmRef = useRef();
   const imageInputRef = useRef();
-  const { currentUser, token, updateUserPassword, updateUserEmail } = useAuth();
+  const {
+    currentUser,
+    token,
+    updateUserPassword,
+    updateUserEmail,
+    verifyPassword,
+    reauthenticateWithGoogle,
+  } = useAuth();
   const { userName, setUserName, avatar, fetchAvatar, getUserInfo } =
     useUserInfo();
   const [error, setError] = useState("");
@@ -39,8 +47,6 @@ export default function UpdateProfile() {
         }
       );
 
-      console.log("User registered:", response.data);
-      sessionStorage.setItem("userName", response.data.user.username);
       setUserName(response.data.user.username);
       return response.data; // Повертаємо відповідь, якщо потрібна
     } catch (error) {
@@ -51,17 +57,42 @@ export default function UpdateProfile() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (passwordRef.current.value !== passwordConfirmRef.current.value) {
-      return setError("Passwords do not match");
-    }
 
     setLoading(true);
     setError("");
-
     try {
+      if (isGoogleSignIn) {
+        const verified = reauthenticateWithGoogle();
+        if (!verified) return setError("Wrong credentials");
+
+        if (preview) handleSaveAvatar(e);
+
+        const updatedToken = await currentUser.getIdToken(true);
+
+        if (updatedToken && currentUser) {
+          await updateUserOnServer(updatedToken, {
+            userName:
+              nameRef.current.value !== userName ? nameRef.current.value : null,
+          });
+        }
+        navigate("/");
+        return;
+      }
+
+      if (passwordRef.current.value !== passwordConfirmRef.current.value) {
+        return setError("Passwords do not match");
+      }
+
+      const verified = await verifyPassword(passwordForReauthRef.current.value);
+      if (!verified) return setError("Wrong password");
+
+      // оновлюю аватар, якщо пароль правильний і користувач щось завантажував
+      if (preview) handleSaveAvatar(e);
+
       let updatedToken = token; // Поточний токен
 
-      if (emailRef.current.value !== currentUser.email) {
+      const updateEmail = emailRef.current.value !== currentUser.email;
+      if (updateEmail) {
         await updateUserEmail(
           emailRef.current.value,
           passwordForReauthRef.current.value
@@ -70,7 +101,9 @@ export default function UpdateProfile() {
         updatedToken = await currentUser.getIdToken(true);
       }
 
-      if (passwordRef.current.value) {
+      // перетворюю на булеве значення
+      const updatePassword = !!passwordRef.current.value;
+      if (updatePassword) {
         await updateUserPassword(
           passwordForReauthRef.current.value,
           passwordRef.current.value
@@ -102,7 +135,7 @@ export default function UpdateProfile() {
     setPreview(URL.createObjectURL(selectedFile)); // Створюємо preview URL
   }
 
-  async function handleChangeAvatar(e) {
+  async function handleSaveAvatar(e) {
     e.preventDefault();
     if (!image) {
       setMessage("Будь ласка, виберіть файл!");
@@ -148,23 +181,36 @@ export default function UpdateProfile() {
         <Card.Body>
           <h2 className="text-center mb-4">Update Profile</h2>
           {error && <Alert variant="danger">{error}</Alert>}
-          {/* {message && <p>{message}</p>} */}
-          <form className="text-center mb-4" onSubmit={handleChangeAvatar}>
-            <img
-              src={preview || avatar || "/default-avatar.png"}
-              alt="User Avatar"
-              onClick={handleImageClick}
-              className="profile-image"
-            />
-            <input
-              type="file"
-              ref={imageInputRef}
-              onChange={handleImageChange}
-              style={{ display: "none" }}
-            />
-            <button type="submit">Change</button>
-          </form>
-          <Form onSubmit={handleSubmit}>
+          {message && <Alert variant="info">{message}</Alert>}
+          <Form
+            onSubmit={(e) => {
+              handleSubmit(e);
+            }}
+          >
+            <div
+              className={`mb-4 profile-image-container ${styles["profile-image-container"]}`}
+            >
+              <img
+                src={preview || avatar || "/default-avatar.png"}
+                alt="User Avatar"
+                onClick={handleImageClick}
+                className={`profile-image ${styles["profile-image"]}`}
+              />
+              <img
+                src="/edit-image.png"
+                alt="Overlay"
+                onClick={handleImageClick}
+                className={`profile-image ${styles["profile-image-overlay"]} ${styles["profile-image"]}
+                }`}
+              />
+              <input
+                type="file"
+                ref={imageInputRef}
+                onChange={handleImageChange}
+                style={{ display: "none" }}
+              />
+            </div>
+
             <Form.Group id="name">
               <Form.Label>Full Name</Form.Label>
               <Form.Control
@@ -174,22 +220,47 @@ export default function UpdateProfile() {
                 defaultValue={userName}
               />
             </Form.Group>
-            <Form.Group id="email">
-              <Form.Label>Email</Form.Label>
-              <Form.Control
-                type="email"
-                ref={emailRef}
-                required
-                defaultValue={currentUser.email}
-              />
-            </Form.Group>
+
             {isGoogleSignIn ? (
-              <Alert variant="info" className="mt-4">
-                Since you logged in with Google, updating your profile
-                information (email or password) is restricted.
-              </Alert>
+              <>
+                <Alert variant="info" className="mt-4">
+                  Since you logged in with Google, updating your profile
+                  information (email or password) is restricted.
+                </Alert>
+
+                <div className="d-flex justify-content-center align-items-center">
+                  <Button
+                    onClick={handleSubmit}
+                    variant="light"
+                    className="d-flex align-items-center gap-2 px-4 py-2 rounded shadow-sm"
+                    style={{
+                      border: "1px solid #dadce0",
+                      fontWeight: "500",
+                      fontSize: "16px",
+                      color: "#5f6368",
+                      width: "fit-content",
+                    }}
+                  >
+                    <img
+                      src="https://www.svgrepo.com/show/475656/google-color.svg"
+                      alt="Google logo"
+                      style={{ width: "20px", height: "20px" }}
+                    />
+                    <span>Update with Google</span>
+                  </Button>
+                </div>
+              </>
             ) : (
               <>
+                <Form.Group id="email">
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control
+                    type="email"
+                    ref={emailRef}
+                    required
+                    defaultValue={currentUser.email}
+                  />
+                </Form.Group>
                 <Form.Group id="reauth-password">
                   <Form.Label>Current Password</Form.Label>
                   <Form.Control

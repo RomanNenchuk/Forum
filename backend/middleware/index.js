@@ -6,9 +6,7 @@ class Middleware {
 
     try {
       const decodeValue = await admin.auth().verifyIdToken(token);
-      console.log(decodeValue);
-
-      console.log("\n", decodeValue.name); // Перевіряємо, чи є displayName
+      console.log("Middleware: " + decodeValue);
 
       if (decodeValue) {
         req.user = decodeValue;

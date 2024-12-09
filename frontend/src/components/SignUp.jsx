@@ -58,12 +58,12 @@ export default function SignUp() {
         await registerUserOnServer(token, {
           fullName: user.displayName || "Unknown", // Якщо немає імені, встановлюємо "Unknown"
           email: user.email,
-          profilePicture: user.photoURL || "", // Якщо немає фото, використовуємо заглушку
+          profilePicture: "",
         });
       }
 
       setUserName((n) => user.displayName || "Unknown");
-      setAvatar((a) => user.photoURL || "");
+      setAvatar((a) => "");
       setCreatedAt((c) => new Date().toISOString().split("T")[0]);
 
       navigate("/");

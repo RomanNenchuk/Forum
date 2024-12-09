@@ -9,6 +9,7 @@ import {
   EmailAuthProvider,
   signInWithPopup,
   onAuthStateChanged,
+  GoogleAuthProvider,
 } from "firebase/auth"; // Імпортуємо необхідні функції
 import { auth, googleAuthProvider } from "../config/firebase-config.js"; // Імпортуємо вже ініціалізований екземпляр auth
 
@@ -75,6 +76,59 @@ export function AuthProvider({ children }) {
     return signInWithPopup(auth, googleAuthProvider);
   }
 
+  async function verifyPassword(currentPassword) {
+    if (!currentUser) {
+      throw new Error("No user is logged in.");
+    }
+
+    try {
+      // Створюємо облікові дані
+      const credential = EmailAuthProvider.credential(
+        currentUser.email,
+        currentPassword
+      );
+
+      // Реавтентифікуємо користувача
+      await reauthenticateWithCredential(currentUser, credential);
+      console.log("Password is correct.");
+      return true; // Пароль правильний
+    } catch (error) {
+      console.error("Error reauthenticating user:", error);
+      if (error.code === "auth/wrong-password") {
+        console.error("Incorrect password.");
+      }
+      return false; // Пароль неправильний
+    }
+  }
+
+  async function reauthenticateWithGoogle() {
+    if (!currentUser) {
+      throw new Error("No user is logged in.");
+    }
+
+    try {
+      // Ініціалізуємо GoogleAuthProvider
+      const provider = new GoogleAuthProvider();
+
+      // Входимо з використанням спливаючого вікна
+      const result = await signInWithPopup(auth, provider);
+
+      // Отримуємо облікові дані для реавтентифікації
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      if (!credential) {
+        throw new Error("Failed to get credentials from result.");
+      }
+
+      // Реавтентифікуємо користувача
+      await reauthenticateWithCredential(currentUser, credential);
+      console.log("Reauthenticated successfully with Google.");
+      return true;
+    } catch (error) {
+      console.error("Error during Google reauthentication:", error);
+      return false;
+    }
+  }
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setLoading(true);
@@ -110,6 +164,8 @@ export function AuthProvider({ children }) {
     updateUserPassword,
     reauthenticate,
     loginWithGoogle,
+    verifyPassword,
+    reauthenticateWithGoogle,
   };
 
   return (
