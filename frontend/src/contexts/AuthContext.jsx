@@ -82,7 +82,7 @@ export function AuthProvider({ children }) {
       if (user) {
         try {
           const newToken = await user.getIdToken();
-          console.log(newToken);
+          // console.log(newToken);
           setToken(newToken); // Збереження токена
           setCurrentUser(user); // Оновлення поточного користувача
         } catch (error) {

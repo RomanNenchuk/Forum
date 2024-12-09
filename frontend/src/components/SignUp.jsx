@@ -58,12 +58,12 @@ export default function SignUp() {
         await registerUserOnServer(token, {
           fullName: user.displayName || "Unknown", // Якщо немає імені, встановлюємо "Unknown"
           email: user.email,
-          profilePicture: user.photoURL || "/default-avatar.png", // Якщо немає фото, використовуємо заглушку
+          profilePicture: user.photoURL || "", // Якщо немає фото, використовуємо заглушку
         });
       }
 
       setUserName((n) => user.displayName || "Unknown");
-      setAvatar((a) => user.photoURL || "/default-avatar.png");
+      setAvatar((a) => user.photoURL || "");
       setCreatedAt((c) => new Date().toISOString().split("T")[0]);
 
       navigate("/");
@@ -99,14 +99,14 @@ export default function SignUp() {
 
       // додаю значення до контексту
       setUserName((n) => nameRef.current.value);
-      setAvatar((a) => "/default-avatar.png");
+      setAvatar((a) => "");
       setCreatedAt((c) => new Date().toISOString().split("T")[0]);
 
       if (newToken && user) {
         await registerUserOnServer(newToken, {
           fullName: nameRef.current.value,
           email: emailRef.current.value,
-          profilePicture: "/default-avatar.png",
+          profilePicture: "",
         });
       }
 
