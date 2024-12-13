@@ -60,65 +60,59 @@ export default function UpdateProfile() {
 
     setLoading(true);
     setError("");
+
     try {
+      let verified = false;
+      let userData = {};
+      let updatedToken = token;
+
       if (isGoogleSignIn) {
-        const verified = reauthenticateWithGoogle();
+        verified = reauthenticateWithGoogle();
         if (!verified) return setError("Wrong credentials");
 
-        if (preview) handleSaveAvatar(e);
-
-        const updatedToken = await currentUser.getIdToken(true);
-
-        if (updatedToken && currentUser) {
-          await updateUserOnServer(updatedToken, {
-            userName:
-              nameRef.current.value !== userName ? nameRef.current.value : null,
-          });
+        updatedToken = await currentUser.getIdToken(true);
+      } else {
+        if (passwordRef.current.value !== passwordConfirmRef.current.value) {
+          return setError("Passwords do not match");
         }
-        navigate("/");
-        return;
-      }
 
-      if (passwordRef.current.value !== passwordConfirmRef.current.value) {
-        return setError("Passwords do not match");
-      }
+        verified = await verifyPassword(passwordForReauthRef.current.value);
+        if (!verified) return setError("Wrong password");
 
-      const verified = await verifyPassword(passwordForReauthRef.current.value);
-      if (!verified) return setError("Wrong password");
+        const updateEmail = emailRef.current.value !== currentUser.email;
+        if (updateEmail) {
+          await updateUserEmail(
+            emailRef.current.value,
+            passwordForReauthRef.current.value
+          );
+          // Примусове оновлення токена після зміни email
+          updatedToken = await currentUser.getIdToken(true);
+
+          // Додаю імейл для оновлення на сервері
+          userData.email = emailRef.current.value;
+        }
+        // перетворюю на булеве значення
+        const updatePassword = !!passwordRef.current.value;
+        if (updatePassword) {
+          await updateUserPassword(
+            passwordForReauthRef.current.value,
+            passwordRef.current.value
+          );
+          // Примусове оновлення токена після зміни пароля
+          updatedToken = await currentUser.getIdToken(true);
+        }
+      }
 
       // оновлюю аватар, якщо пароль правильний і користувач щось завантажував
-      if (preview) handleSaveAvatar(e);
+      if (preview) await handleSaveAvatar(e);
 
-      let updatedToken = token; // Поточний токен
+      // додаю ім'я до списку оновлень на сервері, якщо воно було змінене
+      if (nameRef.current.value !== userName)
+        userData.userName = nameRef.current.value;
 
-      const updateEmail = emailRef.current.value !== currentUser.email;
-      if (updateEmail) {
-        await updateUserEmail(
-          emailRef.current.value,
-          passwordForReauthRef.current.value
-        );
-        // Примусове оновлення токена після зміни email
-        updatedToken = await currentUser.getIdToken(true);
-      }
-
-      // перетворюю на булеве значення
-      const updatePassword = !!passwordRef.current.value;
-      if (updatePassword) {
-        await updateUserPassword(
-          passwordForReauthRef.current.value,
-          passwordRef.current.value
-        );
-        // Примусове оновлення токена після зміни пароля
-        updatedToken = await currentUser.getIdToken(true);
-      }
-
-      if (updatedToken && currentUser) {
-        await updateUserOnServer(updatedToken, {
-          userName:
-            nameRef.current.value !== userName ? nameRef.current.value : null,
-          email: emailRef.current.value,
-        });
-      }
+      // оновлюю дані на сервері, якщо я щось додавав до userData
+      if (updatedToken && currentUser && Object.keys(userData).length !== 0)
+        await updateUserOnServer(updatedToken, userData);
 
       navigate("/");
     } catch (error) {
@@ -157,7 +151,7 @@ export default function UpdateProfile() {
         }
       );
       setMessage("Файл успішно завантажено!");
-      fetchAvatar();
+      await fetchAvatar();
 
       console.log("Відповідь сервера:", response.data);
     } catch (error) {

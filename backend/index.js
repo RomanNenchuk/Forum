@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import middleware from "./middleware/index.js";
-import connectDB from "./db.js";
+import { connectDB } from "./db.js";
 import userRoutes from "./routes/userRoutes.js";
 const app = express();
 const PORT = 5000;

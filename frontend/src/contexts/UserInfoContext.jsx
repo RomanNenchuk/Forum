@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, createContext } from "react";
+import React, { useContext, useState, createContext } from "react";
 import { useAuth } from "./AuthContext";
 import axios from "axios";
 
@@ -33,7 +33,7 @@ export function UserInfoProvider({ children }) {
         const text = await response.data.text(); // Конвертуємо Blob у текст
         const json = JSON.parse(text); // Парсимо JSON
 
-        if (json.hasAvatar === false) return console.log("Аватар не знайдено");
+        if (json.hasAvatar === false) return console.log("Avatar is not found");
       }
 
       // Інакше отримуємо цей бінарний файл і зберігаємо його у внутрішній пам'яті браузера
@@ -41,7 +41,8 @@ export function UserInfoProvider({ children }) {
       const imageObjectURL = URL.createObjectURL(imageBlob);
       setAvatar(imageObjectURL); // Задаємо отриманий URL як джерело для зображення
     } catch (error) {
-      console.log("Аватар не знайдено");
+      console.error();
+      ("Avatar is not found");
     }
   }
 
@@ -55,10 +56,10 @@ export function UserInfoProvider({ children }) {
         },
       });
 
-      const { username, avatar, createdAt } = response.data;
+      const { username, avatar, formatted_date } = response.data;
 
       setUserName((n) => username);
-      setCreatedAt((c) => createdAt);
+      setCreatedAt((c) => formatted_date);
     } catch (error) {
       console.log("Даних про користувача не знайдено" + error);
     }

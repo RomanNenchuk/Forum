@@ -1,13 +1,31 @@
-import mongoose from "mongoose";
+import pkg from "pg";
+import dotenv from "dotenv";
+dotenv.config({ path: "./config/.env" });
+
+const { Pool } = pkg;
+
+const { PGHOST, PGDATABASE, PGUSER, PGPASSWORD } = process.env;
+
+const pool = new Pool({
+  host: PGHOST,
+  database: PGDATABASE,
+  user: PGUSER,
+  password: PGPASSWORD,
+  port: 5432,
+  ssl: {
+    require: true,
+  },
+});
 
 const connectDB = async () => {
   try {
-    await mongoose.connect("mongodb://127.0.0.1:27017/forum");
-    console.log("Connected to DB");
+    const client = await pool.connect();
+    console.log("Connected to database");
+    client.release();
   } catch (error) {
-    console.error("Error connecting to MongoDB:", error);
+    console.error("Error connecting to PostgreSQL:", error);
     throw error;
   }
 };
 
-export default connectDB;
+export { pool, connectDB };

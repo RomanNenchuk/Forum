@@ -49,6 +49,11 @@ const upload = multer({
 });
 
 export const saveImage = (req, res) => {
+  // Видаляю попередню аватарку, якщо вона була наявна
+  const { uid } = req.user;
+  const imagePath = getImagePath(uid);
+  if (imagePath) fs.rmSync(imagePath);
+
   // Вказано "profileImage", що є ім'ям input type="file"
   upload.single("profileImage")(req, res, (err) => {
     if (err) {
@@ -64,11 +69,30 @@ export const saveImage = (req, res) => {
 
 export const getImage = (req, res) => {
   const { uid } = req.user;
-  const filePath = path.join(__dirname, "../profileImages", `${uid}.png`);
-  if (fs.existsSync(filePath)) {
+  const filePath = getImagePath(uid);
+  if (filePath) {
     console.log("Exists");
     res.status(200).sendFile(filePath);
   } else {
     res.status(200).json({ hasAvatar: false });
   }
 };
+
+function getImagePath(uid) {
+  const extensions = ["png", "jpeg", "jpg", "gif"];
+
+  let filePath = "";
+
+  for (const extension of extensions) {
+    const potentialPath = path.join(
+      __dirname,
+      "../profileImages",
+      `${uid}.${extension}`
+    );
+    if (fs.existsSync(potentialPath)) {
+      filePath = potentialPath;
+      break;
+    }
+  }
+  return filePath;
+}

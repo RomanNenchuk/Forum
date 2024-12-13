@@ -4,7 +4,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useUserInfo } from "../contexts/UserInfoContext";
 import { Link, useNavigate } from "react-router-dom";
 
-export default function DashBoard() {
+export default function Profile() {
   const [error, setError] = useState("");
   const { currentUser, logout } = useAuth();
   const { userName, avatar, fetchAvatar, createdAt, getUserInfo } =
