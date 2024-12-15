@@ -6,15 +6,13 @@ import {
   getUserInfo,
 } from "../controllers/userController.js";
 
-import { saveImage, getImage } from "../controllers/imageController.js";
+import { saveImage } from "../controllers/imageController.js";
 
 const router = express.Router();
 
 router.post("/signup", saveUser); // POST-запит для створення користувача
 
 router.post("/profile-image", saveImage);
-
-router.get("/profile-image", getImage);
 
 router.put("/update", updateUser);
 

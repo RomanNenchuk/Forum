@@ -11,10 +11,9 @@ export default function Profile() {
     useUserInfo();
   const navigate = useNavigate();
 
-  // вантажу інформацію з БД та аватарку
+  // вантажу інформацію з БД при монтуванні компонента
   useEffect(() => {
     getUserInfo();
-    fetchAvatar();
   }, []);
 
   async function handleLogOut() {

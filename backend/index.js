@@ -3,6 +3,7 @@ import cors from "cors";
 import middleware from "./middleware/index.js";
 import { connectDB } from "./db.js";
 import userRoutes from "./routes/userRoutes.js";
+import topicRoutes from "./routes/topicRoutes.js";
 const app = express();
 const PORT = 5000;
 
@@ -23,6 +24,8 @@ app.get("/", (req, res) => {
 });
 
 app.use("/user", userRoutes);
+
+app.use("/topic", topicRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

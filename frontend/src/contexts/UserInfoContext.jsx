@@ -59,6 +59,7 @@ export function UserInfoProvider({ children }) {
       const { username, avatar, formatted_date } = response.data;
 
       setUserName((n) => username);
+      setAvatar((a) => avatar);
       setCreatedAt((c) => formatted_date);
     } catch (error) {
       console.log("Даних про користувача не знайдено" + error);

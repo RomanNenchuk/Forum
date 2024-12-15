@@ -21,7 +21,7 @@ export default function UpdateProfile() {
     verifyPassword,
     reauthenticateWithGoogle,
   } = useAuth();
-  const { userName, setUserName, avatar, fetchAvatar, getUserInfo } =
+  const { userName, setUserName, avatar, setAvatar, fetchAvatar, getUserInfo } =
     useUserInfo();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -151,9 +151,9 @@ export default function UpdateProfile() {
         }
       );
       setMessage("Файл успішно завантажено!");
-      await fetchAvatar();
+      // await fetchAvatar();
 
-      console.log("Відповідь сервера:", response.data);
+      setAvatar(response.data.fileUrl);
     } catch (error) {
       setMessage("Помилка завантаження файлу.");
       console.error("Помилка:", error.response?.data || error.message);
@@ -166,7 +166,7 @@ export default function UpdateProfile() {
 
   useEffect(() => {
     getUserInfo();
-    fetchAvatar();
+    // fetchAvatar();
   }, []);
 
   return (

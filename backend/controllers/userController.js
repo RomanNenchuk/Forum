@@ -34,8 +34,6 @@ export const saveUser = async (req, res) => {
 
 export const updateUser = async (req, res) => {
   try {
-    console.log("__________Updata User controller___________");
-
     const { uid } = req.user;
     const { userName, email } = req.body;
 

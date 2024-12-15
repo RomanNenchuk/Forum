@@ -1,98 +1,55 @@
 import multer from "multer";
-import path from "path";
-import fs from "fs";
+import { pool } from "../db.js";
+import cloudinary from "../utils/cloudinary.js";
 
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Налаштування сховища для multer
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const folderPath = path.join(__dirname, "../profileImages"); // Повертає абсолютний шлях
-    if (!fs.existsSync(folderPath)) {
-      fs.mkdirSync(folderPath, { recursive: true }); // Створюємо папку, якщо її немає
-    }
-    cb(null, folderPath); // Вказуємо абсолютний шлях до папки
-  },
-  filename: (req, file, cb) => {
-    try {
-      const userID = req.user?.uid; // Отримуємо uid з req.user
-      if (!userID) throw new Error("User ID не знайдено в токені.");
-
-      // Додаємо розширення файлу
-      const fileExtension = path.extname(file.originalname);
-      const newFilename = `${userID}${fileExtension}`; // Назва файлу = userID + розширення
-      cb(null, newFilename); // Установлюємо ім'я файлу
-    } catch (err) {
-      cb(err); // Передаємо помилку, якщо щось не так
-    }
-  },
-});
-
-// Фільтрація файлів (додатково, якщо потрібно)
-const fileFilter = (req, file, cb) => {
-  const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
-  if (allowedTypes.includes(file.mimetype)) {
-    cb(null, true); // Приймаємо файл
-  } else {
-    cb(new Error("Непідтримуваний формат файлу"), false); // Відхиляємо файл
-  }
-};
-
-// Ініціалізація multer
+// Налаштування multer
 const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // Максимальний розмір файлу: 5 МБ
-  fileFilter,
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // Максимум 5 МБ
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
+    allowedTypes.includes(file.mimetype)
+      ? cb(null, true)
+      : cb(new Error("Непідтримуваний формат файлу"), false);
+  },
 });
 
 export const saveImage = (req, res) => {
-  // Видаляю попередню аватарку, якщо вона була наявна
-  const { uid } = req.user;
-  const imagePath = getImagePath(uid);
-  if (imagePath) fs.rmSync(imagePath);
-
-  // Вказано "profileImage", що є ім'ям input type="file"
-  upload.single("profileImage")(req, res, (err) => {
+  upload.single("profileImage")(req, res, async (err) => {
     if (err) {
       return res.status(400).json({ error: err.message });
     }
 
-    res.status(200).json({
-      message: "Файл успішно завантажено!",
-      filePath: `/profileImages/${req.file.filename}`, // Шлях до файлу
-    });
+    try {
+      const { uid } = req.user;
+
+      // Завантаження на Cloudinary напряму з буфера
+      const result = await cloudinary.uploader.upload(
+        `data:${req.file.mimetype};base64,${req.file.buffer.toString(
+          "base64"
+        )}`,
+        {
+          folder: "profileImages",
+          public_id: uid,
+        }
+      );
+
+      // Оновлення URL зображення в базі даних
+      const query = `
+        UPDATE users
+        SET avatar = $1
+        WHERE uid = $2
+        RETURNING *`;
+      const updatedUser = await pool.query(query, [result.secure_url, uid]);
+
+      return res.status(200).json({
+        message: "Image is successfully uploaded!",
+        fileUrl: result.secure_url,
+        user: updatedUser.rows[0],
+      });
+    } catch (error) {
+      console.error("Error:", error);
+      return res.status(500).json({ error: "Error uploading image" });
+    }
   });
 };
-
-export const getImage = (req, res) => {
-  const { uid } = req.user;
-  const filePath = getImagePath(uid);
-  if (filePath) {
-    console.log("Exists");
-    res.status(200).sendFile(filePath);
-  } else {
-    res.status(200).json({ hasAvatar: false });
-  }
-};
-
-function getImagePath(uid) {
-  const extensions = ["png", "jpeg", "jpg", "gif"];
-
-  let filePath = "";
-
-  for (const extension of extensions) {
-    const potentialPath = path.join(
-      __dirname,
-      "../profileImages",
-      `${uid}.${extension}`
-    );
-    if (fs.existsSync(potentialPath)) {
-      filePath = potentialPath;
-      break;
-    }
-  }
-  return filePath;
-}
