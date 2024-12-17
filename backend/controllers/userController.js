@@ -96,9 +96,8 @@ export const getUserInfo = async (req, res) => {
       [uid]
     );
 
-    if (result.rows.length === 0) {
+    if (result.rows.length === 0)
       return res.status(404).json({ message: "User not found" });
-    }
 
     // Відправка даних користувача
     res.status(200).json(result.rows[0]);

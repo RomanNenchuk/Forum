@@ -16,16 +16,16 @@ connectDB().catch((err) => {
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(middleware.decodeToken);
+// app.use(middleware.decodeToken);
 
 // Маршрут для API
 app.get("/", (req, res) => {
   res.send("Hello world!");
 });
 
-app.use("/user", userRoutes);
+app.use("/user", middleware.decodeToken, userRoutes);
 
-app.use("/topic", topicRoutes);
+app.use("/topics", topicRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

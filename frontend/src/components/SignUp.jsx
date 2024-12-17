@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Form, Card, Button, Alert } from "react-bootstrap";
+import { Container, Form, Card, Button, Alert } from "react-bootstrap";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import { useUserInfo } from "../contexts/UserInfoContext.jsx";
 import { Link, useNavigate } from "react-router-dom";
@@ -119,66 +119,76 @@ export default function SignUp() {
   }
 
   return (
-    <>
-      <Card>
-        <Card.Body>
-          <h2 className="text-center mb-4">Sign Up</h2>
-          {error && <Alert variant="danger">{error}</Alert>}
-          <Form onSubmit={handleSubmit}>
-            <Form.Group id="name">
-              <Form.Label>Full Name</Form.Label>
-              <Form.Control type="text" ref={nameRef} required />
-            </Form.Group>
-            <Form.Group id="email">
-              <Form.Label>Email</Form.Label>
-              <Form.Control type="email" ref={emailRef} required />
-            </Form.Group>
-            <Form.Group id="password">
-              <Form.Label>Password</Form.Label>
-              <Form.Control type="password" ref={passwordRef} required />
-            </Form.Group>
-            <Form.Group id="password-confirm">
-              <Form.Label>Password Confirmation</Form.Label>
-              <Form.Control type="password" ref={passwordConfirmRef} required />
-            </Form.Group>
-            <Button disabled={loading} className="w-100 mt-3" type="submit">
-              Sign Up
-            </Button>
-          </Form>
-        </Card.Body>
-      </Card>
+    <Container className="d-flex align-items-center justify-content-center">
+      <div className="w-100" style={{ maxWidth: "400px" }}>
+        <Card>
+          <Card.Body>
+            <h2 className="text-center mb-4">Sign Up</h2>
+            {error && <Alert variant="danger">{error}</Alert>}
+            <Form onSubmit={handleSubmit}>
+              <Form.Group id="name">
+                <Form.Label>Username</Form.Label>
+                <Form.Control type="text" ref={nameRef} required />
+              </Form.Group>
+              <Form.Group id="email">
+                <Form.Label>Email</Form.Label>
+                <Form.Control type="email" ref={emailRef} required />
+              </Form.Group>
+              <Form.Group id="password">
+                <Form.Label>Password</Form.Label>
+                <Form.Control type="password" ref={passwordRef} required />
+              </Form.Group>
+              <Form.Group id="password-confirm">
+                <Form.Label>Password Confirmation</Form.Label>
+                <Form.Control
+                  type="password"
+                  ref={passwordConfirmRef}
+                  required
+                />
+              </Form.Group>
+              <Button disabled={loading} className="w-100 mt-3" type="submit">
+                Sign Up
+              </Button>
+            </Form>
+          </Card.Body>
+        </Card>
 
-      <div className="w-100 text-center mt-3">
-        Already have an account? <Link to="/login">Log In</Link>
-      </div>
+        <div className="w-100 text-center mt-3">
+          Already have an account? <Link to="/login">Log In</Link>
+        </div>
 
-      <div className="d-flex align-items-center my-4">
-        <div style={{ flex: 1, height: "1px", backgroundColor: "#ddd" }}></div>
-        <span className="mx-3 text-muted">OR</span>
-        <div style={{ flex: 1, height: "1px", backgroundColor: "#ddd" }}></div>
-      </div>
+        <div className="d-flex align-items-center my-4">
+          <div
+            style={{ flex: 1, height: "1px", backgroundColor: "#ddd" }}
+          ></div>
+          <span className="mx-3 text-muted">OR</span>
+          <div
+            style={{ flex: 1, height: "1px", backgroundColor: "#ddd" }}
+          ></div>
+        </div>
 
-      <div className="d-flex justify-content-center align-items-center">
-        <Button
-          onClick={handleSignUpWithGoogle}
-          variant="light"
-          className="d-flex align-items-center gap-2 px-4 py-2 rounded shadow-sm"
-          style={{
-            border: "1px solid #dadce0",
-            fontWeight: "500",
-            fontSize: "16px",
-            color: "#5f6368",
-            width: "fit-content",
-          }}
-        >
-          <img
-            src="https://www.svgrepo.com/show/475656/google-color.svg"
-            alt="Google logo"
-            style={{ width: "20px", height: "20px" }}
-          />
-          <span>Sign up with Google</span>
-        </Button>
+        <div className="d-flex justify-content-center align-items-center">
+          <Button
+            onClick={handleSignUpWithGoogle}
+            variant="light"
+            className="d-flex align-items-center gap-2 px-4 py-2 rounded shadow-sm"
+            style={{
+              border: "1px solid #dadce0",
+              fontWeight: "500",
+              fontSize: "16px",
+              color: "#5f6368",
+              width: "fit-content",
+            }}
+          >
+            <img
+              src="https://www.svgrepo.com/show/475656/google-color.svg"
+              alt="Google logo"
+              style={{ width: "20px", height: "20px" }}
+            />
+            <span>Sign up with Google</span>
+          </Button>
+        </div>
       </div>
-    </>
+    </Container>
   );
 }

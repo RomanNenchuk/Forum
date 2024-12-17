@@ -14,38 +14,6 @@ export function UserInfoProvider({ children }) {
   const [createdAt, setCreatedAt] = useState("");
   const { token } = useAuth();
 
-  async function fetchAvatar() {
-    try {
-      const response = await axios.get(
-        `http://localhost:5000/user/profile-image`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          responseType: "blob", // Очікуємо Blob-дані
-        }
-      );
-
-      // Цей код написано, щоб при відсутності аватарки на стороні сервера нам не кидало помилку
-      const isJson =
-        response.headers["content-type"]?.includes("application/json");
-      if (isJson) {
-        const text = await response.data.text(); // Конвертуємо Blob у текст
-        const json = JSON.parse(text); // Парсимо JSON
-
-        if (json.hasAvatar === false) return console.log("Avatar is not found");
-      }
-
-      // Інакше отримуємо цей бінарний файл і зберігаємо його у внутрішній пам'яті браузера
-      const imageBlob = new Blob([response.data]);
-      const imageObjectURL = URL.createObjectURL(imageBlob);
-      setAvatar(imageObjectURL); // Задаємо отриманий URL як джерело для зображення
-    } catch (error) {
-      console.error();
-      ("Avatar is not found");
-    }
-  }
-
   async function getUserInfo() {
     if (!token) return;
 
@@ -73,7 +41,6 @@ export function UserInfoProvider({ children }) {
     setAvatar,
     createdAt,
     setCreatedAt,
-    fetchAvatar,
     getUserInfo,
   };
 

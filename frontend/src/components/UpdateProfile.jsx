@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import { Form, Card, Button, Alert } from "react-bootstrap";
+import { Container, Form, Card, Button, Alert } from "react-bootstrap";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import { useUserInfo } from "../contexts/UserInfoContext.jsx";
 import { Link, useNavigate } from "react-router-dom";
@@ -21,7 +21,7 @@ export default function UpdateProfile() {
     verifyPassword,
     reauthenticateWithGoogle,
   } = useAuth();
-  const { userName, setUserName, avatar, setAvatar, fetchAvatar, getUserInfo } =
+  const { userName, setUserName, avatar, setAvatar, getUserInfo } =
     useUserInfo();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -114,7 +114,7 @@ export default function UpdateProfile() {
       if (updatedToken && currentUser && Object.keys(userData).length !== 0)
         await updateUserOnServer(updatedToken, userData);
 
-      navigate("/");
+      navigate("/profile");
     } catch (error) {
       setError("Failed to update account. Please check your credentials.");
     } finally {
@@ -150,9 +150,6 @@ export default function UpdateProfile() {
           },
         }
       );
-      setMessage("Файл успішно завантажено!");
-      // await fetchAvatar();
-
       setAvatar(response.data.fileUrl);
     } catch (error) {
       setMessage("Помилка завантаження файлу.");
@@ -166,131 +163,136 @@ export default function UpdateProfile() {
 
   useEffect(() => {
     getUserInfo();
-    // fetchAvatar();
   }, []);
 
   return (
-    <>
-      <Card>
-        <Card.Body>
-          <h2 className="text-center mb-4">Update Profile</h2>
-          {error && <Alert variant="danger">{error}</Alert>}
-          {message && <Alert variant="info">{message}</Alert>}
-          <Form
-            onSubmit={(e) => {
-              handleSubmit(e);
-            }}
-          >
-            <div
-              className={`mb-4 profile-image-container ${styles["profile-image-container"]}`}
+    <Container className="d-flex align-items-center justify-content-center">
+      <div className="w-100" style={{ maxWidth: "400px" }}>
+        <Card>
+          <Card.Body>
+            <h2 className="text-center mb-4">Update Profile</h2>
+            {error && <Alert variant="danger">{error}</Alert>}
+            {message && <Alert variant="info">{message}</Alert>}
+            <Form
+              onSubmit={(e) => {
+                handleSubmit(e);
+              }}
             >
-              <img
-                src={preview || avatar || "/default-avatar.png"}
-                alt="User Avatar"
-                onClick={handleImageClick}
-                className={`profile-image ${styles["profile-image"]}`}
-              />
-              <img
-                src="/edit-image.png"
-                alt="Overlay"
-                onClick={handleImageClick}
-                className={`profile-image ${styles["profile-image-overlay"]} ${styles["profile-image"]}
+              <div
+                className={`mb-4 profile-image-container ${styles["profile-image-container"]}`}
+              >
+                <img
+                  src={preview || avatar || "/default-avatar.png"}
+                  alt="User Avatar"
+                  onClick={handleImageClick}
+                  className={`profile-image ${styles["profile-image"]}`}
+                />
+                <img
+                  src="/edit-image.png"
+                  alt="Overlay"
+                  onClick={handleImageClick}
+                  className={`profile-image ${styles["profile-image-overlay"]} ${styles["profile-image"]}
                 }`}
-              />
-              <input
-                type="file"
-                ref={imageInputRef}
-                onChange={handleImageChange}
-                style={{ display: "none" }}
-              />
-            </div>
+                />
+                <input
+                  type="file"
+                  ref={imageInputRef}
+                  onChange={handleImageChange}
+                  style={{ display: "none" }}
+                />
+              </div>
 
-            <Form.Group id="name">
-              <Form.Label>Full Name</Form.Label>
-              <Form.Control
-                type="text"
-                ref={nameRef}
-                required
-                defaultValue={userName}
-              />
-            </Form.Group>
+              <Form.Group id="name">
+                <Form.Label>Username</Form.Label>
+                <Form.Control
+                  type="text"
+                  ref={nameRef}
+                  required
+                  defaultValue={userName}
+                />
+              </Form.Group>
 
-            {isGoogleSignIn ? (
-              <>
-                <Alert variant="info" className="mt-4">
-                  Since you logged in with Google, updating your profile
-                  information (email or password) is restricted.
-                </Alert>
+              {isGoogleSignIn ? (
+                <>
+                  <Alert variant="info" className="mt-4">
+                    Since you logged in with Google, updating your profile
+                    information (email or password) is restricted.
+                  </Alert>
 
-                <div className="d-flex justify-content-center align-items-center">
-                  <Button
-                    onClick={handleSubmit}
-                    variant="light"
-                    className="d-flex align-items-center gap-2 px-4 py-2 rounded shadow-sm"
-                    style={{
-                      border: "1px solid #dadce0",
-                      fontWeight: "500",
-                      fontSize: "16px",
-                      color: "#5f6368",
-                      width: "fit-content",
-                    }}
-                  >
-                    <img
-                      src="https://www.svgrepo.com/show/475656/google-color.svg"
-                      alt="Google logo"
-                      style={{ width: "20px", height: "20px" }}
+                  <div className="d-flex justify-content-center align-items-center">
+                    <Button
+                      onClick={handleSubmit}
+                      variant="light"
+                      className="d-flex align-items-center gap-2 px-4 py-2 rounded shadow-sm"
+                      style={{
+                        border: "1px solid #dadce0",
+                        fontWeight: "500",
+                        fontSize: "16px",
+                        color: "#5f6368",
+                        width: "fit-content",
+                      }}
+                    >
+                      <img
+                        src="https://www.svgrepo.com/show/475656/google-color.svg"
+                        alt="Google logo"
+                        style={{ width: "20px", height: "20px" }}
+                      />
+                      <span>Update with Google</span>
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Form.Group id="email">
+                    <Form.Label>Email</Form.Label>
+                    <Form.Control
+                      type="email"
+                      ref={emailRef}
+                      required
+                      defaultValue={currentUser.email}
                     />
-                    <span>Update with Google</span>
+                  </Form.Group>
+                  <Form.Group id="reauth-password">
+                    <Form.Label>Current Password</Form.Label>
+                    <Form.Control
+                      type="password"
+                      ref={passwordForReauthRef}
+                      required
+                      placeholder="Enter current password to confirm changes"
+                    />
+                  </Form.Group>
+                  <Form.Group id="password">
+                    <Form.Label>New Password</Form.Label>
+                    <Form.Control
+                      type="password"
+                      ref={passwordRef}
+                      placeholder="Leave blank to keep the same"
+                    />
+                  </Form.Group>
+                  <Form.Group id="password-confirm">
+                    <Form.Label>New Password Confirmation</Form.Label>
+                    <Form.Control
+                      type="password"
+                      ref={passwordConfirmRef}
+                      placeholder="Leave blank to keep the same"
+                    />
+                  </Form.Group>
+                  <Button
+                    disabled={loading}
+                    className="w-100 mt-2"
+                    type="submit"
+                  >
+                    Update
                   </Button>
-                </div>
-              </>
-            ) : (
-              <>
-                <Form.Group id="email">
-                  <Form.Label>Email</Form.Label>
-                  <Form.Control
-                    type="email"
-                    ref={emailRef}
-                    required
-                    defaultValue={currentUser.email}
-                  />
-                </Form.Group>
-                <Form.Group id="reauth-password">
-                  <Form.Label>Current Password</Form.Label>
-                  <Form.Control
-                    type="password"
-                    ref={passwordForReauthRef}
-                    required
-                    placeholder="Enter current password to confirm changes"
-                  />
-                </Form.Group>
-                <Form.Group id="password">
-                  <Form.Label>New Password</Form.Label>
-                  <Form.Control
-                    type="password"
-                    ref={passwordRef}
-                    placeholder="Leave blank to keep the same"
-                  />
-                </Form.Group>
-                <Form.Group id="password-confirm">
-                  <Form.Label>New Password Confirmation</Form.Label>
-                  <Form.Control
-                    type="password"
-                    ref={passwordConfirmRef}
-                    placeholder="Leave blank to keep the same"
-                  />
-                </Form.Group>
-                <Button disabled={loading} className="w-100 mt-2" type="submit">
-                  Update
-                </Button>
-              </>
-            )}
-          </Form>
-        </Card.Body>
-      </Card>
-      <div className="w-100 text-center mt-2">
-        <Link to="/">Cancel</Link>
+                </>
+              )}
+            </Form>
+          </Card.Body>
+        </Card>
+        <div className="w-100 text-center mt-2">
+          <Link to="/profile">Cancel</Link>
+        </div>
       </div>
-    </>
+    </Container>
   );
 }
