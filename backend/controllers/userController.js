@@ -6,22 +6,22 @@ export const saveUser = async (req, res) => {
     const { uid, email } = req.user;
     console.log(req.user);
 
-    const { fullName, profilePicture, joinedAt } = req.body;
+    const { userName, fullName, profilePicture, joinedAt } = req.body;
 
     // Перевірка, чи користувач вже існує
     const result = await pool.query("SELECT * FROM users WHERE uid = $1", [
       uid,
     ]);
     if (result.rows.length > 0) {
-      return res.status(400).json({ message: "User already exists" });
+      return res.status(201).json({ message: "User already exists" });
     }
 
     // Додавання нового користувача
     const createdAt = joinedAt ? joinedAt : new Date(); // Поточна дата, якщо joinedAt не надано
     const newUser = await pool.query(
-      `INSERT INTO users (uid, username, email, avatar, created_at)
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [uid, fullName, email, profilePicture, createdAt]
+      `INSERT INTO users (uid, fullname, username, email, avatar, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [uid, fullName, userName, email, profilePicture, createdAt]
     );
 
     res.status(201).json({

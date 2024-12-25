@@ -36,6 +36,26 @@ export function UserInfoProvider({ children }) {
     }
   }
 
+  async function saveUserInDB(token, userData) {
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/users",
+        userData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Передаємо токен
+          },
+        }
+      );
+
+      console.log("User registered:", response.data);
+      return response.data; // Повертаємо відповідь, якщо потрібна
+    } catch (error) {
+      console.error("Error registering user on server:", error);
+      throw error; // Кидаємо помилку далі для обробки
+    }
+  }
+
   const value = {
     userName,
     setUserName,
@@ -44,6 +64,7 @@ export function UserInfoProvider({ children }) {
     createdAt,
     setCreatedAt,
     getUserInfo,
+    saveUserInDB,
   };
 
   return (

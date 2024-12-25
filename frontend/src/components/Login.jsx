@@ -5,11 +5,11 @@ import { useUserInfo } from "../contexts/UserInfoContext.jsx";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Login() {
-  const emailRef = useRef();
+  const emailOrUsernameRef = useRef();
   const passwordRef = useRef();
-  const { login, loginWithGoogle, saveUserInDB, checkUserRegistration, token } =
+  const { login, loginWithGoogle, checkUserRegistration, checkUsername } =
     useAuth();
-  const { setUserName, setAvatar, setCreatedAt } = useUserInfo();
+  const { setUserName, setAvatar, setCreatedAt, saveUserInDB } = useUserInfo();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -50,6 +50,11 @@ export default function Login() {
     setLoading(false);
   }
 
+  function isEmail(input) {
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailPattern.test(input);
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
 
@@ -57,10 +62,17 @@ export default function Login() {
       setError("");
       setLoading(true);
 
-      const userCredential = await login(
-        emailRef.current.value,
-        passwordRef.current.value
-      );
+      let email;
+
+      // якщо користувач ввів не імейл, а username
+      if (!isEmail(emailOrUsernameRef.current.value)) {
+        email = await checkUsername(emailOrUsernameRef.current.value);
+        if (!email) throw new Error("No such user exists");
+      } else email = emailOrUsernameRef.current.value;
+
+      console.log(email);
+
+      const userCredential = await login(email, passwordRef.current.value);
 
       navigate("/");
     } catch (error) {
@@ -77,14 +89,52 @@ export default function Login() {
           <Card.Body>
             <h2 className="text-center mb-4">Log In</h2>
             {error && <Alert variant="danger">{error}</Alert>}
+            <div className="d-flex justify-content-center align-items-center">
+              <Button
+                onClick={handleLogInWithGoogle}
+                variant="light"
+                className="d-flex align-items-center gap-2 px-4 py-2 rounded shadow-sm"
+                style={{
+                  border: "1px solid #dadce0",
+                  fontWeight: "500",
+                  fontSize: "16px",
+                  color: "#5f6368",
+                  width: "fit-content",
+                }}
+              >
+                <img
+                  src="https://www.svgrepo.com/show/475656/google-color.svg"
+                  alt="Google logo"
+                  style={{ width: "20px", height: "20px" }}
+                />
+                <span>Продовжити з Google</span>
+              </Button>
+            </div>
+            <div className="d-flex align-items-center my-4">
+              <div
+                style={{ flex: 1, height: "1px", backgroundColor: "#ddd" }}
+              ></div>
+              <span className="mx-3 text-muted">OR</span>
+              <div
+                style={{ flex: 1, height: "1px", backgroundColor: "#ddd" }}
+              ></div>
+            </div>
             <Form onSubmit={handleSubmit}>
-              <Form.Group id="email">
-                <Form.Label>Email</Form.Label>
-                <Form.Control type="email" ref={emailRef} required />
+              <Form.Group id="emailOrUsername" className="mb-4">
+                <Form.Control
+                  type="text"
+                  placeholder="Ел. пошта чи ім'я користувача"
+                  ref={emailOrUsernameRef}
+                  required
+                />
               </Form.Group>
-              <Form.Group id="password">
-                <Form.Label>Password</Form.Label>
-                <Form.Control type="password" ref={passwordRef} required />
+              <Form.Group id="password" className="mb-4">
+                <Form.Control
+                  placeholder="Пароль"
+                  type="password"
+                  ref={passwordRef}
+                  required
+                />
               </Form.Group>
               <Button disabled={loading} className="w-100 mt-2" type="submit">
                 Log In
@@ -97,37 +147,6 @@ export default function Login() {
         </Card>
         <div className="w-100 text-center mt-2">
           Need an accout? <Link to="/signup">Sign Up</Link>
-        </div>
-        <div className="d-flex align-items-center my-4">
-          <div
-            style={{ flex: 1, height: "1px", backgroundColor: "#ddd" }}
-          ></div>
-          <span className="mx-3 text-muted">OR</span>
-          <div
-            style={{ flex: 1, height: "1px", backgroundColor: "#ddd" }}
-          ></div>
-        </div>
-
-        <div className="d-flex justify-content-center align-items-center">
-          <Button
-            onClick={handleLogInWithGoogle}
-            variant="light"
-            className="d-flex align-items-center gap-2 px-4 py-2 rounded shadow-sm"
-            style={{
-              border: "1px solid #dadce0",
-              fontWeight: "500",
-              fontSize: "16px",
-              color: "#5f6368",
-              width: "fit-content",
-            }}
-          >
-            <img
-              src="https://www.svgrepo.com/show/475656/google-color.svg"
-              alt="Google logo"
-              style={{ width: "20px", height: "20px" }}
-            />
-            <span>Log in with Google</span>
-          </Button>
         </div>
       </div>
     </Container>

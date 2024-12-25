@@ -16,3 +16,25 @@ export const checkUserRegistration = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const checkUsername = async (req, res) => {
+  const username = req.params.username;
+
+  try {
+    const result = await pool.query(
+      `SELECT email FROM users WHERE username = $1`,
+      [username]
+    );
+
+    if (result.rows.length > 0) {
+      res
+        .status(200)
+        .json({ message: "User found", email: result.rows[0].email });
+    } else {
+      res.status(200).json({ message: "User not found", email: null });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

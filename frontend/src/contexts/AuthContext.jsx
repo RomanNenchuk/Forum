@@ -129,23 +129,16 @@ export function AuthProvider({ children }) {
     }
   }
 
-  async function saveUserInDB(token, userData) {
+  async function checkUsername(username) {
     try {
-      const response = await axios.post(
-        "http://localhost:5000/users",
-        userData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, // Передаємо токен
-          },
-        }
+      const response = await axios.get(
+        `http://localhost:5000/auth/check-username/${username}`
       );
-
-      console.log("User registered:", response.data);
-      return response.data; // Повертаємо відповідь, якщо потрібна
+      console.log(response.data);
+      console.log(response.data.email);
+      return response.data.email;
     } catch (error) {
-      console.error("Error registering user on server:", error);
-      throw error; // Кидаємо помилку далі для обробки
+      console.error(error);
     }
   }
 
@@ -201,8 +194,8 @@ export function AuthProvider({ children }) {
     loginWithGoogle,
     verifyPassword,
     reauthenticateWithGoogle,
-    saveUserInDB,
     checkUserRegistration,
+    checkUsername,
   };
 
   return (

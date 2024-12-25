@@ -3,16 +3,22 @@ import { Container, Form, Card, Button, Alert } from "react-bootstrap";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import { useUserInfo } from "../contexts/UserInfoContext.jsx";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 
 export default function SignUp() {
   const emailRef = useRef();
   const passwordRef = useRef();
   const passwordConfirmRef = useRef();
+  const majorRef = useRef();
   const nameRef = useRef();
-  const { signup, loginWithGoogle, saveUserInDB, checkUserRegistration } =
-    useAuth();
-  const { setUserName, setAvatar, setCreatedAt } = useUserInfo();
+  const usernameRef = useRef();
+  const {
+    signup,
+    loginWithGoogle,
+
+    checkUserRegistration,
+    checkUsername,
+  } = useAuth();
+  const { setUserName, setAvatar, setCreatedAt, saveUserInDB } = useUserInfo();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -67,6 +73,12 @@ export default function SignUp() {
       setError("");
       setLoading(true);
 
+      const usernameIsInUse = !!(await checkUsername(
+        usernameRef.current.value
+      ));
+
+      if (usernameIsInUse) return setError("This username is already in use");
+
       const userCredential = await signup(
         emailRef.current.value,
         passwordRef.current.value
@@ -75,9 +87,6 @@ export default function SignUp() {
       const user = userCredential.user; // Отримуємо користувача з відповіді
       const newToken = await user.getIdToken(); // Отримуємо токен користувача
 
-      console.log("currentUser:", user); // Лог поточного користувача
-      console.log("token:", newToken); // Лог токена
-
       // додаю значення до контексту
       setUserName(n => nameRef.current.value);
       setAvatar(a => "");
@@ -85,8 +94,9 @@ export default function SignUp() {
 
       if (newToken && user) {
         await saveUserInDB(newToken, {
-          fullName: nameRef.current.value,
           email: emailRef.current.value,
+          userName: usernameRef.current.value,
+          fullName: nameRef.current.value,
           profilePicture: "",
         });
       }
@@ -104,28 +114,92 @@ export default function SignUp() {
       <div className="w-100" style={{ maxWidth: "400px" }}>
         <Card>
           <Card.Body>
-            <h2 className="text-center mb-4">Sign Up</h2>
+            <h2 className="text-center mb-4">Реєстрація</h2>
             {error && <Alert variant="danger">{error}</Alert>}
+
+            <div className="d-flex justify-content-center align-items-center">
+              <Button
+                onClick={handleSignUpWithGoogle}
+                variant="light"
+                className="d-flex align-items-center gap-2 px-4 py-2 rounded shadow-sm"
+                style={{
+                  border: "1px solid #dadce0",
+                  fontWeight: "500",
+                  fontSize: "16px",
+                  color: "#5f6368",
+                  width: "fit-content",
+                }}
+              >
+                <img
+                  src="https://www.svgrepo.com/show/475656/google-color.svg"
+                  alt="Google logo"
+                  style={{ width: "20px", height: "20px" }}
+                />
+                <span>Продовжити з Google</span>
+              </Button>
+            </div>
+
+            <div className="d-flex align-items-center my-4">
+              <div
+                style={{ flex: 1, height: "1px", backgroundColor: "#ddd" }}
+              ></div>
+              <span className="mx-3 text-muted">АБО</span>
+              <div
+                style={{ flex: 1, height: "1px", backgroundColor: "#ddd" }}
+              ></div>
+            </div>
+
             <Form onSubmit={handleSubmit}>
-              <Form.Group id="name">
-                <Form.Label>Username</Form.Label>
-                <Form.Control type="text" ref={nameRef} required />
+              <Form.Group id="email" className="mb-4">
+                <Form.Control
+                  type="email"
+                  placeholder="Ел. пошта"
+                  ref={emailRef}
+                  required
+                />
               </Form.Group>
-              <Form.Group id="email">
-                <Form.Label>Email</Form.Label>
-                <Form.Control type="email" ref={emailRef} required />
+              <Form.Group id="username" className="mb-4">
+                <Form.Control
+                  type="text"
+                  placeholder="Ім'я користувача"
+                  ref={usernameRef}
+                  required
+                />
               </Form.Group>
-              <Form.Group id="password">
-                <Form.Label>Password</Form.Label>
-                <Form.Control type="password" ref={passwordRef} required />
+              <Form.Group id="fullname" className="mb-4">
+                <Form.Control
+                  type="text"
+                  placeholder="Ім'я та прізвище"
+                  ref={nameRef}
+                  required
+                />
               </Form.Group>
-              <Form.Group id="password-confirm">
-                <Form.Label>Password Confirmation</Form.Label>
+              <Form.Group id="password" className="mb-4">
                 <Form.Control
                   type="password"
+                  placeholder="Пароль"
+                  ref={passwordRef}
+                  required
+                />
+              </Form.Group>
+              <Form.Group id="password-confirm" className="mb-4">
+                <Form.Control
+                  type="password"
+                  placeholder="Підтвердіть пароль"
                   ref={passwordConfirmRef}
                   required
                 />
+              </Form.Group>
+              <Form.Group id="">
+                <select id="major" ref={majorRef} required>
+                  <option value="">Оберіть спеціальність</option>
+                  <option value="dog">Dog</option>
+                  <option value="cat">Cat</option>
+                  <option value="hamster">Hamster</option>
+                  <option value="parrot">Parrot</option>
+                  <option value="spider">Spider</option>
+                  <option value="goldfish">Goldfish</option>
+                </select>
               </Form.Group>
               <Button disabled={loading} className="w-100 mt-3" type="submit">
                 Sign Up
@@ -136,38 +210,6 @@ export default function SignUp() {
 
         <div className="w-100 text-center mt-3">
           Already have an account? <Link to="/login">Log In</Link>
-        </div>
-
-        <div className="d-flex align-items-center my-4">
-          <div
-            style={{ flex: 1, height: "1px", backgroundColor: "#ddd" }}
-          ></div>
-          <span className="mx-3 text-muted">OR</span>
-          <div
-            style={{ flex: 1, height: "1px", backgroundColor: "#ddd" }}
-          ></div>
-        </div>
-
-        <div className="d-flex justify-content-center align-items-center">
-          <Button
-            onClick={handleSignUpWithGoogle}
-            variant="light"
-            className="d-flex align-items-center gap-2 px-4 py-2 rounded shadow-sm"
-            style={{
-              border: "1px solid #dadce0",
-              fontWeight: "500",
-              fontSize: "16px",
-              color: "#5f6368",
-              width: "fit-content",
-            }}
-          >
-            <img
-              src="https://www.svgrepo.com/show/475656/google-color.svg"
-              alt="Google logo"
-              style={{ width: "20px", height: "20px" }}
-            />
-            <span>Sign up with Google</span>
-          </Button>
         </div>
       </div>
     </Container>
