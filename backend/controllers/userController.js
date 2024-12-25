@@ -4,6 +4,8 @@ export const saveUser = async (req, res) => {
   try {
     // Дані з req.user (JWT токен) та req.body (додаткові дані з клієнта)
     const { uid, email } = req.user;
+    console.log(req.user);
+
     const { fullName, profilePicture, joinedAt } = req.body;
 
     // Перевірка, чи користувач вже існує
@@ -34,7 +36,7 @@ export const saveUser = async (req, res) => {
 
 export const updateUser = async (req, res) => {
   try {
-    const { uid } = req.user;
+    const uid = req.params.id;
     const { userName, email } = req.body;
 
     // Перевірка, чи користувач існує
@@ -73,8 +75,6 @@ export const updateUser = async (req, res) => {
       WHERE uid = $${fields.length + 1}
       RETURNING *`;
 
-    console.log(query);
-
     const updatedUser = await pool.query(query, updateData);
     res.status(200).json({
       message: "User updated successfully",
@@ -88,11 +88,11 @@ export const updateUser = async (req, res) => {
 
 export const getUserInfo = async (req, res) => {
   try {
-    const { uid } = req.user;
+    const uid = req.params.id;
 
     // Знайти користувача за UID
     const result = await pool.query(
-      "SELECT username, avatar, TO_CHAR(created_at, 'DD.MM.YYYY') AS formatted_date FROM users WHERE uid = $1",
+      "SELECT username, avatar, TO_CHAR(created_at, 'DD.MM.YYYY') AS formatted_date, email FROM users WHERE uid = $1",
       [uid]
     );
 

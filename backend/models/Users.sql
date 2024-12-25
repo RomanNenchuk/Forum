@@ -16,11 +16,3 @@ CREATE TABLE user_subscriptions (
     CONSTRAINT user_subscriptions_user_id_fkey FOREIGN KEY (user_id) REFERENCES users (uid) ON DELETE CASCADE,
     CONSTRAINT user_subscriptions_subscription_id_fkey FOREIGN KEY (subscription_id) REFERENCES users (uid) ON DELETE CASCADE
 );
-
-CREATE TABLE user_friends (
-    user_id VARCHAR(255) NOT NULL, -- ідентифікатор користувача, який є другом
-    friend_id VARCHAR(255) NOT NULL,
-    CONSTRAINT user_friends_pkey PRIMARY KEY (user_id, friend_id),
-    CONSTRAINT user_friends_user_id_fkey FOREIGN KEY (user_id) REFERENCES users (uid) ON DELETE CASCADE,
-    CONSTRAINT user_friends_friend_id_fkey FOREIGN KEY (friend_id) REFERENCES users (uid) ON DELETE CASCADE
-);

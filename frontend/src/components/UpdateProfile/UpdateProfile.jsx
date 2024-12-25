@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Container, Form, Card, Button, Alert } from "react-bootstrap";
-import { useAuth } from "../contexts/AuthContext.jsx";
-import { useUserInfo } from "../contexts/UserInfoContext.jsx";
+import { useAuth } from "../../contexts/AuthContext.jsx";
+import { useUserInfo } from "../../contexts/UserInfoContext.jsx";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./UpdateProfile.module.css";
 import axios from "axios";
@@ -38,7 +38,7 @@ export default function UpdateProfile() {
   async function updateUserOnServer(token, userData) {
     try {
       const response = await axios.put(
-        "http://localhost:5000/user/update",
+        `http://localhost:5000/users/${currentUser.uid}`,
         userData,
         {
           headers: {
@@ -114,7 +114,7 @@ export default function UpdateProfile() {
       if (updatedToken && currentUser && Object.keys(userData).length !== 0)
         await updateUserOnServer(updatedToken, userData);
 
-      navigate("/profile");
+      navigate(`/profiles/${currentUser.uid}`);
     } catch (error) {
       setError("Failed to update account. Please check your credentials.");
     } finally {
@@ -141,7 +141,7 @@ export default function UpdateProfile() {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/user/profile-image",
+        `http://localhost:5000/users/${currentUser.uid}/profile-image`,
         formData,
         {
           headers: {
@@ -290,7 +290,7 @@ export default function UpdateProfile() {
           </Card.Body>
         </Card>
         <div className="w-100 text-center mt-2">
-          <Link to="/profile">Cancel</Link>
+          <Link to={`/profile/${currentUser.uid}`}>Cancel</Link>
         </div>
       </div>
     </Container>

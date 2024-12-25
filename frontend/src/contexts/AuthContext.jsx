@@ -12,6 +12,7 @@ import {
   GoogleAuthProvider,
 } from "firebase/auth"; // Імпортуємо необхідні функції
 import { auth, googleAuthProvider } from "../config/firebase-config.js"; // Імпортуємо вже ініціалізований екземпляр auth
+import axios from "axios";
 
 const AuthContext = createContext();
 
@@ -128,8 +129,43 @@ export function AuthProvider({ children }) {
     }
   }
 
+  async function saveUserInDB(token, userData) {
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/users",
+        userData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Передаємо токен
+          },
+        }
+      );
+
+      console.log("User registered:", response.data);
+      return response.data; // Повертаємо відповідь, якщо потрібна
+    } catch (error) {
+      console.error("Error registering user on server:", error);
+      throw error; // Кидаємо помилку далі для обробки
+    }
+  }
+
+  async function checkUserRegistration(id) {
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/auth/check-registration/${id}`
+      );
+      return true;
+    } catch (error) {
+      if (error.response.status === 404)
+        console.log("Користувач ще не зареєстрований!");
+      else console.error(error);
+
+      return false;
+    }
+  }
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async user => {
       setLoading(true);
 
       if (user) {
@@ -165,6 +201,8 @@ export function AuthProvider({ children }) {
     loginWithGoogle,
     verifyPassword,
     reauthenticateWithGoogle,
+    saveUserInDB,
+    checkUserRegistration,
   };
 
   return (

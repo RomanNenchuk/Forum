@@ -13,7 +13,7 @@ class Middleware {
       }
       return res.json({ message: "Unauthoarized" });
     } catch (error) {
-      return res.json({ message: "Internal error" });
+      return res.status(401).json({ message: "Internal error" });
     }
   }
 }

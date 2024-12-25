@@ -1,17 +1,74 @@
+import { query } from "express";
 import { pool } from "../db.js";
 
-export const getTopics = async (req, res) => {
+// для відображення на головній сторінці
+export const getTopicsPreview = async (req, res) => {
   try {
     const result = await pool.query(
-      "SELECT username, avatar, title, tags, rating FROM Topics INNER JOIN Users ON Users.uid = Topics.author"
+      "SELECT Topics.id, username, avatar, title, email, author, tags, rating FROM Topics INNER JOIN Users ON Users.uid = Topics.author"
     );
-    console.log(result);
-
     if (result.rows.length === 0) {
       return res.status(404).json({ message: "No topics found" });
     }
     res.status(200).json(result.rows);
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const getTopic = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const result = await pool.query(
+      `SELECT uid, username, avatar, title, author, tags, description, attachments, TO_CHAR(topics.created_at, 'DD.MM.YYYY') AS formatted_date FROM topics INNER JOIN users 
+        ON topics.author = users.uid 
+        WHERE topics.id = $1`,
+      [id]
+    );
+    res.status(200).json(result.rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const saveTopic = async (req, res) => {
+  const {
+    title,
+    author,
+    tags,
+    description,
+    rating = 0,
+    status = "active",
+    access_level = "public",
+    attachments = [],
+  } = req.body;
+
+  try {
+    const query = `
+        INSERT INTO topics (
+          title, author, tags, description, rating, status, access_level, attachments
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        RETURNING *;
+      `;
+    const values = [
+      title,
+      author,
+      tags || null, // Масив тегів або null
+      description || null, // Опис або null
+      rating || 0,
+      status,
+      access_level || "public",
+      attachments || null, // Масив вкладень або null
+    ];
+
+    const result = await pool.query(query, values);
+    console.log(result.rows[0]);
+
+    res.status(201).json({ message: "Topic created successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+    console.error(error);
   }
 };

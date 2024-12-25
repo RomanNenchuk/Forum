@@ -10,12 +10,12 @@ import { saveImage } from "../controllers/imageController.js";
 
 const router = express.Router();
 
-router.post("/signup", saveUser); // POST-запит для створення користувача
+router.post("/", saveUser); // POST-запит для створення користувача
 
-router.post("/profile-image", saveImage);
+router.post("/:id/profile-image", saveImage);
 
-router.put("/update", updateUser);
+router.put("/:id", updateUser);
 
-router.get("/info", getUserInfo);
+router.get("/:id", getUserInfo);
 
 export default router;

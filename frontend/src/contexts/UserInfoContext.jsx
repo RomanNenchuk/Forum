@@ -12,25 +12,27 @@ export function UserInfoProvider({ children }) {
   const [userName, setUserName] = useState("");
   const [avatar, setAvatar] = useState(null);
   const [createdAt, setCreatedAt] = useState("");
-  const { token } = useAuth();
+  const { currentUser, token } = useAuth();
 
-  async function getUserInfo() {
-    if (!token) return;
-
+  async function getUserInfo(id) {
     try {
-      const response = await axios.get("http://localhost:5000/user/info", {
+      const response = await axios.get(`http://localhost:5000/users/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      const { username, avatar, formatted_date } = response.data;
+      const { username, avatar, formatted_date, email } = response.data;
 
-      setUserName((n) => username);
-      setAvatar((a) => avatar);
-      setCreatedAt((c) => formatted_date);
+      if (id !== currentUser?.uid) {
+        return { userName: username, avatar, createdAt: formatted_date, email };
+      }
+
+      setUserName(n => username);
+      setAvatar(a => avatar);
+      setCreatedAt(c => formatted_date);
     } catch (error) {
-      console.log("Даних про користувача не знайдено" + error);
+      console.log("Даних про користувача не знайдено " + error);
     }
   }
 

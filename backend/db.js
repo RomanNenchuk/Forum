@@ -15,6 +15,8 @@ const pool = new Pool({
   ssl: {
     require: true,
   },
+  idleTimeoutMillis: 300000,
+  connectionTimeoutMillis: 3000,
 });
 
 const connectDB = async () => {
@@ -27,5 +29,25 @@ const connectDB = async () => {
     throw error;
   }
 };
+
+pool.on("error", err => {
+  console.error("Unexpected error on idle client", err);
+  process.exit(-1);
+});
+
+// Функція для виконання "keep-alive" запиту
+const keepAliveQuery = async () => {
+  try {
+    const client = await pool.connect();
+    await client.query("SELECT 1"); // Запит для підтримання з'єднання
+    client.release(); // Звільняємо клієнт після запиту
+    console.log("Keep-alive запит успішно виконано");
+  } catch (err) {
+    console.error("Помилка keep-alive запиту:", err.message);
+  }
+};
+
+// Виконуємо запит кожні 4 хвилини
+setInterval(keepAliveQuery, 4 * 60 * 1000);
 
 export { pool, connectDB };

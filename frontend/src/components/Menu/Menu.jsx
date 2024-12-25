@@ -5,6 +5,7 @@ import { useAuth } from "../../contexts/AuthContext";
 
 import logo from "../../assets/logo.svg";
 import UFORUM from "../../assets/UFORUM.svg";
+import plus from "../../assets/plus_icon.svg";
 import "./Menu.css";
 
 export default function Menu() {
@@ -12,7 +13,7 @@ export default function Menu() {
   const { avatar, getUserInfo } = useUserInfo();
 
   useEffect(() => {
-    getUserInfo();
+    if (currentUser) getUserInfo(currentUser.uid);
   });
 
   return (
@@ -32,7 +33,7 @@ export default function Menu() {
               height: "70px",
             }}
           >
-            <Link to="/profile">
+            <Link to={`/profiles/${currentUser.uid}`}>
               <img
                 src={avatar || "/default-avatar.png"}
                 alt="User Avatar"
@@ -51,11 +52,16 @@ export default function Menu() {
       </header>
 
       <div className="forum-container">
-        <aside className="sidebar">
+        <aside className="sidebar-left">
           <nav className="menu">
             <ul>
               <li>Головна сторінка</li>
-              <li>Чати</li>
+              <Link
+                to="/chats"
+                style={{ textDecoration: "none", color: "#333" }}
+              >
+                <li>Чати</li>
+              </Link>
               <li>Події</li>
               <li>Допомога</li>
             </ul>
@@ -79,17 +85,22 @@ export default function Menu() {
           <Outlet />
         </main>
 
-        <aside className="tags">
-          <h3>Популярні теги</h3>
-          <ul>
-            <li>@ Вища математика</li>
-            <li>@ ООП</li>
-            <li>@ Бази даних</li>
-            <li>@ ОЕ</li>
-            <li>@ Англійська мова</li>
-            <li>@ АСД</li>
-          </ul>
-        </aside>
+        <div className="sidebar-right">
+          <aside className="tags">
+            <h3>Популярні теги</h3>
+            <ul>
+              <li>@ Вища математика</li>
+              <li>@ ООП</li>
+              <li>@ Бази даних</li>
+              <li>@ ОЕ</li>
+              <li>@ Англійська мова</li>
+              <li>@ АСД</li>
+            </ul>
+          </aside>
+          <Link to={`/create-topic`}>
+            <img src={plus} alt="" />
+          </Link>
+        </div>
       </div>
     </div>
   );

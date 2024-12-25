@@ -21,7 +21,7 @@ export const saveImage = (req, res) => {
     }
 
     try {
-      const { uid } = req.user;
+      const uid = req.params.id;
 
       // Завантаження на Cloudinary напряму з буфера
       const result = await cloudinary.uploader.upload(

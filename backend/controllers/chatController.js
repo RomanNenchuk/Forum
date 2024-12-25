@@ -1,0 +1,133 @@
+import { pool } from "../db.js";
+
+export const getChatList = async (req, res) => {
+  const { uid } = req.user;
+
+  const query = `
+  SELECT 
+  chats.id AS chat_id, 
+  CASE 
+    WHEN chats.user1_id = $1 THEN chats.user2_id
+    ELSE chats.user1_id
+  END AS other_user_id,
+  CASE 
+    WHEN chats.user1_id = $1 THEN u2.username
+    ELSE u1.username
+  END AS other_user_name,
+  last_message.text,
+  last_message.sender_id AS last_message_sender_id,
+  last_message.timestamp AS last_message_timestamp,
+  COALESCE(unread_count.unread_messages, 0) AS unread_messages_count
+  FROM chats
+    INNER JOIN users u1 ON chats.user1_id = u1.uid
+    INNER JOIN users u2 ON chats.user2_id = u2.uid
+    LEFT JOIN LATERAL (
+      SELECT 
+        text, 
+        sender_id, 
+        timestamp
+      FROM messages
+      WHERE messages.chat_id = chats.id
+      ORDER BY timestamp DESC
+      LIMIT 1
+    ) last_message ON true
+    LEFT JOIN (
+      SELECT 
+        chat_id, 
+        COUNT(*) AS unread_messages
+      FROM messages
+      WHERE read = false AND sender_id != $1
+      GROUP BY chat_id
+    ) unread_count ON chats.id = unread_count.chat_id
+    WHERE chats.user1_id = $1 OR chats.user2_id = $1
+    ORDER BY chats.timestamp DESC;
+  `;
+
+  try {
+    const result = await pool.query(query, [uid]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "No chats found" });
+    }
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const fetchOrCreateChat = async (req, res) => {
+  const chat_id = req.params.id;
+  const { sender_id, receiver_id } = req.body;
+
+  const client = await pool.connect();
+
+  try {
+    // починаю транзакцію
+    await client.query("BEGIN");
+
+    const chatInsertQuery = `
+      INSERT INTO chats (id, user1_id, user2_id, timestamp)
+      VALUES ($1, $2, $3, NOW())
+      ON CONFLICT (id) DO NOTHING;
+    `;
+    const result = await pool.query(chatInsertQuery, [
+      chat_id,
+      sender_id,
+      receiver_id,
+    ]);
+
+    const updateMessagesQuery = `
+    UPDATE messages
+    SET read = true
+    WHERE chat_id = $1 AND read = false AND sender_id != $2;
+    `;
+    await pool.query(updateMessagesQuery, [chat_id, sender_id]);
+
+    const messagesQuery = `
+    SELECT * FROM messages 
+      INNER JOIN users ON sender_id = users.uid
+      WHERE chat_id = $1
+      ORDER BY timestamp ASC;
+    `;
+    const messages = await pool.query(messagesQuery, [chat_id]);
+
+    // завершую транзакцію
+    await client.query("COMMIT");
+
+    res.status(200).json({
+      chat_id,
+      messages: messages.rows,
+      isNewChat: result.rowCount > 0,
+    });
+  } catch (error) {
+    console.error("Error handling chat:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const saveMessage = async ({
+  sender_id,
+  chat_id,
+  text,
+  timestamp,
+  read,
+}) => {
+  const query = `
+    INSERT INTO messages (chat_id, sender_id, text, attachments, timestamp, read) VALUES
+      ($1, $2, $3, NULL, $4, $5)
+      RETURNING *;
+    `;
+
+  try {
+    const result = await pool.query(query, [
+      chat_id,
+      sender_id,
+      text,
+      timestamp,
+      read,
+    ]);
+  } catch (error) {
+    console.log(error);
+  }
+};

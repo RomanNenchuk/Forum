@@ -1,11 +1,19 @@
 import express from "express";
 
-import { getTopics } from "../controllers/topicController.js";
+import {
+  getTopicsPreview,
+  saveTopic,
+  getTopic,
+} from "../controllers/topicController.js";
 
 import { saveImage } from "../controllers/imageController.js";
 
 const router = express.Router();
 
-router.get("/", getTopics);
+router.get("/", getTopicsPreview);
+
+router.post("/", saveTopic);
+
+router.get("/:id", getTopic);
 
 export default router;

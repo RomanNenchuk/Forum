@@ -8,5 +8,5 @@ CREATE TABLE topics (
     rating NUMERIC DEFAULT 0, -- Рейтинг теми
     status VARCHAR(50) CHECK (status IN ('active', 'archived')) DEFAULT 'active', -- Статус теми
     access_level VARCHAR(50) CHECK (access_level IN ('public', 'private')) DEFAULT 'public', -- Рівень доступу
-    attachment_url TEXT -- Посилання на вкладення
+    attachments TEXT[] -- Посилання на вкладення
 );

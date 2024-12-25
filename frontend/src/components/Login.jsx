@@ -1,12 +1,15 @@
 import React, { useRef, useState } from "react";
 import { Container, Form, Card, Button, Alert } from "react-bootstrap";
 import { useAuth } from "../contexts/AuthContext.jsx";
+import { useUserInfo } from "../contexts/UserInfoContext.jsx";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Login() {
   const emailRef = useRef();
   const passwordRef = useRef();
-  const { login, loginWithGoogle } = useAuth();
+  const { login, loginWithGoogle, saveUserInDB, checkUserRegistration, token } =
+    useAuth();
+  const { setUserName, setAvatar, setCreatedAt } = useUserInfo();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -17,11 +20,30 @@ export default function Login() {
       setError("");
       setLoading(true);
       const userCredential = await loginWithGoogle();
-      if (!userCredential || !userCredential.user) {
+
+      if (!userCredential?.user) {
         throw new Error("No user found");
       }
 
-      navigate("/");
+      const user = userCredential.user; // Отримуємо користувача
+      const token = await user.getIdToken(); // Отримуємо токен користувача
+
+      const isRegistered = await checkUserRegistration(user.uid);
+
+      // якщо користувач не був збережений в БД, то зберігаємо
+      if (!isRegistered && token && user) {
+        await saveUserInDB(token, {
+          fullName: user.displayName || "Unknown",
+          email: user.email,
+          profilePicture: null,
+        });
+      }
+
+      setUserName(n => user.displayName || "Unknown");
+      setAvatar(a => "");
+      setCreatedAt(c => new Date().toISOString().split("T")[0]);
+
+      navigate(`/profiles/${user.uid}`);
     } catch (error) {
       setError("Failed to create an account");
     }
@@ -34,6 +56,7 @@ export default function Login() {
     try {
       setError("");
       setLoading(true);
+
       const userCredential = await login(
         emailRef.current.value,
         passwordRef.current.value

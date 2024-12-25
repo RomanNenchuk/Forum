@@ -1,9 +1,8 @@
--- Створення таблиці повідомлень
 CREATE TABLE messages (
-    message_id SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
+    chat_id VARCHAR(255) NOT NULL REFERENCES chats(id) ON DELETE CASCADE,
     sender_id VARCHAR(255) NOT NULL REFERENCES users(uid) ON DELETE CASCADE,
-    receiver_id VARCHAR(255) NOT NULL REFERENCES users(uid) ON DELETE CASCADE,
     content TEXT NOT NULL,
-    attachment_url TEXT,
+    attachments TEXT[],
     sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

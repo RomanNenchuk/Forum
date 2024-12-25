@@ -1,6 +1,8 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext.jsx";
+import { Link, useNavigate } from "react-router-dom";
+import LoadingSpinner from "./Spinner.jsx";
 
 const styles = {
   li: {
@@ -49,7 +51,9 @@ const styles = {
 
 export default function Home() {
   const [topicList, setTopicList] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { token } = useAuth();
+  const navigate = useNavigate();
 
   async function fetchTopics() {
     try {
@@ -58,41 +62,55 @@ export default function Home() {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log(response.data);
       const topics = Array.isArray(response.data)
         ? response.data
         : response.data.topics || [];
       setTopicList(topics);
-      console.log(topics);
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   }
 
   useEffect(() => {
+    setLoading(true);
     fetchTopics();
   }, []);
 
+  if (loading) return <LoadingSpinner />;
+
   return (
     <ul>
-      {topicList.map((item, index) => (
+      {topicList.map((topic, index) => (
         <li style={styles.li} key={index}>
-          <div style={styles.header}>
-            <img
-              src={item.avatar || "/default-avatar.png"}
-              alt="User Avatar"
-              className="profile-image"
-              style={{
-                height: "40px",
-                border: "0",
-                marginRight: "10px",
+          {/* Карта посилання для теми */}
+          <Link to={`topics/${topic.id}`} style={{ textDecoration: "none" }}>
+            {/* Хедер для переходу на профіль */}
+            <div
+              style={styles.header}
+              onClick={e => {
+                e.preventDefault();
+                e.stopPropagation(); // зупиняю спливання події
+                navigate(`/profiles/${topic.author}`);
               }}
-            />
-            <span style={styles.username}>{item.username}</span>
-          </div>
-          <div style={styles.content}>
-            <p>{item.title}</p>
-          </div>
+            >
+              <img
+                src={topic.avatar || "/default-avatar.png"}
+                alt="User Avatar"
+                className="profile-image"
+                style={{
+                  height: "40px",
+                  border: "0",
+                  marginRight: "10px",
+                }}
+              />
+              <span style={styles.username}>{topic.username}</span>
+            </div>
+            <div style={styles.content}>
+              <p>{topic.title}</p>
+            </div>
+          </Link>
           <div style={styles.footer}>
             <span style={styles.icon}>👍</span>
             <span style={styles.icon}>👎</span>
@@ -103,24 +121,5 @@ export default function Home() {
         </li>
       ))}
     </ul>
-    // <h1>
-    //   Lorem ipsum dolor sit amet consectetur adipisicing elit. Nobis, inventore?
-    //   Cumque repudiandae explicabo optio, sit pariatur repellat, consequatur
-    //   dolore iure aut libero beatae! Odio quasi corporis libero ducimus
-    //   excepturi eveniet. Lorem ipsum dolor, sit amet consectetur adipisicing
-    //   elit. Voluptatibus temporibus eius quo reprehenderit minima est culpa
-    //   aliquam nemo ullam deleniti iure, voluptatem a soluta repudiandae
-    //   perspiciatis assumenda modi aliquid aperiam! Lorem ipsum, dolor sit amet
-    //   consectetur adipisicing elit. Eaque eligendi vero minus amet quae
-    //   exercitationem aut unde delectus voluptatem repudiandae consequatur sed
-    //   mollitia dicta at, rem necessitatibus! Beatae, minus provident! Lorem
-    //   ipsum dolor sit amet consectetur adipisicing elit. Nisi, obcaecati dolore
-    //   nobis suscipit a velit dolor repudiandae sapiente odit similique earum
-    //   corrupti, vitae quia illo rem molestiae explicabo, neque sunt. Lorem ipsum
-    //   dolor sit amet consectetur adipisicing elit. Doloribus ex nisi minus
-    //   perferendis autem pariatur, temporibus vel quas asperiores, aliquid illo
-    //   distinctio consectetur exercitationem, cupiditate facilis voluptatum quos.
-    //   Ab, eligendi?
-    // </h1>
   );
 }

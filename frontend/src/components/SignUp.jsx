@@ -10,31 +10,12 @@ export default function SignUp() {
   const passwordRef = useRef();
   const passwordConfirmRef = useRef();
   const nameRef = useRef();
-  const { signup, loginWithGoogle } = useAuth();
+  const { signup, loginWithGoogle, saveUserInDB, checkUserRegistration } =
+    useAuth();
   const { setUserName, setAvatar, setCreatedAt } = useUserInfo();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-  async function registerUserOnServer(token, userData) {
-    try {
-      const response = await axios.post(
-        "http://localhost:5000/user/signup",
-        userData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, // Передаємо токен
-          },
-        }
-      );
-
-      console.log("User registered:", response.data);
-      return response.data; // Повертаємо відповідь, якщо потрібна
-    } catch (error) {
-      console.error("Error registering user on server:", error);
-      throw error; // Кидаємо помилку далі для обробки
-    }
-  }
 
   async function handleSignUpWithGoogle(e) {
     e.preventDefault();
@@ -43,30 +24,30 @@ export default function SignUp() {
       setError("");
       setLoading(true);
 
-      const result = await loginWithGoogle();
-      if (!result || !result.user) {
+      const userCredential = await loginWithGoogle();
+      if (!userCredential?.user) {
         throw new Error("No user found");
       }
 
-      const user = result.user; // Отримуємо користувача
+      const user = userCredential.user; // Отримуємо користувача
       const token = await user.getIdToken(); // Отримуємо токен користувача
 
-      console.log("currentUser (Google):", user);
-      console.log("token (Google):", token);
+      const isRegistered = await checkUserRegistration(userCredential.user.uid);
 
-      if (token && user) {
-        await registerUserOnServer(token, {
+      // зберігаємо в БД, тільки якщо такого користувача немає
+      if (!isRegistered && token && user) {
+        await saveUserInDB(token, {
           fullName: user.displayName || "Unknown", // Якщо немає імені, встановлюємо "Unknown"
           email: user.email,
-          profilePicture: "",
+          profilePicture: null,
         });
       }
 
-      setUserName((n) => user.displayName || "Unknown");
-      setAvatar((a) => "");
-      setCreatedAt((c) => new Date().toISOString().split("T")[0]);
+      setUserName(n => user.displayName || "Unknown");
+      setAvatar(a => "");
+      setCreatedAt(c => new Date().toISOString().split("T")[0]);
 
-      navigate("/");
+      navigate(`/profiles/${user.uid}`);
     } catch (error) {
       console.error("Failed to sign up with Google:", error);
       setError("Failed to create an account");
@@ -98,12 +79,12 @@ export default function SignUp() {
       console.log("token:", newToken); // Лог токена
 
       // додаю значення до контексту
-      setUserName((n) => nameRef.current.value);
-      setAvatar((a) => "");
-      setCreatedAt((c) => new Date().toISOString().split("T")[0]);
+      setUserName(n => nameRef.current.value);
+      setAvatar(a => "");
+      setCreatedAt(c => new Date().toISOString().split("T")[0]);
 
       if (newToken && user) {
-        await registerUserOnServer(newToken, {
+        await saveUserInDB(newToken, {
           fullName: nameRef.current.value,
           email: emailRef.current.value,
           profilePicture: "",
