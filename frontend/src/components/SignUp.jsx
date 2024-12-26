@@ -5,6 +5,8 @@ import { useUserInfo } from "../contexts/UserInfoContext.jsx";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function SignUp() {
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const emailRef = useRef();
   const passwordRef = useRef();
   const passwordConfirmRef = useRef();
@@ -18,9 +20,8 @@ export default function SignUp() {
     checkUserRegistration,
     checkUsername,
   } = useAuth();
-  const { setUserName, setAvatar, setCreatedAt, saveUserInDB } = useUserInfo();
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const { setUserName, setFullName, setAvatar, setCreatedAt, saveUserInDB } =
+    useUserInfo();
   const navigate = useNavigate();
 
   async function handleSignUpWithGoogle(e) {
@@ -88,7 +89,8 @@ export default function SignUp() {
       const newToken = await user.getIdToken(); // Отримуємо токен користувача
 
       // додаю значення до контексту
-      setUserName(n => nameRef.current.value);
+      setFullName(n => nameRef.current.value);
+      setUserName(n => usernameRef.current.value);
       setAvatar(a => "");
       setCreatedAt(c => new Date().toISOString().split("T")[0]);
 
@@ -101,7 +103,7 @@ export default function SignUp() {
         });
       }
 
-      navigate("/");
+      navigate(`/profiles/${user.uid}`);
     } catch (error) {
       setError("Failed to create an account");
     } finally {

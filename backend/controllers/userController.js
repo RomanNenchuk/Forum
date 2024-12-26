@@ -4,9 +4,10 @@ export const saveUser = async (req, res) => {
   try {
     // Дані з req.user (JWT токен) та req.body (додаткові дані з клієнта)
     const { uid, email } = req.user;
-    console.log(req.user);
+    const { fullName, profilePicture, joinedAt } = req.body;
+    let userName = req.body.userName;
 
-    const { userName, fullName, profilePicture, joinedAt } = req.body;
+    if (!userName) userName = await generateUserName(email);
 
     // Перевірка, чи користувач вже існує
     const result = await pool.query("SELECT * FROM users WHERE uid = $1", [
@@ -37,7 +38,7 @@ export const saveUser = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const uid = req.params.id;
-    const { userName, email } = req.body;
+    const { userName, fullName, email } = req.body;
 
     // Перевірка, чи користувач існує
     const result = await pool.query(`SELECT * FROM users WHERE uid = $1`, [
@@ -51,6 +52,11 @@ export const updateUser = async (req, res) => {
     // Оновлення користувача
     const updateData = [];
     const fields = [];
+
+    if (fullName) {
+      fields.push(`fullname = $${fields.length + 1}`);
+      updateData.push(fullName);
+    }
 
     if (userName) {
       fields.push(`username = $${fields.length + 1}`);
@@ -92,7 +98,7 @@ export const getUserInfo = async (req, res) => {
 
     // Знайти користувача за UID
     const result = await pool.query(
-      "SELECT username, avatar, TO_CHAR(created_at, 'DD.MM.YYYY') AS formatted_date, email FROM users WHERE uid = $1",
+      "SELECT username, fullname, avatar, TO_CHAR(created_at, 'DD.MM.YYYY') AS formatted_date, email FROM users WHERE uid = $1",
       [uid]
     );
 
@@ -104,5 +110,23 @@ export const getUserInfo = async (req, res) => {
   } catch (error) {
     console.error("Error fetching user info:", error);
     res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const generateUserName = async email => {
+  const baseName = email.split("@")[0];
+  const query = `SELECT * FROM users WHERE username = $1`;
+  try {
+    while (true) {
+      const randomSuffix = Math.floor(Math.random() * 1000000);
+      const userName = baseName + randomSuffix;
+      const result = await pool.query(query, [userName]);
+
+      if (result.rows.length === 0) {
+        return userName;
+      }
+    }
+  } catch (error) {
+    return console.error(error);
   }
 };

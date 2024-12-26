@@ -15,8 +15,8 @@ const pool = new Pool({
   ssl: {
     rejectUnauthorized: false,
   },
-  idleTimeoutMillis: 300000,
-  connectionTimeoutMillis: 3000,
+  idleTimeoutMillis: 300000, // час очікування простою
+  connectionTimeoutMillis: 20000, // час очікування з'єднання
 });
 
 const connectDB = async () => {

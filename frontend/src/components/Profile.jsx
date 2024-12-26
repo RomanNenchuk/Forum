@@ -12,22 +12,21 @@ export default function Profile() {
   const [author, setAuthor] = useState(null);
   const [loading, setLoading] = useState(true);
   const { currentUser, logout } = useAuth();
-  const { userName, avatar, createdAt, getUserInfo } = useUserInfo();
+  const { userName, fullName, avatar, createdAt, getUserInfo } = useUserInfo();
   const navigate = useNavigate();
-
-  async function fetchUserInfo() {
-    try {
-      const userInfo = await getUserInfo(id);
-      setAuthor(userInfo);
-    } finally {
-      setLoading(false);
-    }
-  }
 
   // вантажу інформацію з БД при монтуванні компонента
   useEffect(() => {
-    setLoading(true);
-    fetchUserInfo();
+    (async () => {
+      try {
+        if (id === currentUser?.uid) return;
+        setLoading(true);
+        const userInfo = await getUserInfo(id);
+        setAuthor(userInfo);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, [id]);
 
   async function handleLogOut() {
@@ -48,7 +47,7 @@ export default function Profile() {
       <div className="w-100" style={{ maxWidth: "400px" }}>
         <Card>
           <Card.Body>
-            <h2 className="text-center mb-4">Profile</h2>
+            <h2 className="text-center mb-4">Профіль</h2>
             {error && <Alert variant="danger">{error}</Alert>}
             <div className="text-center mb-4 profile-image-container">
               <img
@@ -64,19 +63,23 @@ export default function Profile() {
             )}
             <div>
               <p>
-                <strong>Name:</strong> {author ? author.userName : userName}
+                <strong>Повне ім'я:</strong> {author?.fullName || fullName}
               </p>
               <p>
-                <strong>Email:</strong> {author?.email || currentUser?.email}
+                <strong>Ім'я користувача:</strong>{" "}
+                {author?.userName || userName}
               </p>
               <p>
-                <strong>Account Created At:</strong>{" "}
-                {author ? author.createdAt : createdAt}
+                <strong>Ел. пошта:</strong>{" "}
+                {author?.email || currentUser?.email}
+              </p>
+              <p>
+                <strong>Створено:</strong> {author?.createdAt || createdAt}
               </p>
             </div>
             {!author && (
               <Link to="/update-profile" className="btn btn-primary w-100 mt-3">
-                Update Profile
+                Оновити профіль
               </Link>
             )}
           </Card.Body>
@@ -84,7 +87,7 @@ export default function Profile() {
         <div className="w-100 text-center mt-2">
           {!author && (
             <Button variant="link" onClick={handleLogOut}>
-              Log Out
+              Вийти
             </Button>
           )}
         </div>

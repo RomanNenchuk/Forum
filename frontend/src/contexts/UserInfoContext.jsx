@@ -10,25 +10,30 @@ export function useUserInfo() {
 
 export function UserInfoProvider({ children }) {
   const [userName, setUserName] = useState("");
+  const [fullName, setFullName] = useState("");
   const [avatar, setAvatar] = useState(null);
   const [createdAt, setCreatedAt] = useState("");
   const { currentUser, token } = useAuth();
 
   async function getUserInfo(id) {
     try {
-      const response = await axios.get(`http://localhost:5000/users/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(`http://localhost:5000/users/${id}`);
 
-      const { username, avatar, formatted_date, email } = response.data;
+      const { fullname, username, avatar, formatted_date, email } =
+        response.data;
 
       if (id !== currentUser?.uid) {
-        return { userName: username, avatar, createdAt: formatted_date, email };
+        return {
+          userName: username,
+          fullName: fullname,
+          avatar,
+          createdAt: formatted_date,
+          email,
+        };
       }
 
       setUserName(n => username);
+      setFullName(n => fullname);
       setAvatar(a => avatar);
       setCreatedAt(c => formatted_date);
     } catch (error) {
@@ -48,7 +53,6 @@ export function UserInfoProvider({ children }) {
         }
       );
 
-      console.log("User registered:", response.data);
       return response.data; // Повертаємо відповідь, якщо потрібна
     } catch (error) {
       console.error("Error registering user on server:", error);
@@ -59,6 +63,8 @@ export function UserInfoProvider({ children }) {
   const value = {
     userName,
     setUserName,
+    fullName,
+    setFullName,
     avatar,
     setAvatar,
     createdAt,

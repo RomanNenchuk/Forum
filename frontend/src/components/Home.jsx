@@ -105,7 +105,7 @@ export default function Home() {
                   marginRight: "10px",
                 }}
               />
-              <span style={styles.username}>{topic.username}</span>
+              <span style={styles.username}>{topic.fullname}</span>
             </div>
             <div style={styles.content}>
               <p>{topic.title}</p>

@@ -14,7 +14,7 @@ export default function Menu() {
 
   useEffect(() => {
     if (currentUser) getUserInfo(currentUser.uid);
-  });
+  }, [currentUser]);
 
   return (
     <div className="wrapper">

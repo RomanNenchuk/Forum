@@ -9,18 +9,19 @@ import "react-bootstrap";
 
 export default function Chat() {
   const { receiverId } = useParams();
-  const { messages, fetchOrCreateChat, setMessages } = useChat();
+  const { messages, fetchOrCreateChat, setMessages, fetchChatList } = useChat();
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const socket = useSocket();
   const { currentUser } = useAuth();
-  const { userName } = useUserInfo();
+  const { fullName } = useUserInfo();
 
   useEffect(() => {
     (async () => {
       try {
         setLoading(true);
         await fetchOrCreateChat(receiverId, currentUser.uid);
+        await fetchChatList();
       } finally {
         setLoading(false);
       }
@@ -43,7 +44,7 @@ export default function Chat() {
 
   function sendMessage() {
     const msg = {
-      username: userName,
+      fullname: fullName,
       recipient_id: receiverId,
       sender_id: currentUser.uid,
       text,
@@ -71,7 +72,7 @@ export default function Chat() {
                     : { textAlign: "left" }
                 }
               >
-                <strong>{msg.username}</strong>
+                <strong>{msg.fullname}</strong>
                 <p>{msg.text}</p>
                 <span style={{ fontSize: "0.8em", color: "gray" }}>
                   {new Date(msg.timestamp).toLocaleString()}

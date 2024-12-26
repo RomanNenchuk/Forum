@@ -7,7 +7,8 @@ import styles from "./UpdateProfile.module.css";
 import axios from "axios";
 
 export default function UpdateProfile() {
-  const nameRef = useRef();
+  const fullNameRef = useRef();
+  const userNameRef = useRef();
   const emailRef = useRef();
   const passwordForReauthRef = useRef();
   const passwordRef = useRef();
@@ -21,7 +22,7 @@ export default function UpdateProfile() {
     verifyPassword,
     reauthenticateWithGoogle,
   } = useAuth();
-  const { userName, setUserName, avatar, setAvatar, getUserInfo } =
+  const { userName, fullName, setUserName, avatar, setAvatar, getUserInfo } =
     useUserInfo();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,7 +33,7 @@ export default function UpdateProfile() {
   const navigate = useNavigate();
 
   const isGoogleSignIn = currentUser.providerData.some(
-    (provider) => provider.providerId === "google.com"
+    provider => provider.providerId === "google.com"
   );
 
   async function updateUserOnServer(token, userData) {
@@ -107,8 +108,12 @@ export default function UpdateProfile() {
       if (preview) await handleSaveAvatar(e);
 
       // додаю ім'я до списку оновлень на сервері, якщо воно було змінене
-      if (nameRef.current.value !== userName)
-        userData.userName = nameRef.current.value;
+      if (fullNameRef.current.value !== fullName)
+        userData.fullName = fullNameRef.current.value;
+
+      // додаю ім'я користувача до списку оновлень на сервері, якщо воно було змінене
+      if (userNameRef.current.value !== userName)
+        userData.userName = userNameRef.current.value;
 
       // оновлюю дані на сервері, якщо я щось додавав до userData
       if (updatedToken && currentUser && Object.keys(userData).length !== 0)
@@ -162,7 +167,7 @@ export default function UpdateProfile() {
   }
 
   useEffect(() => {
-    getUserInfo();
+    // getUserInfo(currentUser.uid);
   }, []);
 
   return (
@@ -170,11 +175,11 @@ export default function UpdateProfile() {
       <div className="w-100" style={{ maxWidth: "400px" }}>
         <Card>
           <Card.Body>
-            <h2 className="text-center mb-4">Update Profile</h2>
+            <h2 className="text-center mb-4">Оновити профіль</h2>
             {error && <Alert variant="danger">{error}</Alert>}
             {message && <Alert variant="info">{message}</Alert>}
             <Form
-              onSubmit={(e) => {
+              onSubmit={e => {
                 handleSubmit(e);
               }}
             >
@@ -202,11 +207,21 @@ export default function UpdateProfile() {
                 />
               </div>
 
-              <Form.Group id="name">
-                <Form.Label>Username</Form.Label>
+              <Form.Group id="fullname">
+                <Form.Label>Ім'я та прізвище</Form.Label>
                 <Form.Control
                   type="text"
-                  ref={nameRef}
+                  ref={fullNameRef}
+                  required
+                  defaultValue={fullName}
+                />
+              </Form.Group>
+
+              <Form.Group id="username" className="mb-4">
+                <Form.Label>Ім'я користувача</Form.Label>
+                <Form.Control
+                  type="text"
+                  ref={userNameRef}
                   required
                   defaultValue={userName}
                 />
@@ -214,11 +229,6 @@ export default function UpdateProfile() {
 
               {isGoogleSignIn ? (
                 <>
-                  <Alert variant="info" className="mt-4">
-                    Since you logged in with Google, updating your profile
-                    information (email or password) is restricted.
-                  </Alert>
-
                   <div className="d-flex justify-content-center align-items-center">
                     <Button
                       onClick={handleSubmit}
@@ -237,14 +247,14 @@ export default function UpdateProfile() {
                         alt="Google logo"
                         style={{ width: "20px", height: "20px" }}
                       />
-                      <span>Update with Google</span>
+                      <span>Продовжити з Google</span>
                     </Button>
                   </div>
                 </>
               ) : (
                 <>
                   <Form.Group id="email">
-                    <Form.Label>Email</Form.Label>
+                    <Form.Label>Ел. пошта</Form.Label>
                     <Form.Control
                       type="email"
                       ref={emailRef}
@@ -282,7 +292,7 @@ export default function UpdateProfile() {
                     className="w-100 mt-2"
                     type="submit"
                   >
-                    Update
+                    Оновити
                   </Button>
                 </>
               )}
@@ -290,7 +300,7 @@ export default function UpdateProfile() {
           </Card.Body>
         </Card>
         <div className="w-100 text-center mt-2">
-          <Link to={`/profile/${currentUser.uid}`}>Cancel</Link>
+          <Link to={`/profiles/${currentUser.uid}`}>Скасувати</Link>
         </div>
       </div>
     </Container>

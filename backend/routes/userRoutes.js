@@ -1,4 +1,5 @@
 import express from "express";
+import middleware from "../middleware/index.js";
 
 import {
   saveUser,
@@ -10,11 +11,11 @@ import { saveImage } from "../controllers/imageController.js";
 
 const router = express.Router();
 
-router.post("/", saveUser); // POST-запит для створення користувача
+router.post("/", middleware.decodeToken, saveUser); // POST-запит для створення користувача
 
-router.post("/:id/profile-image", saveImage);
+router.post("/:id/profile-image", middleware.decodeToken, saveImage);
 
-router.put("/:id", updateUser);
+router.put("/:id", middleware.decodeToken, updateUser);
 
 router.get("/:id", getUserInfo);
 

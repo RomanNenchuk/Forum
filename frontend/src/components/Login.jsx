@@ -70,11 +70,9 @@ export default function Login() {
         if (!email) throw new Error("No such user exists");
       } else email = emailOrUsernameRef.current.value;
 
-      console.log(email);
-
       const userCredential = await login(email, passwordRef.current.value);
 
-      navigate("/");
+      navigate(`/profiles/${userCredential.user.uid}`);
     } catch (error) {
       console.error(error);
       setError("Failed to log in");
@@ -114,7 +112,7 @@ export default function Login() {
               <div
                 style={{ flex: 1, height: "1px", backgroundColor: "#ddd" }}
               ></div>
-              <span className="mx-3 text-muted">OR</span>
+              <span className="mx-3 text-muted">АБО</span>
               <div
                 style={{ flex: 1, height: "1px", backgroundColor: "#ddd" }}
               ></div>

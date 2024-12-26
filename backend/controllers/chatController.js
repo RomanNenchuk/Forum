@@ -11,8 +11,8 @@ export const getChatList = async (req, res) => {
     ELSE chats.user1_id
   END AS other_user_id,
   CASE 
-    WHEN chats.user1_id = $1 THEN u2.username
-    ELSE u1.username
+    WHEN chats.user1_id = $1 THEN u2.fullname
+    ELSE u1.fullname
   END AS other_user_name,
   last_message.text,
   last_message.sender_id AS last_message_sender_id,

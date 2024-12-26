@@ -18,7 +18,7 @@ export const chatSocket = io => {
 
     socket.on(
       "send-message",
-      async ({ username, recipient_id, sender_id, text, timestamp }) => {
+      async ({ fullname, recipient_id, sender_id, text, timestamp }) => {
         const chat_id = [recipient_id, sender_id]
           .sort((a, b) => a.localeCompare(b))
           .join("_");
@@ -28,7 +28,7 @@ export const chatSocket = io => {
         if (activeChats.get(recipient_id) === chat_id) {
           socket
             .to(recipient_id)
-            .emit("receive-message", { username, text, sender_id, timestamp });
+            .emit("receive-message", { fullname, text, sender_id, timestamp });
           read = true;
         }
 
