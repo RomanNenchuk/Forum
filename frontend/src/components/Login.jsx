@@ -87,7 +87,7 @@ export default function Login() {
       <div className="w-100" style={{ maxWidth: "400px" }}>
         <Card>
           <Card.Body>
-            <h2 className="text-center mb-4">Log In</h2>
+            <h2 className="text-center mb-4">Вхід у систему</h2>
             {error && <Alert variant="danger">{error}</Alert>}
             <div className="d-flex justify-content-center align-items-center">
               <Button
@@ -137,7 +137,7 @@ export default function Login() {
                 />
               </Form.Group>
               <Button disabled={loading} className="w-100 mt-2" type="submit">
-                Log In
+                Увійти
               </Button>
             </Form>
             <div className="w-100 text-center mt-3">

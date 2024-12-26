@@ -1,6 +1,11 @@
 // Імпортуємо необхідні функції з Firebase SDK
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  setPersistence,
+  browserSessionPersistence,
+} from "firebase/auth";
 
 // Конфігурація Firebase, що містить ваші ключі та параметри
 const app = initializeApp({
@@ -14,6 +19,15 @@ const app = initializeApp({
 
 // Ініціалізація Firebase Auth
 export const auth = getAuth(app); // отримуємо екземпляр аутентифікації для поточного додатку
+
+// Встановлюємо sessionStorage як тип зберігання стану
+setPersistence(auth, browserSessionPersistence)
+  .then(() => {
+    console.log("Session persistence set successfully.");
+  })
+  .catch(error => {
+    console.error("Error setting persistence:", error);
+  });
 
 // Експортуємо ініціалізовану функцію для аутентифікації та GoogleAuthProvider
 export default app;

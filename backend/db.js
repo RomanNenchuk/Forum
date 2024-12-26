@@ -13,7 +13,7 @@ const pool = new Pool({
   password: PGPASSWORD,
   port: 5432,
   ssl: {
-    require: true,
+    rejectUnauthorized: false,
   },
   idleTimeoutMillis: 300000,
   connectionTimeoutMillis: 3000,

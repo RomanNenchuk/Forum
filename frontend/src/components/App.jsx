@@ -30,6 +30,27 @@ function App() {
                 <Route element={<Menu />}>
                   <Route path="/update-profile" element={<UpdateProfile />} />
                   <Route path="/create-topic" element={<CreateTopic />} />
+
+                  {/* Контексти для чатів */}
+                  <Route
+                    path="/chats/*"
+                    element={
+                      <SocketProvider>
+                        <ChatProvider>
+                          <Routes>
+                            <Route path="/" element={<ChatList />}>
+                              {/* Дочірні маршрути */}
+                              <Route
+                                index
+                                element={<h1>Виберіть чат для спілкування</h1>}
+                              />
+                              <Route path=":receiverId" element={<Chat />} />
+                            </Route>
+                          </Routes>
+                        </ChatProvider>
+                      </SocketProvider>
+                    }
+                  />
                 </Route>
               </Route>
 
@@ -41,27 +62,6 @@ function App() {
                 <Route path="/topics/:id" element={<Topic />} />
                 <Route path="/profiles/:id" element={<Profile />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
-
-                {/* Контексти для чатів */}
-                <Route
-                  path="/chats/*"
-                  element={
-                    <SocketProvider>
-                      <ChatProvider>
-                        <Routes>
-                          <Route path="/" element={<ChatList />}>
-                            {/* Дочірні маршрути */}
-                            <Route
-                              index
-                              element={<h1>Виберіть чат для спілкування</h1>}
-                            />
-                            <Route path=":receiverId" element={<Chat />} />
-                          </Route>
-                        </Routes>
-                      </ChatProvider>
-                    </SocketProvider>
-                  }
-                />
               </Route>
 
               <Route path="*" element={<NotFound />} />
