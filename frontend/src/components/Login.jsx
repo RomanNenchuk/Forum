@@ -39,12 +39,9 @@ export default function Login() {
         });
       }
 
-      setUserName(n => user.displayName || "Unknown");
-      setAvatar(a => "");
-      setCreatedAt(c => new Date().toISOString().split("T")[0]);
-
       navigate(`/profiles/${user.uid}`);
     } catch (error) {
+      console.log(error);
       setError("Failed to create an account");
     }
     setLoading(false);

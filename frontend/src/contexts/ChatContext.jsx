@@ -56,6 +56,22 @@ export function ChatProvider({ children }) {
     setMessages(response.data.messages);
   }
 
+  async function deleteMessage(id) {
+    try {
+      console.log(id);
+      const result = axios.delete(
+        `http://localhost:5000/chats/messages/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   const value = {
     chatList,
     setChatList,
@@ -63,6 +79,7 @@ export function ChatProvider({ children }) {
     setMessages,
     fetchChatList,
     fetchOrCreateChat,
+    deleteMessage,
   };
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;

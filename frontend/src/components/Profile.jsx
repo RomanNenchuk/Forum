@@ -19,7 +19,6 @@ export default function Profile() {
   useEffect(() => {
     (async () => {
       try {
-        if (id === currentUser?.uid) return;
         setLoading(true);
         const userInfo = await getUserInfo(id);
         setAuthor(userInfo);
