@@ -59,7 +59,7 @@ export function ChatProvider({ children }) {
   async function deleteMessage(id) {
     try {
       console.log(id);
-      const result = axios.delete(
+      const response = axios.delete(
         `http://localhost:5000/chats/messages/${id}`,
         {
           headers: {
@@ -67,6 +67,11 @@ export function ChatProvider({ children }) {
           },
         }
       );
+      if (response.data.success) {
+        console.log("Message deleted");
+      } else {
+        console.error("Failed to delete message");
+      }
     } catch (error) {
       console.error(error);
     }
