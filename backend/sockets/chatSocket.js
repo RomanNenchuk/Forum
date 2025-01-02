@@ -1,4 +1,4 @@
-import { saveMessage } from "../controllers/chatController.js";
+import { saveMessage, editMessage } from "../controllers/chatController.js";
 
 const activeChats = new Map();
 
@@ -43,5 +43,13 @@ export const chatSocket = io => {
         });
       }
     );
+
+    socket.on("edit-message", async ({msg_id, msg_text}) => {
+      const edited_msg = {
+        msg_text: msg_text, 
+        msg_id: msg_id,
+      }
+      await editMessage(edited_msg);
+    });
   });
 };

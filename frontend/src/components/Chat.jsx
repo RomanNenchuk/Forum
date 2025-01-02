@@ -33,6 +33,7 @@ export default function Chat() {
     setMessages,
     fetchChatList,
     deleteMessage,
+    getMessage,
   } = useChat();
   const [loading, setLoading] = useState(false);
   const socket = useSocket();
@@ -131,6 +132,20 @@ export default function Chat() {
     setText("");
   }
 
+
+  // Яке повідомлення змінюється (якщо ніяке -1)
+  const [OnEdit, setEdit] = useState(-1);
+
+  function editMessage() {
+    socket.emit("edit-message", {
+      msg_id: OnEdit,
+      msg_text: text,
+    });
+    setEdit(-1);
+    setText("");
+    fetchOrCreateChat(receiverId, currentUser.uid);
+  }
+
   if (loading) return <LoadingSpinner />;
 
   return (
@@ -168,15 +183,23 @@ export default function Chat() {
             text: "Delete",
             icon: "🗑️",
             onClick: () => {
+              resetContextMenu();
               deleteMessage(contextMenu.selectedMessage);
               fetchOrCreateChat(receiverId, currentUser.uid);
-              resetContextMenu();
+              if (OnEdit == contextMenu.selectedMessage) {
+                setEdit(-1);
+                setText("");
+              }
             }
           },
           {
             text: "Edit",
             icon: "🖋️",
-            onClick: () => alert("wow"),
+            onClick: async () => {
+              resetContextMenu();
+              setText(await getMessage(contextMenu.selectedMessage));
+              setEdit(contextMenu.selectedMessage);
+            },
           },
           {
             text: "Reply",
@@ -193,7 +216,8 @@ export default function Chat() {
           onChange={e => setText(e.target.value)}
           placeholder="Введіть повідомлення"
         />
-        <button onClick={sendMessage}>Надіслати</button>
+        {OnEdit === -1 && (<button onClick={sendMessage}>Надіслати</button>)}
+        {OnEdit !== -1 && (<button onClick={editMessage}>Редагувати</button>)}
       </div>
     </div>
   );
