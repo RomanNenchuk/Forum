@@ -1,7 +1,8 @@
 import React, { useEffect } from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import { useUserInfo } from "../../contexts/UserInfoContext";
 import { useAuth } from "../../contexts/AuthContext";
+import Avatar from "../Avatar.jsx";
 
 import logo from "../../assets/logo.svg";
 import UFORUM from "../../assets/UFORUM.svg";
@@ -11,6 +12,7 @@ import "./Menu.css";
 export default function Menu() {
   const { currentUser } = useAuth();
   const { avatar, getUserInfo } = useUserInfo();
+  const location = useLocation();
 
   useEffect(() => {
     if (currentUser) getUserInfo(currentUser.uid);
@@ -23,31 +25,48 @@ export default function Menu() {
           <img src={logo} alt="" />
           <img src={UFORUM} alt="" />
         </Link>
-        <input type="text" placeholder="Я шукаю..." className="search-bar" />
+        <input
+          id="topic-search"
+          type="text"
+          placeholder="Я шукаю..."
+          className="search-bar"
+        />
         <button className="search-button">Знайти</button>
         {currentUser ? (
-          <div
-            className="text-center profile-image-container"
-            style={{
-              width: "70px",
-              height: "70px",
-            }}
+          <Link
+            to={`/profiles/${currentUser.uid}`}
+            state={{ backgroundLocation: location }}
           >
-            <Link to={`/profiles/${currentUser.uid}`}>
-              <img
-                src={avatar || "/default-avatar.png"}
-                alt="User Avatar"
-                className="profile-image"
-                style={{
-                  height: "70px",
-                }}
-              />
-            </Link>
-          </div>
-        ) : (
-          <Link to="/login">
-            <button className="auth-button">Вхід | Реєстрація</button>
+            <Avatar
+              avatar={avatar}
+              size={70}
+              style={{ border: "2px solid #FF4A19" }}
+            />
           </Link>
+        ) : (
+          <button className="auth-button">
+            <Link
+              className="auth-ref"
+              to="/login"
+              state={{
+                backgroundLocation: location,
+                redirectPath: location.pathname,
+              }}
+            >
+              Вхід
+            </Link>{" "}
+            |{" "}
+            <Link
+              className="auth-ref"
+              to="/signup"
+              state={{
+                backgroundLocation: location,
+                redirectPath: location.pathname,
+              }}
+            >
+              Реєстрація
+            </Link>{" "}
+          </button>
         )}
       </header>
 
@@ -57,7 +76,11 @@ export default function Menu() {
             <ul>
               <li>Головна сторінка</li>
               <Link
-                to="/chats"
+                to={currentUser ? "/chats" : "/login"}
+                state={{
+                  backgroundLocation: location,
+                  redirectPath: "/chats",
+                }}
                 style={{ textDecoration: "none", color: "#333" }}
               >
                 <li>Чати</li>
@@ -97,7 +120,13 @@ export default function Menu() {
               <li>@ АСД</li>
             </ul>
           </aside>
-          <Link to={`/create-topic`}>
+          <Link
+            to={currentUser ? "/create-topic" : "/login"}
+            state={{
+              backgroundLocation: location,
+              redirectPath: "/create-topic",
+            }}
+          >
             <img src={plus} alt="" />
           </Link>
         </div>

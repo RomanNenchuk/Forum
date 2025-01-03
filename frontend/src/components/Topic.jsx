@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Container, Card } from "react-bootstrap";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useLocation } from "react-router-dom";
 import LoadingSpinner from "./Spinner";
 
 import axios from "axios";
@@ -9,6 +9,7 @@ export default function Topic() {
   const { id } = useParams();
   const [topic, setTopic] = useState(null);
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
 
   async function fetchTopic() {
     try {
@@ -33,7 +34,10 @@ export default function Topic() {
         <Card>
           <Card.Body>
             <h2 className="text-center mb-4">{topic?.title}</h2>
-            <Link to={`/profiles/${topic?.author}`}>
+            <Link
+              to={`/profiles/${topic?.author}`}
+              state={{ backgroundLocation: location }}
+            >
               <div className="text-center mb-4 profile-image-container">
                 <img
                   src={topic?.avatar || "/default-avatar.png"}

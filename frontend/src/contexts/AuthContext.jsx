@@ -134,8 +134,6 @@ export function AuthProvider({ children }) {
       const response = await axios.get(
         `http://localhost:5000/auth/check-username/${username}`
       );
-      console.log(response.data);
-      console.log(response.data.email);
       return response.data.email;
     } catch (error) {
       console.error(error);

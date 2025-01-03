@@ -60,6 +60,31 @@ export function UserInfoProvider({ children }) {
     }
   }
 
+  async function saveAvatar(image, uid, newToken) {
+    if (currentUser) {
+      uid = currentUser.uid;
+      newToken = token;
+    }
+    const formData = new FormData();
+    formData.append("profileImage", image);
+    try {
+      const response = await axios.post(
+        `http://localhost:5000/users/${uid}/profile-image`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${newToken}`,
+          },
+        }
+      );
+      setAvatar(response.data.fileUrl);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
   const value = {
     userName,
     setUserName,
@@ -67,6 +92,7 @@ export function UserInfoProvider({ children }) {
     setFullName,
     avatar,
     setAvatar,
+    saveAvatar,
     createdAt,
     setCreatedAt,
     getUserInfo,

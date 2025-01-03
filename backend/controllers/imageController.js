@@ -15,7 +15,7 @@ const upload = multer({
 });
 
 export const saveImage = (req, res) => {
-  upload.single("profileImage")(req, res, async (err) => {
+  upload.single("profileImage")(req, res, async err => {
     if (err) {
       return res.status(400).json({ error: err.message });
     }
