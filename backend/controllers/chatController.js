@@ -108,17 +108,6 @@ export const fetchOrCreateChat = async (req, res) => {
   }
 };
 
-export const deleteMessage = async (req, res) => {
-  const id = req.params.id;
-  const query = `DELETE FROM messages WHERE id = $1`;
-  try {
-    const response = await pool.query(query, [id]);
-    res.status(200).json({ message: "Message deleted successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(404).json({ message: "Message not found" });
-  }
-};
 
 export const saveMessage = async ({
   sender_id,
@@ -143,5 +132,18 @@ export const saveMessage = async ({
     ]);
   } catch (error) {
     console.log(error);
+  }
+};
+
+
+export const deleteMessage = async (req, res) => {
+  const id = req.params.id;
+  const query = `DELETE FROM messages WHERE id = $1`;
+  try {
+    const response = await pool.query(query, [id]);
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error(error);
+    res.status(404).json({ success: false });
   }
 };

@@ -167,7 +167,11 @@ export default function Chat() {
           {
             text: "Delete",
             icon: "🗑️",
-            onClick: () => deleteMessage(contextMenu.selectedMessage),
+            onClick: () => {
+              deleteMessage(contextMenu.selectedMessage);
+              fetchOrCreateChat(receiverId, currentUser.uid);
+              resetContextMenu();
+            }
           },
           {
             text: "Edit",
