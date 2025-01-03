@@ -32,8 +32,6 @@ export default function Chat() {
     fetchOrCreateChat,
     setMessages,
     fetchChatList,
-    deleteMessage,
-    getMessage,
   } = useChat();
   const [loading, setLoading] = useState(false);
   const socket = useSocket();
@@ -60,8 +58,13 @@ export default function Chat() {
       setMessages(prev => [...prev, msg]);
     });
 
+    socket.on("remove-message", (id) => {
+      setMessages((prev) => prev.filter(item => item.id !== id));
+    });
+
     return () => {
       socket.off("receive-message");
+      socket.off("remove-message");
       socket.emit("leave-chat", currentUser.uid);
     };
   }, [socket, currentUser, receiverId]);
@@ -120,30 +123,34 @@ export default function Chat() {
 
   function sendMessage() {
     const msg = {
+      id: -1,
       fullname: fullName,
       recipient_id: receiverId,
       sender_id: currentUser.uid,
       text,
       timestamp: new Date(),
     };
+    socket.emit("send-message", msg, (id) => {
+      msg.id = id;
+    });
     console.log(msg);
-    socket.emit("send-message", msg);
-    setMessages(prev => [...prev, { ...msg, timestamp: new Date() }]);
+    setMessages(prev => [...prev, msg]);
     setText("");
   }
 
-
-  // Яке повідомлення змінюється (якщо ніяке -1)
-  const [OnEdit, setEdit] = useState(-1);
-
-  function editMessage() {
-    socket.emit("edit-message", {
-      msg_id: OnEdit,
-      msg_text: text,
-    });
-    setEdit(-1);
-    setText("");
-    fetchOrCreateChat(receiverId, currentUser.uid);
+  function deleteMessage(msg_id) {
+    for(let i = 0; i < messages.length; i++) {
+      if (msg_id == messages[i].id) {
+        console.log(messages[i]);
+        socket.emit("delete-message", {
+          msg_id,
+          initiator: currentUser.uid,
+          users: [messages[i].sender_id, messages[i].recipient_id],
+        });
+        setMessages((prev) => prev.filter(item => item.id !== msg_id));
+        break;
+      }
+    }
   }
 
   if (loading) return <LoadingSpinner />;
@@ -185,20 +192,16 @@ export default function Chat() {
             onClick: () => {
               resetContextMenu();
               deleteMessage(contextMenu.selectedMessage);
-              fetchOrCreateChat(receiverId, currentUser.uid);
-              if (OnEdit == contextMenu.selectedMessage) {
-                setEdit(-1);
-                setText("");
-              }
             }
           },
           {
             text: "Edit",
             icon: "🖋️",
-            onClick: async () => {
-              resetContextMenu();
-              setText(await getMessage(contextMenu.selectedMessage));
-              setEdit(contextMenu.selectedMessage);
+            onClick: () => {
+              // resetContextMenu();
+              // setText(await getMessage(contextMenu.selectedMessage));
+              // setEdit(contextMenu.selectedMessage);
+              alert("wow");
             },
           },
           {
@@ -216,8 +219,7 @@ export default function Chat() {
           onChange={e => setText(e.target.value)}
           placeholder="Введіть повідомлення"
         />
-        {OnEdit === -1 && (<button onClick={sendMessage}>Надіслати</button>)}
-        {OnEdit !== -1 && (<button onClick={editMessage}>Редагувати</button>)}
+        <button onClick={sendMessage}>Надіслати</button>
       </div>
     </div>
   );
