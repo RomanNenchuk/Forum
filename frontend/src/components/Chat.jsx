@@ -4,7 +4,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useChat } from "../contexts/ChatContext";
 import { useSocket } from "../contexts/SocketProviderContext";
 import { useUserInfo } from "../contexts/UserInfoContext";
-import { useBodyScrollLock } from "../hooks/BodyScrollLock";
+import { useBodyScrollLock } from "../hooks/useBodyScrollLock.jsx";
 import ContextMenu from "./ContextMenu/ContextMenu.jsx";
 import LoadingSpinner from "./Spinner.jsx";
 import "react-bootstrap";

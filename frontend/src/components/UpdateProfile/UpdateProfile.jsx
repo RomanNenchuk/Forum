@@ -1,12 +1,16 @@
 import React, { useRef, useState, useEffect } from "react";
-import { Container, Form, Card, Button, Alert } from "react-bootstrap";
+import { Form, Card, Alert } from "react-bootstrap";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useUserInfo } from "../../contexts/UserInfoContext.jsx";
-import { Link, useNavigate } from "react-router-dom";
-import styles from "./UpdateProfile.module.css";
+import { useNavigate, useLocation } from "react-router-dom";
+import Avatar from "../Avatar.jsx";
+import FormInput from "../FormInput.jsx";
+import ActionButton from "../ActionButton/ActionButton.jsx";
+import GoogleAuthButton from "../GoogleAuthButton.jsx";
+import ModalHeader from "../ModalHeader/ModalHeader.jsx";
 import axios from "axios";
 
-export default function UpdateProfile() {
+export default function UpdateProfile({ closeModal }) {
   const fullNameRef = useRef();
   const userNameRef = useRef();
   const emailRef = useRef();
@@ -22,15 +26,17 @@ export default function UpdateProfile() {
     verifyPassword,
     reauthenticateWithGoogle,
   } = useAuth();
-  const { userName, fullName, setUserName, avatar, setAvatar, getUserInfo } =
+  const { userName, fullName, setUserName, avatar, setAvatar, saveAvatar } =
     useUserInfo();
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   const [image, setImage] = useState(null);
-  const [message, setMessage] = useState("");
   const [preview, setPreview] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const backgroundLocation = location.state?.backgroundLocation || "/";
 
   const isGoogleSignIn = currentUser.providerData.some(
     provider => provider.providerId === "google.com"
@@ -73,9 +79,9 @@ export default function UpdateProfile() {
 
         updatedToken = await currentUser.getIdToken(true);
       } else {
-        if (passwordRef.current.value !== passwordConfirmRef.current.value) {
-          return setError("Passwords do not match");
-        }
+        // if (passwordRef.current.value !== passwordConfirmRef.current.value) {
+        //   return setError("Passwords do not match");
+        // }
 
         verified = await verifyPassword(passwordForReauthRef.current.value);
         if (!verified) return setError("Wrong password");
@@ -105,7 +111,7 @@ export default function UpdateProfile() {
       }
 
       // оновлюю аватар, якщо пароль правильний і користувач щось завантажував
-      if (preview) await handleSaveAvatar(e);
+      if (preview) await handleSaveAvatar();
 
       // додаю ім'я до списку оновлень на сервері, якщо воно було змінене
       if (fullNameRef.current.value !== fullName)
@@ -119,7 +125,7 @@ export default function UpdateProfile() {
       if (updatedToken && currentUser && Object.keys(userData).length !== 0)
         await updateUserOnServer(updatedToken, userData);
 
-      navigate(`/profiles/${currentUser.uid}`);
+      navigateToProfile();
     } catch (error) {
       setError("Failed to update account. Please check your credentials.");
     } finally {
@@ -127,43 +133,34 @@ export default function UpdateProfile() {
     }
   }
 
-  // Обробник вибору файлу
-  async function handleImageChange(e) {
+  function handleImageChange(e) {
     const selectedFile = e.target.files[0];
     setImage(selectedFile);
-    setPreview(URL.createObjectURL(selectedFile)); // Створюємо preview URL
+    setPreview(URL.createObjectURL(selectedFile));
   }
 
-  async function handleSaveAvatar(e) {
-    e.preventDefault();
-    if (!image) {
-      setMessage("Будь ласка, виберіть файл!");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("profileImage", image); // Додаємо файл у FormData
+  async function handleSaveAvatar() {
+    if (!image) return;
 
     try {
-      const response = await axios.post(
-        `http://localhost:5000/users/${currentUser.uid}/profile-image`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setAvatar(response.data.fileUrl);
+      await saveAvatar(image);
     } catch (error) {
-      setMessage("Помилка завантаження файлу.");
+      setError("Помилка завантаження файлу");
       console.error("Помилка:", error.response?.data || error.message);
     }
   }
 
-  async function handleImageClick() {
+  function handleImageClick() {
     imageInputRef.current.click();
+  }
+
+  function navigateToProfile() {
+    navigate(`/profiles/${currentUser.uid}`, {
+      state: {
+        backgroundLocation,
+      },
+      replace: true,
+    });
   }
 
   useEffect(() => {
@@ -171,138 +168,99 @@ export default function UpdateProfile() {
   }, []);
 
   return (
-    <Container className="d-flex align-items-center justify-content-center">
-      <div className="w-100" style={{ maxWidth: "400px" }}>
-        <Card>
-          <Card.Body>
-            <h2 className="text-center mb-4">Оновити профіль</h2>
-            {error && <Alert variant="danger">{error}</Alert>}
-            {message && <Alert variant="info">{message}</Alert>}
-            <Form
-              onSubmit={e => {
-                handleSubmit(e);
-              }}
-            >
-              <div
-                className={`mb-4 profile-image-container ${styles["profile-image-container"]}`}
-              >
-                <img
-                  src={preview || avatar || "/default-avatar.png"}
-                  alt="User Avatar"
-                  onClick={handleImageClick}
-                  className={`profile-image ${styles["profile-image"]}`}
-                />
-                <img
-                  src="/edit-image.png"
-                  alt="Overlay"
-                  onClick={handleImageClick}
-                  className={`profile-image ${styles["profile-image-overlay"]} ${styles["profile-image"]}
-                }`}
-                />
-                <input
-                  type="file"
-                  ref={imageInputRef}
-                  onChange={handleImageChange}
-                  style={{ display: "none" }}
-                />
-              </div>
+    <Card>
+      <ModalHeader
+        title={"Оновити профіль"}
+        onClose={closeModal}
+        onBack={navigateToProfile}
+      />
+      <Card.Body>
+        {error && <Alert variant="danger">{error}</Alert>}
+        {message && <Alert variant="info">{message}</Alert>}
+        <Form
+          onSubmit={e => {
+            handleSubmit(e);
+          }}
+        >
+          <div className="text-center">
+            <Avatar
+              preview={preview}
+              avatar={avatar}
+              handleImageClick={handleImageClick}
+              style={{ border: "4px solid #ffd700", marginBottom: "20px" }}
+            />
 
-              <Form.Group id="fullname">
-                <Form.Label>Ім'я та прізвище</Form.Label>
-                <Form.Control
-                  type="text"
-                  ref={fullNameRef}
-                  required
-                  defaultValue={fullName}
-                />
-              </Form.Group>
+            <Form.Control
+              type="file"
+              onChange={handleImageChange}
+              ref={imageInputRef}
+              style={{ display: "none" }}
+              accept="image/*"
+            />
+          </div>
 
-              <Form.Group id="username" className="mb-4">
-                <Form.Label>Ім'я користувача</Form.Label>
-                <Form.Control
-                  type="text"
-                  ref={userNameRef}
-                  required
-                  defaultValue={userName}
-                />
-              </Form.Group>
+          <FormInput
+            id={"fullName"}
+            type={"text"}
+            placeholder={"Повне ім'я"}
+            ref={fullNameRef}
+            defaultValue={fullName}
+            required
+          />
 
-              {isGoogleSignIn ? (
-                <>
-                  <div className="d-flex justify-content-center align-items-center">
-                    <Button
-                      onClick={handleSubmit}
-                      variant="light"
-                      className="d-flex align-items-center gap-2 px-4 py-2 rounded shadow-sm"
-                      style={{
-                        border: "1px solid #dadce0",
-                        fontWeight: "500",
-                        fontSize: "16px",
-                        color: "#5f6368",
-                        width: "fit-content",
-                      }}
-                    >
-                      <img
-                        src="https://www.svgrepo.com/show/475656/google-color.svg"
-                        alt="Google logo"
-                        style={{ width: "20px", height: "20px" }}
-                      />
-                      <span>Продовжити з Google</span>
-                    </Button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <Form.Group id="email">
-                    <Form.Label>Ел. пошта</Form.Label>
-                    <Form.Control
-                      type="email"
-                      ref={emailRef}
-                      required
-                      defaultValue={currentUser.email}
-                    />
-                  </Form.Group>
-                  <Form.Group id="reauth-password">
-                    <Form.Label>Current Password</Form.Label>
-                    <Form.Control
-                      type="password"
-                      ref={passwordForReauthRef}
-                      required
-                      placeholder="Enter current password to confirm changes"
-                    />
-                  </Form.Group>
-                  <Form.Group id="password">
-                    <Form.Label>New Password</Form.Label>
-                    <Form.Control
-                      type="password"
-                      ref={passwordRef}
-                      placeholder="Leave blank to keep the same"
-                    />
-                  </Form.Group>
-                  <Form.Group id="password-confirm">
-                    <Form.Label>New Password Confirmation</Form.Label>
-                    <Form.Control
-                      type="password"
-                      ref={passwordConfirmRef}
-                      placeholder="Leave blank to keep the same"
-                    />
-                  </Form.Group>
-                  <Button
-                    disabled={loading}
-                    className="w-100 mt-2"
-                    type="submit"
-                  >
-                    Оновити
-                  </Button>
-                </>
-              )}
-            </Form>
-          </Card.Body>
-        </Card>
-        <div className="w-100 text-center mt-2">
-          <Link to={`/profiles/${currentUser.uid}`}>Скасувати</Link>
-        </div>
-      </div>
-    </Container>
+          <FormInput
+            id={"userName"}
+            type={"text"}
+            placeholder={"Ім'я користувача"}
+            ref={userNameRef}
+            defaultValue={userName}
+            required
+          />
+
+          {isGoogleSignIn ? (
+            <GoogleAuthButton onClick={handleSubmit} className="my-5" />
+          ) : (
+            <>
+              <FormInput
+                id={"email"}
+                type={"email"}
+                placeholder={"Ел. пошта"}
+                ref={emailRef}
+                defaultValue={currentUser.email}
+                required
+              />
+
+              <FormInput
+                id={"reauth-password"}
+                type={"password"}
+                placeholder={"Пароль"}
+                ref={passwordForReauthRef}
+                required
+              />
+
+              <FormInput
+                id={"password"}
+                type={"password"}
+                placeholder={"Новий пароль"}
+                ref={passwordRef}
+              />
+
+              {/* <FormInput
+                    id={"password-confirm"}
+                    type={"password"}
+                    placeholder={"Підтвердження нового паролю"}
+                    ref={passwordConfirmRef}
+                  /> */}
+
+              <ActionButton
+                label={"Оновити"}
+                loading={loading}
+                className="my-4"
+              />
+            </>
+          )}
+        </Form>
+      </Card.Body>
+    </Card>
   );
 }

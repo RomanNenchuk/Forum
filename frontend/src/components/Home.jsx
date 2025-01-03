@@ -1,9 +1,9 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext.jsx";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import ProfileHeader from "./ProfileHeader.jsx";
 import LoadingSpinner from "./Spinner.jsx";
-
 const styles = {
   li: {
     listStyle: "none",
@@ -16,25 +16,9 @@ const styles = {
     fontFamily: "Arial, sans-serif",
     maxWidth: "400px",
   },
-  header: {
-    display: "flex",
-    alignItems: "center",
-    marginBottom: "8px",
-  },
-  avatar: {
-    width: "32px",
-    height: "32px",
-    borderRadius: "50%",
-    backgroundColor: "#DDD",
-    marginRight: "8px",
-  },
-  username: {
-    color: "#555",
-    fontWeight: "bold",
-  },
   content: {
     marginBottom: "12px",
-    fontSize: "14px",
+    fontSize: "29px",
     color: "#333",
   },
   footer: {
@@ -50,10 +34,10 @@ const styles = {
 };
 
 export default function Home() {
-  const [topicList, setTopicList] = useState([]);
+  const [topicInfoList, setTopicInfoList] = useState([]);
   const [loading, setLoading] = useState(true);
   const { token } = useAuth();
-  const navigate = useNavigate();
+  const location = useLocation();
 
   async function fetchTopics() {
     try {
@@ -65,7 +49,9 @@ export default function Home() {
       const topics = Array.isArray(response.data)
         ? response.data
         : response.data.topics || [];
-      setTopicList(topics);
+
+      console.log(topics);
+      setTopicInfoList(topics);
     } catch (error) {
       console.error(error);
     } finally {
@@ -82,31 +68,21 @@ export default function Home() {
 
   return (
     <ul>
-      {topicList.map((topic, index) => (
+      {topicInfoList.map((topic, index) => (
         <li style={styles.li} key={index}>
-          {/* Карта посилання для теми */}
-          <Link to={`topics/${topic.id}`} style={{ textDecoration: "none" }}>
-            {/* Хедер для переходу на профіль */}
-            <div
-              style={styles.header}
-              onClick={e => {
-                e.preventDefault();
-                e.stopPropagation(); // зупиняю спливання події
-                navigate(`/profiles/${topic.author}`);
-              }}
-            >
-              <img
-                src={topic.avatar || "/default-avatar.png"}
-                alt="User Avatar"
-                className="profile-image"
-                style={{
-                  height: "40px",
-                  border: "0",
-                  marginRight: "10px",
-                }}
-              />
-              <span style={styles.username}>{topic.fullname}</span>
-            </div>
+          <Link
+            to={`topics/${topic.id}`}
+            style={{ textDecoration: "none" }}
+            state={{ backgroundLocation: location }}
+          >
+            <ProfileHeader
+              id={topic.author}
+              avatar={topic.author_avatar}
+              size={42}
+              profileName={topic.author_full_name}
+              className="mb-3"
+            />
+
             <div style={styles.content}>
               <p>{topic.title}</p>
             </div>

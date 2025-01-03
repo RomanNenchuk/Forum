@@ -5,7 +5,7 @@ import { pool } from "../db.js";
 export const getTopicsPreview = async (req, res) => {
   try {
     const result = await pool.query(
-      "SELECT Topics.id, fullname, username, avatar, title, email, author, tags, rating FROM Topics INNER JOIN Users ON Users.uid = Topics.author"
+      "SELECT Topics.id, fullname AS author_full_name, username, avatar AS author_avatar, title, email, author, tags, rating FROM Topics INNER JOIN Users ON Users.uid = Topics.author"
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ message: "No topics found" });
@@ -21,7 +21,7 @@ export const getTopic = async (req, res) => {
   try {
     const id = req.params.id;
     const result = await pool.query(
-      `SELECT uid, username, avatar, title, author, tags, description, attachments, TO_CHAR(topics.created_at, 'DD.MM.YYYY') AS formatted_date FROM topics INNER JOIN users 
+      `SELECT uid, fullname AS authorFullName, username, avatar, title, author, tags, description, attachments, TO_CHAR(topics.created_at, 'DD.MM.YYYY') AS formatted_date FROM topics INNER JOIN users 
         ON topics.author = users.uid 
         WHERE topics.id = $1`,
       [id]

@@ -21,13 +21,9 @@ const app = initializeApp({
 export const auth = getAuth(app); // отримуємо екземпляр аутентифікації для поточного додатку
 
 // Встановлюємо sessionStorage як тип зберігання стану
-setPersistence(auth, browserSessionPersistence)
-  .then(() => {
-    console.log("Session persistence set successfully.");
-  })
-  .catch(error => {
-    console.error("Error setting persistence:", error);
-  });
+setPersistence(auth, browserSessionPersistence).catch(error => {
+  console.error("Error setting persistence:", error);
+});
 
 // Експортуємо ініціалізовану функцію для аутентифікації та GoogleAuthProvider
 export default app;
