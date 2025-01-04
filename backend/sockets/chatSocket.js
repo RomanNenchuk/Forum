@@ -27,15 +27,7 @@ export const chatSocket = io => {
           .join("_");
 
         let read = false;
-
-        if (activeChats.get(recipient_id) === chat_id) {
-          socket
-            .to(recipient_id)
-            .emit("receive-message", { id, fullname, text, sender_id, timestamp });
-          read = true;
-        }
-        // надсилаю id доданого повідомлення, як результат, через колбек
-        callback(await saveMessage({
+        id = await saveMessage({
           chat_id,
           recipient_id,
           sender_id,
@@ -43,7 +35,15 @@ export const chatSocket = io => {
           text,
           timestamp,
           read,
-        }));
+        });
+        if (activeChats.get(recipient_id) === chat_id) {
+          socket
+            .to(recipient_id)
+            .emit("receive-message", { id, fullname, recipient_id, sender_id, text, timestamp });
+          read = true;
+        }
+        // надсилаю id доданого повідомлення, як результат, через колбек
+        callback(id);
       }
     );
 

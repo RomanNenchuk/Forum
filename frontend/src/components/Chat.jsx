@@ -132,10 +132,10 @@ export default function Chat() {
     };
     socket.emit("send-message", msg, (id) => {
       msg.id = id;
+      console.log(msg);
+      setMessages(prev => [...prev, msg]);
+      setText("");
     });
-    console.log(msg);
-    setMessages(prev => [...prev, msg]);
-    setText("");
   }
 
   function deleteMessage(msg_id) {
