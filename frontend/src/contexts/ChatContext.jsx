@@ -56,25 +56,20 @@ export function ChatProvider({ children }) {
     setMessages(response.data.messages);
   }
 
-  async function deleteMessage(id) {
-    try {
-      console.log(id);
-      const response = axios.delete(
-        `http://localhost:5000/chats/messages/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (response.data.success) {
-        console.log("Message deleted");
-      } else {
-        console.error("Failed to delete message");
+  async function getMessage({msg_id, callback}) {
+    console.log(msg_id);
+    const response = await axios.get(
+      `http://localhost:5000/chats/messages/${msg_id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
-    } catch (error) {
-      console.error(error);
-    }
+    );
+    callback({
+      text: response.data.text,
+      sender_id: response.data.sender_id,
+    });
   }
 
   const value = {
@@ -84,7 +79,7 @@ export function ChatProvider({ children }) {
     setMessages,
     fetchChatList,
     fetchOrCreateChat,
-    deleteMessage,
+    getMessage,
   };
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;

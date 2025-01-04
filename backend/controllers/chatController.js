@@ -90,14 +90,31 @@ export const fetchOrCreateChat = async (req, res) => {
       WHERE chat_id = $1
       ORDER BY timestamp ASC;
     `;
-    const messages = await pool.query(messagesQuery, [chat_id]);
+    const all_info_messages = await pool.query(messagesQuery, [chat_id]);
 
+    // Зберігаю повідомлення у потрібному вигляді, щоб передати їх в чат
+    let messages = [];
+    for(let i = 0; i < all_info_messages.rows.length; i++) {
+      const temp_recipient_id = 
+        (all_info_messages.rows[i].chat_id.split("_")[0] == all_info_messages.rows[i].sender_id ?
+        all_info_messages.rows[i].chat_id.split("_")[1] :
+        all_info_messages.rows[i].chat_id.split("_")[0]);
+      const msg = {
+        id: all_info_messages.rows[i].id,
+        fullname: all_info_messages.rows[i].fullname,
+        recipient_id: temp_recipient_id,
+        sender_id: all_info_messages.rows[i].sender_id,
+        text: all_info_messages.rows[i].text,
+        timestamp: all_info_messages.rows[i].timestamp,
+      };
+      messages.push(msg);
+    }
     // завершую транзакцію
     await client.query("COMMIT");
 
     res.status(200).json({
       chat_id,
-      messages: messages.rows,
+      messages,
       isNewChat: result.rowCount > 0,
     });
   } catch (error) {
@@ -130,20 +147,56 @@ export const saveMessage = async ({
       timestamp,
       read,
     ]);
+    return result.rows[0].id;
   } catch (error) {
     console.log(error);
   }
 };
 
 
-export const deleteMessage = async (req, res) => {
-  const id = req.params.id;
+export const deleteMessage = async (id) => {
   const query = `DELETE FROM messages WHERE id = $1`;
   try {
     const response = await pool.query(query, [id]);
-    res.status(200).json({ success: true });
+    return true;
   } catch (error) {
     console.error(error);
-    res.status(404).json({ success: false });
+    return false;
+  }
+};
+
+export const getMessage = async (req, res) => {
+  const id = req.params.id;
+  const query = `SELECT * FROM messages WHERE id = $1`;
+  try {
+    const response = await pool.query(query, [id]);
+    if (response.rows.length) {
+      res.status(200).json({
+        text: response.rows[0].text,
+        sender_id: response.rows[0].sender_id,
+      });
+    } else {
+      console.log(`msg with id ${id} not found`);
+      res.status(404).json({ text: null});
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ text: null });
+  }
+}
+
+export const editMessage = async (msg) => {
+  const query = `
+    UPDATE messages 
+    SET text = $1
+    WHERE id = $2
+    RETURNING *;
+    `;
+  try {
+    const result = await pool.query(query, [
+      msg.text, msg.id,
+    ]);
+  } catch (error) {
+    console.log(error);
   }
 };

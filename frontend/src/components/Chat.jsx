@@ -32,7 +32,7 @@ export default function Chat() {
     fetchOrCreateChat,
     setMessages,
     fetchChatList,
-    deleteMessage,
+    getMessage,
   } = useChat();
   const [loading, setLoading] = useState(false);
   const socket = useSocket();
@@ -59,8 +59,21 @@ export default function Chat() {
       setMessages(prev => [...prev, msg]);
     });
 
+    socket.on("remove-message", (id) => {
+      setMessages((prev) => prev.filter(item => item.id !== id));
+    });
+
+    socket.on("edit-his-message", (msg) => {
+      console.log(msg);
+      setMessages((prev) => prev.map((item) => 
+        item.id === msg.id ? { ...item, text: msg.text } : item
+      ));
+    });
+
     return () => {
       socket.off("receive-message");
+      socket.off("remove-message");
+      socket.off("edit-his-message");
       socket.emit("leave-chat", currentUser.uid);
     };
   }, [socket, currentUser, receiverId]);
@@ -119,16 +132,59 @@ export default function Chat() {
 
   function sendMessage() {
     const msg = {
+      id: -1,
       fullname: fullName,
       recipient_id: receiverId,
       sender_id: currentUser.uid,
       text,
       timestamp: new Date(),
     };
-    console.log(msg);
-    socket.emit("send-message", msg);
-    setMessages(prev => [...prev, { ...msg, timestamp: new Date() }]);
+    socket.emit("send-message", msg, (id) => {
+      msg.id = id;
+      console.log(msg);
+      setMessages(prev => [...prev, msg]);
+      setText("");
+    });
+  }
+
+  function deleteMessage(msg_id) {
+    for(let i = 0; i < messages.length; i++) {
+      if (msg_id == messages[i].id) {
+        console.log(messages[i]);
+        socket.emit("delete-message", {
+          msg_id,
+          initiator: currentUser.uid,
+          users: [messages[i].sender_id, messages[i].recipient_id],
+        });
+        setMessages((prev) => prev.filter(item => item.id !== msg_id));
+        break;
+      }
+    }
+  }
+
+  const [editId, setEditId] = useState(-1);
+  function resetEdit() {
+    setEditId(-1);
     setText("");
+  }
+
+  function editMessage() {
+    console.log(`Editing message with id ${editId}`);
+    setMessages((prev) => {
+      for(let i = 0; i < prev.length; i++) {
+        if (prev[i].id == editId) {
+          prev[i].text = text;
+        }
+      }
+      return prev;
+    });
+    for(let i = 0; i < messages.length; i++) {
+      if (messages[i].id === editId) {
+        console.log(messages[i]);
+        socket.emit("edit-message", messages[i]);
+      }
+    }
+    resetEdit();
   }
 
   if (loading) return <LoadingSpinner />;
@@ -168,15 +224,29 @@ export default function Chat() {
             text: "Delete",
             icon: "🗑️",
             onClick: () => {
-              deleteMessage(contextMenu.selectedMessage);
-              fetchOrCreateChat(receiverId, currentUser.uid);
               resetContextMenu();
+              deleteMessage(contextMenu.selectedMessage);
+              resetEdit();
             }
           },
           {
             text: "Edit",
             icon: "🖋️",
-            onClick: () => alert("wow"),
+            onClick: () => {
+              resetContextMenu();
+              getMessage({
+                  msg_id: contextMenu.selectedMessage,
+                  callback: (res) => {
+                    if (res.text && res.sender_id == currentUser.uid) {
+                      setText(res.text);
+                      setEditId(contextMenu.selectedMessage);
+                    } else {
+                      resetEdit();
+                    }
+                  }
+                }
+              );
+            },
           },
           {
             text: "Reply",
@@ -193,7 +263,8 @@ export default function Chat() {
           onChange={e => setText(e.target.value)}
           placeholder="Введіть повідомлення"
         />
-        <button onClick={sendMessage}>Надіслати</button>
+        {editId === -1 && (<button onClick={sendMessage}>Надіслати</button>)}
+        {editId !== -1 && (<button onClick={editMessage}>Редагувати</button>)}
       </div>
     </div>
   );
