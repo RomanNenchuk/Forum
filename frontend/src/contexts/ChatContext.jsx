@@ -56,6 +56,22 @@ export function ChatProvider({ children }) {
     setMessages(response.data.messages);
   }
 
+  async function getMessage({msg_id, callback}) {
+    console.log(msg_id);
+    const response = await axios.get(
+      `http://localhost:5000/chats/messages/${msg_id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    callback({
+      text: response.data.text,
+      sender_id: response.data.sender_id,
+    });
+  }
+
   const value = {
     chatList,
     setChatList,
@@ -63,6 +79,7 @@ export function ChatProvider({ children }) {
     setMessages,
     fetchChatList,
     fetchOrCreateChat,
+    getMessage,
   };
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;

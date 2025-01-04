@@ -1,6 +1,7 @@
 import { 
   saveMessage,
   deleteMessage,
+  editMessage,
  } from "../controllers/chatController.js";
 
 const activeChats = new Map();
@@ -70,12 +71,22 @@ export const chatSocket = io => {
       }
     });
 
-    // socket.on("edit-message", async ({ msg_id, msg_text }) => {
-    //   const edited_msg = {
-    //     msg_text: msg_text, 
-    //     msg_id: msg_id,
-    //   }
-    //   await editMessage(edited_msg);
-    // });
+    socket.on("edit-message", async (msg) => {
+      try {
+        const chat_id = [msg.recipient_id, msg.sender_id]
+          .sort((a, b) => a.localeCompare(b))
+          .join("_");
+        await editMessage(msg);
+        console.log(`message ${msg.id} edited`);
+        console.log(msg);
+        if (activeChats.get(msg.recipient_id) === chat_id) {
+          socket
+            .to(msg.recipient_id)
+            .emit("edit-his-message", msg);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    });
   });
 };

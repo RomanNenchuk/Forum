@@ -165,30 +165,38 @@ export const deleteMessage = async (id) => {
   }
 };
 
-// export const getMessage = async (req, res) => {
-//   const id = req.params.id;
-//   const query = `SELECT * FROM messages WHERE id = $1`;
-//   try {
-//     const response = await pool.query(query, [id]);
-//     res.status(200).json({ text: response.rows[0].text});
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ text: null });
-//   }
-// }
+export const getMessage = async (req, res) => {
+  const id = req.params.id;
+  const query = `SELECT * FROM messages WHERE id = $1`;
+  try {
+    const response = await pool.query(query, [id]);
+    if (response.rows.length) {
+      res.status(200).json({
+        text: response.rows[0].text,
+        sender_id: response.rows[0].sender_id,
+      });
+    } else {
+      console.log(`msg with id ${id} not found`);
+      res.status(404).json({ text: null});
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ text: null });
+  }
+}
 
-// export const editMessage = async ({msg_text, msg_id}) => {
-//   const query = `
-//     UPDATE messages 
-//     SET text = $1
-//     WHERE id = $2
-//     RETURNING *;
-//     `;
-//   try {
-//     const result = await pool.query(query, [
-//       msg_text, msg_id,
-//     ]);
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
+export const editMessage = async (msg) => {
+  const query = `
+    UPDATE messages 
+    SET text = $1
+    WHERE id = $2
+    RETURNING *;
+    `;
+  try {
+    const result = await pool.query(query, [
+      msg.text, msg.id,
+    ]);
+  } catch (error) {
+    console.log(error);
+  }
+};
