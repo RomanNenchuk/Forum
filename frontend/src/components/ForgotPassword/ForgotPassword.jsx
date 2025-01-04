@@ -6,7 +6,6 @@ import NavLink from "../NavLink.jsx";
 import { useLocation } from "react-router-dom";
 import { Form, Card, Alert } from "react-bootstrap";
 import { useAuth } from "../../contexts/AuthContext.jsx";
-import "./ForgotPassword.css";
 
 export default function ForgotPassword({ closeModal }) {
   const emailRef = useRef();

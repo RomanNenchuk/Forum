@@ -5,9 +5,6 @@ import eyeSlash from "../assets/eye-slash.svg";
 
 const styles = {
   input: { borderRadius: "20px" },
-  label: {
-    // backgroundColor: "#d9d9d9",
-  },
 };
 
 const FormInput = forwardRef(
@@ -24,7 +21,7 @@ const FormInput = forwardRef(
           id={id}
           type={inputType}
           placeholder={placeholder}
-          className={className ? className : ""}
+          className={`${className ? className : ""}`}
           style={styles.input}
           defaultValue={defaultValue}
           size="sm"

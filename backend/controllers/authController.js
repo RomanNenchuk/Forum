@@ -38,3 +38,27 @@ export const checkUsername = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const checkUsernameOrEmail = async (req, res) => {
+  const { username, email } = req.query;
+  try {
+    const result = await pool.query(
+      `SELECT 
+         COUNT(*) FILTER (WHERE username = $1) AS username_count,
+         COUNT(*) FILTER (WHERE email = $2) AS email_count
+       FROM users`,
+      [username, email]
+    );
+
+    const usernameExists = parseInt(result.rows[0].username_count, 10) > 0;
+    const emailExists = parseInt(result.rows[0].email_count, 10) > 0;
+
+    res.status(200).json({
+      usernameExists,
+      emailExists,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

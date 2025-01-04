@@ -50,7 +50,6 @@ export default function Home() {
         ? response.data
         : response.data.topics || [];
 
-      console.log(topics);
       setTopicInfoList(topics);
     } catch (error) {
       console.error(error);

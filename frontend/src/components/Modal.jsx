@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import ReactDOM from "react-dom";
 import { useNavigate } from "react-router-dom";
-import "./Login/Login.css";
 
 function Modal({ children }) {
   const navigate = useNavigate();

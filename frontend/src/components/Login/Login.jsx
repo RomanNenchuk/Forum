@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Form, Card, Alert } from "react-bootstrap";
 import Divider from "../Divider.jsx";
 import GoogleAuthButton from "../GoogleAuthButton.jsx";
@@ -9,7 +9,6 @@ import NavLink from "../NavLink.jsx";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useUserInfo } from "../../contexts/UserInfoContext.jsx";
 import { useNavigate, useLocation } from "react-router-dom";
-import "./Login.css";
 
 export default function Login({ closeModal }) {
   const emailOrUsernameRef = useRef();
@@ -52,7 +51,7 @@ export default function Login({ closeModal }) {
       navigate(redirectPath, { replace: true });
     } catch (error) {
       console.log(error);
-      setError("Failed to create an account");
+      setError("Не вдалося увійти в систему");
     }
     setLoading(false);
   }
@@ -82,7 +81,7 @@ export default function Login({ closeModal }) {
       navigate(redirectPath, { replace: true });
     } catch (error) {
       console.error(error);
-      setError("Failed to log in");
+      setError("Не вдалося увійти в систему");
     }
     setLoading(false);
   }

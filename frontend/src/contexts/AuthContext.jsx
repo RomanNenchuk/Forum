@@ -9,7 +9,6 @@ import {
   EmailAuthProvider,
   signInWithPopup,
   onAuthStateChanged,
-  GoogleAuthProvider,
 } from "firebase/auth"; // Імпортуємо необхідні функції
 import { auth, googleAuthProvider } from "../config/firebase-config.js"; // Імпортуємо вже ініціалізований екземпляр auth
 import axios from "axios";
@@ -60,6 +59,7 @@ export function AuthProvider({ children }) {
       return updateEmail(currentUser, newEmail);
     } catch (error) {
       console.error(error);
+      throw Error("Не вдалося оновити ел. пошту");
     }
   }
 
@@ -98,34 +98,6 @@ export function AuthProvider({ children }) {
         console.error("Incorrect password.");
       }
       return false; // Пароль неправильний
-    }
-  }
-
-  async function reauthenticateWithGoogle() {
-    if (!currentUser) {
-      throw new Error("No user is logged in.");
-    }
-
-    try {
-      // Ініціалізуємо GoogleAuthProvider
-      const provider = new GoogleAuthProvider();
-
-      // Входимо з використанням спливаючого вікна
-      const result = await signInWithPopup(auth, provider);
-
-      // Отримуємо облікові дані для реавтентифікації
-      const credential = GoogleAuthProvider.credentialFromResult(result);
-      if (!credential) {
-        throw new Error("Failed to get credentials from result.");
-      }
-
-      // Реавтентифікуємо користувача
-      await reauthenticateWithCredential(currentUser, credential);
-      console.log("Reauthenticated successfully with Google.");
-      return true;
-    } catch (error) {
-      console.error("Error during Google reauthentication:", error);
-      return false;
     }
   }
 
@@ -191,7 +163,6 @@ export function AuthProvider({ children }) {
     reauthenticate,
     loginWithGoogle,
     verifyPassword,
-    reauthenticateWithGoogle,
     checkUserRegistration,
     checkUsername,
   };
