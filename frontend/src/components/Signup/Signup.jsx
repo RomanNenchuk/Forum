@@ -75,7 +75,7 @@ export default function Signup({ closeModal }) {
           email: emailRef.current.value,
           userName: usernameRef.current.value,
           fullName: fullNameRef.current.value,
-          profilePicture: "",
+          profilePicture: null,
         });
       }
       if (preview && image) await saveAvatar(image, user.uid, newToken);

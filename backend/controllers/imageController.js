@@ -53,3 +53,29 @@ export const saveImage = (req, res) => {
     }
   });
 };
+
+export const deleteAvatar = async (req, res) => {
+  try {
+    const uid = req.params.id;
+
+    // Оновлення аватара в БД одразу
+    const updateQuery = `
+      UPDATE users
+      SET avatar = NULL
+      WHERE uid = $1
+      RETURNING avatar`;
+    const result = await pool.query(updateQuery, [uid]);
+
+    // якщо користувача немає
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    await cloudinary.uploader.destroy(`profileImages/${uid}`);
+
+    return res.status(200).json({ message: "Image successfully deleted!" });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ error: "Error deleting image" });
+  }
+};

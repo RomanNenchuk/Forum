@@ -7,13 +7,15 @@ import {
   getUserInfo,
 } from "../controllers/userController.js";
 
-import { saveImage } from "../controllers/imageController.js";
+import { saveImage, deleteAvatar } from "../controllers/imageController.js";
 
 const router = express.Router();
 
 router.post("/", middleware.decodeToken, saveUser); // POST-запит для створення користувача
 
 router.post("/:id/profile-image", middleware.decodeToken, saveImage);
+
+router.delete("/:id/profile-image", middleware.decodeToken, deleteAvatar);
 
 router.put("/:id", middleware.decodeToken, updateUser);
 

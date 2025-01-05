@@ -90,7 +90,6 @@ export function AuthProvider({ children }) {
 
       // Реавтентифікуємо користувача
       await reauthenticateWithCredential(currentUser, credential);
-      console.log("Password is correct.");
       return true; // Пароль правильний
     } catch (error) {
       console.error("Error reauthenticating user:", error);

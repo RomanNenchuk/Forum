@@ -60,11 +60,7 @@ export function UserInfoProvider({ children }) {
     }
   }
 
-  async function saveAvatar(image, uid, newToken) {
-    if (currentUser) {
-      uid = currentUser.uid;
-      newToken = token;
-    }
+  async function saveAvatar(image, uid, token) {
     const formData = new FormData();
     formData.append("profileImage", image);
     try {
@@ -74,7 +70,7 @@ export function UserInfoProvider({ children }) {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${newToken}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -85,6 +81,23 @@ export function UserInfoProvider({ children }) {
     }
   }
 
+  async function deleteAvatar(uid, token) {
+    try {
+      const response = await axios.delete(
+        `http://localhost:5000/users/${uid}/profile-image`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log(response);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   const value = {
     userName,
     setUserName,
@@ -92,11 +105,12 @@ export function UserInfoProvider({ children }) {
     setFullName,
     avatar,
     setAvatar,
-    saveAvatar,
     createdAt,
     setCreatedAt,
     getUserInfo,
     saveUserInDB,
+    saveAvatar,
+    deleteAvatar,
   };
 
   return (

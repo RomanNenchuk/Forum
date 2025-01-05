@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Card, Alert } from "react-bootstrap";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext.jsx";
@@ -22,8 +22,15 @@ export default function UpdateProfile({ closeModal }) {
     updateUserEmail,
     verifyPassword,
   } = useAuth();
-  const { userName, fullName, setUserName, avatar, setAvatar, saveAvatar } =
-    useUserInfo();
+  const {
+    userName,
+    fullName,
+    setUserName,
+    avatar,
+    setAvatar,
+    saveAvatar,
+    deleteAvatar,
+  } = useUserInfo();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState(null);
@@ -38,6 +45,10 @@ export default function UpdateProfile({ closeModal }) {
   const navigate = useNavigate();
   const location = useLocation();
   const backgroundLocation = location.state?.backgroundLocation || "/";
+
+  useEffect(() => {
+    setPreview(avatar);
+  }, [avatar]);
 
   const isGoogleSignIn = currentUser.providerData.some(
     provider => provider.providerId === "google.com"
@@ -120,6 +131,7 @@ export default function UpdateProfile({ closeModal }) {
       }
 
       if (preview && image) await saveAvatar(image, currentUser.uid, newToken);
+      if (!preview && avatar) await deleteAvatar(currentUser.uid, newToken);
 
       if (Object.keys(userData).length > 0) {
         const response = await updateUserOnServer(
@@ -159,9 +171,9 @@ export default function UpdateProfile({ closeModal }) {
         <AvatarUploader
           preview={preview}
           setPreview={setPreview}
-          avatar={avatar}
           setImage={setImage}
           imageInputRef={imageInputRef}
+          deleteAvatar={deleteAvatar}
         />
         <UpdateProfileForm
           isGoogleSignIn={isGoogleSignIn}

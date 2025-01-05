@@ -1,10 +1,9 @@
-import React, { useRef } from "react";
+import React from "react";
 import Avatar from "./Avatar.jsx";
 
 export default function AvatarUploader({
   preview,
   setPreview,
-  avatar,
   imageInputRef,
   setImage,
 }) {
@@ -22,8 +21,10 @@ export default function AvatarUploader({
     <div className="text-center">
       <Avatar
         preview={preview}
-        {...(avatar && { avatar })} // передаємо avatar тільки якщо він існує
         handleImageClick={handleImageClick}
+        handleRemove={() => {
+          setPreview("");
+        }}
         style={{ border: "4px solid #ffd700", marginBottom: "20px" }}
       />
       <input
