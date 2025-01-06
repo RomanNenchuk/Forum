@@ -174,6 +174,7 @@ export default function UpdateProfile({ closeModal }) {
           setImage={setImage}
           imageInputRef={imageInputRef}
           deleteAvatar={deleteAvatar}
+          setError={setError}
         />
         <UpdateProfileForm
           isGoogleSignIn={isGoogleSignIn}

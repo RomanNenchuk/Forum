@@ -5,6 +5,7 @@ import FirstStepForm from "./FirstStepForm.jsx";
 import SecondStepForm from "./SecondStepForm.jsx";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useUserInfo } from "../../contexts/UserInfoContext.jsx";
+// import "./Auth.css";
 
 export default function Signup({ closeModal }) {
   const [error, setError] = useState("");

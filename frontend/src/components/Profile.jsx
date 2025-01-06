@@ -6,9 +6,9 @@ import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
 import ModalHeader from "./ModalHeader/ModalHeader.jsx";
 import Avatar from "./Avatar.jsx";
 import ActionButton from "./ActionButton/ActionButton.jsx";
-import messageIcon from "../assets/message-icon.svg";
-import followIcon from "../assets/follow-icon.svg";
-import unfollowIcon from "../assets/unfollow-icon.svg";
+import messageIcon from "../assets/message.svg";
+import followIcon from "../assets/follow.svg";
+import unfollowIcon from "../assets/unfollow.svg";
 import "./Profile.css";
 import ModalLoading from "./ModalLoading.jsx";
 
@@ -53,7 +53,7 @@ export default function Profile({ closeModal }) {
         {error && <Alert variant="danger">{error}</Alert>}
         <div className="avatar-container text-center mb-4">
           <Avatar
-            avatar={author?.avatar || avatar}
+            avatar={author ? author.avatar : avatar}
             style={{ border: "4px solid #ffd700", marginBottom: "30px" }}
           />
         </div>

@@ -21,6 +21,7 @@ const Avatar = ({
     cursor: "pointer",
     color: "#000",
     position: "relative",
+    border: "1px solid #000",
     ...style,
   };
 

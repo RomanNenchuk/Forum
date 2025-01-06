@@ -11,6 +11,7 @@ export default function ProfileHeader({
   className = "",
   style = {},
   textStyle = {},
+  order = "avatar-first", // "avatar-first" або "text-first"
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -23,10 +24,17 @@ export default function ProfileHeader({
     });
   }
 
+  const isAvatarFirst = order === "avatar-first";
+
   return (
     <div
       className={`profile-header d-flex align-items-center ${className}`}
-      style={{ gap, cursor: "pointer", ...style }}
+      style={{
+        gap,
+        cursor: "pointer",
+        flexDirection: isAvatarFirst ? "row" : "row-reverse",
+        ...style,
+      }}
       onClick={handleClick}
     >
       <Avatar avatar={avatar} size={size} />

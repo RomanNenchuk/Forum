@@ -6,11 +6,20 @@ export default function AvatarUploader({
   setPreview,
   imageInputRef,
   setImage,
+  setError,
 }) {
   function handleImageChange(e) {
+    setError("");
     const selectedFile = e.target.files[0];
-    setImage(selectedFile);
-    setPreview(URL.createObjectURL(selectedFile));
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif"];
+
+    if (selectedFile && allowedTypes.includes(selectedFile.type)) {
+      setImage(selectedFile);
+      setPreview(URL.createObjectURL(selectedFile));
+    } else {
+      setError("Будь ласка, виберіть файл у форматі JPG, JPEG, PNG або GIF");
+      e.target.value = "";
+    }
   }
 
   function handleImageClick() {
@@ -32,7 +41,7 @@ export default function AvatarUploader({
         onChange={handleImageChange}
         ref={imageInputRef}
         style={{ display: "none" }}
-        accept="image/*"
+        accept=".jpg, .jpeg, .png, .gif"
       />
     </div>
   );

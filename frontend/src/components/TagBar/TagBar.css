@@ -1,0 +1,49 @@
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/Inter/Inter_28pt-Medium.ttf");
+}
+@font-face {
+  font-family: "Actor";
+  src: url("/fonts/Actor/Actor-Regular.ttf");
+}
+
+.tag-list-title {
+  font-family: "Actor", Arial, sans-serif;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 26.47px;
+  letter-spacing: -0.01em;
+  text-align: left;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+  margin-bottom: 35px;
+}
+
+.tag {
+  font-size: 18px;
+  font-weight: 500;
+  font-family: "Inter", Arial, sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 29.05px;
+  letter-spacing: -0.04em;
+  text-align: left;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+  margin-bottom: 18px;
+}
+
+.tag-list {
+  padding: 10px;
+  position: sticky;
+  top: 150px;
+  height: calc(100vh - 205px);
+  display: flex;
+  flex-direction: column;
+  right: 0;
+  width: 250px;
+  overflow: hidden;
+  background-color: rgb(255, 230, 169);
+  border: 1px solid black;
+  font-size: 20px;
+}
