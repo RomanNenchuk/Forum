@@ -1,5 +1,6 @@
 import React from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 import homeIcon from "../../assets/home.svg";
 import chatsIcon from "../../assets/chats.svg";
 import eventsIcon from "../../assets/events.svg";
@@ -11,6 +12,8 @@ import teamIcon from "../../assets/team.svg";
 import "./Menu.css";
 
 export default function SideBar() {
+  const location = useLocation();
+  const { currentUser } = useAuth();
   return (
     <div className="main-page-menu">
       <div className="mn-menu-row mn-menu-row1">
@@ -21,7 +24,14 @@ export default function SideBar() {
           </Link>
         </div>
         <div className="mn-menu-el">
-          <Link to="/chats/" id="mn-menu-chats">
+          <Link
+            to={currentUser ? `/chats` : "/login"}
+            id="mn-menu-chats"
+            state={{
+              backgroundLocation: location,
+              redirectPath: `/chats`,
+            }}
+          >
             <img src={chatsIcon} alt="Chats" />
             <h2>Чати</h2>
           </Link>

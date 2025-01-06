@@ -1,11 +1,12 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import ProfileHeader from "../ProfileHeader";
 import logo from "../../assets/logo.svg";
 import seachIcon from "../../assets/search.svg";
 import "./Menu.css";
 
 export default function TopBar({ currentUser, avatar, fullName }) {
+  const location = useLocation();
   return (
     <header>
       <div className="header-inr">
@@ -45,7 +46,7 @@ export default function TopBar({ currentUser, avatar, fullName }) {
               textStyle={{ color: "#000" }}
             />
           ) : (
-            <Link to="/login" className="linker">
+            <Link to="/login" state={{ backgroundLocation: location }}>
               <button className="hd-btn">
                 Вхід
                 <div className="hd-btn-sep">

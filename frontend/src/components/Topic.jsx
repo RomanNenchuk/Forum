@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Container, Card } from "react-bootstrap";
 import { Link, useParams, useLocation } from "react-router-dom";
+import ProfileHeader from "./ProfileHeader";
 import LoadingSpinner from "./Spinner";
 
 import axios from "axios";
@@ -34,18 +35,14 @@ export default function Topic() {
         <Card>
           <Card.Body>
             <h2 className="text-center mb-4">{topic?.title}</h2>
-            <Link
-              to={`/profiles/${topic?.author}`}
-              state={{ backgroundLocation: location }}
-            >
-              <div className="text-center mb-4 profile-image-container">
-                <img
-                  src={topic?.avatar || "/default-avatar.png"}
-                  alt="User Avatar"
-                  className="profile-image"
-                />
-              </div>
-            </Link>
+            <ProfileHeader
+              id={topic?.author}
+              avatar={topic?.avatar}
+              profileName={topic?.username}
+              size={70}
+              gap="10px"
+              textStyle={{ color: "#000" }}
+            />
             <p>
               Created by {topic?.username} on {topic?.formatted_date}
             </p>
