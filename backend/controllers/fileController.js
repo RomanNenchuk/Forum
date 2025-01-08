@@ -2,8 +2,8 @@ import multer from "multer";
 import { pool } from "../db.js";
 import cloudinary from "../utils/cloudinary.js";
 
-// Налаштування multer
-const upload = multer({
+// Налаштування multer для аватарів
+const uploadImage = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 }, // Максимум 5 МБ
   fileFilter: (req, file, cb) => {
@@ -15,7 +15,7 @@ const upload = multer({
 });
 
 export const saveImage = (req, res) => {
-  upload.single("profileImage")(req, res, async err => {
+  uploadImage.single("profileImage")(req, res, async err => {
     if (err) {
       return res.status(400).json({ error: err.message });
     }
@@ -57,8 +57,6 @@ export const saveImage = (req, res) => {
 export const deleteAvatar = async (req, res) => {
   try {
     const uid = req.params.id;
-
-    // Оновлення аватара в БД одразу
     const updateQuery = `
       UPDATE users
       SET avatar = NULL
@@ -77,5 +75,72 @@ export const deleteAvatar = async (req, res) => {
   } catch (error) {
     console.error("Error:", error);
     return res.status(500).json({ error: "Error deleting image" });
+  }
+};
+
+// налаштування multer для вкладень
+const uploadAttachment = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // Максимум 5 МБ
+});
+
+export const saveAttachments = (req, res) => {
+  uploadAttachment.array("files", 10)(req, res, async err => {
+    if (err) {
+      return res.status(400).json({ error: err.message });
+    }
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: "No files uploaded" });
+    }
+
+    try {
+      const results = [];
+      for (let file of req.files) {
+        const fileExtension = file.originalname.split(".").pop();
+        const mimeType = file.mimetype;
+
+        const resourceType = mimeType.startsWith("image/") ? "image" : "raw";
+
+        const result = await cloudinary.uploader.upload(
+          `data:${mimeType};base64,${file.buffer.toString("base64")}`,
+          {
+            resource_type: resourceType,
+            folder: "attachments",
+            public_id: `${Date.now()}_${file.originalname.split(".")[0]}`,
+            format: fileExtension,
+          }
+        );
+
+        results.push({
+          originalName: file.originalname,
+          url: result.secure_url,
+          public_id: result.public_id,
+          format: result.format,
+        });
+      }
+
+      console.log("All files uploaded successfully", results);
+
+      return res.status(200).json({
+        message: "Files uploaded successfully",
+        files: results,
+      });
+    } catch (error) {
+      console.error("Error during upload:", error);
+      return res.status(500).json({ error: "File upload failed" });
+    }
+  });
+};
+
+export const deleteAttachments = async files => {
+  try {
+    for (let file of files) {
+      const public_id = file.split("/").pop().split(".")[0];
+      await cloudinary.uploader.destroy(`attachments/${public_id}`);
+    }
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to delete file");
   }
 };

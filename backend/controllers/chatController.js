@@ -85,36 +85,19 @@ export const fetchOrCreateChat = async (req, res) => {
     await pool.query(updateMessagesQuery, [chat_id, sender_id]);
 
     const messagesQuery = `
-    SELECT * FROM messages 
+    SELECT id, fullname, sender_id, text, attachments, timestamp FROM messages
       INNER JOIN users ON sender_id = users.uid
       WHERE chat_id = $1
       ORDER BY timestamp ASC;
     `;
-    const all_info_messages = await pool.query(messagesQuery, [chat_id]);
+    const messages = await pool.query(messagesQuery, [chat_id]);
 
-    // Зберігаю повідомлення у потрібному вигляді, щоб передати їх в чат
-    let messages = [];
-    for(let i = 0; i < all_info_messages.rows.length; i++) {
-      const temp_recipient_id = 
-        (all_info_messages.rows[i].chat_id.split("_")[0] == all_info_messages.rows[i].sender_id ?
-        all_info_messages.rows[i].chat_id.split("_")[1] :
-        all_info_messages.rows[i].chat_id.split("_")[0]);
-      const msg = {
-        id: all_info_messages.rows[i].id,
-        fullname: all_info_messages.rows[i].fullname,
-        recipient_id: temp_recipient_id,
-        sender_id: all_info_messages.rows[i].sender_id,
-        text: all_info_messages.rows[i].text,
-        timestamp: all_info_messages.rows[i].timestamp,
-      };
-      messages.push(msg);
-    }
     // завершую транзакцію
     await client.query("COMMIT");
 
     res.status(200).json({
       chat_id,
-      messages,
+      messages: messages.rows,
       isNewChat: result.rowCount > 0,
     });
   } catch (error) {
@@ -125,43 +108,46 @@ export const fetchOrCreateChat = async (req, res) => {
   }
 };
 
-
 export const saveMessage = async ({
   sender_id,
   chat_id,
   text,
+  attachments,
   timestamp,
   read,
 }) => {
   const query = `
-    INSERT INTO messages (chat_id, sender_id, text, attachments, timestamp, read) VALUES
-      ($1, $2, $3, NULL, $4, $5)
-      RETURNING *;
-    `;
-
+  INSERT INTO messages (chat_id, sender_id, text, attachments, timestamp, read)
+  VALUES ($1, $2, $3, $4, $5, $6)
+  RETURNING *;
+`;
   try {
     const result = await pool.query(query, [
-      chat_id,
-      sender_id,
-      text,
-      timestamp,
-      read,
+      chat_id, // $1
+      sender_id, // $2
+      text, // $3
+      attachments, // $4
+      timestamp, // $5
+      read, // $6
     ]);
+
     return result.rows[0].id;
   } catch (error) {
     console.log(error);
   }
 };
 
-
-export const deleteMessage = async (id) => {
-  const query = `DELETE FROM messages WHERE id = $1`;
+export const deleteMessage = async id => {
+  const query = `DELETE FROM messages WHERE id = $1 RETURNING attachments`;
   try {
     const response = await pool.query(query, [id]);
-    return true;
+    console.log(response.rows[0].attachments);
+
+    if (response.rows.length > 0) return response.rows[0].attachments;
+    else return [];
   } catch (error) {
     console.error(error);
-    return false;
+    throw new Error("Failed to delete message");
   }
 };
 
@@ -177,15 +163,15 @@ export const getMessage = async (req, res) => {
       });
     } else {
       console.log(`msg with id ${id} not found`);
-      res.status(404).json({ text: null});
+      res.status(404).json({ text: null });
     }
   } catch (err) {
     console.error(err);
     res.status(500).json({ text: null });
   }
-}
+};
 
-export const editMessage = async (msg) => {
+export const editMessage = async msg => {
   const query = `
     UPDATE messages 
     SET text = $1
@@ -193,9 +179,7 @@ export const editMessage = async (msg) => {
     RETURNING *;
     `;
   try {
-    const result = await pool.query(query, [
-      msg.text, msg.id,
-    ]);
+    const result = await pool.query(query, [msg.text, msg.id]);
   } catch (error) {
     console.log(error);
   }

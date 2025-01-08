@@ -1,0 +1,20 @@
+.media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  padding: 10px;
+  max-width: 100%;
+}
+
+.media-image {
+  width: 100%;
+  height: auto;
+  border-radius: 5px;
+  object-fit: cover;
+}
+
+.media-url {
+  color: #555;
+  word-break: break-word;
+  font-size: 14px;
+}

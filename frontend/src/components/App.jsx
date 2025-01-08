@@ -19,6 +19,7 @@ import ChatList from "./ChatList.jsx";
 import Chat from "./Chat.jsx";
 import Modal from "./Modal.jsx";
 import { useBackgroundLocation } from "../hooks/useBackgroundLocation.jsx";
+import DefaultChatScreen from "./DefaultChatScreen.jsx";
 
 function App() {
   return (
@@ -53,10 +54,7 @@ function AppRoutes() {
                   <ChatProvider>
                     <Routes>
                       <Route path="/" element={<ChatList />}>
-                        <Route
-                          index
-                          element={<h1>Виберіть чат для спілкування</h1>}
-                        />
+                        <Route index element={<DefaultChatScreen />} />
                         <Route path=":receiverId" element={<Chat />} />
                       </Route>
                     </Routes>

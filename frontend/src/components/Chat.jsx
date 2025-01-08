@@ -5,26 +5,24 @@ import { useChat } from "../contexts/ChatContext";
 import { useSocket } from "../contexts/SocketProviderContext";
 import { useUserInfo } from "../contexts/UserInfoContext";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock.jsx";
+import { timestampToTime } from "../utils/getCurrentTime.jsx";
+import AttachedFiles from "./AttachedFiles/AttachedFiles.jsx";
+import FileUploader from "./FileUploader.jsx";
 import ContextMenu from "./ContextMenu/ContextMenu.jsx";
 import LoadingSpinner from "./Spinner.jsx";
+import axios from "axios";
 import "react-bootstrap";
 
 export default function Chat() {
   const [text, setText] = useState("");
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
+  const [files, setFiles] = useState([]);
+  const [progress, setProgress] = useState({ started: false, pc: 0 });
 
   useBodyScrollLock(isContextMenuOpen);
 
-  const [contextMenu, setContextMenu] = useState({
-    selectedMessage: -1,
-    position: {
-      x: 0,
-      y: 0,
-    },
-    toggled: false,
-  });
-
   const contextMenuRef = useRef(null);
+  const fileInputRef = useRef();
 
   const { receiverId } = useParams();
   const {
@@ -39,7 +37,17 @@ export default function Chat() {
   const { currentUser } = useAuth();
   const { fullName } = useUserInfo();
 
+  const [contextMenu, setContextMenu] = useState({
+    selectedMessage: -1,
+    position: {
+      x: 0,
+      y: 0,
+    },
+    toggled: false,
+  });
+
   useEffect(() => {
+    if (!socket) return;
     (async () => {
       try {
         setLoading(true);
@@ -49,7 +57,7 @@ export default function Chat() {
         setLoading(false);
       }
     })();
-  }, [receiverId]);
+  }, [receiverId, socket]);
 
   useEffect(() => {
     if (!socket) return;
@@ -59,15 +67,17 @@ export default function Chat() {
       setMessages(prev => [...prev, msg]);
     });
 
-    socket.on("remove-message", (id) => {
-      setMessages((prev) => prev.filter(item => item.id !== id));
+    socket.on("remove-message", id => {
+      setMessages(prev => prev.filter(item => item.id !== id));
     });
 
-    socket.on("edit-his-message", (msg) => {
+    socket.on("edit-his-message", msg => {
       console.log(msg);
-      setMessages((prev) => prev.map((item) => 
-        item.id === msg.id ? { ...item, text: msg.text } : item
-      ));
+      setMessages(prev =>
+        prev.map(item =>
+          item.id === msg.id ? { ...item, text: msg.text } : item
+        )
+      );
     });
 
     return () => {
@@ -130,33 +140,42 @@ export default function Chat() {
     });
   }
 
-  function sendMessage() {
+  async function sendMessage() {
+    let attachments = null;
+    if (files) {
+      const uploadResult = await handleUpload();
+      attachments = uploadResult?.files?.map(attachment => attachment.url);
+    }
     const msg = {
       id: -1,
       fullname: fullName,
       recipient_id: receiverId,
       sender_id: currentUser.uid,
       text,
-      timestamp: new Date(),
+      attachments,
+      timestamp: new Date().toISOString(),
     };
-    socket.emit("send-message", msg, (id) => {
+
+    socket.emit("send-message", msg, id => {
       msg.id = id;
       console.log(msg);
       setMessages(prev => [...prev, msg]);
       setText("");
+      setFiles([]);
+      fileInputRef.current.value = "";
     });
   }
 
   function deleteMessage(msg_id) {
-    for(let i = 0; i < messages.length; i++) {
+    for (let i = 0; i < messages.length; i++) {
       if (msg_id == messages[i].id) {
         console.log(messages[i]);
         socket.emit("delete-message", {
           msg_id,
           initiator: currentUser.uid,
-          users: [messages[i].sender_id, messages[i].recipient_id],
+          users: [currentUser.uid, receiverId],
         });
-        setMessages((prev) => prev.filter(item => item.id !== msg_id));
+        setMessages(prev => prev.filter(item => item.id !== msg_id));
         break;
       }
     }
@@ -170,21 +189,52 @@ export default function Chat() {
 
   function editMessage() {
     console.log(`Editing message with id ${editId}`);
-    setMessages((prev) => {
-      for(let i = 0; i < prev.length; i++) {
+    setMessages(prev => {
+      for (let i = 0; i < prev.length; i++) {
         if (prev[i].id == editId) {
           prev[i].text = text;
         }
       }
       return prev;
     });
-    for(let i = 0; i < messages.length; i++) {
+    for (let i = 0; i < messages.length; i++) {
       if (messages[i].id === editId) {
         console.log(messages[i]);
         socket.emit("edit-message", messages[i]);
       }
     }
     resetEdit();
+  }
+  async function handleUpload() {
+    if (!files) {
+      return console.log("No selected files");
+    } else {
+      try {
+        const fd = new FormData();
+        for (let i = 0; i < files.length; i++) fd.append("files", files[i]);
+
+        setProgress(prev => {
+          return { ...prev, started: true };
+        });
+
+        const response = await axios.post(
+          `http://localhost:5000/attachments/${currentUser.uid}`,
+          fd,
+          {
+            onUploadProgress: progressEvent => {
+              setProgress(prev => {
+                return { ...prev, pc: progressEvent.progress * 100 };
+              });
+            },
+          }
+        );
+
+        console.log(response.data);
+        return response.data;
+      } catch (error) {
+        console.error(error);
+      }
+    }
   }
 
   if (loading) return <LoadingSpinner />;
@@ -196,18 +246,19 @@ export default function Chat() {
           return messages?.map((msg, index) => (
             <li
               key={index}
-              className="mb-4 p-4 border rounded"
+              className="mb-4 p-4 border rounded w-50"
               style={
                 msg.sender_id === currentUser.uid
-                  ? { textAlign: "right" }
-                  : { textAlign: "left" }
+                  ? { textAlign: "right", marginLeft: "auto" }
+                  : { textAlign: "left", marginRight: "auto" }
               }
               onContextMenu={e => handleOnContextMenu(e, msg)}
             >
               <strong>{msg.fullname}</strong>
+              <AttachedFiles urls={msg?.attachments} />
               <p>{msg.text}</p>
               <span style={{ fontSize: "0.8em", color: "gray" }}>
-                {new Date(msg.timestamp).toLocaleString()}
+                {timestampToTime(msg.timestamp)}
               </span>
             </li>
           ));
@@ -219,52 +270,26 @@ export default function Chat() {
         isToggled={contextMenu.toggled}
         positionX={contextMenu.position.x}
         positionY={contextMenu.position.y}
-        buttons={[
-          {
-            text: "Delete",
-            icon: "🗑️",
-            onClick: () => {
-              resetContextMenu();
-              deleteMessage(contextMenu.selectedMessage);
-              resetEdit();
-            }
-          },
-          {
-            text: "Edit",
-            icon: "🖋️",
-            onClick: () => {
-              resetContextMenu();
-              getMessage({
-                  msg_id: contextMenu.selectedMessage,
-                  callback: (res) => {
-                    if (res.text && res.sender_id == currentUser.uid) {
-                      setText(res.text);
-                      setEditId(contextMenu.selectedMessage);
-                    } else {
-                      resetEdit();
-                    }
-                  }
-                }
-              );
-            },
-          },
-          {
-            text: "Reply",
-            icon: "↩️",
-            onClick: () => alert("wow"),
-          },
-        ]}
+        contextMenu={contextMenu}
+        resetContextMenu={resetContextMenu}
+        deleteMessage={deleteMessage}
+        resetEdit={resetEdit}
+        getMessage={getMessage}
+        setText={setText}
+        setEditId={setEditId}
+        currentUser={currentUser}
       />
 
       <div className="chat-input">
+        <FileUploader setFiles={setFiles} fileInputRef={fileInputRef} />
         <input
           type="text"
           value={text}
           onChange={e => setText(e.target.value)}
           placeholder="Введіть повідомлення"
         />
-        {editId === -1 && (<button onClick={sendMessage}>Надіслати</button>)}
-        {editId !== -1 && (<button onClick={editMessage}>Редагувати</button>)}
+        {editId === -1 && <button onClick={sendMessage}>Надіслати</button>}
+        {editId !== -1 && <button onClick={editMessage}>Редагувати</button>}
       </div>
     </div>
   );

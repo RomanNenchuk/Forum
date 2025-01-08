@@ -25,7 +25,7 @@ export default function CreateTopic() {
     const topicData = {
       title: titleRef.current.value,
       author: currentUser.uid,
-      tags: tagsRef.current.value.split(",").map((tag) => tag.trim()), // Розділяємо теги через кому
+      tags: tagsRef.current.value.split(",").map(tag => tag.trim()), // Розділяємо теги через кому
       description: descriptionRef.current.value,
     };
 
@@ -55,7 +55,7 @@ export default function CreateTopic() {
 
   return (
     <Container className="d-flex align-items-center justify-content-center">
-      <div className="w-100" style={{ maxWidth: "400px" }}>
+      <div className="w-90">
         <Card>
           <Card.Body>
             <h2 className="text-center mb-4">Create Topic</h2>

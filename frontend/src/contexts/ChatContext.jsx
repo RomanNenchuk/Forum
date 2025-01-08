@@ -23,8 +23,6 @@ export function ChatProvider({ children }) {
         },
       });
 
-      console.log(result.data);
-
       setChatList(result.data);
     } catch (error) {
       console.error(error);
@@ -32,31 +30,36 @@ export function ChatProvider({ children }) {
   }
 
   async function fetchOrCreateChat(receiver_id, sender_id) {
+    if (!socket) {
+      return;
+    }
     const chat_id = [receiver_id, sender_id]
       .sort((a, b) => a.localeCompare(b))
       .join("_");
 
-    const response = await axios.put(
-      `http://localhost:5000/chats/${chat_id}`,
-      {
-        receiver_id,
-        sender_id,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
+    try {
+      const response = await axios.put(
+        `http://localhost:5000/chats/${chat_id}`,
+        {
+          receiver_id,
+          sender_id,
         },
-      }
-    );
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      socket.emit("join-chat", { user_id: currentUser.uid, chat_id });
 
-    socket.emit("join-chat", { user_id: currentUser.uid, chat_id });
-
-    console.log(response.data.messages);
-
-    setMessages(response.data.messages);
+      console.log(response.data.messages);
+      setMessages(response.data.messages);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
-  async function getMessage({msg_id, callback}) {
+  async function getMessage({ msg_id, callback }) {
     console.log(msg_id);
     const response = await axios.get(
       `http://localhost:5000/chats/messages/${msg_id}`,

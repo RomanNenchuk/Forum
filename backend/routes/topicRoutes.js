@@ -6,7 +6,7 @@ import {
   getTopic,
 } from "../controllers/topicController.js";
 
-import { saveImage } from "../controllers/imageController.js";
+import { saveImage } from "../controllers/fileController.js";
 
 const router = express.Router();
 

@@ -2,25 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useChat } from "../contexts/ChatContext";
-import LoadingSpinner from "./Spinner.jsx";
 
 export default function ChatList() {
-  const { chatList, setChatList, fetchChatList } = useChat();
+  const { chatList, setChatList } = useChat();
   const { currentUser } = useAuth();
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        setLoading(true);
-        await fetchChatList();
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
-
-  if (loading) return <LoadingSpinner />;
 
   return (
     <div className="d-flex justify-content-around">

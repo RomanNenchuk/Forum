@@ -7,7 +7,7 @@ import {
   getUserInfo,
 } from "../controllers/userController.js";
 
-import { saveImage, deleteAvatar } from "../controllers/imageController.js";
+import { saveImage, deleteAvatar } from "../controllers/fileController.js";
 
 const router = express.Router();
 

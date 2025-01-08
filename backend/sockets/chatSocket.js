@@ -1,8 +1,9 @@
-import { 
+import {
   saveMessage,
   deleteMessage,
   editMessage,
- } from "../controllers/chatController.js";
+} from "../controllers/chatController.js";
+import { deleteAttachments } from "../controllers/fileController.js";
 
 const activeChats = new Map();
 
@@ -22,56 +23,62 @@ export const chatSocket = io => {
 
     socket.on(
       "send-message",
-      async ({ id, fullname, recipient_id, sender_id, text, timestamp }, callback) => {
-        const chat_id = [recipient_id, sender_id]
-          .sort((a, b) => a.localeCompare(b))
-          .join("_");
+      async (
+        { id, fullname, recipient_id, sender_id, text, attachments, timestamp },
+        callback
+      ) => {
+        try {
+          const chat_id = [recipient_id, sender_id]
+            .sort((a, b) => a.localeCompare(b))
+            .join("_");
 
-        let read = false;
-        id = await saveMessage({
-          chat_id,
-          recipient_id,
-          sender_id,
-          chat_id,
-          text,
-          timestamp,
-          read,
-        });
-        if (activeChats.get(recipient_id) === chat_id) {
-          socket
-            .to(recipient_id)
-            .emit("receive-message", { id, fullname, recipient_id, sender_id, text, timestamp });
-          read = true;
+          let isActive = activeChats.get(recipient_id) === chat_id;
+          id = await saveMessage({
+            chat_id,
+            recipient_id,
+            sender_id,
+            text,
+            attachments,
+            timestamp,
+            read: isActive,
+          });
+          if (isActive) {
+            socket.to(recipient_id).emit("receive-message", {
+              id,
+              fullname,
+              recipient_id,
+              sender_id,
+              text,
+              attachments,
+              timestamp,
+            });
+          }
+          // надсилаю id доданого повідомлення, як результат, через колбек
+          callback(id);
+        } catch (error) {
+          console.error(error);
         }
-        // надсилаю id доданого повідомлення, як результат, через колбек
-        callback(id);
       }
     );
 
     socket.on("delete-message", async ({ msg_id, initiator, users }) => {
       try {
         console.log(`Try to delete message ${msg_id}`);
-        if (await deleteMessage(msg_id)) {
-          console.log(`Message ${msg_id} deleted`);
-          const chat_id = users
-            .sort((a, b) => a.localeCompare(b))
-            .join("_");
-          users.map((user) => {
-              if (user != initiator && activeChats.get(user) === chat_id) {
-                socket
-                  .to(user)
-                  .emit("remove-message", msg_id);
-              }
-            });
-        } else {
-          console.error("Failed to delete message");
-        }
+        const attachments = await deleteMessage(msg_id);
+        console.log(`Message ${msg_id} deleted`);
+        if (Array.isArray(attachments)) await deleteAttachments(attachments);
+        const chat_id = users.sort((a, b) => a.localeCompare(b)).join("_");
+        users.forEach(user => {
+          if (user != initiator && activeChats.get(user) === chat_id) {
+            socket.to(user).emit("remove-message", msg_id);
+          }
+        });
       } catch (error) {
         console.error(error);
       }
     });
 
-    socket.on("edit-message", async (msg) => {
+    socket.on("edit-message", async msg => {
       try {
         const chat_id = [msg.recipient_id, msg.sender_id]
           .sort((a, b) => a.localeCompare(b))
@@ -80,9 +87,7 @@ export const chatSocket = io => {
         console.log(`message ${msg.id} edited`);
         console.log(msg);
         if (activeChats.get(msg.recipient_id) === chat_id) {
-          socket
-            .to(msg.recipient_id)
-            .emit("edit-his-message", msg);
+          socket.to(msg.recipient_id).emit("edit-his-message", msg);
         }
       } catch (error) {
         console.error(error);

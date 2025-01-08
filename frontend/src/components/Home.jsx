@@ -9,20 +9,26 @@ import TagBar from "./TagBar/TagBar.jsx";
 export default function Home() {
   const [topicInfoList, setTopicInfoList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(1);
   const { token } = useAuth();
 
-  async function fetchTopics() {
+  async function fetchTopics(page) {
     try {
-      const response = await axios.get("http://localhost:5000/topics", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        `http://localhost:5000/topics?page=${page}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       const topics = Array.isArray(response.data)
         ? response.data
         : response.data.topics || [];
 
-      setTopicInfoList(topics);
+      setTopicInfoList(prev => [...prev, ...topics]);
+      setHasMore(topics.length > 0); // якщо повернулось 0 тем, більше даних немає
     } catch (error) {
       console.error(error);
     } finally {
@@ -31,11 +37,26 @@ export default function Home() {
   }
 
   useEffect(() => {
-    setLoading(true);
-    fetchTopics();
-  }, []);
+    fetchTopics(page);
+  }, [page]);
 
-  if (loading) return <LoadingSpinner />;
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + document.documentElement.scrollTop >=
+          document.documentElement.offsetHeight - 200 &&
+        hasMore &&
+        !loading
+      ) {
+        setPage(prev => prev + 1);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [hasMore, loading]);
+
+  if (loading && topicInfoList.length === 0) return <LoadingSpinner />;
 
   return (
     <>
@@ -44,6 +65,7 @@ export default function Home() {
         <TopicList topicInfoList={topicInfoList} />
       </ul>
       <TagBar />
+      {loading && <LoadingSpinner />}
     </>
   );
 }

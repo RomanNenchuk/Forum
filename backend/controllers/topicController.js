@@ -1,15 +1,22 @@
-import { query } from "express";
 import { pool } from "../db.js";
 
 // для відображення на головній сторінці
 export const getTopicsPreview = async (req, res) => {
+  const { page = 1, limit = 10 } = req.query;
+  const offset = (page - 1) * limit;
+
   try {
     const result = await pool.query(
-      "SELECT Topics.id, fullname AS author_full_name, username, avatar AS author_avatar, title, email, author, tags, rating FROM Topics INNER JOIN Users ON Users.uid = Topics.author"
+      `
+      SELECT topics.id, fullname AS author_full_name, username, avatar AS author_avatar, 
+             title, email, author, tags, rating 
+      FROM topics 
+      INNER JOIN Users ON Users.uid = topics.author
+      ORDER BY topics.created_at DESC
+      LIMIT $1 OFFSET $2
+      `,
+      [limit, offset]
     );
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: "No topics found" });
-    }
     res.status(200).json(result.rows);
   } catch (error) {
     console.error(error);
