@@ -4,7 +4,8 @@ import { FaUserCircle, FaTimes } from "react-icons/fa";
 const Avatar = ({
   preview,
   avatar,
-  size = 120,
+  size = `120px`,
+  avThickness = '1px',
   handleImageClick,
   handleRemove,
   className = "",
@@ -13,7 +14,7 @@ const Avatar = ({
   const baseStyle = {
     objectFit: "cover",
     width: "auto",
-    height: `${size}px`,
+    height: size,
     aspectRatio: "1 / 1",
     borderRadius: "50%",
     overflow: "hidden",
@@ -21,7 +22,7 @@ const Avatar = ({
     cursor: "pointer",
     color: "#000",
     position: "relative",
-    border: "1px solid #000",
+    border: `${avThickness} solid #659287`,
     ...style,
   };
 

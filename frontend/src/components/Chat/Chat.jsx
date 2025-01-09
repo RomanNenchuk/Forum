@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
-import { useChat } from "../contexts/ChatContext";
-import { useSocket } from "../contexts/SocketProviderContext";
-import { useUserInfo } from "../contexts/UserInfoContext";
-import { useBodyScrollLock } from "../hooks/useBodyScrollLock.jsx";
-import { timestampToTime } from "../utils/getCurrentTime.jsx";
-import AttachedFiles from "./AttachedFiles/AttachedFiles.jsx";
-import FileUploader from "./FileUploader.jsx";
-import ContextMenu from "./ContextMenu/ContextMenu.jsx";
-import LoadingSpinner from "./Spinner.jsx";
+import { useAuth } from "../../contexts/AuthContext";
+import { useChat } from "../../contexts/ChatContext";
+import { useSocket } from "../../contexts/SocketProviderContext";
+import { useUserInfo } from "../../contexts/UserInfoContext";
+import { useBodyScrollLock } from "../../hooks/useBodyScrollLock.jsx";
+import { timestampToTime } from "../../utils/getCurrentTime.jsx";
+import AttachedFiles from "../AttachedFiles/AttachedFiles.jsx";
+import FileUploader from "../FileUploader.jsx";
+import ContextMenu from "../ContextMenu/ContextMenu.jsx";
+import LoadingSpinner from "../Spinner.jsx";
 import axios from "axios";
 import "react-bootstrap";
 

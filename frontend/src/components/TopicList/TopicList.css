@@ -10,27 +10,27 @@ ul {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  margin-top: 30px;
-  margin-bottom: 30px;
+  margin-top: 4vh;
+  margin-bottom: 4vh;
 }
 .add-topic-button {
   background-color: #5f8575; /* Колір кнопки */
   color: white;
   border: none;
-  padding: 8px 16px;
-  font-size: 24px;
+  padding: 1vh 2.3vh;
+  font-size: 3vh;
   font-family: Arial, sans-serif;
-  border-radius: 4px; /* Закруглені краї */
+  border-radius: 0.6vh; /* Закруглені краї */
   cursor: pointer;
 }
 .dropdown-button {
   background-color: #f5f5f5; /* Світлий фон */
   color: black;
-  border: 1px solid #ccc; /* Сіра рамка */
-  padding: 8px 16px;
-  font-size: 24px;
+  border: 0.1vh solid #ccc; /* Сіра рамка */
+  padding: 1vh 2.3vh;
+  font-size: 3vh;
   font-family: Arial, sans-serif;
-  border-radius: 4px; /* Закруглені краї */
+  border-radius: 0.6vh; /* Закруглені краї */
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -49,20 +49,18 @@ ul {
 }
 .interact_emo_window {
   position: relative;
-  background-color: gray;
-  border-radius: 10px;
+  border-radius: 2vh;
   margin-top: 5px;
 }
 .outer_interact {
   position: absolute;
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
   align-items: center;
   background: rgb(220, 220, 220);
-  width: 180px;
-  border: 1px solid black;
-  border-radius: 10px;
+  width: 26vh;
+  border: 0.1vh solid black;
+  border-radius: 2vh;
   right: 0px;
   height: auto;
 }
@@ -71,7 +69,7 @@ ul {
 
   flex-direction: row;
   align-items: center;
-  width: 160px;
+  width: 24vh;
   height: auto;
   overflow: auto;
   scrollbar-width: none; /* Для Firefox */
@@ -81,12 +79,12 @@ ul {
   background: none;
   display: inline;
   border: none;
-  font-size: 24px;
+  font-size: 3vh;
   cursor: pointer;
   display: flex;
   align-items: center;
   display: inline;
-  margin: 5px;
+  margin: 0.8vh;
 }
 .theme_list {
   box-sizing: border-box;
@@ -142,7 +140,7 @@ ul {
   text-align: left;
   margin-right: 5px;
   color: gray;
-  font-size: 20px;
+  font-size: 3vh;
 }
 
 .icons_menu {
@@ -150,17 +148,20 @@ ul {
   flex-direction: row;
   justify-content: space-between;
   align-content: center;
-  margin: 5px;
+  align-items: center;
+  margin: 0.8vh;
+}
+.disanlike{
+  display: flex;
+  align-content: center;
 }
 .disanlike button {
   border-radius: 20px;
   border: none;
   outline: none;
   box-shadow: none;
-  margin-left: 5px;
-  margin-bottom: 5px;
-  padding-right: 2px;
-  font-size: 24px;
+  margin-right: 1vh;
+  font-size: 3vh;
   background-color: rgb(220, 220, 220);
 }
 
@@ -173,44 +174,41 @@ ul {
   margin: 0px;
   margin-left: 5px;
   margin-right: 5px;
-  font-size: 24px;
+  font-size: 3vh;
   cursor: pointer;
   user-select: none; /* Забороняє виділення тексту */
   -webkit-user-select: none; /* Для підтримки в Safari */
   -ms-user-select: none; /* Для старих версій Internet Explorer */
 }
 
+
 .topic-card {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 20px;
+  gap: 2.5vh;
   list-style: none;
-  padding: 18px;
+  padding: 2.6vh;
   font-family: Arial, sans-serif;
-  max-width: 580px;
-  min-height: 200px;
   width: 100%;
-  margin-bottom: 70px;
-  border: 1px solid #000;
-  border-radius: 20px;
+  margin-bottom: 10vh;
+  border: 0.1vh solid #000;
+  border-radius: 2.5vh;
   background-color: white;
-  box-shadow: 3px 3px 6px 4px #00000040;
+  box-shadow: 0.5vh 0.5vh 0.8vh 0.55vh #00000040;
 }
 
 .topic-content {
   display: flex;
   flex-direction: column;
-  gap: 25px;
-  border: 4px solid #fdbe10;
-  border-radius: 20px;
-  padding: 25px;
-  flex-grow: 1;
+  gap: 3.5vh;
+  border: 0.6vh solid #fdbe10;
+  border-radius: 2.9vh;
+  padding: 2.5vh;
 }
 
 .topic-title {
-  margin-bottom: 12px;
-  font-size: 29px;
+  font-size: 3vh;
   color: #333;
 }
 
@@ -218,7 +216,7 @@ ul {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 18px;
+  font-size: 2.7vh;
 }
 
 .emoji-icons {

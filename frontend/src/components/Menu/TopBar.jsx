@@ -14,9 +14,7 @@ export default function TopBar({ currentUser, avatar, fullName }) {
           <div className="hd-col">
             <div className="hd-logo">
               <img src={logo} alt="UFORUM" />
-              <h1>
-                <span>U</span>FORUM
-              </h1>
+                <span><span>U</span>FORUM</span>
             </div>
           </div>
         </Link>
@@ -38,9 +36,11 @@ export default function TopBar({ currentUser, avatar, fullName }) {
             <ProfileHeader
               id={currentUser.uid}
               avatar={avatar}
-              profileName={fullName}
-              size={70}
-              gap="10px"
+              profileName={`Вітаємо, ${fullName}!`}
+              size="9vh"
+              sizeFont="3vh"
+              avThickness = '0.4vh'
+              gap="1.5vh"
               order="text-first"
               style={{ textAlign: "right" }}
               textStyle={{ color: "#000" }}

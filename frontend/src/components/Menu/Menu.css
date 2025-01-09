@@ -22,6 +22,10 @@
   padding: 0;
   margin: 0;
 }
+.linker{
+  text-decoration: none;
+  outline: none;
+}
 
 .wrapper {
   display: flex;
@@ -31,7 +35,6 @@
 .forum-container {
   display: flex;
   flex-grow: 1;
-  margin-top: 105px;
   justify-content: space-between;
   background-color: #f4ece0;
 }
@@ -50,10 +53,10 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 7px 15px;
+  padding: 1vh 2vh;
   background-color: #f6d88f;
-  border-bottom: 7px solid #000000;
-  box-shadow: 0px 8px 4px 0px #00000040;
+  border-bottom: 0.5vh solid #000000;
+  box-shadow: 0px 1vh 0.5vh 0px #00000040;
 }
 .hd-col,
 .hd-logo,
@@ -67,63 +70,71 @@ header {
   flex: 0 0 40%;
 }
 .hd-logo {
-  gap: 20px;
+  gap: 2vh;
 }
-.hd-logo h1 {
+.hd-logo span {
   font-family: "InriaSans-Bold";
-  font-size: 64px;
+  font-size: 8vh;
   font-weight: 700;
   color: #000000;
   font-weight: 700;
 }
-.hd-logo h1 span:first-child {
+.hd-logo span span:first-child {
   font-family: "InriaSans-Bold";
   color: #ff0000;
 }
+.hd-logo img{
+  height: 10vh;
+  width: auto;
+}
 .hd-search {
   background-color: #fff;
-  border-radius: 20px;
-  padding-left: 18px;
-  gap: 12px;
+  border-radius: 3vh;
+  padding-left: 3vh;
+  gap: 2vh;
   width: 100%;
 }
 .hd-search input {
   border: none;
   font-family: "Actor", Arial, sans;
-  font-size: 19px;
+  font-size: 3vh;
   width: 100%;
 }
 .hd-search input::placeholder {
   color: #808080;
   font-family: "Actor", Arial, sans;
-  font-size: 19px;
+  font-size: 2.5vh;  /**/
 }
 .hd-search-btn,
 .hd-btn {
-  padding: 5px 10px;
-  margin-left: 10px;
-  font-size: 27px;
-  height: 47px;
+  padding: 0.9vh 1.5vh;
+  margin-left: 1.5vh;
+  font-size: 4vh;
+  height: 8vh;
   background-color: #659287;
   border: none;
-  border-radius: 20px;
+  border-radius: 3vh;
   cursor: pointer;
   color: #fff;
-  gap: 5px;
+  gap: 0.7vh;
+}
+.hd-search img{
+  height: 4vh;
+  width: auto;
 }
 .hd-btn-sep {
-  border-radius: 9px;
+  border-radius: 2vh;
 }
 .hd-search-input:focus {
   outline: none;
 }
 .hd-search:focus-within {
   border-color: #4caf50;
-  box-shadow: 0 0 5px 1px rgba(76, 175, 80, 0.5);
+  box-shadow: 0 0 0.5vh 0.1vh rgba(76, 175, 80, 0.5);
 }
 .hd-search-btn span {
   font-family: "Inter-Bold";
-  font-size: 27px;
+  font-size: 4vh;
   color: #fff;
 }
 .hd-btn,
@@ -134,58 +145,60 @@ header {
   font-family: "Inter-Bold";
   /* font-size: 32px; */
 }
+
+
+
 /* ~~~~~~~~~~~~~~~~ */
 /* ~~~   menu   ~~~ */
 /* ~~~~~~~~~~~~~~~~ */
 
 .main-page-menu {
-  height: calc(100vh - 105px);
-  max-width: 20%;
-  top: 105px;
+  height: 87vh;
+  top: 12.97vh;
   overflow-y: auto;
   position: sticky;
   display: flex;
+  justify-content: space-between;
   flex-direction: column;
   background-color: #ffe6a9;
-  border-right: 2px solid #000000;
+  border-right: 0.3vh solid #000000;
 }
 .mn-menu-row {
   display: flex;
   flex-direction: column;
-  border-bottom: 1px solid #000000;
-  gap: 8px;
-  padding-top: 20px;
+
+  gap: 1vh;
+  padding-top: 3vh;
 }
-.mn-menu-row1 {
-  flex: 0 1 calc(52% - 40px);
-}
-.mn-menu-row2 {
-  flex: 0 1 calc(26% - 40px);
-}
-.mn-menu-row3 {
-  flex: 0 1 calc(22% - 40px);
-}
-.mn-menu-el a {
+
+.mn-menu-el a{
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 21px;
-  padding: 12px 35px 12px 15px;
+  gap: 2vh;
+  padding: 1vh 3vh;
   text-decoration: none;
   transition: all 0.3s ease-in-out;
 }
 
-.mn-menu-el a h2 {
-  font-size: 30px;
+.mn-menu-el a span {
+  font-size: 3.5vh;
   font-family: "Inter-SemiBold";
   color: #000000;
+  padding: none;
+  margin: none;
 }
 .mn-menu-el a:hover {
   background-color: #d9d9d98c;
 }
-.main-page-submain {
+
+.mn-menu-el img{
+  height: 3.5vh;
+}
+
+.side-expand{
+  margin-top: 0.5vh;
   display: flex;
-  justify-content: center;
-  width: 100%;
-  background-color: rgb(244, 236, 224);
+  height: auto;
+  width: auto;
 }
