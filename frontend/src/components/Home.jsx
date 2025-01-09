@@ -5,6 +5,7 @@ import LoadingSpinner from "./Spinner.jsx";
 import TopicListSettings from "./TopicList/TopicListSettings.jsx";
 import TopicList from "./TopicList/TopicList.jsx";
 import TagBar from "./TagBar/TagBar.jsx";
+import "./Home.css"
 
 export default function Home() {
   const [topicInfoList, setTopicInfoList] = useState([]);
@@ -39,7 +40,7 @@ export default function Home() {
 
   return (
     <>
-      <ul>
+      <ul className="submain_in">
         <TopicListSettings />
         <TopicList topicInfoList={topicInfoList} />
       </ul>

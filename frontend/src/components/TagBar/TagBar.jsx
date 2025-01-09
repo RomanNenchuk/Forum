@@ -1,5 +1,8 @@
-import React from "react";
+import React,{useState} from "react";
 import "./TagBar.css";
+import TagExtent from "./TagExtent";
+import { FaSalesforce } from "react-icons/fa";
+
 
 const tagList = [
   "Вища математика",
@@ -13,17 +16,25 @@ const tagList = [
   "ЧМ",
 ];
 
+
 export default function TagBar() {
-  return (
+  const [isExtentTag, setExtentTag] = useState(false)
+
+  
+    return (
+    <>
     <div className="tag-list">
       <h5 className="tag-list-title">Популярні теги</h5>
       {tagList.map((tag, index) =>
-        index < 10 ? (
+        index < 5 ? (
           <h6 className="tag" key={index}>
             @ {tag}
           </h6>
         ) : null
       )}
+      <span style = {{cursor: "pointer"}}onClick = {()=>{setExtentTag(!isExtentTag)}}>Показати більше</span>
     </div>
+    {isExtentTag ? <TagExtent tagList={tagList} onClose={() => setExtentTag(false)}/> : ''}
+    </>
   );
 }

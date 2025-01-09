@@ -1,0 +1,7 @@
+.chat-area{
+    position: absolute;
+    left: 50vh;
+    margin-top: 13vh;
+    
+    justify-content: flex-start;
+}

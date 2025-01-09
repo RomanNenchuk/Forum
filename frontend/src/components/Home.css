@@ -1,0 +1,11 @@
+
+.submain_in {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-top:13vh;
+    padding:0 2vh;
+    width: 80vh;
+    background-color: rgb(244, 236, 224);
+  }
+  

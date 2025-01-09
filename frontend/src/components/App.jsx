@@ -15,8 +15,8 @@ import Menu from "./Menu/Menu.jsx";
 import Home from "./Home.jsx";
 import Topic from "./Topic.jsx";
 import CreateTopic from "./CreateTopic.jsx";
-import ChatList from "./ChatList.jsx";
-import Chat from "./Chat.jsx";
+import ChatList from "./Chat/ChatList.jsx";
+import Chat from "./Chat/Chat.jsx";
 import Modal from "./Modal.jsx";
 import { useBackgroundLocation } from "../hooks/useBackgroundLocation.jsx";
 

@@ -6,8 +6,10 @@ export default function ProfileHeader({
   id,
   avatar,
   profileName,
-  size = 50,
-  gap = "1rem",
+  size = "50px",
+  sizeFont = '1.2rem',
+  avThickness,
+  gap = "1vh",
   className = "",
   style = {},
   textStyle = {},
@@ -37,17 +39,17 @@ export default function ProfileHeader({
       }}
       onClick={handleClick}
     >
-      <Avatar avatar={avatar} size={size} />
+      <Avatar avatar={avatar} size={size} avThickness = {avThickness} />
       {profileName && (
         <span
           style={{
             color: "#555",
-            fontSize: "1.2rem",
-            lineHeight: "1.2rem",
+            fontSize: sizeFont,
+            lineHeight: sizeFont,
             ...textStyle,
           }}
         >
-          {profileName}
+          {profileName} 
         </span>
       )}
     </div>
