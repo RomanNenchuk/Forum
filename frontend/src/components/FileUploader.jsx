@@ -8,11 +8,11 @@ export default function FileUploader({ setFiles, fileInputRef }) {
 
   return (
     <div>
-      <img src={addFile} alt="Add file" onClick={handleImageClick} />
+      <img src={addFile} style={{cursor: "pointer"}} alt="Add file" onClick={handleImageClick} />
       <input
         ref={fileInputRef}
         type="file"
-        // style={{ display: "none" }}
+        style={{ display: "none"}}
         onChange={e => setFiles(e.target.files)}
         multiple
       />
