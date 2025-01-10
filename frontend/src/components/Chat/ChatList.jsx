@@ -32,7 +32,11 @@ export default function ChatList() {
                 chat.active ? "active" : ""
               }`}
             >
-              <Link to={`/chats/${chat.other_user_id}`} onClick={() => handleChatClick(index)}>
+              <Link 
+                to={`/chats/${ chat.other_user_id }`}
+                state={{ otherUserName: chat.other_user_name }}
+                onClick={() => handleChatClick(index)}
+              >
                 <div className="chat-header">
                   <div className="chat-name-ct">
                     <div className="chat-pre-img"></div>
