@@ -12,6 +12,7 @@ import FileUploader from "../FileUploader.jsx";
 import ContextMenu from "../ContextMenu/ContextMenu.jsx";
 import LoadingSpinner from "../Spinner.jsx";
 import axios from "axios";
+import { MdEdit } from "react-icons/md";
 import "react-bootstrap";
 
 export default function Chat() {
@@ -254,20 +255,23 @@ export default function Chat() {
           return messages?.map((msg, index) => (
             <li
               key={index}
-              className="mb-4 p-4 border rounded w-50"
+              className="uTou-message"
               style={
                 msg.sender_id === currentUser.uid
-                  ? { textAlign: "right", marginLeft: "auto" }
-                  : { textAlign: "left", marginRight: "auto" }
+                  ? { textAlign: "right", marginLeft: "auto", backgroundColor: "#a3beb7" }
+                  : { textAlign: "left", marginRight: "auto", backgroundColor: "gray"}
               }
               onContextMenu={e => handleOnContextMenu(e, msg)}
             >
-              <strong>{msg.fullname}</strong>
-              <AttachedFiles urls={msg?.attachments} />
-              <p>{msg.text}</p>
-              <span style={{ fontSize: "0.8em", color: "gray" }}>
+              <span>{msg.fullname}</span>
+              <AttachedFiles urls={msg?.attachments}/>
+              <p style = {{marginLeft: "20px", marginRight: "20px"}}>{msg.text}</p>
+              <span style={{ fontSize: "15px", color: "black", fontWeight: 100 }}>
                 {timestampToTime(msg.timestamp)}
               </span>
+              <div className="mes-triangle" style = { msg.sender_id === currentUser.uid ? 
+                {bottom: "-25px", right: "-17px", backgroundColor: "#a3beb7", transform: "rotate(135deg)" }:
+                {bottom: "-25px", left: "-17px",backgroundColor: "gray",transform: "rotate(225deg)"}}></div>
             </li>
           ));
         })()}
@@ -296,10 +300,10 @@ export default function Chat() {
           onChange={e => setText(e.target.value)}
           placeholder="Напишіть повідомлення..."
         />
-        <div className="send-smile-btn"><svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_603_4)"><path d="M16.045 0.0362535C11.7138 -0.254997 7.45251 1.33125 4.38626 4.40125C1.32126 7.47 -0.26374 11.7225 0.0362599 16.0675C0.58751 24.01 7.60251 30 16.3538 30H23.75C27.1963 30 30 27.1963 30 23.75V15.425C30 7.3275 23.8713 0.567503 16.045 0.0362535ZM10.625 10C11.66 10 12.5 10.84 12.5 11.875C12.5 12.91 11.66 13.75 10.625 13.75C9.59001 13.75 8.75001 12.91 8.75001 11.875C8.75001 10.84 9.59001 10 10.625 10ZM20.88 19.0125C20.7875 19.1038 18.58 21.25 15 21.25C11.42 21.25 9.21251 19.105 9.12001 19.0125C8.63001 18.5263 8.62501 17.7363 9.11126 17.245C9.59876 16.755 10.3875 16.75 10.88 17.2363C10.9375 17.2925 12.48 18.7488 15 18.7488C17.52 18.7488 19.0625 17.2913 19.1275 17.23C19.6225 16.7525 20.4125 16.7625 20.8913 17.255C21.3713 17.7463 21.3675 18.53 20.88 19.0125ZM19.375 13.75C18.34 13.75 17.5 12.91 17.5 11.875C17.5 10.84 18.34 10 19.375 10C20.41 10 21.25 10.84 21.25 11.875C21.25 12.91 20.41 13.75 19.375 13.75Z" fill="currentColor"/></g><defs><clipPath id="clip0_603_4"><rect width="30" height="30" fill="none"/></clipPath></defs></svg></div>
-        <div className="send-msg-btn"><svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_603_6)"><path d="M29.6235 2.14804L6.48615 25.2791C6.98635 25.5229 7.53499 25.651 8.09141 25.6539H12.054C12.3855 25.653 12.7035 25.7848 12.9372 26.0199L15.0847 28.1662C16.2493 29.3388 17.8332 29.9988 19.4858 30.0001C20.1681 29.9994 20.8457 29.8876 21.4921 29.669C23.7202 28.9385 25.3409 27.007 25.6733 24.6858L29.8945 4.63531C30.0961 3.79986 30.0002 2.92037 29.6235 2.14804Z" fill="black"/><path d="M25.401 0.0965088L5.39928 4.31026C1.98169 4.77979 -0.408202 7.93094 0.0613198 11.3485C0.246775 12.6982 0.868373 13.9503 1.83143 14.9139L3.97766 17.0601C4.21224 17.2946 4.34394 17.6128 4.3437 17.9446V21.9072C4.34657 22.4636 4.4747 23.0123 4.71848 23.5124L27.852 0.37513C27.0918 0.00152692 26.2256 -0.09691 25.401 0.0965088Z" fill="currentColor"/></g><defs><clipPath id="clip0_603_6"><rect width="30" height="30" fill="none"/></clipPath></defs></svg></div>
-        {/* {editId === -1 && <button onClick={sendMessage}>Надіслати</button>}
-        {editId !== -1 && <button onClick={editMessage}>Редагувати</button>} */}
+        <div className="send-smile-btn" onClick={sendMessage}><svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_603_4)"><path d="M16.045 0.0362535C11.7138 -0.254997 7.45251 1.33125 4.38626 4.40125C1.32126 7.47 -0.26374 11.7225 0.0362599 16.0675C0.58751 24.01 7.60251 30 16.3538 30H23.75C27.1963 30 30 27.1963 30 23.75V15.425C30 7.3275 23.8713 0.567503 16.045 0.0362535ZM10.625 10C11.66 10 12.5 10.84 12.5 11.875C12.5 12.91 11.66 13.75 10.625 13.75C9.59001 13.75 8.75001 12.91 8.75001 11.875C8.75001 10.84 9.59001 10 10.625 10ZM20.88 19.0125C20.7875 19.1038 18.58 21.25 15 21.25C11.42 21.25 9.21251 19.105 9.12001 19.0125C8.63001 18.5263 8.62501 17.7363 9.11126 17.245C9.59876 16.755 10.3875 16.75 10.88 17.2363C10.9375 17.2925 12.48 18.7488 15 18.7488C17.52 18.7488 19.0625 17.2913 19.1275 17.23C19.6225 16.7525 20.4125 16.7625 20.8913 17.255C21.3713 17.7463 21.3675 18.53 20.88 19.0125ZM19.375 13.75C18.34 13.75 17.5 12.91 17.5 11.875C17.5 10.84 18.34 10 19.375 10C20.41 10 21.25 10.84 21.25 11.875C21.25 12.91 20.41 13.75 19.375 13.75Z" fill="currentColor"/></g><defs><clipPath id="clip0_603_4"><rect width="30" height="30" fill="none"/></clipPath></defs></svg></div>
+        
+        {editId === -1 && <div className="send-msg-btn" onClick = {sendMessage}><svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_603_6)"><path d="M29.6235 2.14804L6.48615 25.2791C6.98635 25.5229 7.53499 25.651 8.09141 25.6539H12.054C12.3855 25.653 12.7035 25.7848 12.9372 26.0199L15.0847 28.1662C16.2493 29.3388 17.8332 29.9988 19.4858 30.0001C20.1681 29.9994 20.8457 29.8876 21.4921 29.669C23.7202 28.9385 25.3409 27.007 25.6733 24.6858L29.8945 4.63531C30.0961 3.79986 30.0002 2.92037 29.6235 2.14804Z" fill="black"/><path d="M25.401 0.0965088L5.39928 4.31026C1.98169 4.77979 -0.408202 7.93094 0.0613198 11.3485C0.246775 12.6982 0.868373 13.9503 1.83143 14.9139L3.97766 17.0601C4.21224 17.2946 4.34394 17.6128 4.3437 17.9446V21.9072C4.34657 22.4636 4.4747 23.0123 4.71848 23.5124L27.852 0.37513C27.0918 0.00152692 26.2256 -0.09691 25.401 0.0965088Z" fill="currentColor"/></g><defs><clipPath id="clip0_603_6"><rect width="30" height="30" fill="none"/></clipPath></defs></svg></div>}
+        {editId !== -1 && <MdEdit size = {30} onClick={editMessage}/>} 
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useChat } from "../../contexts/ChatContext";
+import Avatar from "../Avatar";
 import "./Chat.css";
 
 export default function ChatList() {

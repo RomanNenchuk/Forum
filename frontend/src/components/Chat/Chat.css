@@ -163,5 +163,34 @@ ul.chat-messages {
   height: 100%;
   max-height: calc(100vh - 14vh - 88px - 77px);
   margin: 0;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.chat-messages span{
+  margin:10px;
+  font-weight: 600;
+  font-size: 20px
+}
+
+.uTou-message{
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  flex-direction: column;
+  background-color: gray;
+  max-width: 50%;
+  margin: 20px;
+  border-radius: 20px;
+  z-index: 1;
+}
+.mes-triangle{
+  content: '';
+  position: absolute;
+  
+  width: 20px;
+  height: 40px;
+  
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);/* Створення трикутника */
+  transform: translateY(50%); 
+  z-index: 1;
 }
