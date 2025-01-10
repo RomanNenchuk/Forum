@@ -7,6 +7,10 @@
   src: url("/fonts/Inter/Inter_28pt-Medium.ttf");
 }
 @font-face {
+  font-family: "Inter";
+  src: url("/fonts/Inter/Inter_28pt-Regular.ttf");
+}
+@font-face {
   font-family: "Inter-SemiBold";
   src: url("/fonts/Inter/Inter_28pt-SemiBold.ttf");
 }
@@ -160,6 +164,7 @@ header {
   display: flex;
   justify-content: space-between;
   flex-direction: column;
+  flex-shrink: 0;
   background-color: #ffe6a9;
   border-right: 0.3vh solid #000000;
 }
