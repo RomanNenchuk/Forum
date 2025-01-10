@@ -2,48 +2,61 @@ import React, { useState, useEffect } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useChat } from "../../contexts/ChatContext";
-import "./Chat.css"
+import "./Chat.css";
 
 export default function ChatList() {
   const { chatList, setChatList } = useChat();
   const { currentUser } = useAuth();
 
+  const handleChatClick = (index) => {
+    const updatedChatList = chatList.map((chat, i) => ({
+      ...chat,
+      active: i === index,
+      unread_messages_count: i === index ? 0 : chat.unread_messages_count,
+    }));
+  
+    setChatList(updatedChatList);
+  };
+
   return (
-    <div className="d-flex justify-content-around chat-area">
-      <ul>
-        {chatList.map((chat, index) => (
-          <li key={index} className="mb-4 p-4 border rounded">
-            <Link
-              to={`/chats/${chat.other_user_id}`}
-              onClick={() => {
-                const updatedChatList = chatList.map((c, i) =>
-                  i === index ? { ...c, unread_messages_count: 0 } : c
-                );
-                setChatList(updatedChatList);
-              }}
+    <div className="chat-win-container">
+      <div className="chat-list-ct">
+        <div className="chat-hd"><p>Приватні чати</p></div>
+        <div className="chat-list">
+          {chatList.map((chat, index) => (
+            <div
+              key={index}
+              className={`chat-item ${
+                chat.unread_messages_count > 0 ? "unread" : ""
+              } ${
+                chat.active ? "active" : ""
+              }`}
             >
-              <p>
-                {chat.other_user_name}
-                {"  "}
-                {chat.unread_messages_count != 0
-                  ? `(${chat.unread_messages_count})`
-                  : ""}
-              </p>
-            </Link>
-            <p>
-              {chat.text && (
-                <>
-                  {chat.last_message_sender_id === currentUser.uid
-                    ? "You"
-                    : chat.other_user_name}
-                  : {chat.text}
-                </>
-              )}
-            </p>
-          </li>
-        ))}
-      </ul>
-      <Outlet />
+              <Link to={`/chats/${chat.other_user_id}`} onClick={() => handleChatClick(index)}>
+                <div className="chat-header">
+                  <div className="chat-name-ct">
+                    <div className="chat-pre-img"></div>
+                    <div className="chat-name-text">
+                      <p className="chat-name">{chat.other_user_name}</p>
+                    </div>
+                  </div>
+                  
+                  
+                  {chat.unread_messages_count > 0 && (
+                    <div className="chat-unread-msg">
+                      <p className="unread-badge">{chat.unread_messages_count}</p>
+                    </div>
+                  )}
+                </div>
+              </Link>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="chat-window">
+        <Outlet />
+      </div>
     </div>
   );
 }
