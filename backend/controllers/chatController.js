@@ -141,7 +141,6 @@ export const deleteMessage = async id => {
   const query = `DELETE FROM messages WHERE id = $1 RETURNING attachments`;
   try {
     const response = await pool.query(query, [id]);
-    console.log(response.rows[0].attachments);
 
     if (response.rows.length > 0) return response.rows[0].attachments;
     else return [];
@@ -174,13 +173,13 @@ export const getMessage = async (req, res) => {
 export const editMessage = async msg => {
   const query = `
     UPDATE messages 
-    SET text = $1
-    WHERE id = $2
+    SET text = $1, attachments = $2
+    WHERE id = $3
     RETURNING *;
     `;
   try {
-    const result = await pool.query(query, [msg.text, msg.id]);
+    const result = await pool.query(query, [msg.text, msg.attachments, msg.id]);
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };

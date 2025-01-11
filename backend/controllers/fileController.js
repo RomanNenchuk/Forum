@@ -2,6 +2,17 @@ import multer from "multer";
 import { pool } from "../db.js";
 import cloudinary from "../utils/cloudinary.js";
 
+const imageFormats = [
+  "jpg",
+  "jpeg",
+  "png",
+  "gif",
+  "webp",
+  "bmp",
+  "tiff",
+  "svg",
+];
+
 // Налаштування multer для аватарів
 const uploadImage = multer({
   storage: multer.memoryStorage(),
@@ -120,8 +131,6 @@ export const saveAttachments = (req, res) => {
         });
       }
 
-      console.log("All files uploaded successfully", results);
-
       return res.status(200).json({
         message: "Files uploaded successfully",
         files: results,
@@ -133,11 +142,35 @@ export const saveAttachments = (req, res) => {
   });
 };
 
+/*
+
+Nota bene
+Якщо ми завантажуємо файл у хмару, то Cloudinary автоматично додає розширення файлу до 
+public_id (шлях, за яким будемо видаляти), якщо файл НЕ Є ЗОБРАЖЕННЯМ, а належить до 
+категорії "raw", і натомість не додає, якщо він є зображенням. Тому видалення файлів з різними 
+форматами ускладнене, бо треба кожного разу перевіряти, чи це image, чи це raw
+
+*/
+
 export const deleteAttachments = async files => {
   try {
+    if (!files?.length) return;
+
     for (let file of files) {
-      const public_id = file.split("/").pop().split(".")[0];
-      await cloudinary.uploader.destroy(`attachments/${public_id}`);
+      const filePathParts = file?.split("/")?.pop()?.split(".");
+      const public_id = filePathParts[0]; // назва файлу без розширення
+      const extension = filePathParts[1]?.toLowerCase(); // розширення файлу
+
+      // перевіряємо тип файлу (image чи raw)
+      if (imageFormats.includes(extension)) {
+        // якщо файл - зображення, видаляємо без розширення
+        await cloudinary.uploader.destroy(`attachments/${public_id}`);
+      } else {
+        // якщо файл - raw, видаляємо з розширенням
+        await cloudinary.uploader.destroy(
+          `attachments/${public_id}.${extension}`
+        );
+      }
     }
   } catch (error) {
     console.error(error);

@@ -24,7 +24,8 @@ export const chatSocket = io => {
     socket.on(
       "send-message",
       async (
-        { id, fullname, recipient_id, sender_id, text, attachments, timestamp },
+        { id, fullname, sender_id, text, attachments, timestamp },
+        recipient_id,
         callback
       ) => {
         try {
@@ -42,14 +43,14 @@ export const chatSocket = io => {
             timestamp,
             read: isActive,
           });
+
           if (isActive) {
             socket.to(recipient_id).emit("receive-message", {
               id,
+              attachments,
               fullname,
-              recipient_id,
               sender_id,
               text,
-              attachments,
               timestamp,
             });
           }
@@ -61,37 +62,42 @@ export const chatSocket = io => {
       }
     );
 
-    socket.on("delete-message", async ({ msg_id, initiator, users }) => {
-      try {
-        console.log(`Try to delete message ${msg_id}`);
-        const attachments = await deleteMessage(msg_id);
-        console.log(`Message ${msg_id} deleted`);
-        if (Array.isArray(attachments)) await deleteAttachments(attachments);
-        const chat_id = users.sort((a, b) => a.localeCompare(b)).join("_");
-        users.forEach(user => {
-          if (user != initiator && activeChats.get(user) === chat_id) {
-            socket.to(user).emit("remove-message", msg_id);
+    socket.on(
+      "delete-message",
+      async ({ msg_id, initiator_id, recipient_id }) => {
+        try {
+          const attachments = await deleteMessage(msg_id);
+          const chat_id = [initiator_id, recipient_id]
+            .sort((a, b) => a.localeCompare(b))
+            .join("_");
+          if (activeChats.get(recipient_id) === chat_id) {
+            socket.to(recipient_id).emit("delete-message", msg_id);
           }
-        });
-      } catch (error) {
-        console.error(error);
-      }
-    });
-
-    socket.on("edit-message", async msg => {
-      try {
-        const chat_id = [msg.recipient_id, msg.sender_id]
-          .sort((a, b) => a.localeCompare(b))
-          .join("_");
-        await editMessage(msg);
-        console.log(`message ${msg.id} edited`);
-        console.log(msg);
-        if (activeChats.get(msg.recipient_id) === chat_id) {
-          socket.to(msg.recipient_id).emit("edit-his-message", msg);
+          if (Array.isArray(attachments)) await deleteAttachments(attachments);
+        } catch (error) {
+          console.error(error);
         }
-      } catch (error) {
-        console.error(error);
       }
-    });
+    );
+
+    socket.on(
+      "edit-message",
+      async (msg, filesToDelete, initiator_id, recipient_id) => {
+        try {
+          const chat_id = [initiator_id, recipient_id]
+            .sort((a, b) => a.localeCompare(b))
+            .join("_");
+          await editMessage(msg);
+
+          if (activeChats.get(recipient_id) === chat_id) {
+            socket.to(recipient_id).emit("edit-message", msg);
+          }
+          if (Array.isArray(filesToDelete) && filesToDelete.length)
+            await deleteAttachments(filesToDelete);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    );
   });
 };
