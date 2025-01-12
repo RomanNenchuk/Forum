@@ -24,7 +24,7 @@ export const chatSocket = io => {
     socket.on(
       "send-message",
       async (
-        { id, fullname, sender_id, text, attachments, timestamp },
+        { id, fullname, sender_id, text, attachments, timestamp, reply },
         recipient_id,
         callback
       ) => {
@@ -34,7 +34,7 @@ export const chatSocket = io => {
             .join("_");
 
           let isActive = activeChats.get(recipient_id) === chat_id;
-          id = await saveMessage({
+          const res = await saveMessage({
             chat_id,
             recipient_id,
             sender_id,
@@ -42,20 +42,23 @@ export const chatSocket = io => {
             attachments,
             timestamp,
             read: isActive,
+            reply,
           });
 
           if (isActive) {
             socket.to(recipient_id).emit("receive-message", {
-              id,
+              id: res.id,
               attachments,
               fullname,
               sender_id,
               text,
               timestamp,
+              reply,
+              reply_text: res.reply_text,
             });
           }
-          // надсилаю id доданого повідомлення, як результат, через колбек
-          callback(id);
+          // надсилаю id, reply_text доданого повідомлення, як результат, через колбек
+          callback(res);
         } catch (error) {
           console.error(error);
         }

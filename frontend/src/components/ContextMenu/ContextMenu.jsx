@@ -27,6 +27,7 @@ export default function ContextMenu({
   setEditId,
   setFiles,
   currentUser,
+  setReply,
 }) {
   const buttons = [
     {
@@ -64,6 +65,14 @@ export default function ContextMenu({
             }
           },
         });
+      },
+    },
+    {
+      text: "Reply",
+      icon: "↪️",
+      onClick: () => {
+        resetContextMenu();
+        setReply(contextMenu.selectedMessage);
       },
     },
   ];

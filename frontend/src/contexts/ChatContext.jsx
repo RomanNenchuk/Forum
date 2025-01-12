@@ -60,7 +60,6 @@ export function ChatProvider({ children }) {
   }
 
   async function getMessage({ msg_id, callback }) {
-    console.log(msg_id);
     const response = await axios.get(
       `http://localhost:5000/chats/messages/${msg_id}`,
       {
@@ -75,6 +74,20 @@ export function ChatProvider({ children }) {
     });
   }
 
+  async function getUserFullname({ userId, callback }) {
+    const response = await axios.get(
+      `http://localhost:5000/users/${userId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    callback({
+      fullname: response.data.fullname,
+    });
+  }
+
   const value = {
     chatList,
     setChatList,
@@ -83,6 +96,7 @@ export function ChatProvider({ children }) {
     fetchChatList,
     fetchOrCreateChat,
     getMessage,
+    getUserFullname,
   };
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;

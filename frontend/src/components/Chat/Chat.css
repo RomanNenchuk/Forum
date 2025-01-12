@@ -134,6 +134,13 @@
   padding: 22px 60px 22px 29px;
   background: #acc3d3a8;
 }
+.chat-reply {
+  display: flex;
+  align-items: flex-end;
+  gap: 43px;
+  padding: 22px 60px 22px 29px;
+  background: #a8d3c3a8;
+}
 .chat-input input {
   flex-grow: 1;
   border: none;

@@ -85,13 +85,28 @@ export const fetchOrCreateChat = async (req, res) => {
     await pool.query(updateMessagesQuery, [chat_id, sender_id]);
 
     const messagesQuery = `
-    SELECT id, fullname, sender_id, text, attachments, timestamp FROM messages
-      INNER JOIN users ON sender_id = users.uid
-      WHERE chat_id = $1
-      ORDER BY timestamp ASC;
+      SELECT 
+          m.id, 
+          u.fullname, 
+          m.sender_id, 
+          m.text, 
+          m.attachments, 
+          m.timestamp, 
+          m.reply,
+          r.text AS reply_text
+      FROM 
+          messages m
+      INNER JOIN 
+          users u ON m.sender_id = u.uid
+      LEFT JOIN 
+          messages r ON m.reply = r.id
+      WHERE 
+          m.chat_id = $1
+      ORDER BY 
+          m.timestamp ASC;
     `;
     const messages = await pool.query(messagesQuery, [chat_id]);
-
+    
     // завершую транзакцію
     await client.query("COMMIT");
 
@@ -115,12 +130,16 @@ export const saveMessage = async ({
   attachments,
   timestamp,
   read,
+  reply,
 }) => {
   const query = `
-  INSERT INTO messages (chat_id, sender_id, text, attachments, timestamp, read)
-  VALUES ($1, $2, $3, $4, $5, $6)
-  RETURNING *;
-`;
+    INSERT INTO messages (chat_id, sender_id, text, attachments, timestamp, read, reply)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
+    RETURNING *;
+  `;
+  const reply_text_query = `
+   SELECT text FROM messages WHERE id = $1
+  `;
   try {
     const result = await pool.query(query, [
       chat_id, // $1
@@ -129,9 +148,16 @@ export const saveMessage = async ({
       attachments, // $4
       timestamp, // $5
       read, // $6
+      reply, // &7
     ]);
-
-    return result.rows[0].id;
+    let reply_text = "";
+    if (reply !== -1) {
+      reply_text = (await pool.query(reply_text_query, [reply])).rows[0].text;
+    }
+    return {
+      id: result.rows[0].id,
+      reply_text,
+    }
   } catch (error) {
     console.log(error);
   }
@@ -162,11 +188,11 @@ export const getMessage = async (req, res) => {
       });
     } else {
       console.log(`msg with id ${id} not found`);
-      res.status(404).json({ text: null });
+      res.status(200).json({});
     }
   } catch (err) {
     console.error(err);
-    res.status(500).json({ text: null });
+    res.status(500).json({});
   }
 };
 
