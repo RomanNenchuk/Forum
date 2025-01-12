@@ -15,7 +15,7 @@ export default function MessageTriangle({ isSender }) {
           : {
               bottom: "-25px",
               left: "-17px",
-              backgroundColor: "gray",
+              backgroundColor: "#c2c1be",
               transform: "rotate(225deg)",
             }
       }

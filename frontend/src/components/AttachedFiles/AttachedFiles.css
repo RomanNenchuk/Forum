@@ -1,15 +1,19 @@
 .media-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  display: flex;
+  /* flex-direction: column; */
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
   gap: 10px;
-  padding: 10px;
   max-width: 100%;
+  padding: 0 20px;
 }
 
 .media-image {
-  width: 100%;
+  width: 45%;
   height: auto;
-  border-radius: 5px;
+  flex-grow: 1;
+  border-radius: 20px;
   object-fit: cover;
 }
 

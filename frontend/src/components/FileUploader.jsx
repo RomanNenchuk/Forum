@@ -1,34 +1,37 @@
-import React from "react";
+import React, { useRef } from "react";
+import { useChat } from "../contexts/ChatContext.jsx";
 import addFileIcon from "../assets/add-file.svg";
 import editFileIcon from "../assets/edit-file.svg";
 
 export default function FileUploader({
   setFiles,
-  fileInputRef,
   editId,
-  setIsModalOpen,
+  setIsEditModalOpen,
+  setIsSendModalOpen,
 }) {
+  const { messages } = useChat();
+  const fileInputRef = useRef();
+
   function handleImageClick() {
     fileInputRef.current.click();
   }
 
+  function hasAttachments() {
+    const message = messages.find(msg => msg.id === editId);
+    return message?.attachments?.length > 0 || false;
+  }
+
+  // if (editId !== -1 && !hasAttachments()) return null;
+
   return (
     <div>
-      {editId === -1 ? (
-        <img
-          src={addFileIcon}
-          style={{ cursor: "pointer" }}
-          alt="Add file"
-          onClick={handleImageClick}
-        />
-      ) : (
-        <img
-          src={editFileIcon}
-          style={{ cursor: "pointer" }}
-          alt="Edit file"
-          onClick={() => setIsModalOpen(true)}
-        />
-      )}
+      <img
+        src={addFileIcon}
+        style={{ cursor: "pointer" }}
+        alt="Add file"
+        onClick={handleImageClick}
+      />
+
       <input
         ref={fileInputRef}
         type="file"
@@ -41,6 +44,7 @@ export default function FileUploader({
               isFromDatabase: false,
             }))
           );
+          setIsSendModalOpen(true);
         }}
         multiple
       />

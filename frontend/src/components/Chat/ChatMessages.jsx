@@ -13,7 +13,7 @@ export default function ChatMessages({ handleOnContextMenu }) {
     <ul className="chat-messages" style={{ listStyleType: "none" }}>
       {messages.map((msg, index) => (
         <li
-          key={index}
+          key={msg.id}
           className="uTou-message"
           style={
             msg.sender_id === currentUser.uid
@@ -25,14 +25,14 @@ export default function ChatMessages({ handleOnContextMenu }) {
               : {
                   textAlign: "left",
                   marginRight: "auto",
-                  backgroundColor: "gray",
+                  backgroundColor: "#c2c1be",
                 }
           }
           onContextMenu={e => handleOnContextMenu(e, msg)}
         >
           <span>{msg.fullname}</span>
           <AttachedFiles urls={msg?.attachments} />
-          <p style={{ marginLeft: "20px", marginRight: "20px" }}>{msg.text}</p>
+          <p style={{ margin: "20px" }}>{msg.text}</p>
           <span style={{ fontSize: "15px", color: "black", fontWeight: 100 }}>
             {timestampToTime(msg.timestamp)}
           </span>

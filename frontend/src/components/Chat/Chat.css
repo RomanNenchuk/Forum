@@ -140,7 +140,9 @@
   font-size: 18px;
   font-family: "Inter";
   background: transparent;
+  outline: none;
   padding: 3px 10px;
+  outline: none;
 }
 .chat-input input::placeholder {
   color: #659290;

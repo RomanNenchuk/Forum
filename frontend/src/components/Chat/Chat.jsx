@@ -7,7 +7,8 @@ import { useSocket } from "../../contexts/SocketProviderContext";
 import { useUserInfo } from "../../contexts/UserInfoContext";
 import { useBodyScrollLock } from "../../hooks/useBodyScrollLock.jsx";
 import ChatInput from "./ChatInput.jsx";
-import FileModal from "../FileModal.jsx";
+import FileSendModal from "../FileModal/FileSendModal.jsx";
+import FileEditModal from "../FileModal/FileEditModal.jsx";
 import ContextMenu from "../ContextMenu/ContextMenu.jsx";
 import ChatMessages from "./ChatMessages.jsx";
 import LoadingSpinner from "../Spinner.jsx";
@@ -20,12 +21,12 @@ export default function Chat() {
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
   const [files, setFiles] = useState([]);
   const [filesToDelete, setFilesToDelete] = useState([]); // Список файлів на видалення
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isSendModalOpen, setIsSendModalOpen] = useState(false);
 
   useBodyScrollLock(isContextMenuOpen);
 
   const contextMenuRef = useRef(null);
-  const fileInputRef = useRef();
 
   const { receiverId } = useParams();
   const {
@@ -105,25 +106,10 @@ export default function Chat() {
   }, []);
 
   const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleRemoveFile = index => {
-    setFiles(prevFiles => {
-      const fileToRemove = prevFiles[index];
-      if (fileToRemove.isFromDatabase) {
-        // Додаємо файл у список на видалення
-        setFilesToDelete(prev => [...prev, fileToRemove]);
-      }
-      return prevFiles.filter((_, i) => i !== index);
-    });
-  };
-
-  const handleAddFile = file => {
-    setFiles(prevFiles => [
-      ...prevFiles,
-      { name: file.name, data: file, isFromDatabase: false },
-    ]);
+    setIsEditModalOpen(false);
+    setIsSendModalOpen(false);
+    setEditId(-1);
+    setText("");
   };
 
   function resetContextMenu() {
@@ -213,9 +199,9 @@ export default function Chat() {
         if (i === fileChunks.length - 1) {
           setText("");
           setFiles([]);
-          fileInputRef.current.value = "";
         }
       });
+      setIsSendModalOpen(false);
     }
   };
 
@@ -243,7 +229,7 @@ export default function Chat() {
     const newAttachments = files.filter(file => !file.isFromDatabase);
     let newAttachmentsUrls = null;
 
-    // завантаження нових файлів
+    // Завантаження нових файлів
     if (newAttachments.length) {
       newAttachmentsUrls = await handleUpload(newAttachments);
     }
@@ -253,24 +239,43 @@ export default function Chat() {
     setMessages(prev => {
       return prev.map(message => {
         if (message.id === editId) {
-          // залишаємо попередні файли, які не в списку filesToDelete
-          const previousAttachments = message.attachments.filter(
-            attachment => !filesToDelete.some(file => file.url === attachment)
-          );
+          // Новий масив вкладень
+          let cleanedAttachments = [];
+          if (message.attachments) {
+            const updatedAttachments = message.attachments.map(attachment => {
+              // Перевірка, чи потрібно замінити це вкладення
+              const replacementIndex = filesToDelete.findIndex(
+                file => file.url === attachment
+              );
+              if (replacementIndex !== -1) {
+                // Якщо є заміна, беремо перший новий файл
+                return newAttachmentsUrls?.shift() || null;
+              }
+              return attachment; // Якщо немає заміни, залишаємо оригінал
+            });
 
-          // формуємо оновлене повідомлення
+            // Видаляємо всі null (вкладення, які замінилися)
+            cleanedAttachments = updatedAttachments.filter(
+              attachment => attachment !== null
+            );
+
+            // Якщо залишилися нові вкладення, додаємо їх у кінець
+            if (newAttachmentsUrls?.length) {
+              cleanedAttachments.push(...newAttachmentsUrls);
+            }
+          }
+
+          console.log(cleanedAttachments);
+
+          // Оновлене повідомлення
           updatedMessage = {
             ...message,
             text: text,
-            attachments: [
-              ...previousAttachments,
-              ...(newAttachmentsUrls || []),
-            ],
+            attachments: cleanedAttachments, // Оновлені вкладення
           };
-
-          return updatedMessage; // повертаємо оновлене повідомлення
+          return updatedMessage; // Повертаю оновлене повідомлення
         }
-        return message; // а інші залишаємо без змін
+        return message; // Інші повідомлення залишаємо без змін
       });
     });
 
@@ -285,6 +290,7 @@ export default function Chat() {
     }
 
     // Очистка станів
+    setIsEditModalOpen(false);
     setFiles([]);
     setFilesToDelete([]);
     resetEdit();
@@ -311,21 +317,6 @@ export default function Chat() {
 
   return (
     <div className="chat-container">
-      <ContextMenu
-        contextMenuRef={contextMenuRef}
-        isToggled={contextMenu.toggled}
-        positionX={contextMenu.position.x}
-        positionY={contextMenu.position.y}
-        contextMenu={contextMenu}
-        resetContextMenu={resetContextMenu}
-        deleteMessage={deleteMessage}
-        resetEdit={resetEdit}
-        getMessage={getMessage}
-        setText={setText}
-        setEditId={setEditId}
-        setFiles={setFiles}
-        currentUser={currentUser}
-      />
       <div className="chat-ct-hd">
         <div className="chat-ct-hd-name">
           <p>{otherUserName}</p>
@@ -345,7 +336,8 @@ export default function Chat() {
         resetContextMenu={resetContextMenu}
         deleteMessage={deleteMessage}
         resetEdit={resetEdit}
-        getMessage={getMessage}
+        setIsEditModalOpen={setIsEditModalOpen}
+        text={text}
         setText={setText}
         setEditId={setEditId}
         setFiles={setFiles}
@@ -353,25 +345,39 @@ export default function Chat() {
       />
 
       <ChatInput
-        setIsModalOpen={setIsModalOpen}
+        isEditModalOpen={isEditModalOpen}
+        isSendModalOpen={isSendModalOpen}
+        setIsEditModalOpen={setIsEditModalOpen}
+        setIsSendModalOpen={setIsSendModalOpen}
         setFiles={setFiles}
-        fileInputRef={fileInputRef}
         text={text}
         setText={setText}
         sendMessage={sendMessage}
         editMessage={editMessage}
         editId={editId}
-        setEditId={setEditId}
+        onCancel={handleCloseModal}
       />
 
-      {isModalOpen && (
-        <FileModal
+      {isEditModalOpen && (
+        <FileEditModal
           files={files}
-          filesToDelete={filesToDelete}
-          onClose={handleCloseModal}
-          onRemoveFile={handleRemoveFile}
-          onAddFile={handleAddFile}
           setFiles={setFiles}
+          onClose={handleCloseModal}
+          text={text}
+          setText={setText}
+          setFilesToDelete={setFilesToDelete}
+          editId={editId}
+          onEdit={editMessage}
+        />
+      )}
+      {isSendModalOpen && (
+        <FileSendModal
+          files={files}
+          setFiles={setFiles}
+          onClose={handleCloseModal}
+          text={text}
+          setText={setText}
+          onSubmit={sendMessage}
         />
       )}
     </div>

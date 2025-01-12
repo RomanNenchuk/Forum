@@ -2,10 +2,11 @@ import React, { useEffect } from "react";
 import ReactDOM from "react-dom";
 import { useNavigate } from "react-router-dom";
 
-function Modal({ children }) {
+export default function Modal({ onCloseModal, children }) {
   const navigate = useNavigate();
 
-  const closeModal = () => {
+  // Встановлення функції за замовчуванням
+  const defaultCloseModal = () => {
     navigate(-1);
   };
 
@@ -19,13 +20,13 @@ function Modal({ children }) {
   }, []);
 
   return ReactDOM.createPortal(
-    <div className="glob" onClick={closeModal}>
+    <div className="glob" onClick={onCloseModal || defaultCloseModal}>
       <div className="glob-reg" onClick={e => e.stopPropagation()}>
-        {React.cloneElement(children, { closeModal })}
+        {React.cloneElement(children, {
+          onCloseModal: onCloseModal || defaultCloseModal,
+        })}
       </div>
     </div>,
     document.getElementById("modal-root")
   );
 }
-
-export default Modal;
