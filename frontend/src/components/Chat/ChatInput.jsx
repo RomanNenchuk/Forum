@@ -1,18 +1,22 @@
-import React, { useState, useRef } from "react";
+import React from "react";
 import FileUploader from "../FileUploader.jsx";
 import sendMessageIcon from "../../assets/send-message.svg";
 import sendSmileIcon from "../../assets/send-smile.svg";
 import { MdEdit } from "react-icons/md";
+import cancelIcon from "../../assets/cancel.svg";
 
 export default function ChatInput({
-  setIsModalOpen,
+  isEditModalOpen,
+  isSendModalOpen,
+  setIsEditModalOpen,
+  setIsSendModalOpen,
   setFiles,
-  fileInputRef,
   text,
   setText,
   sendMessage,
   editMessage,
   editId,
+<<<<<<< HEAD
   setEditId,
   replyId,
   resetReply,
@@ -69,6 +73,46 @@ export default function ChatInput({
           <button onClick={() => setEditId(-1)}>Скасувати</button>
         )}
       </div>
+=======
+  onCancel,
+}) {
+  function onChange(e) {
+    if (isEditModalOpen || isSendModalOpen) return;
+    setText(e.target.value);
+  }
+
+  return (
+    <div className="chat-input">
+      <FileUploader
+        setFiles={setFiles}
+        editId={editId}
+        setIsEditModalOpen={setIsEditModalOpen}
+        setIsSendModalOpen={setIsSendModalOpen}
+        text={text}
+        setText={text}
+      />
+
+      <input
+        type="text"
+        value={isEditModalOpen || isSendModalOpen ? "" : text}
+        onChange={onChange}
+        placeholder="Напишіть повідомлення..."
+      />
+      <div className="send-smile-btn" onClick={sendMessage}>
+        <img src={sendSmileIcon} alt="Smile" />
+      </div>
+      {(editId === -1 || isEditModalOpen || isSendModalOpen) && (
+        <div className="send-msg-btn" onClick={sendMessage}>
+          <img src={sendMessageIcon} alt="Send" />
+        </div>
+      )}
+      {editId !== -1 && !isEditModalOpen && !isSendModalOpen && (
+        <>
+          <MdEdit size={30} onClick={editMessage} />
+          <img src={cancelIcon} alt="Cancel" onClick={onCancel} />
+        </>
+      )}
+>>>>>>> 87936ccf6fc12b36e7d6a4b5e09bf052f0ff556f
     </div>
   );
 }

@@ -52,7 +52,6 @@ export function ChatProvider({ children }) {
       );
       socket.emit("join-chat", { user_id: currentUser.uid, chat_id });
 
-      console.log(response.data.messages);
       setMessages(response.data.messages);
     } catch (error) {
       console.error(error);

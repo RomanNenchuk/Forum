@@ -1,17 +1,6 @@
 import React from "react";
+import { useChat } from "../../contexts/ChatContext";
 import "./ContextMenu.css";
-
-function findMessageById(messages, id) {
-  const message = messages.find(msg => msg.id === id);
-  if (message) {
-    return {
-      text: message.text,
-      attachments: message.attachments,
-    };
-  } else {
-    return null; // Повідомлення не знайдено
-  }
-}
 
 export default function ContextMenu({
   positionX,
@@ -22,13 +11,16 @@ export default function ContextMenu({
   resetContextMenu,
   deleteMessage,
   resetEdit,
-  getMessage,
+  setIsEditModalOpen,
+  text,
   setText,
   setEditId,
   setFiles,
   currentUser,
   setReply,
 }) {
+  const { messages } = useChat();
+
   const buttons = [
     {
       text: "Delete",
@@ -43,28 +35,33 @@ export default function ContextMenu({
       text: "Edit",
       icon: "🖋️",
       onClick: () => {
-        resetContextMenu();
-        const dbFiles = contextMenu.selectedMessageItem.attachments.map(
+        const dbFiles = contextMenu.selectedMessageItem?.attachments?.map(
           url => ({
             name: url.split("/").pop(),
             url,
             isFromDatabase: true,
           })
         );
-        setFiles(prevFiles => [...dbFiles, ...prevFiles]);
-        console.log(dbFiles);
-        //
-        getMessage({
-          msg_id: contextMenu.selectedMessage,
-          callback: res => {
-            if (res.text && res.sender_id === currentUser.uid) {
-              setText(res.text);
-              setEditId(contextMenu.selectedMessage);
-            } else {
-              resetEdit();
-            }
-          },
-        });
+        if (dbFiles) setFiles(prevFiles => [...dbFiles, ...prevFiles]);
+
+        const selectedMessage = messages.find(
+          message =>
+            message.id === contextMenu.selectedMessage &&
+            message.sender_id === currentUser.uid
+        );
+
+        if (selectedMessage) {
+          setText(selectedMessage.text || "");
+          setEditId(contextMenu.selectedMessage);
+          console.log(contextMenu.selectedMessage);
+
+          if (selectedMessage.attachments?.length) {
+            setIsEditModalOpen(true);
+          }
+        } else {
+          resetEdit();
+        }
+        resetContextMenu();
       },
     },
     {

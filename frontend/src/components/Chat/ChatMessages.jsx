@@ -60,7 +60,7 @@ export default function ChatMessages({ handleOnContextMenu, getMessage, getUserF
                 : {
                     textAlign: "left",
                     marginRight: "auto",
-                    backgroundColor: "gray",
+                    backgroundColor: "#c2c1be",
                   }
             }
             onContextMenu={e => handleOnContextMenu(e, msg)}
