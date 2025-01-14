@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useChat } from "../../contexts/ChatContext";
 import { useSocket } from "../../contexts/SocketProviderContext";
 import { useUserInfo } from "../../contexts/UserInfoContext";
 import { useBodyScrollLock } from "../../hooks/useBodyScrollLock.jsx";
+import getChatId from "../../utils/getChatId.jsx";
 import ChatInput from "./ChatInput.jsx";
 import FileSendModal from "../FileModal/FileSendModal.jsx";
 import FileEditModal from "../FileModal/FileEditModal.jsx";
@@ -38,6 +39,8 @@ export default function Chat() {
     fetchChatList,
     getMessage,
     getUserFullname,
+    setChatList,
+    sortChatList,
   } = useChat();
   const [loading, setLoading] = useState(false);
   const socket = useSocket();
@@ -65,13 +68,26 @@ export default function Chat() {
         setLoading(false);
       }
     })();
-  }, [receiverId, socket]);
+  }, [receiverId, socket, currentUser]);
+
+  useEffect(() => {
+    function handler(e) {
+      if (contextMenuRef.current) {
+        if (!contextMenuRef.current.contains(e.target)) {
+          resetContextMenu();
+        }
+      }
+    }
+    document.addEventListener("click", handler);
+    return () => document.removeEventListener("click", handler);
+  }, []);
 
   useEffect(() => {
     if (!socket) return;
 
     socket.on("receive-message", msg => {
       setMessages(prev => [...prev, msg]);
+      sortChatList(getChatId(currentUser.uid, receiverId));
     });
 
     socket.on("delete-message", id => {
@@ -88,25 +104,33 @@ export default function Chat() {
       );
     });
 
+    socket.on("message-notification-background", (chat_id, deltaCount) => {
+      console.log(chat_id);
+      setChatList(prev =>
+        prev.map(chat => {
+          if (chat.chat_id === chat_id) {
+            const unreadMessagesCount =
+              +chat.unread_messages_count + deltaCount;
+            return {
+              ...chat,
+              unread_messages_count:
+                unreadMessagesCount > 0 ? unreadMessagesCount : 0,
+            };
+          }
+          return chat;
+        })
+      );
+      sortChatList(chat_id);
+    });
+
     return () => {
       socket.off("receive-message");
       socket.off("delete-message");
       socket.off("edit-message");
+      socket.off("message-notification-background");
       socket.emit("leave-chat", currentUser.uid);
     };
   }, [socket, currentUser, receiverId]);
-
-  useEffect(() => {
-    function handler(e) {
-      if (contextMenuRef.current) {
-        if (!contextMenuRef.current.contains(e.target)) {
-          resetContextMenu();
-        }
-      }
-    }
-    document.addEventListener("click", handler);
-    return () => document.removeEventListener("click", handler);
-  }, []);
 
   const handleCloseModal = () => {
     setIsEditModalOpen(false);
@@ -172,43 +196,42 @@ export default function Chat() {
         setMessages(prev => [...prev, msg]);
         setText(""); // очищення текстового поля
       });
-      resetReply();
-      return;
+    } else {
+      // якщо користувач обере більше 10 файлів, то розбиваємо їх на частини по 10
+      const CHUNK_SIZE = 10;
+      const fileChunks = [];
+      for (let i = 0; i < files.length; i += CHUNK_SIZE) {
+        fileChunks.push(files.slice(i, i + CHUNK_SIZE));
+      }
+
+      for (let i = 0; i < fileChunks.length; i++) {
+        const chunk = fileChunks[i];
+        const attachments = await handleUpload(chunk);
+
+        const msg = {
+          id: -1,
+          attachments,
+          fullname: fullName,
+          sender_id: currentUser.uid,
+          text: i === fileChunks.length - 1 ? text : "", // додаю текст до останнього повідомлення
+          timestamp: new Date().toISOString(),
+          reply: replyId,
+        };
+
+        socket.emit("send-message", msg, receiverId, res => {
+          msg.id = res.id;
+          msg.reply_text = res.reply_text;
+          setMessages(prev => [...prev, msg]);
+
+          if (i === fileChunks.length - 1) {
+            setText("");
+            setFiles([]);
+          }
+        });
+        setIsSendModalOpen(false);
+      }
     }
-
-    // якщо користувач обере більше 10 файлів, то розбиваємо їх на частини по 10
-    const CHUNK_SIZE = 10;
-    const fileChunks = [];
-    for (let i = 0; i < files.length; i += CHUNK_SIZE) {
-      fileChunks.push(files.slice(i, i + CHUNK_SIZE));
-    }
-
-    for (let i = 0; i < fileChunks.length; i++) {
-      const chunk = fileChunks[i];
-      const attachments = await handleUpload(chunk);
-
-      const msg = {
-        id: -1,
-        attachments,
-        fullname: fullName,
-        sender_id: currentUser.uid,
-        text: text.trim(),
-        timestamp: new Date().toISOString(),
-        reply: replyId,
-      };
-
-      socket.emit("send-message", msg, receiverId, res => {
-        msg.id = res.id;
-        msg.reply_text = res.reply_text;
-        setMessages(prev => [...prev, msg]);
-
-        if (i === fileChunks.length - 1) {
-          setText("");
-          setFiles([]);
-        }
-      });
-      setIsSendModalOpen(false);
-    }
+    sortChatList(getChatId(currentUser.uid, receiverId));
     resetReply();
   };
 
@@ -277,7 +300,7 @@ export default function Chat() {
           // Оновлене повідомлення
           updatedMessage = {
             ...message,
-            text: text,
+            text: text || message.text,
             attachments: cleanedAttachments, // Оновлені вкладення
           };
           return updatedMessage; // Повертаю оновлене повідомлення
@@ -331,13 +354,18 @@ export default function Chat() {
     <div className="chat-container">
       <div className="chat-ct-hd">
         <div className="chat-ct-hd-name">
-          <p>{otherUserName}</p>
+          <Link
+            to={`/profiles/${receiverId}`}
+            state={{ backgroundLocation: location }}
+          >
+            <p>{otherUserName}</p>
+          </Link>
         </div>
         <div className="chat-ct-hd-pre-svg">
           <img src={chatControllerIcon} alt="Settings" />
         </div>
       </div>
-      <ChatMessages 
+      <ChatMessages
         handleOnContextMenu={handleOnContextMenu}
         getMessage={getMessage}
         getUserFullname={getUserFullname}
@@ -353,7 +381,6 @@ export default function Chat() {
         deleteMessage={deleteMessage}
         resetEdit={resetEdit}
         setIsEditModalOpen={setIsEditModalOpen}
-        text={text}
         setText={setText}
         setEditId={setEditId}
         setFiles={setFiles}

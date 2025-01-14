@@ -56,7 +56,12 @@ export const chatSocket = io => {
               reply,
               reply_text: res.reply_text,
             });
+          } else {
+            socket
+              .to(recipient_id)
+              .emit("message-notification-background", chat_id, 1);
           }
+
           // надсилаю id, reply_text доданого повідомлення, як результат, через колбек
           callback(res);
         } catch (error) {
@@ -75,6 +80,10 @@ export const chatSocket = io => {
             .join("_");
           if (activeChats.get(recipient_id) === chat_id) {
             socket.to(recipient_id).emit("delete-message", msg_id);
+          } else {
+            socket
+              .to(recipient_id)
+              .emit("message-notification-background", chat_id, -1);
           }
           if (Array.isArray(attachments)) await deleteAttachments(attachments);
         } catch (error) {

@@ -4,7 +4,6 @@ import ModalHeader from "../ModalHeader/ModalHeader.jsx";
 import styles from "./FileModal.module.css";
 import { Card } from "react-bootstrap";
 import deleteIcon from "../../assets/delete-button.svg";
-import { FaUpload } from "react-icons/fa";
 import fileIcon from "../../assets/file.svg";
 
 export default function FileSendModal({
@@ -55,17 +54,13 @@ export default function FileSendModal({
             ))}
           </ul>
           <div className={styles.actions}>
-            <label className={styles.uploadLabel}>
-              <FaUpload className={styles.uploadIcon} />
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                className={styles.fileInput}
-                multiple
-              />
-              Додати
-            </label>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              className={styles.fileInput}
+              multiple
+            />
             <textarea
               className={`${styles.textInput} ${styles.fileModalTextarea}`}
               value={text}
@@ -74,12 +69,26 @@ export default function FileSendModal({
               rows={2}
             />
             <div className={styles.actionButtons}>
-              <button className={styles.cancelButton} onClick={onClose}>
-                Скасувати
+              <button
+                className={`${styles.addButton} ${styles.addButtonSend}`}
+                onClick={() => fileInputRef.current.click()}
+              >
+                Додати
               </button>
-              <button className={styles.submitButton} onClick={onSubmit}>
-                Надіслати
-              </button>
+              <div className={styles.actionButtonsGroup}>
+                <button
+                  className={`${styles.cancelButton} ${styles.cancelButtonSend}`}
+                  onClick={onClose}
+                >
+                  Скасувати
+                </button>
+                <button
+                  onClick={onSubmit}
+                  className={`${styles.submitButton} ${styles.submitButtonSend}`}
+                >
+                  Надіслати
+                </button>
+              </div>
             </div>
           </div>
         </Card.Body>

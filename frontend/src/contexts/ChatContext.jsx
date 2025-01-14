@@ -1,5 +1,6 @@
-import React, { useContext, useState, createContext } from "react";
+import React, { useContext, useState, createContext, useEffect } from "react";
 import { useAuth } from "./AuthContext";
+import { useParams } from "react-router-dom";
 import { useSocket } from "./SocketProviderContext";
 import axios from "axios";
 
@@ -27,6 +28,26 @@ export function ChatProvider({ children }) {
     } catch (error) {
       console.error(error);
     }
+  }
+
+  function sortChatList(chat_id) {
+    setChatList(prevChats => {
+      // оновлюю інформацію чату
+      const updatedChats = prevChats.map(chat =>
+        chat.chat_id === chat_id
+          ? {
+              ...chat,
+              last_message_timestamp: new Date().toISOString(),
+            }
+          : chat
+      );
+      // переміщую чат на початок списку
+      const movedChat = updatedChats.find(chat => chat.chat_id === chat_id);
+      return [
+        movedChat,
+        ...updatedChats.filter(chat => chat.chat_id !== chat_id),
+      ];
+    });
   }
 
   async function fetchOrCreateChat(receiver_id, sender_id) {
@@ -74,14 +95,11 @@ export function ChatProvider({ children }) {
   }
 
   async function getUserFullname({ userId, callback }) {
-    const response = await axios.get(
-      `http://localhost:5000/users/${userId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await axios.get(`http://localhost:5000/users/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     callback({
       fullname: response.data.fullname,
     });
@@ -96,6 +114,7 @@ export function ChatProvider({ children }) {
     fetchOrCreateChat,
     getMessage,
     getUserFullname,
+    sortChatList,
   };
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;

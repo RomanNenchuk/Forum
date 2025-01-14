@@ -109,7 +109,8 @@
 }
 
 .cancelButton,
-.submitButton {
+.submitButton,
+.addButton {
   color: white;
   padding: 10px 35px;
   border-radius: 4px;
@@ -121,12 +122,25 @@
   border: 1px solid transparent;
   margin: 20px 0;
 }
+.cancelButtonSend,
+.submitButtonSend,
+.addButtonSend {
+  padding: 10px 15px;
+  font-size: 16px;
+  min-width: 92px;
+}
 
 .cancelButton:hover,
-.submitButton:hover {
+.submitButton:hover,
+.addButton:hover {
   color: #659287;
   background-color: white;
   border: 1px solid #659287;
+}
+
+.actionButtonsGroup {
+  display: flex;
+  gap: 20px;
 }
 
 .fileModalTextarea {

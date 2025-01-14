@@ -58,11 +58,11 @@
   cursor: pointer;
   transition: all 0.3s ease-in-out;
 }
-.chat-item.active {
-  background: #65928799;
-}
 .chat-item:hover {
   background: #f5f5f5;
+}
+.chat-item.active {
+  background: #65928799;
 }
 
 .chat-header {
@@ -128,6 +128,7 @@
   height: 100%;
 }
 .chat-input {
+  position: relative;
   display: flex;
   align-items: flex-end;
   gap: 43px;
@@ -140,6 +141,28 @@
   gap: 43px;
   padding: 22px 60px 22px 29px;
   background: #a8d3c3a8;
+}
+.reply-label {
+  background: rgba(172, 195, 211, 0.8);
+  height: 100%;
+  position: absolute;
+  top: -100%;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+  align-items: center;
+}
+.reply-label-info {
+  max-width: 90%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.reply-label-author {
+  font-weight: 600;
 }
 .chat-input input {
   flex-grow: 1;
@@ -177,12 +200,23 @@ ul.chat-messages {
   overflow-x: hidden;
   overflow-y: auto;
 }
-.chat-messages span {
-  margin: 10px;
+.message-author-name,
+.message-timestamp {
+  margin: 10px 20px;
   font-weight: 600;
   font-size: 20px;
 }
-
+.message-author-name {
+  margin-right: 20px;
+}
+.message-reply-label {
+  margin: 10px 10px 0 10px;
+  max-width: 300px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  font-size: 14px;
+}
 .uTou-message {
   position: relative;
   display: flex;
