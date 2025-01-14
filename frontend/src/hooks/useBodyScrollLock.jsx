@@ -2,19 +2,24 @@ import { useEffect } from "react";
 
 export function useBodyScrollLock(isLocked) {
   useEffect(() => {
+    const element = document.querySelector(".chat-messages");
     if (isLocked) {
-      const scrollBarWidth =
-        window.innerWidth - document.documentElement.clientWidth;
-      document.body.style.overflow = "hidden";
-      document.body.style.paddingRight = `${scrollBarWidth}px`; // Компенсація
+      const fullWidth = element.offsetWidth;
+      // Ширина контентної області без прокрутки
+      const contentWidth = element.clientWidth;
+      // Ширина скролбара
+      const scrollBarWidth = fullWidth - contentWidth;
+
+      element.style.overflow = "hidden";
+      element.style.paddingRight = `${scrollBarWidth}px`; // Компенсація
     } else {
-      document.body.style.overflow = "auto";
-      document.body.style.paddingRight = ""; // Скидаємо відступ
+      element.style.overflowY = "auto";
+      element.style.paddingRight = ""; // Скидаємо відступ
     }
 
     return () => {
-      document.body.style.overflow = "auto";
-      document.body.style.paddingRight = ""; // Скидаємо відступ при демонтованому компоненті
+      element.style.overflowY = "auto";
+      element.style.paddingRight = ""; // Скидаємо відступ при демонтованому компоненті
     };
   }, [isLocked]);
 }

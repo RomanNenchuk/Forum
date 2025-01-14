@@ -10,7 +10,7 @@ import getChatId from "../../utils/getChatId.jsx";
 import ChatInput from "./ChatInput.jsx";
 import FileSendModal from "../FileModal/FileSendModal.jsx";
 import FileEditModal from "../FileModal/FileEditModal.jsx";
-import ContextMenu from "../ContextMenu/ContextMenu.jsx";
+import ChatContextMenu from "./ChatContextMenu.jsx";
 import ChatMessages from "./ChatMessages.jsx";
 import LoadingSpinner from "../Spinner.jsx";
 import chatControllerIcon from "../../assets/chat-controller.svg";
@@ -229,6 +229,7 @@ export default function Chat() {
         setIsSendModalOpen(false);
       }
     }
+
     sortChatList(getChatId(currentUser.uid, receiverId));
     resetReply();
   };
@@ -369,12 +370,11 @@ export default function Chat() {
         getUserFullname={getUserFullname}
       />
 
-      <ContextMenu
-        contextMenuRef={contextMenuRef}
-        isToggled={contextMenu.toggled}
+      <ChatContextMenu
         positionX={contextMenu.position.x}
         positionY={contextMenu.position.y}
-        contextMenu={contextMenu}
+        isToggled={contextMenu.toggled}
+        contextMenuRef={contextMenuRef}
         resetContextMenu={resetContextMenu}
         deleteMessage={deleteMessage}
         resetEdit={resetEdit}
@@ -383,6 +383,7 @@ export default function Chat() {
         setEditId={setEditId}
         setFiles={setFiles}
         currentUser={currentUser}
+        contextMenu={contextMenu}
         setReply={setReply}
       />
 

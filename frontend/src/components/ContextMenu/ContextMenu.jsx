@@ -1,5 +1,4 @@
 import React from "react";
-import { useChat } from "../../contexts/ChatContext";
 import "./ContextMenu.css";
 
 export default function ContextMenu({
@@ -7,72 +6,9 @@ export default function ContextMenu({
   positionY,
   isToggled,
   contextMenuRef,
-  contextMenu,
+  buttons = [],
   resetContextMenu,
-  deleteMessage,
-  resetEdit,
-  setIsEditModalOpen,
-  setText,
-  setEditId,
-  setFiles,
-  currentUser,
-  setReply,
 }) {
-  const { messages } = useChat();
-
-  const buttons = [
-    {
-      text: "Delete",
-      icon: "🗑️",
-      onClick: () => {
-        resetContextMenu();
-        deleteMessage(contextMenu.selectedMessage);
-        resetEdit();
-      },
-    },
-    {
-      text: "Edit",
-      icon: "🖋️",
-      onClick: () => {
-        const dbFiles = contextMenu.selectedMessageItem?.attachments?.map(
-          url => ({
-            name: url.split("/").pop(),
-            url,
-            isFromDatabase: true,
-          })
-        );
-        if (dbFiles) setFiles(prevFiles => [...dbFiles, ...prevFiles]);
-
-        const selectedMessage = messages.find(
-          message =>
-            message.id === contextMenu.selectedMessage &&
-            message.sender_id === currentUser.uid
-        );
-
-        if (selectedMessage) {
-          setText(selectedMessage.text || "");
-          setEditId(contextMenu.selectedMessage);
-          console.log(contextMenu.selectedMessage);
-
-          if (selectedMessage.attachments?.length) {
-            setIsEditModalOpen(true);
-          }
-        } else {
-          resetEdit();
-        }
-        resetContextMenu();
-      },
-    },
-    {
-      text: "Reply",
-      icon: "↪️",
-      onClick: () => {
-        resetContextMenu();
-        setReply(contextMenu.selectedMessage);
-      },
-    },
-  ];
-
   return (
     <menu
       ref={contextMenuRef}
@@ -82,17 +18,21 @@ export default function ContextMenu({
       }}
       className={`context-menu ${isToggled ? "active" : ""}`}
     >
-      {buttons.map((button, index) => (
+      {buttons.map(({ text, icon, onClick }, index) => (
         <button
+          key={index}
           onClick={e => {
             e.stopPropagation();
-            button.onClick();
+            if (onClick) {
+              onClick();
+              resetContextMenu();
+            }
           }}
-          key={index}
-          className="context-menu-button"
+          className={`context-menu-button ${!onClick ? "disabled" : ""}`}
+          disabled={!onClick}
         >
-          <span>{button.text}</span>
-          <span className="icon">{button.icon}</span>
+          <span>{text}</span>
+          <img src={icon} width="20" height="20" alt={text} className="icon" />
         </button>
       ))}
     </menu>

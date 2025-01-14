@@ -1,6 +1,6 @@
 import React, { useContext, useState, createContext, useEffect } from "react";
 import { useAuth } from "./AuthContext";
-import { useParams } from "react-router-dom";
+import scrollToBottom from "../utils/scrollToBottom.jsx";
 import { useSocket } from "./SocketProviderContext";
 import axios from "axios";
 
@@ -15,6 +15,18 @@ export function ChatProvider({ children }) {
   const [messages, setMessages] = useState([]);
   const socket = useSocket();
   const { currentUser, token } = useAuth();
+
+  useEffect(() => {
+    if (
+      messages.length &&
+      messages[messages.length - 1]?.sender_id === currentUser.uid
+    ) {
+      const chatMessagesElement = document.querySelector(".chat-messages");
+      if (chatMessagesElement) {
+        scrollToBottom(chatMessagesElement);
+      }
+    }
+  }, [messages]);
 
   async function fetchChatList() {
     try {

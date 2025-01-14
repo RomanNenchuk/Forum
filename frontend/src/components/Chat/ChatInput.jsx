@@ -54,6 +54,18 @@ export default function ChatInput({
     if (isEditModalOpen || isSendModalOpen) return;
     setText(e.target.value);
   }
+
+  function onKeyDown(e) {
+    if (
+      editId === -1 &&
+      e.key === "Enter" &&
+      !isEditModalOpen &&
+      !isSendModalOpen
+    ) {
+      sendMessage();
+    }
+  }
+
   return (
     <div className="chat-input">
       {replyId !== -1 && (
@@ -81,6 +93,7 @@ export default function ChatInput({
         type="text"
         value={isEditModalOpen || isSendModalOpen ? "" : text}
         onChange={onChange}
+        onKeyDown={onKeyDown}
         ref={inputRef}
         placeholder="Напишіть повідомлення..."
       />
