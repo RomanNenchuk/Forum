@@ -16,5 +16,9 @@ export default function DefaultChatScreen() {
     })();
   }, []);
   if (loading) return <LoadingSpinner />;
-  return <h1>Виберіть чат для спілкування</h1>;
+  return (
+    <div className="h-100 d-flex justify-content-center align-items-center">
+      <h3>Виберіть чат для спілкування</h3>
+    </div>
+  );
 }

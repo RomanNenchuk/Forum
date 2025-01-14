@@ -14,7 +14,10 @@ export const getChatList = async (req, res) => {
     WHEN chats.user1_id = $1 THEN u2.fullname
     ELSE u1.fullname
   END AS other_user_name,
-  last_message.text,
+  CASE 
+    WHEN chats.user1_id = $1 THEN u2.avatar
+    ELSE u1.avatar
+  END AS other_user_avatar,
   last_message.sender_id AS last_message_sender_id,
   last_message.timestamp AS last_message_timestamp,
   COALESCE(unread_count.unread_messages, 0) AS unread_messages_count
@@ -23,7 +26,6 @@ export const getChatList = async (req, res) => {
     INNER JOIN users u2 ON chats.user2_id = u2.uid
     LEFT JOIN LATERAL (
       SELECT 
-        text, 
         sender_id, 
         timestamp
       FROM messages
@@ -40,7 +42,7 @@ export const getChatList = async (req, res) => {
       GROUP BY chat_id
     ) unread_count ON chats.id = unread_count.chat_id
     WHERE chats.user1_id = $1 OR chats.user2_id = $1
-    ORDER BY chats.timestamp DESC;
+    ORDER BY COALESCE(last_message.timestamp, '1970-01-01') DESC;
   `;
 
   try {
@@ -106,7 +108,7 @@ export const fetchOrCreateChat = async (req, res) => {
           m.timestamp ASC;
     `;
     const messages = await pool.query(messagesQuery, [chat_id]);
-    
+
     // завершую транзакцію
     await client.query("COMMIT");
 
@@ -157,7 +159,7 @@ export const saveMessage = async ({
     return {
       id: result.rows[0].id,
       reply_text,
-    }
+    };
   } catch (error) {
     console.log(error);
   }

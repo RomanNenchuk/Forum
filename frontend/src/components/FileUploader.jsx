@@ -1,14 +1,8 @@
 import React, { useRef } from "react";
 import { useChat } from "../contexts/ChatContext.jsx";
 import addFileIcon from "../assets/add-file.svg";
-import editFileIcon from "../assets/edit-file.svg";
 
-export default function FileUploader({
-  setFiles,
-  editId,
-  setIsEditModalOpen,
-  setIsSendModalOpen,
-}) {
+export default function FileUploader({ setFiles, editId, setIsSendModalOpen }) {
   const { messages } = useChat();
   const fileInputRef = useRef();
 
@@ -21,7 +15,7 @@ export default function FileUploader({
     return message?.attachments?.length > 0 || false;
   }
 
-  // if (editId !== -1 && !hasAttachments()) return null;
+  if (editId !== -1 && !hasAttachments()) return null;
 
   return (
     <div>

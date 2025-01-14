@@ -4,8 +4,13 @@ import { useAuth } from "../../contexts/AuthContext.jsx";
 import AttachedFiles from "../AttachedFiles/AttachedFiles.jsx";
 import MessageTriangle from "./MessageTriangle.jsx";
 import { timestampToTime } from "../../utils/getCurrentTime.jsx";
+import replyIcon from "../../assets/reply.svg";
 
-export default function ChatMessages({ handleOnContextMenu, getMessage, getUserFullname }) {
+export default function ChatMessages({
+  handleOnContextMenu,
+  getMessage,
+  getUserFullname,
+}) {
   const { messages } = useChat();
   const { currentUser } = useAuth();
   const [replies, setReplies] = useState({});
@@ -15,7 +20,7 @@ export default function ChatMessages({ handleOnContextMenu, getMessage, getUserF
       const replyData = {};
       for (const msg of messages) {
         if (msg.reply !== -1) {
-          const reply = await new Promise((resolve) =>
+          const reply = await new Promise(resolve =>
             getMessage({
               msg_id: msg.reply,
               callback: resolve,
@@ -23,14 +28,13 @@ export default function ChatMessages({ handleOnContextMenu, getMessage, getUserF
           );
           let author = {};
           if (reply.sender_id) {
-            author = await new Promise((resolve) =>
+            author = await new Promise(resolve =>
               getUserFullname({
                 userId: reply.sender_id,
                 callback: resolve,
               })
             );
           }
-          console.log(reply, author);
           replyData[msg.reply] = {
             text: reply.text || "*Видалене повідомлення*",
             author: author.fullname,
@@ -46,7 +50,7 @@ export default function ChatMessages({ handleOnContextMenu, getMessage, getUserF
     <ul className="chat-messages" style={{ listStyleType: "none" }}>
       {messages.map((msg, index) => {
         const replyInfo = replies[msg.reply] || {};
-        return(
+        return (
           <li
             key={index}
             className="uTou-message"
@@ -65,21 +69,51 @@ export default function ChatMessages({ handleOnContextMenu, getMessage, getUserF
             }
             onContextMenu={e => handleOnContextMenu(e, msg)}
           >
-            {msg.reply !== -1 && <ul className="chat-messages" style={{ listStyleType: "none" }}>
-              <p style={{ marginLeft: "20px", marginRight: "20px" }}>
-                ↪️{replyInfo.author}: {replyInfo.text || "*Видалене повідомлення*"}
-              </p>
-            </ul>}
-            <span>{msg.fullname}</span>
+            {msg.reply !== -1 && (
+              <div className="message-reply-wrapper">
+                <p
+                  className="message-reply-label"
+                  style={
+                    msg.sender_id === currentUser.uid
+                      ? {
+                          textAlign: "right",
+                          marginLeft: "auto",
+                          backgroundColor: "#a3beb7",
+                        }
+                      : {
+                          textAlign: "left",
+                          marginRight: "auto",
+                          backgroundColor: "#c2c1be",
+                        }
+                  }
+                >
+                  <img src={replyIcon} alt="Reply to" /> {"  "}
+                  {replyInfo.author}:{" "}
+                  {replyInfo.text || "*Видалене повідомлення*"}
+                </p>
+              </div>
+            )}
+            <span className="message-author-name">{msg.fullname}</span>
             <AttachedFiles urls={msg?.attachments} />
-            <p style={{ marginLeft: "20px", marginRight: "20px" }}>{msg.text}</p>
-            <span style={{ fontSize: "15px", color: "black", fontWeight: 100 }}>
+            <p
+              style={{
+                marginLeft: "20px",
+                marginRight: "20px",
+                fontSize: "17px",
+              }}
+            >
+              {msg.text}
+            </p>
+            <span
+              className="message-timestamp"
+              style={{ fontSize: "15px", color: "black", fontWeight: 100 }}
+            >
               {timestampToTime(msg.timestamp)}
             </span>
             <MessageTriangle isSender={msg.sender_id === currentUser.uid} />
-          </li>);
-        }
-      )}
+          </li>
+        );
+      })}
     </ul>
   );
 }

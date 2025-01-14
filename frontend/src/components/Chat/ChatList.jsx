@@ -1,11 +1,13 @@
 import React from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useParams } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import Avatar from "../Avatar.jsx";
 import { useChat } from "../../contexts/ChatContext";
 import "./Chat.css";
 
 export default function ChatList() {
   const { chatList, setChatList } = useChat();
+  const { receiverId } = useParams();
 
   const handleChatClick = index => {
     const updatedChatList = chatList.map((chat, i) => ({
@@ -24,37 +26,38 @@ export default function ChatList() {
           <p>Приватні чати</p>
         </div>
         <div className="chat-list">
-          {chatList.map((chat, index) => (
-            <div
-              key={index}
-              className={`chat-item ${
-                chat.unread_messages_count > 0 ? "unread" : ""
-              } ${chat.active ? "active" : ""}`}
-            >
-              <Link
-                to={`/chats/${chat.other_user_id}`}
-                state={{ otherUserName: chat.other_user_name }}
-                onClick={() => handleChatClick(index)}
+          {chatList &&
+            chatList.map((chat, index) => (
+              <div
+                key={index}
+                className={`chat-item ${
+                  chat?.unread_messages_count > 0 ? "unread" : ""
+                } ${chat.other_user_id === receiverId ? "active" : ""}`}
               >
-                <div className="chat-header">
-                  <div className="chat-name-ct">
-                    <div className="chat-pre-img"></div>
-                    <div className="chat-name-text">
-                      <p className="chat-name">{chat.other_user_name}</p>
+                <Link
+                  to={`/chats/${chat.other_user_id}`}
+                  state={{ otherUserName: chat.other_user_name }}
+                  onClick={() => handleChatClick(index)}
+                >
+                  <div className="chat-header">
+                    <div className="chat-name-ct">
+                      <Avatar size={55} avatar={chat.other_user_avatar} />
+                      <div className="chat-name-text">
+                        <p className="chat-name">{chat.other_user_name}</p>
+                      </div>
                     </div>
-                  </div>
 
-                  {chat.unread_messages_count > 0 && (
-                    <div className="chat-unread-msg">
-                      <p className="unread-badge">
-                        {chat.unread_messages_count}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </Link>
-            </div>
-          ))}
+                    {chat.unread_messages_count > 0 && (
+                      <div className="chat-unread-msg">
+                        <p className="unread-badge">
+                          {chat.unread_messages_count}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              </div>
+            ))}
         </div>
       </div>
 

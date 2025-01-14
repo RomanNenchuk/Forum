@@ -12,7 +12,6 @@ export default function ContextMenu({
   deleteMessage,
   resetEdit,
   setIsEditModalOpen,
-  text,
   setText,
   setEditId,
   setFiles,
