@@ -23,6 +23,8 @@ export default function Chat() {
   const [filesToDelete, setFilesToDelete] = useState([]); // Список файлів на видалення
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
+  const [editId, setEditId] = useState(-1);
+  const [replyId, setReply] = useState(-1);
 
   useBodyScrollLock(isContextMenuOpen);
 
@@ -187,7 +189,7 @@ export default function Chat() {
 
       const msg = {
         id: -1,
-        attachments: [],
+        attachments,
         fullname: fullName,
         sender_id: currentUser.uid,
         text: text.trim(),
@@ -224,7 +226,7 @@ export default function Chat() {
     }
   }
 
-  const [editId, setEditId] = useState(-1);
+  
   function resetEdit() {
     setEditId(-1);
     setText("");
@@ -315,7 +317,7 @@ export default function Chat() {
     }
   };
 
-  const [replyId, setReply] = useState(-1);
+  
   function resetReply() {
     setReply(-1);
   }

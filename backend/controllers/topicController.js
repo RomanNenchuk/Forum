@@ -78,3 +78,71 @@ export const saveTopic = async (req, res) => {
     console.error(error);
   }
 };
+
+export const getTopicComments = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const query = `
+    SELECT 
+      c.id,
+      c.text,
+      c.timestamp,
+      c.author_id,
+      c.topic_id,
+      c.attachments,
+      c.reply,
+      o.text AS reply_text,
+      u.username AS author_username,
+      u.avatar
+    FROM 
+      comments c
+    LEFT JOIN
+      users u ON c.author_id = u.uid
+    LEFT JOIN
+      comments o ON c.reply = o.id
+    WHERE 
+      c.topic_id = $1
+    ORDER BY 
+      c.timestamp DESC;
+    `;
+    const result = await pool.query(query, [id]);
+    res.status(200).json(result.rows ?? []);
+  } catch(error) {
+    console.error("getTopicComments:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+export const PostNewComment = async (req, res) => {
+  const comm = req.body;
+  try {
+    const query = `
+      INSERT INTO comments (
+        text, timestamp, author_id, topic_id, attachments, reply
+      ) VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING *;
+    `
+    const reply_text_query = `
+      SELECT text FROM comments WHERE id = $1
+    `;
+    const result = await pool.query(query, [
+      comm.text, 
+      comm.timestamp,
+      comm.author_id,
+      comm.topic_id,
+      comm.attachments,
+      comm.reply
+    ]);
+    let reply_text = '';
+    if (comm.reply !== -1) {
+      reply_text = await pool.query(reply_text_query, [comm.reply]);
+    }
+    res.status(200).json({
+      id: result.rows[0].id,
+      reply_text: reply_text,
+    });
+  } catch(error) {
+    console.error("PostNewComment error:", error);
+    res.status(500);
+  }
+}
