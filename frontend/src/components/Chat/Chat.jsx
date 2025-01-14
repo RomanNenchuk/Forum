@@ -24,6 +24,8 @@ export default function Chat() {
   const [filesToDelete, setFilesToDelete] = useState([]); // Список файлів на видалення
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
+  const [editId, setEditId] = useState(-1);
+  const [replyId, setReply] = useState(-1);
 
   useBodyScrollLock(isContextMenuOpen);
 
@@ -248,7 +250,7 @@ export default function Chat() {
     }
   }
 
-  const [editId, setEditId] = useState(-1);
+  
   function resetEdit() {
     setEditId(-1);
     setText("");
@@ -299,7 +301,7 @@ export default function Chat() {
           // Оновлене повідомлення
           updatedMessage = {
             ...message,
-            text: text,
+            text: text || message.text,
             attachments: cleanedAttachments, // Оновлені вкладення
           };
           return updatedMessage; // Повертаю оновлене повідомлення
@@ -339,7 +341,7 @@ export default function Chat() {
     }
   };
 
-  const [replyId, setReply] = useState(-1);
+  
   function resetReply() {
     setReply(-1);
   }

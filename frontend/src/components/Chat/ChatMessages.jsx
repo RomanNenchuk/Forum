@@ -88,7 +88,7 @@ export default function ChatMessages({
                   }
                 >
                   <img src={replyIcon} alt="Reply to" /> {"  "}
-                  {replyInfo.author}:{" "}
+                  {replyInfo.author ? (replyInfo.author + ": ") : ""}
                   {replyInfo.text || "*Видалене повідомлення*"}
                 </p>
               </div>
