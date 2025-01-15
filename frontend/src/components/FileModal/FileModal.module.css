@@ -53,10 +53,10 @@
   font-size: 18px;
   color: #333333;
   display: inline-block;
-  max-width: 200px; /* Максимальна ширина */
-  white-space: nowrap; /* Запобігає переносу тексту */
+  max-width: 200px;
+  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis; /* Трикрапка з'являється в кінці */
+  text-overflow: ellipsis;
 }
 
 .fileHeader {

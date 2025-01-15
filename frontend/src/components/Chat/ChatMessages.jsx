@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useChat } from "../../contexts/ChatContext.jsx";
 import { useAuth } from "../../contexts/AuthContext.jsx";
+import scrollToBottom from "../../utils/scrollToBottom.jsx";
 import AttachedFiles from "../AttachedFiles/AttachedFiles.jsx";
 import MessageTriangle from "./MessageTriangle.jsx";
 import { timestampToTime } from "../../utils/getCurrentTime.jsx";
@@ -10,10 +11,37 @@ export default function ChatMessages({
   handleOnContextMenu,
   getMessage,
   getUserFullname,
+  userSentMessage,
+  setUserSentMessage,
 }) {
   const { messages } = useChat();
   const { currentUser } = useAuth();
   const [replies, setReplies] = useState({});
+  const chatMessagesRef = useRef(null);
+
+  const isAtBottom = () => {
+    if (chatMessagesRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = chatMessagesRef.current;
+      return scrollHeight - scrollTop - clientHeight <= 200; // додано буфер
+    }
+    return false;
+  };
+
+  useEffect(() => {
+    const chatMessagesElement = chatMessagesRef.current;
+    if (chatMessagesElement) {
+      // Якщо користувач вже знаходиться внизу, автоматично скролимо вниз
+      if (userSentMessage || isAtBottom()) {
+        scrollToBottom(chatMessagesRef);
+        setUserSentMessage(false);
+      }
+    }
+  }, [messages]);
+
+  useEffect(() => {
+    // Скрол донизу при завантаженні сторінки
+    scrollToBottom(chatMessagesRef);
+  }, []);
 
   useEffect(() => {
     const fetchReplies = async () => {
@@ -47,7 +75,11 @@ export default function ChatMessages({
     fetchReplies();
   }, [messages]);
   return (
-    <ul className="chat-messages" style={{ listStyleType: "none" }}>
+    <ul
+      ref={chatMessagesRef}
+      className="chat-messages"
+      style={{ listStyleType: "none" }}
+    >
       {messages.map((msg, index) => {
         const replyInfo = replies[msg.reply] || {};
         return (
@@ -88,13 +120,16 @@ export default function ChatMessages({
                   }
                 >
                   <img src={replyIcon} alt="Reply to" /> {"  "}
-                  {replyInfo.author ? (replyInfo.author + ": ") : ""}
+                  {replyInfo.author ? replyInfo.author + ": " : ""}
                   {replyInfo.text || "*Видалене повідомлення*"}
                 </p>
               </div>
             )}
             <span className="message-author-name">{msg.fullname}</span>
-            <AttachedFiles urls={msg?.attachments} />
+            <AttachedFiles
+              urls={msg?.attachments}
+              onImageLoad={() => scrollToBottom(chatMessagesRef)}
+            />
             <p
               style={{
                 marginLeft: "20px",

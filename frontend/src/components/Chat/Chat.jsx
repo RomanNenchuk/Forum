@@ -7,6 +7,7 @@ import { useSocket } from "../../contexts/SocketProviderContext";
 import { useUserInfo } from "../../contexts/UserInfoContext";
 import { useBodyScrollLock } from "../../hooks/useBodyScrollLock.jsx";
 import getChatId from "../../utils/getChatId.jsx";
+import handleUpload from "../../utils/uploadFiles.jsx";
 import ChatInput from "./ChatInput.jsx";
 import FileSendModal from "../FileModal/FileSendModal.jsx";
 import FileEditModal from "../FileModal/FileEditModal.jsx";
@@ -15,7 +16,6 @@ import ChatMessages from "./ChatMessages.jsx";
 import LoadingSpinner from "../Spinner.jsx";
 import chatControllerIcon from "../../assets/chat-controller.svg";
 import "react-bootstrap";
-import axios from "axios";
 
 export default function Chat() {
   const [text, setText] = useState("");
@@ -24,6 +24,7 @@ export default function Chat() {
   const [filesToDelete, setFilesToDelete] = useState([]); // Список файлів на видалення
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
+  const [userSentMessage, setUserSentMessage] = useState(false);
   const [editId, setEditId] = useState(-1);
   const [replyId, setReply] = useState(-1);
 
@@ -39,7 +40,6 @@ export default function Chat() {
     fetchChatList,
     getMessage,
     getUserFullname,
-    setChatList,
     sortChatList,
   } = useChat();
   const [loading, setLoading] = useState(false);
@@ -104,30 +104,10 @@ export default function Chat() {
       );
     });
 
-    socket.on("message-notification-background", (chat_id, deltaCount) => {
-      console.log(chat_id);
-      setChatList(prev =>
-        prev.map(chat => {
-          if (chat.chat_id === chat_id) {
-            const unreadMessagesCount =
-              +chat.unread_messages_count + deltaCount;
-            return {
-              ...chat,
-              unread_messages_count:
-                unreadMessagesCount > 0 ? unreadMessagesCount : 0,
-            };
-          }
-          return chat;
-        })
-      );
-      sortChatList(chat_id);
-    });
-
     return () => {
       socket.off("receive-message");
       socket.off("delete-message");
       socket.off("edit-message");
-      socket.off("message-notification-background");
       socket.emit("leave-chat", currentUser.uid);
     };
   }, [socket, currentUser, receiverId]);
@@ -206,7 +186,9 @@ export default function Chat() {
 
       for (let i = 0; i < fileChunks.length; i++) {
         const chunk = fileChunks[i];
-        const attachments = await handleUpload(chunk);
+        const attachments = await handleUpload(chunk, currentUser.uid);
+
+        console.log(attachments);
 
         const msg = {
           id: -1,
@@ -232,6 +214,7 @@ export default function Chat() {
       }
     }
 
+    setUserSentMessage(true);
     sortChatList(getChatId(currentUser.uid, receiverId));
     resetReply();
   };
@@ -250,7 +233,6 @@ export default function Chat() {
     }
   }
 
-  
   function resetEdit() {
     setEditId(-1);
     setText("");
@@ -262,7 +244,7 @@ export default function Chat() {
 
     // Завантаження нових файлів
     if (newAttachments.length) {
-      newAttachmentsUrls = await handleUpload(newAttachments);
+      newAttachmentsUrls = await handleUpload(newAttachments, currentUser.uid);
     }
 
     let updatedMessage;
@@ -296,8 +278,6 @@ export default function Chat() {
             }
           }
 
-          console.log(cleanedAttachments);
-
           // Оновлене повідомлення
           updatedMessage = {
             ...message,
@@ -327,21 +307,6 @@ export default function Chat() {
     resetEdit();
   }
 
-  const handleUpload = async files => {
-    try {
-      const fd = new FormData();
-      files.forEach(file => fd.append("files", file.data));
-      const response = await axios.post(
-        `http://localhost:5000/attachments/${currentUser.uid}`,
-        fd
-      );
-      return response.data.files.map(file => file.url);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  
   function resetReply() {
     setReply(-1);
   }
@@ -370,6 +335,8 @@ export default function Chat() {
         handleOnContextMenu={handleOnContextMenu}
         getMessage={getMessage}
         getUserFullname={getUserFullname}
+        userSentMessage={userSentMessage}
+        setUserSentMessage={setUserSentMessage}
       />
 
       <ChatContextMenu

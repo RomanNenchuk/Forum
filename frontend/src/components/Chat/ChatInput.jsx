@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import FileUploader from "../FileUploader.jsx";
+import { useChat } from "../../contexts/ChatContext.jsx";
 import sendMessageIcon from "../../assets/send-message.svg";
 import sendSmileIcon from "../../assets/send-smile.svg";
 import { MdEdit } from "react-icons/md";
@@ -25,6 +26,7 @@ export default function ChatInput({
   const [replyText, setReplyText] = useState(null);
   const [replyAuthor, setReplyAuthor] = useState(null);
   const inputRef = useRef();
+  const { messages } = useChat();
 
   useEffect(() => {
     inputRef.current.focus();
@@ -49,6 +51,11 @@ export default function ChatInput({
       });
     }
   }, [replyId]);
+
+  function hasAttachments() {
+    const message = messages.find(msg => msg.id === editId);
+    return message?.attachments?.length > 0 || false;
+  }
 
   function onChange(e) {
     if (isEditModalOpen || isSendModalOpen) return;
@@ -80,14 +87,16 @@ export default function ChatInput({
         </div>
       )}
 
-      <FileUploader
-        setFiles={setFiles}
-        editId={editId}
-        setIsEditModalOpen={setIsEditModalOpen}
-        setIsSendModalOpen={setIsSendModalOpen}
-        text={text}
-        setText={text}
-      />
+      {editId === -1 && !hasAttachments() ? (
+        <FileUploader
+          setFiles={setFiles}
+          editId={editId}
+          setIsEditModalOpen={setIsEditModalOpen}
+          setIsSendModalOpen={setIsSendModalOpen}
+          text={text}
+          setText={text}
+        />
+      ) : null}
 
       <input
         type="text"

@@ -1,21 +1,12 @@
 import React, { useRef } from "react";
-import { useChat } from "../contexts/ChatContext.jsx";
 import addFileIcon from "../assets/add-file.svg";
 
-export default function FileUploader({ setFiles, editId, setIsSendModalOpen }) {
-  const { messages } = useChat();
+export default function FileUploader({ setFiles, setIsSendModalOpen }) {
   const fileInputRef = useRef();
 
   function handleImageClick() {
     fileInputRef.current.click();
   }
-
-  function hasAttachments() {
-    const message = messages.find(msg => msg.id === editId);
-    return message?.attachments?.length > 0 || false;
-  }
-
-  if (editId !== -1 && !hasAttachments()) return null;
 
   return (
     <div>

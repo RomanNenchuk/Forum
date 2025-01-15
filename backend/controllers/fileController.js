@@ -168,7 +168,10 @@ export const deleteAttachments = async files => {
       } else {
         // якщо файл - raw, видаляємо з розширенням
         await cloudinary.uploader.destroy(
-          `attachments/${public_id}.${extension}`
+          `attachments/${public_id}.${extension}`,
+          {
+            resource_type: "raw",
+          }
         );
       }
     }

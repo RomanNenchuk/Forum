@@ -1,6 +1,8 @@
-export default function scrollToBottom(element) {
-  element.scrollTo({
-    top: element.scrollHeight,
-    behavior: "smooth",
-  });
+export default function scrollToBottom(containerRef) {
+  if (containerRef.current) {
+    containerRef.current.scrollTo({
+      top: containerRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }
 }
