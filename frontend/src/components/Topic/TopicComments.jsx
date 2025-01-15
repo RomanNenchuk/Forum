@@ -15,20 +15,22 @@ export default function TopicComments({
   return(
     <ul>
       {comments.length ? comments.map(
-        (comment) => {
+        (comm) => {
           return(
-            <Card>
+            <Card
+              onContextMenu={e => handleOnContextMenu(e, comm)}
+            >
               <Card.Header>
                 <Card.Img 
-                  src={comment.avatar} 
+                  src={comm.avatar} 
                   style={{ width: '50px', height: '50px' }}
                 />
-                <Card.Text>{comment.author_username}</Card.Text>
-                <Card.Text>{timestampToTime(comment.timestamp)}</Card.Text>
+                <Card.Text>{comm.author_username}</Card.Text>
+                <Card.Text>{timestampToTime(comm.timestamp)}</Card.Text>
               </Card.Header>
               <Card.Body>
                 <Card.Text>
-                {comment.text}
+                {comm.text}
                 </Card.Text>
               </Card.Body>
             </Card>

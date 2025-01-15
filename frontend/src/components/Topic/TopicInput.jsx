@@ -43,7 +43,6 @@ export default function TopicInput({
             text={text}
             setText={text}
           /> */}
-  
           <input
             type="text"
             value={isEditModalOpen || isSendModalOpen ? "" : text}

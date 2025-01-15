@@ -6,6 +6,7 @@ import {
   getTopic,
   getTopicComments,
   PostNewComment,
+  deleteComment,
 } from "../controllers/topicController.js";
 
 import { saveImage } from "../controllers/fileController.js";
@@ -21,5 +22,7 @@ router.get("/:id", getTopic);
 router.get("/:id/comments", getTopicComments);
 
 router.post("/comments", PostNewComment);
+
+router.delete("/comments/:id", deleteComment);
 
 export default router;

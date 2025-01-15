@@ -146,3 +146,18 @@ export const PostNewComment = async (req, res) => {
     res.status(500);
   }
 }
+
+export const deleteComment = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const query = `DELETE FROM comments WHERE id = $1 RETURNING attachments`;
+    const response = await pool.query(query, [id]);
+
+    res.status(200).json({
+      attachments: response.rows.length > 0 ? response.rows[0].attachments : [],
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500);
+  }
+}
