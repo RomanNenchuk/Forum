@@ -43,7 +43,7 @@ export default function ProfileHeader({
       {profileName && (
         <span
           style={{
-            color: "#555",
+            color:"#555",
             fontSize: sizeFont,
             lineHeight: sizeFont,
             ...textStyle,

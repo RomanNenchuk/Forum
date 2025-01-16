@@ -28,13 +28,13 @@ export default function TopicInput({
   }
 
   return (
-    <div>
+    <div style = {{display: "flex",justifyContent:"center",backgroundColor: "#c4d1d7", height: "6vh"}}>
       {/* {replyId !== -1 && <div>
         <span>{replyAuthor || "Невідомий автор"}</span>
         <span>: {replyText || "*Видалене повідомлення*"}</span>
         <button onClick={() => resetReply()}>Х</button>
       </div>} */}
-      <div>
+      <div style = {{display: "flex", flexDirection: "row",alignItems:"center", width: "95%", gap: "0.5vh"}}>
           {/* <FileUploader
             setFiles={setFiles}
             editId={editId}
@@ -49,18 +49,19 @@ export default function TopicInput({
             value={isEditModalOpen || isSendModalOpen ? "" : text}
             onChange={onChange}
             placeholder="Напишіть повідомлення..."
+            style = {{flex: "1", height: "4vh",}}
           />
           <div onClick={sendComment}>
-            <img src={sendSmileIcon} alt="Smile" />
+            <img style = {{width: "3vh", height: "3vh"}} src={sendSmileIcon} alt="Smile" />
           </div>
           {(editId === -1 || isEditModalOpen || isSendModalOpen) && (
             <div onClick={sendComment}>
-              <img src={sendMessageIcon} alt="Send" />
+              <img style = {{width: "3vh", height: "3vh"}} src={sendMessageIcon} alt="Send" />
             </div>
           )}
           {editId !== -1 && !isEditModalOpen && !isSendModalOpen && (
             <>
-              <MdEdit size={30} onClick={editComment} />
+              <MdEdit size="3vh" onClick={editComment} />
               <img src={cancelIcon} alt="Cancel" onClick={onCancel} />
             </>
           )}

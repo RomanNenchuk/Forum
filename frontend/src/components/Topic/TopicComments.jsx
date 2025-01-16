@@ -3,35 +3,33 @@ import { Container, Card } from "react-bootstrap";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import AttachedFiles from "../AttachedFiles/AttachedFiles.jsx";
 import { timestampToTime } from "../../utils/getCurrentTime.jsx";
+import ProfileHeader from "../ProfileHeader.jsx";
+import "./Comments.css"
 
 export default function TopicComments({ 
     handleOnContextMenu,
     comments,
     getComment, 
-    getUserFullname 
+    getUserFullname,
+    uid
   }) {
   const { currentUser } = useAuth();
   const [replies, setReplies] = useState({});
+
   return(
-    <ul>
+    <ul style = {{display: "flex", width: "100%", flexDirection: "column-reverse"}}>
       {comments.length ? comments.map(
         (comment) => {
           return(
-            <Card>
-              <Card.Header>
-                <Card.Img 
-                  src={comment.avatar} 
-                  style={{ width: '50px', height: '50px' }}
-                />
-                <Card.Text>{comment.author_username}</Card.Text>
-                <Card.Text>{timestampToTime(comment.timestamp)}</Card.Text>
-              </Card.Header>
-              <Card.Body>
-                <Card.Text>
-                {comment.text}
-                </Card.Text>
-              </Card.Body>
-            </Card>
+            <div className = "comment-outer" style = {currentUser.uid === comment.author_id ?
+               {textAlign: "right", marginLeft: "auto",marginRight: "2vh"} : 
+               {textAlign: "left", marginRight: "auto", marginLeft: "2vh"}}
+               >
+              <ProfileHeader id = {comment.author_id} avatar = {comment.avatar} profileName={comment.author_username + (uid === comment.author_id ? ("(Автор)") : (''))} 
+              sizeFont="2vh" size = "4vh"/>
+              <span>{comment.text}</span><br/>
+              <span>{timestampToTime(comment.timestamp)}</span>
+            </div>    
           );
         }
       ) : [
