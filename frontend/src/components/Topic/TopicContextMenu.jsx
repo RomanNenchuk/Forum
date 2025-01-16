@@ -12,33 +12,32 @@ export default function TopicContextMenu({
   resetContextMenu,
   currentUser,
   contextMenu,
-  //
   deleteComment,
-  editComment,
-  setEdit,
-  replyComment,
+  setEditId,
+  setText,
   setReply
 }) {
   const buttons = [
       {
         text: "Видалити",
         icon: deleteIcon,
-        onClick: (contextMenu.selectedCommentItem?.author_id === currentUser.uid ? () => {
+        onClick: (contextMenu.selectedCommentItem?.author_id === currentUser?.uid ? () => {
           deleteComment(contextMenu.selectedComment);
         } : null),
       },
       {
         text: "Редагувати",
         icon: editIcon,
-        onClick: (contextMenu.selectedCommentItem?.author_id == currentUser.uid ? () => {
-          alert("edit")
+        onClick: (contextMenu.selectedCommentItem?.author_id == currentUser?.uid ? () => {
+          setEditId(contextMenu.selectedComment);
+          setText(contextMenu.selectedCommentItem.text);
         } : null),
       },
       {
         text: "Відповісти",
         icon: replyIcon,
         onClick: () => {
-          alert("reply")
+          setReply(contextMenu.selectedCommentItem);
         }
       },
     ].filter(button => button.onClick);

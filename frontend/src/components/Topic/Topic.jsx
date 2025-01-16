@@ -12,6 +12,8 @@ import TopicContextMenu from "./TopicContextMenu";
 import ContextMenu from "../ContextMenu/ContextMenu";
 import axios from "axios";
 
+export const commentsOnOnePageCount = 10;
+
 export default function Topic() {
   const { id } = useParams();
   const [topic, setTopic] = useState(null);
@@ -28,7 +30,7 @@ export default function Topic() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
   const [editId, setEditId] = useState(-1);
-  const [replyId, setReply] = useState(-1);
+  const [reply, setReply] = useState(null);
   const [contextMenu, setContextMenu] = useState({
     selectedComment: -1,
     selectedCommentItem: null,
@@ -74,16 +76,18 @@ export default function Topic() {
   async function fetchTopicComments() {
     try {
       /* має бути таким же, як і comm з sendComment
-      id
-      text
-      timestamp
-      author_id
-      topic_id
-      attachments
-      reply
-      reply_text
-      author_username
-      avatar
+        id
+        text
+        timestamp
+        author_id
+        topic_id
+        attachments
+        reply
+        author_username
+        avatar
+        level
+        reply_root
+        reply_text
        */
       const result = await axios.get(`http://localhost:5000/topics/${id}/comments`);
       setComments(result.data);
@@ -101,7 +105,7 @@ export default function Topic() {
   };
 
   function resetReply() {
-    setReply(-1);
+    setReply(null);
   }
 
   async function sendComment() {
@@ -113,16 +117,17 @@ export default function Topic() {
         author_id: currentUser.uid,
         topic_id: id,
         attachment: [],
-        reply: replyId,
-        reply_text: "",
+        reply: reply?.id || -1,
         author_username: userName,
-        author_avatar: avatar,
+        avatar: avatar,
+        level: reply?.level + 1 || 0,
+        reply_text: null,
       };
       const result = await axios.post(`http://localhost:5000/topics/comments`, comm);
       comm.id = result.data.id;
       comm.reply_text = result.data.reply_text;
-      console.log(comm);
-      setComments(prev => [comm, ...prev]);
+
+      setComments(prev => [...prev, comm]);
       setText("");
       resetReply();
       return;
@@ -146,7 +151,7 @@ export default function Topic() {
     //     sender_id: currentUser.uid,
     //     text: text.trim(),
     //     timestamp: new Date().toISOString(),
-    //     reply: replyId,
+    //     reply: reply,
     //   };
 
     //   socket.emit("send-message", msg, receiverId, res => {
@@ -165,15 +170,46 @@ export default function Topic() {
   }
 
   async function editComment() {
-    alert("edit");
+    try {
+      let newComm;
+      let newComments = comments.map(comm => {
+        if (comm.id === editId) {
+          if (comm.attachments) {
+            // тут буде реалізаці едіту вкладень
+          }
+          newComm = {
+            ...comm,
+            text: (comm.attachments ? text : text || comm.text),
+            //attachments: 
+          }
+          return newComm;
+        }
+        return comm;
+      });
+
+      setEditId(-1);
+      setText("");
+      if (newComm) {
+        setComments(newComments);
+        await axios.patch(`http://localhost:5000/topics/comments/${editId}`, newComm);
+      }
+    } catch(error) {
+      console.error("Error with editComment: ", error);
+    }
   }
 
   async function deleteComment(commId) {
     try {
+      // для видалення файлів повідомлення (треба дописати)
       const attach = await axios.delete(`http://localhost:5000/topics/comments/${commId}`);
-      // for()
-    } catch {
-      
+      for(const comm of comments) {
+        if (comm.id === commId) {
+          setComments(prev => prev.filter(item => item.id !== commId));
+          break;
+        }
+      }
+    } catch(error) {
+      console.error("Error with deleteComment:", error);
     }
   }
 
@@ -216,6 +252,9 @@ export default function Topic() {
       toggled: true,
     });
   }
+  useEffect(() => {
+      console.log(reply?.id);
+  }, [reply]);
 
   if (loading) return <LoadingSpinner />;
 
@@ -258,10 +297,8 @@ export default function Topic() {
             editComment={editComment}
             editId={editId}
             onCancel={handleCloseModal}
-            replyId={replyId}
+            reply={reply}
             resetReply={resetReply}
-            getComment={() => "*Unknown comment*"}
-            getUseruserName={() => "*Unknown user*"}
         />
         <TopicContextMenu
             positionX={contextMenu.position.x}
@@ -271,11 +308,10 @@ export default function Topic() {
             resetContextMenu={resetContextMenu}
             currentUser={currentUser}
             contextMenu={contextMenu}
-            deleteComment={deleteComment} // <- дописати
-            editComment={null}
-            setEdit={null}
-            replyComment={null}
-            setReply={null}
+            deleteComment={deleteComment}
+            setEditId={setEditId}
+            setText={setText}
+            setReply={setReply}
         />
         <TopicComments
           handleOnContextMenu={handleOnContextMenu}

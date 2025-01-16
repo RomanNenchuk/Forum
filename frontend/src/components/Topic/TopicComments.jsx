@@ -7,17 +7,26 @@ import { timestampToTime } from "../../utils/getCurrentTime.jsx";
 export default function TopicComments({ 
     handleOnContextMenu,
     comments,
-    getComment, 
-    getUserFullname 
   }) {
-  const { currentUser } = useAuth();
-  const [replies, setReplies] = useState({});
+  let sortedComments = comments;
+  sortedComments.sort((a, b) => { // ще не готово
+    if (a.reply === b.id) {
+      return 1;
+    }
+    if (a.reply === b.reply) {
+      return new Date(a.timestamp).getTime() - 
+      new Date(b.timestamp).getTime();
+    }
+    return new Date(b.timestamp).getTime() - 
+    new Date(a.timestamp).getTime();
+  });
   return(
     <ul>
-      {comments.length ? comments.map(
-        (comm) => {
+      {sortedComments.length ? sortedComments.map(
+        (comm, index) => {
           return(
             <Card
+              key={index}
               onContextMenu={e => handleOnContextMenu(e, comm)}
             >
               <Card.Header>
@@ -30,14 +39,16 @@ export default function TopicComments({
               </Card.Header>
               <Card.Body>
                 <Card.Text>
-                {comm.text}
+                {">  ".repeat(comm.level) + comm.text}
                 </Card.Text>
               </Card.Body>
             </Card>
           );
         }
       ) : [
-        <Card>
+        <Card
+          key={0}
+        >
           <Card.Body>
             Ви можете стати першим, хто дасть відповідь на це повідомлення!
           </Card.Body>

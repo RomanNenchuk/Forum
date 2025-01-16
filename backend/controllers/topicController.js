@@ -119,17 +119,18 @@ export const getTopicComments = async (req, res) => {
   const id = req.params.id;
   try {
     const query = `
-    SELECT 
-      c.id,
+    SELECT
+      c.id, 
       c.text,
       c.timestamp,
       c.author_id,
       c.topic_id,
       c.attachments,
       c.reply,
-      o.text AS reply_text,
       u.username AS author_username,
-      u.avatar
+      u.avatar,
+      c.level,
+      o.text AS reply_text
     FROM 
       comments c
     LEFT JOIN
@@ -139,10 +140,10 @@ export const getTopicComments = async (req, res) => {
     WHERE 
       c.topic_id = $1
     ORDER BY 
-      c.timestamp DESC;
+      c.id ASC; 
     `;
-    const result = await pool.query(query, [id]);
-    res.status(200).json(result.rows ?? []);
+    const result = (await pool.query(query, [id])).rows;
+    res.status(200).json(result ?? []);
   } catch (error) {
     console.error("getTopicComments:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -154,8 +155,8 @@ export const PostNewComment = async (req, res) => {
   try {
     const query = `
       INSERT INTO comments (
-        text, timestamp, author_id, topic_id, attachments, reply
-      ) VALUES ($1, $2, $3, $4, $5, $6)
+        text, timestamp, author_id, topic_id, attachments, reply, level
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *;
     `;
     const reply_text_query = `
@@ -168,10 +169,11 @@ export const PostNewComment = async (req, res) => {
       comm.topic_id,
       comm.attachments,
       comm.reply,
+      comm.level
     ]);
     let reply_text = "";
     if (comm.reply !== -1) {
-      reply_text = await pool.query(reply_text_query, [comm.reply]);
+      reply_text = (await pool.query(reply_text_query, [comm.reply])).rows[0].text;
     }
     res.status(200).json({
       id: result.rows[0].id,
@@ -194,6 +196,23 @@ export const deleteComment = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
+    res.status(500);
+  }
+}
+
+export const editComments = async (req, res) => {
+  const { text, attachments, id } = req.body;
+  try {
+    const query = `
+      UPDATE comments 
+      SET text = $1, attachments = $2
+      WHERE id = $3
+      RETURNING *;
+    `
+    const result = await pool.query(query, [text, attachments, id]);
+    res.status(200).json(result.rows[0]);
+  } catch(error) {
+    console.error("Error with editComments: ", error);
     res.status(500);
   }
 }

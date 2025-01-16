@@ -281,7 +281,7 @@ export default function Chat() {
           // Оновлене повідомлення
           updatedMessage = {
             ...message,
-            text: text || message.text,
+            text: (message.attachments ? text : text || message.text),
             attachments: cleanedAttachments, // Оновлені вкладення
           };
           return updatedMessage; // Повертаю оновлене повідомлення
