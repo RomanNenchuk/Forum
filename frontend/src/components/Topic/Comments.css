@@ -1,0 +1,19 @@
+.comment-outer{
+    border: 0.1vh solid black;
+    border-radius: 2vh;
+    padding:1vh;
+    width: 55%;
+    margin-top:1vh;
+}
+input{
+    background-color: #d3e5ee;
+    border:none;
+    border-radius: 1vh;
+}
+input::placeholder{
+    color: #88aaab
+    
+}
+input:focus{
+    outline-color: #88aaab;
+}

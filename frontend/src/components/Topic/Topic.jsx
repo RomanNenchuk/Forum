@@ -1,15 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Container, Card } from "react-bootstrap";
-import { Link, useParams, useLocation } from "react-router-dom";
+import { Container, Card, Carousel } from "react-bootstrap";
+import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useUserInfo } from "../../contexts/UserInfoContext";
 // import { useBodyScrollLock } from "../../hooks/useBodyScrollLock.jsx";
 import ProfileHeader from "../ProfileHeader";
 import LoadingSpinner from "../Spinner";
+import TopicList from "../TopicList/TopicList"
 import TopicInput from "./TopicInput";
 import TopicComments from "./TopicComments";
+import "./Topic.css"
+
+import { IoArrowBack } from "react-icons/io5";
 import TopicContextMenu from "./TopicContextMenu";
-import ContextMenu from "../ContextMenu/ContextMenu";
 import axios from "axios";
 
 export const commentsOnOnePageCount = 10;
@@ -20,6 +23,8 @@ export default function Topic() {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
+  const navigator = useNavigate()
+  const [extendfInfo, setExtendInfo] = useState()
 
   const [text, setText] = useState("");
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
@@ -47,9 +52,11 @@ export default function Topic() {
 
   // вантажу інформацію з БД при монтуванні компонента
   useEffect(() => {
+    document.body.classList.add('body-overflow');
     setLoading(true);
     fetchTopic();
     fetchTopicComments();
+    document.body.classList.remove('body-overflow');
   }, [id]);
   // обробник кліку на сторінці
   useEffect(() => {
@@ -67,7 +74,13 @@ export default function Topic() {
   async function fetchTopic() {
     try {
       const result = await axios.get(`http://localhost:5000/topics/${id}`);
-      setTopic(result.data);
+      let buf = result.data;
+      buf.author_avatar = buf.avatar
+      buf.author_full_name = buf.authorfullname
+      delete buf.avatar
+      delete buf.authorfullname
+      setTopic(buf);
+      setExtendInfo(buf?.description?.length < 150 ? 2 : 0)
     } finally {
       setLoading(false);
     }
@@ -259,67 +272,114 @@ export default function Topic() {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <Container className="d-flex align-items-center justify-content-center">
-      <div className="w-100" style={{ maxWidth: "800px" }}>
-        <Card>
-          <Card.Body>
-            <h2 className="text-center mb-4">{topic?.title}</h2>
-            <ProfileHeader
-              id={topic?.author}
-              avatar={topic?.avatar}
-              profileName={topic?.username}
-              size={70}
-              gap="10px"
-              textStyle={{ color: "#000" }}
-            />
-            <p>
-              Created by {topic?.username} on {topic?.formatted_date}
-            </p>
-            <p>{topic?.description}</p>
-            <ul>
-              {topic?.attachments.map((attachment, index) => (
-                <li key={index}>
-                  <img src={attachment} />
-                </li>
-              ))}
-            </ul>
-          </Card.Body>
-        </Card>
-        <TopicInput
-            isEditModalOpen={isEditModalOpen}
-            isSendModalOpen={isSendModalOpen}
-            setIsEditModalOpen={setIsEditModalOpen}
-            setIsSendModalOpen={setIsSendModalOpen}
-            setFiles={setFiles}
-            text={text}
-            setText={setText}
-            sendComment={sendComment}
-            editComment={editComment}
-            editId={editId}
-            onCancel={handleCloseModal}
-            reply={reply}
-            resetReply={resetReply}
-        />
-        <TopicContextMenu
-            positionX={contextMenu.position.x}
-            positionY={contextMenu.position.y}
-            isToggled={contextMenu.toggled}
-            contextMenuRef={contextMenuRef}
-            resetContextMenu={resetContextMenu}
-            currentUser={currentUser}
-            contextMenu={contextMenu}
-            deleteComment={deleteComment}
-            setEditId={setEditId}
-            setText={setText}
-            setReply={setReply}
-        />
-        <TopicComments
-          handleOnContextMenu={handleOnContextMenu}
-          comments={comments}
-          getComment={() => "*Unknown comment*"}
-          getUseruserName={() => "*Unknown user*"}
-        />
+    <div className = 'extention-area'>
+      <div className = "header">
+        <IoArrowBack onClick = {()=>{navigator("/")}} size = {30} />
+        <span>Дискусія</span>
       </div>
-    </Container>
+      <div className = "topic-and-comments">
+        <div className = "in-block-for-flex">
+
+          <div className = "block left">
+            <div className = "info-list">
+            <TopicList topicInfoList={[topic]} />
+
+            <div className = "extra-info" >
+            <div style = {{padding: "2vh"}}>
+              <span className = "extra-info-header">Додаткова інформація</span>
+              <span className = "extra-info-p" onClick = {()=>{console.log(currentUser)}}>
+                {extendfInfo === 2 ? topic?.description: 
+                extendfInfo === 1 ? (
+                  <>
+                    {topic?.description}
+                    <span
+                      className="extention-info"
+                      onClick={() => setExtendInfo(0)}
+                    >
+                      Показати менше
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    {topic?.description?.slice(0, 152)}
+                    <span
+                      className="extention-info"
+                      onClick={() => setExtendInfo(1)}
+                    >
+                      ... Дізнатися більше
+                    </span>
+                  </>
+                )}
+              </span>
+                {extendfInfo && topic.attachments.length > 0 && (
+                  <Container fluid>
+                    <Carousel style={{ padding: "2vh" }} className="carousel slide carousel-fade">
+                      {topic.attachments.map((attachment, index) => (
+                        <Carousel.Item key={index}>
+                          <img
+                            className="d-block w-100"
+                            src={attachment}
+                            alt={`Slide ${index + 1}`}
+                            onClick={() => console.log(`Clicked on slide ${index + 1}`)}
+                          />
+                        </Carousel.Item>
+                        ))}
+                    </Carousel>
+                  </Container>
+                  )}
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+
+          <div className = "palka"></div>
+
+
+          <div className = "block right"> 
+            <div style = {{width: "100%"}}>
+              <div className = 'comment-area'>Коментарі</div>
+              <ul>
+                <TopicComments
+                  handleOnContextMenu={handleOnContextMenu}
+                  uid = {topic.uid}
+                  currentUser={currentUser}
+                  comments={comments}
+                />
+              </ul>
+            </div>
+          </div>    
+          <TopicInput
+              isEditModalOpen={isEditModalOpen}
+              isSendModalOpen={isSendModalOpen}
+              setIsEditModalOpen={setIsEditModalOpen}
+              setIsSendModalOpen={setIsSendModalOpen}
+              setFiles={setFiles}
+              text={text}
+              setText={setText}
+              sendComment={currentUser? sendComment : ()=>{navigator("/login")}}
+              editComment={editComment}
+              editId={editId}
+              onCancel={handleCloseModal}
+              reply={reply}
+              resetReply={resetReply}
+          />
+          <TopicContextMenu
+              positionX={contextMenu.position.x}
+              positionY={contextMenu.position.y}
+              isToggled={contextMenu.toggled}
+              contextMenuRef={contextMenuRef}
+              resetContextMenu={resetContextMenu}
+              currentUser={currentUser}
+              contextMenu={contextMenu}
+              deleteComment={deleteComment}
+              setEditId={setEditId}
+              setText={setText}
+              setReply={setReply}
+          />
+        </div>
+      </div>
+    </div>
   );
 }

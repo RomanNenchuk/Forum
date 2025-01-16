@@ -3,10 +3,14 @@ import { Container, Card } from "react-bootstrap";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import AttachedFiles from "../AttachedFiles/AttachedFiles.jsx";
 import { timestampToTime } from "../../utils/getCurrentTime.jsx";
+import ProfileHeader from "../ProfileHeader.jsx";
+import "./Comments.css"
 
 export default function TopicComments({ 
     handleOnContextMenu,
     comments,
+    currentUser,
+    uid,
   }) {
   let sortedComments = comments;
   sortedComments.sort((a, b) => { // ще не готово
@@ -21,28 +25,20 @@ export default function TopicComments({
     new Date(a.timestamp).getTime();
   });
   return(
-    <ul>
+    <ul style = {{display: "flex", width: "100%", flexDirection: "column-reverse"}}>
       {sortedComments.length ? sortedComments.map(
-        (comm, index) => {
+        (comment, index) => {
           return(
-            <Card
-              key={index}
-              onContextMenu={e => handleOnContextMenu(e, comm)}
-            >
-              <Card.Header>
-                <Card.Img 
-                  src={comm.avatar} 
-                  style={{ width: '50px', height: '50px' }}
-                />
-                <Card.Text>{comm.author_username}</Card.Text>
-                <Card.Text>{timestampToTime(comm.timestamp)}</Card.Text>
-              </Card.Header>
-              <Card.Body>
-                <Card.Text>
-                {">  ".repeat(comm.level) + comm.text}
-                </Card.Text>
-              </Card.Body>
-            </Card>
+            <div key={index} className = "comment-outer" style = {currentUser.uid === comment.author_id ?
+               {textAlign: "right", marginLeft: "auto",marginRight: "2vh"} : 
+               {textAlign: "left", marginRight: "auto", marginLeft: "2vh"}}
+               onContextMenu={e => handleOnContextMenu(e, comment)}
+               >
+              <ProfileHeader id = {comment.author_id} avatar = {comment.avatar} profileName={comment.author_username + (uid === comment.author_id ? ("(Автор)") : (''))} 
+              sizeFont="2vh" size = "4vh"/>
+              <span>{comment.text}</span><br/>
+              <span>{timestampToTime(comment.timestamp)}</span>
+            </div>    
           );
         }
       ) : [
