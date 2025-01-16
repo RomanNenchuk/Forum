@@ -73,7 +73,7 @@ export const fetchOrCreateChat = async (req, res) => {
       VALUES ($1, $2, $3, NOW())
       ON CONFLICT (id) DO NOTHING;
     `;
-    const result = await pool.query(chatInsertQuery, [
+    const result = await client.query(chatInsertQuery, [
       chat_id,
       sender_id,
       receiver_id,
@@ -84,7 +84,7 @@ export const fetchOrCreateChat = async (req, res) => {
     SET read = true
     WHERE chat_id = $1 AND read = false AND sender_id != $2;
     `;
-    await pool.query(updateMessagesQuery, [chat_id, sender_id]);
+    await client.query(updateMessagesQuery, [chat_id, sender_id]);
 
     const messagesQuery = `
       SELECT 
@@ -107,7 +107,7 @@ export const fetchOrCreateChat = async (req, res) => {
       ORDER BY 
           m.timestamp ASC;
     `;
-    const messages = await pool.query(messagesQuery, [chat_id]);
+    const messages = await client.query(messagesQuery, [chat_id]);
 
     // завершую транзакцію
     await client.query("COMMIT");
@@ -118,6 +118,7 @@ export const fetchOrCreateChat = async (req, res) => {
       isNewChat: result.rowCount > 0,
     });
   } catch (error) {
+    await client.query("ROLLBACK");
     console.error("Error handling chat:", error);
     res.status(500).json({ error: "Internal server error" });
   } finally {

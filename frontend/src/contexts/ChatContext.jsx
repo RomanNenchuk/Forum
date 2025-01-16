@@ -1,6 +1,5 @@
 import React, { useContext, useState, createContext, useEffect } from "react";
 import { useAuth } from "./AuthContext";
-import scrollToBottom from "../utils/scrollToBottom.jsx";
 import { useSocket } from "./SocketProviderContext";
 import axios from "axios";
 
@@ -17,16 +16,31 @@ export function ChatProvider({ children }) {
   const { currentUser, token } = useAuth();
 
   useEffect(() => {
-    if (
-      messages.length &&
-      messages[messages.length - 1]?.sender_id === currentUser.uid
-    ) {
-      const chatMessagesElement = document.querySelector(".chat-messages");
-      if (chatMessagesElement) {
-        scrollToBottom(chatMessagesElement);
-      }
-    }
-  }, [messages]);
+    if (!socket) return;
+
+    socket.on("message-notification-background", (chat_id, deltaCount) => {
+      console.log(chat_id);
+      setChatList(prev =>
+        prev.map(chat => {
+          if (chat.chat_id === chat_id) {
+            const unreadMessagesCount =
+              +chat.unread_messages_count + deltaCount;
+            return {
+              ...chat,
+              unread_messages_count:
+                unreadMessagesCount > 0 ? unreadMessagesCount : 0,
+            };
+          }
+          return chat;
+        })
+      );
+      sortChatList(chat_id);
+    });
+
+    return () => {
+      socket.off("message-notification-background");
+    };
+  }, [socket, currentUser]);
 
   async function fetchChatList() {
     try {

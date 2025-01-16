@@ -49,6 +49,7 @@ export default function ChatContextMenu(props) {
 
               if (dbFiles) setFiles(prevFiles => [...dbFiles, ...prevFiles]);
 
+              console.log(contextMenu.selectedMessageItem);
               setText(contextMenu.selectedMessageItem?.text || "");
               setEditId(contextMenu.selectedMessage);
 

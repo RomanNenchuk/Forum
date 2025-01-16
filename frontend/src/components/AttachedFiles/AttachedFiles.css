@@ -21,3 +21,29 @@
   word-break: break-word;
   font-size: 14px;
 }
+
+.file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 8px;
+  background-color: #fff7eb;
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.file-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+}
+
+.file-name {
+  font-size: 18px;
+  color: #333333;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
