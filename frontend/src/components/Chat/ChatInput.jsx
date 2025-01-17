@@ -65,7 +65,12 @@ export default function ChatInput({
             <span className="reply-label-author">
               {reply.author || "Невідомий автор"}
             </span>
-            <span>: {reply.text || "*Видалене повідомлення*"}</span>
+            <span>
+              :{" "}
+              {reply.text ||
+                reply.attachment.slice(reply.attachment.indexOf("_") + 1) ||
+                "*Видалене повідомлення*"}
+            </span>
           </div>
           <img
             src={cancelIcon}
@@ -75,6 +80,7 @@ export default function ChatInput({
                 id: -1,
                 author: null,
                 text: "",
+                attachment: "",
               })
             }
           />
@@ -98,6 +104,7 @@ export default function ChatInput({
         value={isEditModalOpen || isSendModalOpen ? "" : text}
         onChange={onChange}
         onKeyDown={onKeyDown}
+        autoComplete="off"
         ref={inputRef}
         placeholder="Напишіть повідомлення..."
       />

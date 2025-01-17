@@ -19,7 +19,12 @@ export default function AttachedFiles({ urls, onImageLoad }) {
           <a key={index} href={url} target="blank" style={{ width: "100%" }}>
             <div key={index} className="file-item">
               <div className="file-header">
-                <img src={fileIcon} alt="File" height={30} />
+                <img
+                  src={fileIcon}
+                  alt="File"
+                  height={30}
+                  onLoad={onImageLoad}
+                />
                 <span className="file-name">
                   {url.slice(url.indexOf("_") + 1)}
                 </span>

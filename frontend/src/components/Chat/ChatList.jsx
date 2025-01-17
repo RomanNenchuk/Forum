@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link, Outlet, useParams } from "react-router-dom";
+import { useSocket } from "../../contexts/SocketProviderContext.jsx";
 import { useAuth } from "../../contexts/AuthContext";
 import Avatar from "../Avatar.jsx";
 import { useChat } from "../../contexts/ChatContext";
@@ -8,6 +9,8 @@ import "./Chat.css";
 export default function ChatList() {
   const { chatList, setChatList } = useChat();
   const { receiverId } = useParams();
+  const { currentUser } = useAuth();
+  const socket = useSocket();
 
   const handleChatClick = index => {
     const updatedChatList = chatList.map((chat, i) => ({

@@ -14,6 +14,7 @@ export const chatSocket = io => {
     console.log(id);
 
     socket.on("join-chat", ({ user_id, chat_id }) => {
+      activeChats.delete(user_id);
       activeChats.set(user_id, chat_id);
     });
 
@@ -34,6 +35,7 @@ export const chatSocket = io => {
           reply,
           reply_fullname,
           reply_text,
+          reply_attachment,
         },
         recipient_id,
         callback
@@ -44,6 +46,7 @@ export const chatSocket = io => {
             .join("_");
 
           let isActive = activeChats.get(recipient_id) === chat_id;
+
           const res = await saveMessage({
             chat_id,
             recipient_id,
@@ -64,8 +67,9 @@ export const chatSocket = io => {
               text,
               timestamp,
               reply,
-              reply_text,
               reply_fullname,
+              reply_text,
+              reply_attachment,
             });
           } else {
             socket

@@ -9,13 +9,20 @@ import "./Comments.css";
 export default function TopicComments({
   handleOnContextMenu,
   comments,
-  getComment,
-  getUserFullname,
+  currentUser,
   uid,
 }) {
-  const { currentUser } = useAuth();
-  const [replies, setReplies] = useState({});
-
+  let sortedComments = comments;
+  sortedComments.sort((a, b) => {
+    // ще не готово
+    if (a.reply === b.id) {
+      return 1;
+    }
+    if (a.reply === b.reply) {
+      return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+    }
+    return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+  });
   return (
     <ul
       style={{
@@ -24,8 +31,8 @@ export default function TopicComments({
         flexDirection: "column-reverse",
       }}
     >
-      {comments.length
-        ? comments.map((comment, index) => {
+      {sortedComments.length
+        ? sortedComments.map((comment, index) => {
             return (
               <div
                 key={index}
@@ -43,6 +50,7 @@ export default function TopicComments({
                         marginLeft: "2vh",
                       }
                 }
+                onContextMenu={e => handleOnContextMenu(e, comment)}
               >
                 <ProfileHeader
                   id={comment.author_id}
@@ -61,7 +69,7 @@ export default function TopicComments({
             );
           })
         : [
-            <Card key={1}>
+            <Card key={0}>
               <Card.Body>
                 Ви можете стати першим, хто дасть відповідь на це повідомлення!
               </Card.Body>

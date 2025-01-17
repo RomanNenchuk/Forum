@@ -17,10 +17,8 @@ export default function TopicInput({
   editComment,
   editId,
   onCancel,
-  replyId,
+  reply,
   resetReply,
-  getMessage,
-  getUserFullname,
 }) {
   function onChange(e) {
     if (isEditModalOpen || isSendModalOpen) return;
@@ -28,12 +26,12 @@ export default function TopicInput({
   }
 
   return (
-    <div style = {{display: "flex",justifyContent:"center",backgroundColor: "#c4d1d7", height: "6vh"}}>
-      {/* {replyId !== -1 && <div>
-        <span>{replyAuthor || "Невідомий автор"}</span>
-        <span>: {replyText || "*Видалене повідомлення*"}</span>
+    <div>
+      {reply && <div>
+        <span>{reply.author_username}</span>
+        <span>: {reply.text}</span>
         <button onClick={() => resetReply()}>Х</button>
-      </div>} */}
+      </div>}
       <div style = {{display: "flex", flexDirection: "row",alignItems:"center", width: "95%", gap: "0.5vh"}}>
           {/* <FileUploader
             setFiles={setFiles}
@@ -43,7 +41,6 @@ export default function TopicInput({
             text={text}
             setText={text}
           /> */}
-  
           <input
             type="text"
             value={isEditModalOpen || isSendModalOpen ? "" : text}

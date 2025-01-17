@@ -5,6 +5,7 @@ export default function FileUploader({ setFiles, setIsSendModalOpen }) {
   const fileInputRef = useRef();
 
   function handleImageClick() {
+    fileInputRef.current.value = "";
     fileInputRef.current.click();
   }
 

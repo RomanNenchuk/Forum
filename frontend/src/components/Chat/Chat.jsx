@@ -30,6 +30,7 @@ export default function Chat() {
     id: -1,
     author: null,
     text: "",
+    attachment: "",
   });
 
   useBodyScrollLock(isContextMenuOpen);
@@ -150,7 +151,6 @@ export default function Chat() {
     setFilesToDelete([]);
     setFiles([]);
     setIsContextMenuOpen(true);
-    console.log(msg);
 
     setContextMenu({
       selectedMessage: msg.id,
@@ -176,10 +176,10 @@ export default function Chat() {
         reply: reply?.id,
         reply_fullname: reply?.author,
         reply_text: reply?.text,
+        reply_attachment: reply?.attachment,
       };
       socket.emit("send-message", msg, receiverId, res => {
         msg.id = res.id;
-        // msg.reply_text = res.reply_text;
         setMessages(prev => [...prev, msg]);
         setText(""); // очищення текстового поля
       });
@@ -207,11 +207,11 @@ export default function Chat() {
           reply: reply?.id,
           reply_fullname: reply?.author,
           reply_text: reply?.text,
+          reply_attachment: reply?.attachment,
         };
 
         socket.emit("send-message", msg, receiverId, res => {
           msg.id = res.id;
-          // msg.reply_text = res.reply_text;
           setMessages(prev => [...prev, msg]);
 
           if (i === fileChunks.length - 1) {
@@ -229,6 +229,7 @@ export default function Chat() {
       id: -1,
       author: null,
       text: "",
+      attachment: "",
     });
   };
 
@@ -294,7 +295,7 @@ export default function Chat() {
           // Оновлене повідомлення
           updatedMessage = {
             ...message,
-            text: text || message.text,
+            text: message.attachments ? text : text || message.text,
             attachments: cleanedAttachments, // Оновлені вкладення
           };
           return updatedMessage; // Повертаю оновлене повідомлення

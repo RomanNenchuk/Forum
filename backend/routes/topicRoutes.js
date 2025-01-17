@@ -7,6 +7,8 @@ import {
   getTopic,
   getTopicComments,
   PostNewComment,
+  deleteComment,
+  editComments,
 } from "../controllers/topicController.js";
 
 import { setTopicReaction } from "../controllers/emojiController.js";
@@ -24,5 +26,9 @@ router.get("/:id/comments", getTopicComments);
 router.put("/:id/reactions", middleware.decodeToken, setTopicReaction);
 
 router.get("/:id", getTopic);
+
+router.delete("/comments/:id", deleteComment);
+
+router.patch("/comments/:id", editComments);
 
 export default router;

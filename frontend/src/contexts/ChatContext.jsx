@@ -35,10 +35,6 @@ export function ChatProvider({ children }) {
       );
       sortChatList(chat_id);
     });
-
-    return () => {
-      socket.off("message-notification-background");
-    };
   }, [socket, currentUser]);
 
   async function fetchChatList() {

@@ -85,7 +85,11 @@ export default function ChatMessages({
               >
                 <img src={replyIcon} alt="Reply to" /> {"  "}
                 {msg.reply_fullname ? msg.reply_fullname + ": " : ""}
-                {msg.reply_text || "*Порожнє повідомлення*"}
+                {msg.reply_text ||
+                  msg.reply_attachment?.slice(
+                    msg.reply_attachment?.indexOf("_") + 1
+                  ) ||
+                  "*Видалене повідомлення*"}
               </p>
             </div>
           )}

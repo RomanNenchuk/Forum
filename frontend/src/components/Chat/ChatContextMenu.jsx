@@ -69,6 +69,7 @@ export default function ChatContextMenu(props) {
               id: contextMenu.selectedMessageItem.id,
               author: contextMenu.selectedMessageItem.fullname,
               text: contextMenu.selectedMessageItem.text,
+              attachment: contextMenu.selectedMessageItem.attachments[0],
             });
           }
         : null,

@@ -88,15 +88,23 @@ export const fetchOrCreateChat = async (req, res) => {
 
     const messagesQuery = `
     SELECT 
-        m.id, 
-        u.fullname, 
-        m.sender_id, 
-        m.text, 
-        m.attachments, 
-        m.timestamp, 
-        m.reply,
-        r.text AS reply_text,
-        ru.fullname AS reply_fullname
+      m.id, 
+      u.fullname, 
+      m.sender_id, 
+      m.text, 
+      m.attachments, 
+      m.timestamp, 
+      m.reply,
+      r.text AS reply_text,
+      COALESCE(
+          (CASE 
+              WHEN r.attachments IS NOT NULL AND array_length(r.attachments, 1) > 0 
+              THEN r.attachments[1] 
+              ELSE NULL 
+          END),
+          NULL
+      ) AS reply_attachment,
+      ru.fullname AS reply_fullname
     FROM 
         messages m
     INNER JOIN 
