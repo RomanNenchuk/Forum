@@ -1,4 +1,5 @@
 import express from "express";
+import middleware from "../middleware/index.js";
 
 import {
   getTopicsPreview,
@@ -8,18 +9,20 @@ import {
   PostNewComment,
 } from "../controllers/topicController.js";
 
-import { saveImage } from "../controllers/fileController.js";
+import { setTopicReaction } from "../controllers/emojiController.js";
 
 const router = express.Router();
 
 router.get("/", getTopicsPreview);
 
-router.post("/", saveTopic);
+router.post("/", middleware.decodeToken, saveTopic);
 
-router.get("/:id", getTopic);
+router.post("/comments", PostNewComment);
 
 router.get("/:id/comments", getTopicComments);
 
-router.post("/comments", PostNewComment);
+router.put("/:id/reactions", middleware.decodeToken, setTopicReaction);
+
+router.get("/:id", getTopic);
 
 export default router;

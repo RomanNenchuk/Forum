@@ -5,7 +5,7 @@ import { MdArrowForwardIos } from "react-icons/md";
 /*
  */
 
-export default function interact_window({ emolist }) {
+export default function interact_window({ emolist, onClick }) {
   const [showLeftArrow, setLeft] = useState(false);
   const [showRightArrow, setRight] = useState(true);
 
@@ -25,7 +25,9 @@ export default function interact_window({ emolist }) {
         {showLeftArrow && <MdArrowBackIosNew size="3vh" />}
         <div className="in_interact" ref={emoRef} onScroll={handleScroll}>
           {emolist.map((el, index) => (
-            <span key={index + 1}>{el}</span>
+            <span key={index + 1} onClick={() => onClick(el)}>
+              {el.emoji}
+            </span>
           ))}
         </div>
         {showRightArrow && <MdArrowForwardIos size="3vh" />}

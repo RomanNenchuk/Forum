@@ -26,7 +26,11 @@ export default function Chat() {
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
   const [userSentMessage, setUserSentMessage] = useState(false);
   const [editId, setEditId] = useState(-1);
-  const [replyId, setReply] = useState(-1);
+  const [reply, setReply] = useState({
+    id: -1,
+    author: null,
+    text: "",
+  });
 
   useBodyScrollLock(isContextMenuOpen);
 
@@ -38,8 +42,6 @@ export default function Chat() {
     fetchOrCreateChat,
     setMessages,
     fetchChatList,
-    getMessage,
-    getUserFullname,
     sortChatList,
   } = useChat();
   const [loading, setLoading] = useState(false);
@@ -86,6 +88,7 @@ export default function Chat() {
     if (!socket) return;
 
     socket.on("receive-message", msg => {
+      console.log(msg);
       setMessages(prev => [...prev, msg]);
       sortChatList(getChatId(currentUser.uid, receiverId));
     });
@@ -147,6 +150,7 @@ export default function Chat() {
     setFilesToDelete([]);
     setFiles([]);
     setIsContextMenuOpen(true);
+    console.log(msg);
 
     setContextMenu({
       selectedMessage: msg.id,
@@ -158,6 +162,7 @@ export default function Chat() {
       toggled: true,
     });
   }
+
   const sendMessage = async () => {
     // якщо вкладень (файлів) немає, але є текст, надсилаю лише текстове повідомлення
     if (files.length === 0 && text.trim() !== "") {
@@ -168,11 +173,13 @@ export default function Chat() {
         sender_id: currentUser.uid,
         text: text.trim(),
         timestamp: new Date().toISOString(),
-        reply: replyId,
+        reply: reply?.id,
+        reply_fullname: reply?.author,
+        reply_text: reply?.text,
       };
       socket.emit("send-message", msg, receiverId, res => {
         msg.id = res.id;
-        msg.reply_text = res.reply_text;
+        // msg.reply_text = res.reply_text;
         setMessages(prev => [...prev, msg]);
         setText(""); // очищення текстового поля
       });
@@ -197,12 +204,14 @@ export default function Chat() {
           sender_id: currentUser.uid,
           text: i === fileChunks.length - 1 ? text : "", // додаю текст до останнього повідомлення
           timestamp: new Date().toISOString(),
-          reply: replyId,
+          reply: reply?.id,
+          reply_fullname: reply?.author,
+          reply_text: reply?.text,
         };
 
         socket.emit("send-message", msg, receiverId, res => {
           msg.id = res.id;
-          msg.reply_text = res.reply_text;
+          // msg.reply_text = res.reply_text;
           setMessages(prev => [...prev, msg]);
 
           if (i === fileChunks.length - 1) {
@@ -216,7 +225,11 @@ export default function Chat() {
 
     setUserSentMessage(true);
     sortChatList(getChatId(currentUser.uid, receiverId));
-    resetReply();
+    setReply({
+      id: -1,
+      author: null,
+      text: "",
+    });
   };
 
   function deleteMessage(msg_id) {
@@ -307,10 +320,6 @@ export default function Chat() {
     resetEdit();
   }
 
-  function resetReply() {
-    setReply(-1);
-  }
-
   if (loading) return <LoadingSpinner />;
 
   const location = useLocation();
@@ -333,8 +342,6 @@ export default function Chat() {
       </div>
       <ChatMessages
         handleOnContextMenu={handleOnContextMenu}
-        getMessage={getMessage}
-        getUserFullname={getUserFullname}
         userSentMessage={userSentMessage}
         setUserSentMessage={setUserSentMessage}
       />
@@ -368,10 +375,8 @@ export default function Chat() {
         editMessage={editMessage}
         editId={editId}
         onCancel={handleCloseModal}
-        replyId={replyId}
-        resetReply={resetReply}
-        getMessage={getMessage}
-        getUserFullname={getUserFullname}
+        reply={reply}
+        setReply={setReply}
       />
 
       {isEditModalOpen && (

@@ -62,7 +62,16 @@ export default function ChatContextMenu(props) {
     {
       text: "Відповісти",
       icon: replyIcon,
-      onClick: setReply ? () => setReply(contextMenu.selectedMessage) : null,
+      onClick: setReply
+        ? () => {
+            console.log(contextMenu.selectedMessageItem);
+            setReply({
+              id: contextMenu.selectedMessageItem.id,
+              author: contextMenu.selectedMessageItem.fullname,
+              text: contextMenu.selectedMessageItem.text,
+            });
+          }
+        : null,
     },
   ].filter(button => button.onClick);
 

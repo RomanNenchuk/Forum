@@ -17,7 +17,6 @@ export function SocketProvider({ children }) {
       query: { id: currentUser.uid },
     });
     setSocket(newSocket);
-
     return () => newSocket.close();
   }, [currentUser]);
 

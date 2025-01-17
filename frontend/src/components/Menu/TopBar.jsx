@@ -14,7 +14,9 @@ export default function TopBar({ currentUser, avatar, fullName }) {
           <div className="hd-col">
             <div className="hd-logo">
               <img src={logo} alt="UFORUM" />
-                <span><span>U</span>FORUM</span>
+              <span>
+                <span>U</span>FORUM
+              </span>
             </div>
           </div>
         </Link>
@@ -39,14 +41,17 @@ export default function TopBar({ currentUser, avatar, fullName }) {
               profileName={`Вітаємо, ${fullName}!`}
               size="9vh"
               sizeFont="3vh"
-              avThickness = '0.4vh'
+              avThickness="0.4vh"
               gap="1.5vh"
               order="text-first"
               style={{ textAlign: "right" }}
               textStyle={{ color: "#000" }}
             />
           ) : (
-            <Link to="/login" state={{ backgroundLocation: location }}>
+            <Link
+              to="/login"
+              state={{ backgroundLocation: location, redirectPath: location }}
+            >
               <button className="hd-btn">
                 Вхід
                 <div className="hd-btn-sep">

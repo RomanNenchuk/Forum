@@ -87,26 +87,30 @@ export const fetchOrCreateChat = async (req, res) => {
     await client.query(updateMessagesQuery, [chat_id, sender_id]);
 
     const messagesQuery = `
-      SELECT 
-          m.id, 
-          u.fullname, 
-          m.sender_id, 
-          m.text, 
-          m.attachments, 
-          m.timestamp, 
-          m.reply,
-          r.text AS reply_text
-      FROM 
-          messages m
-      INNER JOIN 
-          users u ON m.sender_id = u.uid
-      LEFT JOIN 
-          messages r ON m.reply = r.id
-      WHERE 
-          m.chat_id = $1
-      ORDER BY 
-          m.timestamp ASC;
-    `;
+    SELECT 
+        m.id, 
+        u.fullname, 
+        m.sender_id, 
+        m.text, 
+        m.attachments, 
+        m.timestamp, 
+        m.reply,
+        r.text AS reply_text,
+        ru.fullname AS reply_fullname
+    FROM 
+        messages m
+    INNER JOIN 
+        users u ON m.sender_id = u.uid
+    LEFT JOIN 
+        messages r ON m.reply = r.id
+    LEFT JOIN 
+        users ru ON r.sender_id = ru.uid
+    WHERE 
+        m.chat_id = $1
+    ORDER BY 
+        m.timestamp ASC;
+  `;
+
     const messages = await client.query(messagesQuery, [chat_id]);
 
     // завершую транзакцію
@@ -140,9 +144,7 @@ export const saveMessage = async ({
     VALUES ($1, $2, $3, $4, $5, $6, $7)
     RETURNING *;
   `;
-  const reply_text_query = `
-   SELECT text FROM messages WHERE id = $1
-  `;
+
   try {
     const result = await pool.query(query, [
       chat_id, // $1
@@ -153,13 +155,8 @@ export const saveMessage = async ({
       read, // $6
       reply, // &7
     ]);
-    let reply_text = "";
-    if (reply !== -1) {
-      reply_text = (await pool.query(reply_text_query, [reply])).rows[0].text;
-    }
     return {
       id: result.rows[0].id,
-      reply_text,
     };
   } catch (error) {
     console.log(error);
@@ -210,5 +207,39 @@ export const editMessage = async msg => {
     const result = await pool.query(query, [msg.text, msg.attachments, msg.id]);
   } catch (error) {
     console.error(error);
+  }
+};
+
+export const deleteChat = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const query = `
+    DELETE FROM TABLE chats 
+    WHERE id = $1 
+    RETURNING *;
+    `;
+    const result = await pool.query(query, id);
+
+    res.status(200).json({ message: "Deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const clearChat = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const query = `
+    DELETE FROM TABLE messages 
+    WHERE chat_id = $1 
+    RETURNING *;
+    `;
+    const result = await pool.query(query, id);
+
+    res.status(200).json({ message: "Cleared successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };

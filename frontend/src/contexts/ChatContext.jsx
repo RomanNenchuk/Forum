@@ -19,7 +19,6 @@ export function ChatProvider({ children }) {
     if (!socket) return;
 
     socket.on("message-notification-background", (chat_id, deltaCount) => {
-      console.log(chat_id);
       setChatList(prev =>
         prev.map(chat => {
           if (chat.chat_id === chat_id) {
@@ -105,32 +104,6 @@ export function ChatProvider({ children }) {
     }
   }
 
-  async function getMessage({ msg_id, callback }) {
-    const response = await axios.get(
-      `http://localhost:5000/chats/messages/${msg_id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    callback({
-      text: response.data.text,
-      sender_id: response.data.sender_id,
-    });
-  }
-
-  async function getUserFullname({ userId, callback }) {
-    const response = await axios.get(`http://localhost:5000/users/${userId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    callback({
-      fullname: response.data.fullname,
-    });
-  }
-
   const value = {
     chatList,
     setChatList,
@@ -138,8 +111,6 @@ export function ChatProvider({ children }) {
     setMessages,
     fetchChatList,
     fetchOrCreateChat,
-    getMessage,
-    getUserFullname,
     sortChatList,
   };
 

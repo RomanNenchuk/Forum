@@ -5,10 +5,10 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useUserInfo } from "../../contexts/UserInfoContext";
 import ProfileHeader from "../ProfileHeader";
 import LoadingSpinner from "../Spinner";
-import TopicList from "../TopicList/TopicList"
+import TopicList from "../TopicList/TopicList";
 import TopicInput from "./TopicInput";
 import TopicComments from "./TopicComments";
-import "./Topic.css"
+import "./Topic.css";
 
 import { IoArrowBack } from "react-icons/io5";
 import axios from "axios";
@@ -19,8 +19,8 @@ export default function Topic() {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
-  const navigator = useNavigate()
-  const [extendfInfo, setExtendInfo] = useState()
+  const navigator = useNavigate();
+  const [extendfInfo, setExtendInfo] = useState();
 
   const [text, setText] = useState("");
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
@@ -35,23 +35,23 @@ export default function Topic() {
   const { userName, avatar } = useUserInfo();
   // вантажу інформацію з БД при монтуванні компонента
   useEffect(() => {
-    document.body.classList.add('body-overflow');
+    document.body.classList.add("body-overflow");
     setLoading(true);
     fetchTopic();
     fetchTopicComments();
-    document.body.classList.remove('body-overflow');
+    document.body.classList.remove("body-overflow");
   }, [id]);
 
   async function fetchTopic() {
     try {
       const result = await axios.get(`http://localhost:5000/topics/${id}`);
       let buf = result.data;
-      buf.author_avatar = buf.avatar
-      buf.author_full_name = buf.authorfullname
-      delete buf.avatar
-      delete buf.authorfullname
+      buf.author_avatar = buf.avatar;
+      buf.author_full_name = buf.authorfullname;
+      delete buf.avatar;
+      delete buf.authorfullname;
       setTopic(buf);
-      setExtendInfo(buf?.description?.length < 150 ? 2 : 0)
+      setExtendInfo(buf?.description?.length < 150 ? 2 : 0);
     } finally {
       setLoading(false);
     }
@@ -71,10 +71,12 @@ export default function Topic() {
       author_username
       avatar
        */
-      const result = await axios.get(`http://localhost:5000/topics/${id}/comments`);
+      const result = await axios.get(
+        `http://localhost:5000/topics/${id}/comments`
+      );
       setComments(result.data);
       console.log(result.data);
-    } catch(error) {
+    } catch (error) {
       console.error("fetchTopicComments error:", error);
     }
   }
@@ -92,7 +94,8 @@ export default function Topic() {
 
   async function sendComment() {
     if (files.length === 0 && text.trim() !== "") {
-      const comm = { // має бути таким же, як і result.data з fetchTopicComents
+      const comm = {
+        // має бути таким же, як і result.data з fetchTopicComents
         id: -1,
         text: text.trim(),
         timestamp: new Date().toISOString(),
@@ -104,7 +107,10 @@ export default function Topic() {
         author_username: userName,
         author_avatar: avatar,
       };
-      const result = await axios.post(`http://localhost:5000/topics/comments`, comm);
+      const result = await axios.post(
+        `http://localhost:5000/topics/comments`,
+        comm
+      );
       comm.id = result.data.id;
       comm.reply_text = result.data.reply_text;
       console.log(comm);
@@ -155,108 +161,126 @@ export default function Topic() {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div className = 'extention-area'>
-      <div className = "header">
-        <IoArrowBack onClick = {()=>{navigator("/")}} size = {30} / >
+    <div className="extention-area">
+      <div className="header">
+        <IoArrowBack
+          onClick={() => {
+            navigator("/");
+          }}
+          size={30}
+        />
         <span>Дискусія</span>
       </div>
-    <div className = "topic-and-comments">
+      <div className="topic-and-comments">
+        <div className="in-block-for-flex">
+          <div className="block left">
+            <div className="info-list">
+              <TopicList topicInfoList={[topic]} />
 
-      <div className = "in-block-for-flex">
-
-        <div className = "block left">
-          <div className = "info-list">
-          <TopicList topicInfoList={[topic]} />
-
-          <div className = "extra-info" >
-          <div style = {{padding: "2vh"}}>
-            <span className = "extra-info-header">Додаткова інформація</span>
-            <span className = "extra-info-p" onClick = {()=>{console.log(currentUser)}}>
-              {extendfInfo === 2 ? topic?.description: 
-              extendfInfo === 1 ? (
-                <>
-                  {topic?.description}
-                  <span
-                    className="extention-info"
-                    onClick={() => setExtendInfo(0)}
-                  >
-                    Показати менше
+              <div className="extra-info">
+                <div style={{ padding: "2vh" }}>
+                  <span className="extra-info-header">
+                    Додаткова інформація
                   </span>
-                </>
-              ) : (
-                <>
-                  {topic?.description.slice(0, 152)}
                   <span
-                    className="extention-info"
-                    onClick={() => setExtendInfo(1)}
+                    className="extra-info-p"
+                    onClick={() => {
+                      console.log(currentUser);
+                    }}
                   >
-                    ... Дізнатися більше
+                    {extendfInfo === 2 ? (
+                      topic?.description
+                    ) : extendfInfo === 1 ? (
+                      <>
+                        {topic?.description}
+                        <span
+                          className="extention-info"
+                          onClick={() => setExtendInfo(0)}
+                        >
+                          Показати менше
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        {topic?.description?.slice(0, 152)}
+                        <span
+                          className="extention-info"
+                          onClick={() => setExtendInfo(1)}
+                        >
+                          ... Дізнатися більше
+                        </span>
+                      </>
+                    )}
                   </span>
-                </>
-              )}
-            </span>
-              {extendfInfo && topic.attachments.length > 0 && (
-                <Container fluid>
-                  <Carousel style={{ padding: "2vh" }} className="carousel slide carousel-fade">
-                    {topic.attachments.map((attachment, index) => (
-                      <Carousel.Item key={index}>
-                        <img
-                          className="d-block w-100"
-                          src={attachment}
-                          alt={`Slide ${index + 1}`}
-                          onClick={() => console.log(`Clicked on slide ${index + 1}`)}
-                        />
-                      </Carousel.Item>
-                      ))}
-                  </Carousel>
-                </Container>
-                )}
+                  {extendfInfo && topic.attachments.length > 0 && (
+                    <Container fluid>
+                      <Carousel
+                        style={{ padding: "2vh" }}
+                        className="carousel slide carousel-fade"
+                      >
+                        {topic.attachments.map((attachment, index) => (
+                          <Carousel.Item key={index}>
+                            <img
+                              className="d-block w-100"
+                              src={attachment}
+                              alt={`Slide ${index + 1}`}
+                              onClick={() =>
+                                console.log(`Clicked on slide ${index + 1}`)
+                              }
+                            />
+                          </Carousel.Item>
+                        ))}
+                      </Carousel>
+                    </Container>
+                  )}
+                </div>
               </div>
             </div>
           </div>
 
-        </div>
+          <div className="palka"></div>
 
-
-        <div className = "palka"></div>
-
-
-        <div className = "block right"> 
-          <div style = {{width: "100%"}}>
-            <div className = 'comment-area'>Коментарі</div>
-            <ul>
-              <TopicComments
-                handleOnContextMenu={() => {}}
-                uid = {topic.uid}
-                comments={comments}
-                getComment={() => "*Unknown comment*"}
-                getUseruserName={() => "*Unknown user*"}
-              />
-            </ul>
-            <div style = {{position: "sticky", bottom:"0px",}}>
-            <TopicInput
-              isEditModalOpen={isEditModalOpen}
-              isSendModalOpen={isSendModalOpen}
-              setIsEditModalOpen={setIsEditModalOpen}
-              setIsSendModalOpen={setIsSendModalOpen}
-              setFiles={setFiles}
-              text={text}
-              setText={setText}
-              sendComment={currentUser? sendComment : ()=>{navigator("/login")}}
-              editComment={editComment}
-              editId={editId}
-              onCancel={handleCloseModal}
-              replyId={replyId}
-              resetReply={resetReply}
-              getComment={() => "*Unknown comment*"}
-              getUseruserName={() => "*Unknown user*"}
-            />
+          <div className="block right">
+            <div style={{ width: "100%" }}>
+              <div className="comment-area">Коментарі</div>
+              <ul>
+                <TopicComments
+                  handleOnContextMenu={() => {}}
+                  uid={topic.uid}
+                  comments={comments}
+                  getComment={() => "*Unknown comment*"}
+                  getUseruserName={() => "*Unknown user*"}
+                />
+              </ul>
+              <div style={{ position: "sticky", bottom: "0px" }}>
+                <TopicInput
+                  isEditModalOpen={isEditModalOpen}
+                  isSendModalOpen={isSendModalOpen}
+                  setIsEditModalOpen={setIsEditModalOpen}
+                  setIsSendModalOpen={setIsSendModalOpen}
+                  setFiles={setFiles}
+                  text={text}
+                  setText={setText}
+                  sendComment={
+                    currentUser
+                      ? sendComment
+                      : () => {
+                          navigator("/login");
+                        }
+                  }
+                  editComment={editComment}
+                  editId={editId}
+                  onCancel={handleCloseModal}
+                  replyId={replyId}
+                  resetReply={resetReply}
+                  getComment={() => "*Unknown comment*"}
+                  getUseruserName={() => "*Unknown user*"}
+                />
+              </div>
             </div>
           </div>
         </div>
-
       </div>
-    </div>
     </div>
   );
 }

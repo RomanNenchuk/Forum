@@ -4,6 +4,7 @@ import { useChat } from "../../contexts/ChatContext.jsx";
 import sendMessageIcon from "../../assets/send-message.svg";
 import sendSmileIcon from "../../assets/send-smile.svg";
 import { MdEdit } from "react-icons/md";
+import EmojiPicker from "emoji-picker-react";
 import cancelIcon from "../../assets/cancel.svg";
 
 export default function ChatInput({
@@ -17,14 +18,10 @@ export default function ChatInput({
   sendMessage,
   editMessage,
   editId,
-  replyId,
-  resetReply,
-  getMessage,
-  getUserFullname,
+  reply,
+  setReply,
   onCancel,
 }) {
-  const [replyText, setReplyText] = useState(null);
-  const [replyAuthor, setReplyAuthor] = useState(null);
   const inputRef = useRef();
   const { messages } = useChat();
 
@@ -35,22 +32,9 @@ export default function ChatInput({
     };
   }, []);
 
-  useEffect(() => {
-    if (replyId !== -1) {
-      getMessage({
-        msg_id: replyId,
-        callback: res1 => {
-          setReplyText(res1.text);
-          getUserFullname({
-            userId: res1.sender_id,
-            callback: res2 => {
-              setReplyAuthor(res2.fullname);
-            },
-          });
-        },
-      });
-    }
-  }, [replyId]);
+  const handleEmojiClick = emojiData => {
+    setText(prev => prev + emojiData.emoji);
+  };
 
   function hasAttachments() {
     const message = messages.find(msg => msg.id === editId);
@@ -75,15 +59,25 @@ export default function ChatInput({
 
   return (
     <div className="chat-input">
-      {replyId !== -1 && (
+      {reply.id !== -1 && (
         <div className="reply-label">
           <div className="reply-label-info">
             <span className="reply-label-author">
-              {replyAuthor || "Невідомий автор"}
+              {reply.author || "Невідомий автор"}
             </span>
-            <span>: {replyText || "*Видалене повідомлення*"}</span>
+            <span>: {reply.text || "*Видалене повідомлення*"}</span>
           </div>
-          <img src={cancelIcon} alt="Cancel" onClick={() => resetReply()} />
+          <img
+            src={cancelIcon}
+            alt="Cancel"
+            onClick={() =>
+              setReply({
+                id: -1,
+                author: null,
+                text: "",
+              })
+            }
+          />
         </div>
       )}
 
@@ -99,6 +93,7 @@ export default function ChatInput({
       ) : null}
 
       <input
+        id="chat-message-input"
         type="text"
         value={isEditModalOpen || isSendModalOpen ? "" : text}
         onChange={onChange}
@@ -106,8 +101,18 @@ export default function ChatInput({
         ref={inputRef}
         placeholder="Напишіть повідомлення..."
       />
-      <div className="send-smile-btn" onClick={sendMessage}>
-        <img src={sendSmileIcon} alt="Smile" />
+      <div className="send-smile-container">
+        <div className="send-smile-btn">
+          <img src={sendSmileIcon} alt="Smile" />
+        </div>
+        <div className="invisible-gap"></div>
+        <div className="emoji-picker">
+          <EmojiPicker
+            onEmojiClick={handleEmojiClick}
+            height={400}
+            width={300}
+          />
+        </div>
       </div>
       {(editId === -1 || isEditModalOpen || isSendModalOpen) && (
         <div className="send-msg-btn" onClick={sendMessage}>

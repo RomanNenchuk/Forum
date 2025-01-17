@@ -24,7 +24,17 @@ export const chatSocket = io => {
     socket.on(
       "send-message",
       async (
-        { id, fullname, sender_id, text, attachments, timestamp, reply },
+        {
+          id,
+          fullname,
+          sender_id,
+          text,
+          attachments,
+          timestamp,
+          reply,
+          reply_fullname,
+          reply_text,
+        },
         recipient_id,
         callback
       ) => {
@@ -54,7 +64,8 @@ export const chatSocket = io => {
               text,
               timestamp,
               reply,
-              reply_text: res.reply_text,
+              reply_text,
+              reply_fullname,
             });
           } else {
             socket
