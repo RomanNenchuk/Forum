@@ -47,35 +47,32 @@ ul {
   justify-content: center;
   align-content: center;
 }
-.interact_emo_window {
-  position: relative;
-  border-radius: 2vh;
-  margin-top: 5px;
-}
-.outer_interact {
+
+.outer-interact {
   position: absolute;
   display: flex;
-  flex-direction: row;
   align-items: center;
   background: rgb(220, 220, 220);
-  width: 26vh;
-  border: 0.1vh solid black;
+  border: 1px solid #5f8575;
   border-radius: 2vh;
-  right: 0px;
+  left: 0px;
+  bottom: 100%;
   height: auto;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+  border-top: 2px solid #5f8575;
+  border-bottom: 2px solid #5f8575;
 }
-.in_interact {
-  display: flex;
 
-  flex-direction: row;
+.inner-interact {
+  display: flex;
+  flex-direction: column-reverse;
   align-items: center;
-  width: 24vh;
-  height: auto;
+  height: 120px;
   overflow: auto;
   scrollbar-width: none; /* Для Firefox */
   -ms-overflow-style: none; /* Для Internet Explorer та Edge старих версій */
 }
-.interact_emo_window span {
+.interact-emo-window span {
   background: none;
   display: inline;
   border: none;
@@ -143,44 +140,56 @@ ul {
   font-size: 3vh;
 }
 
-.icons_menu {
+.icons-menu {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  align-content: center;
-  align-items: center;
+  align-items: flex-start;
   margin: 0.8vh;
+  gap: 10px;
 }
-.disanlike{
+.active-reactions {
   display: flex;
   align-content: center;
+  flex-wrap: wrap;
+  row-gap: 5px;
 }
-.disanlike button {
+.reaction-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   border-radius: 20px;
   border: none;
   outline: none;
   box-shadow: none;
   margin-right: 1vh;
+  padding: 0 5px;
   font-size: 3vh;
-  background-color: rgb(220, 220, 220);
+  background-color: #e3e2e2;
+}
+.reaction-button-count {
+  font-size: 16px;
 }
 
-.chat_settings {
+.my-reaction {
+  background-color: #ffe657;
+}
+
+.chat-settings {
   display: flex;
-  align-content: center;
+  align-items: center;
+  justify-content: space-between;
   flex-direction: row;
 }
-.chat_settings span {
-  margin: 0px;
-  margin-left: 5px;
-  margin-right: 5px;
+.emo-container {
+  position: relative;
+  margin: 0 5px;
   font-size: 3vh;
   cursor: pointer;
   user-select: none; /* Забороняє виділення тексту */
-  -webkit-user-select: none; /* Для підтримки в Safari */
-  -ms-user-select: none; /* Для старих версій Internet Explorer */
+  display: flex;
+  flex-direction: column;
 }
-
 
 .topic-card {
   display: flex;

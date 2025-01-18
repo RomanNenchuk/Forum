@@ -2,22 +2,91 @@ import { pool } from "../db.js";
 
 // для відображення на головній сторінці
 export const getTopicsPreview = async (req, res) => {
-  const { page = 1, limit = 10 } = req.query;
+  const { page = 1, limit = 10, sort, user_id } = req.query;
   const offset = (page - 1) * limit;
 
+  const sortOrder = sort.toUpperCase() === "ASC" ? "ASC" : "DESC";
+
   try {
-    const result = await pool.query(
+    // 1. Отримуємо базову інформацію про теми
+    const topicsResult = await pool.query(
       `
-      SELECT topics.id, fullname AS author_full_name, username, avatar AS author_avatar, 
-             title, email, author, rating 
-      FROM topics 
-      INNER JOIN Users ON Users.uid = topics.author
-      ORDER BY topics.date DESC
-      LIMIT $1 OFFSET $2
+      SELECT 
+        topics.id, 
+        fullname AS author_full_name, 
+        username, 
+        avatar AS author_avatar, 
+        title, 
+        email, 
+        author, 
+        rating, 
+        topics.date
+      FROM topics
+      INNER JOIN users ON users.uid = topics.author
+      ORDER BY topics.date ${sortOrder}
+      LIMIT $1 OFFSET $2;
       `,
       [limit, offset]
     );
-    res.status(200).json(result.rows);
+
+    const topics = topicsResult.rows;
+
+    // 2. Отримуємо всі реакції до тем
+    const reactionsResult = await pool.query(
+      `
+      SELECT 
+        topic_id,
+        emoji.name,
+        emoji.icon,
+        COUNT(*) AS count
+      FROM reactions
+      INNER JOIN emoji ON reactions.emoji_id = emoji.id
+      GROUP BY topic_id, emoji.name, emoji.icon;
+    
+      `
+    );
+
+    const reactions = reactionsResult.rows;
+
+    // 3. Отримуємо реакції конкретного користувача (якщо user_id передано)
+    let userReactions = [];
+    if (user_id) {
+      const userReactionsResult = await pool.query(
+        `
+        SELECT 
+          topic_id, 
+          emoji.name AS name
+        FROM reactions
+        LEFT JOIN emoji ON reactions.emoji_id = emoji.id
+        WHERE user_id = $1;
+        `,
+        [user_id]
+      );
+      userReactions = userReactionsResult.rows;
+    }
+
+    // 4. Збираємо результати
+    const topicsWithReactions = topics.map(topic => {
+      const topicReactions = reactions
+        .filter(reaction => reaction.topic_id === topic.id)
+        .map(reaction => ({
+          icon: reaction.icon,
+          name: reaction.name,
+          count: parseInt(reaction.count, 10),
+        }));
+
+      const userReaction = userReactions.find(
+        reaction => reaction.topic_id === topic.id
+      );
+
+      return {
+        ...topic,
+        reactions: topicReactions,
+        user_reaction: userReaction || null,
+      };
+    });
+
+    res.status(200).json(topicsWithReactions);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -26,14 +95,85 @@ export const getTopicsPreview = async (req, res) => {
 
 export const getTopic = async (req, res) => {
   try {
-    const id = req.params.id;
-    const result = await pool.query(
-      `SELECT uid, fullname AS authorFullName, username, avatar, title, author, description, attachments, TO_CHAR(topics.date, 'DD.MM.YYYY') AS formatted_date FROM topics INNER JOIN users 
+    const { id } = req.params;
+    const { user_id } = req.query;
+
+    // 1. Отримуємо базову інформацію про тему
+    const topicResult = await pool.query(
+      `
+      SELECT 
+        topics.id,
+        uid, 
+        fullname AS authorFullName, 
+        username, 
+        avatar, 
+        title, 
+        author, 
+        description, 
+        attachments, 
+        TO_CHAR(topics.date, 'DD.MM.YYYY') AS formatted_date 
+      FROM topics 
+      INNER JOIN users 
         ON topics.author = users.uid 
-        WHERE topics.id = $1`,
+      WHERE topics.id = $1
+      `,
       [id]
     );
-    res.status(200).json(result.rows[0]);
+
+    if (topicResult.rows.length === 0) {
+      return res.status(404).json({ message: "Topic not found" });
+    }
+
+    const topic = topicResult.rows[0];
+
+    // 2. Отримуємо всі реакції до теми
+    const reactionsResult = await pool.query(
+      `
+      SELECT 
+        emoji.name AS name, 
+        emoji.icon AS icon, 
+        COUNT(*) AS count
+      FROM reactions
+      INNER JOIN emoji ON reactions.emoji_id = emoji.id
+      WHERE reactions.topic_id = $1
+      GROUP BY emoji.name, emoji.icon
+      `,
+      [id]
+    );
+
+    const reactions = reactionsResult.rows.map(reaction => ({
+      name: reaction.name,
+      icon: reaction.icon,
+      count: parseInt(reaction.count, 10),
+    }));
+
+    // 3. Отримуємо реакцію конкретного користувача (якщо user_id передано)
+    let userReaction = null;
+    if (user_id) {
+      const userReactionResult = await pool.query(
+        `
+        SELECT 
+          emoji.name AS name, 
+          emoji.icon AS icon
+        FROM reactions
+        INNER JOIN emoji ON reactions.emoji_id = emoji.id
+        WHERE reactions.topic_id = $1 AND reactions.user_id = $2
+        LIMIT 1
+        `,
+        [id, user_id]
+      );
+
+      if (userReactionResult.rows.length > 0) {
+        userReaction = userReactionResult.rows[0];
+      }
+    }
+
+    // 4. Формуємо відповідь
+    res.status(200).json({
+      ...topic,
+      reactions,
+      user_reaction: userReaction,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -129,7 +269,6 @@ export const getTopicComments = async (req, res) => {
       c.reply,
       u.username AS author_username,
       u.avatar,
-      c.level,
       o.text AS reply_text
     FROM 
       comments c
@@ -169,11 +308,12 @@ export const PostNewComment = async (req, res) => {
       comm.topic_id,
       comm.attachments,
       comm.reply,
-      comm.level
+      comm.level,
     ]);
     let reply_text = "";
     if (comm.reply !== -1) {
-      reply_text = (await pool.query(reply_text_query, [comm.reply])).rows[0].text;
+      reply_text = (await pool.query(reply_text_query, [comm.reply])).rows[0]
+        .text;
     }
     res.status(200).json({
       id: result.rows[0].id,
@@ -183,7 +323,7 @@ export const PostNewComment = async (req, res) => {
     console.error("PostNewComment error:", error);
     res.status(500);
   }
-}
+};
 
 export const deleteComment = async (req, res) => {
   const id = req.params.id;
@@ -198,7 +338,7 @@ export const deleteComment = async (req, res) => {
     console.error(error);
     res.status(500);
   }
-}
+};
 
 export const editComments = async (req, res) => {
   const { text, attachments, id } = req.body;
@@ -208,11 +348,11 @@ export const editComments = async (req, res) => {
       SET text = $1, attachments = $2
       WHERE id = $3
       RETURNING *;
-    `
+    `;
     const result = await pool.query(query, [text, attachments, id]);
     res.status(200).json(result.rows[0]);
-  } catch(error) {
+  } catch (error) {
     console.error("Error with editComments: ", error);
     res.status(500);
   }
-}
+};

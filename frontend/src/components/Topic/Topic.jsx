@@ -52,11 +52,11 @@ export default function Topic() {
 
   // вантажу інформацію з БД при монтуванні компонента
   useEffect(() => {
-    document.body.classList.add("body-overflow");
+    // document.body.classList.add("body-overflow");
     setLoading(true);
     fetchTopic();
     fetchTopicComments();
-    document.body.classList.remove("body-overflow");
+    // document.body.classList.remove("body-overflow");
   }, [id]);
   // обробник кліку на сторінці
   useEffect(() => {
@@ -73,7 +73,11 @@ export default function Topic() {
 
   async function fetchTopic() {
     try {
-      const result = await axios.get(`http://localhost:5000/topics/${id}`);
+      const result = await axios.get(
+        `http://localhost:5000/topics/${id}${
+          currentUser ? "?user_id=" + currentUser.uid : ""
+        }`
+      );
       let buf = result.data;
       buf.author_avatar = buf.avatar;
       buf.author_full_name = buf.authorfullname;
@@ -106,7 +110,6 @@ export default function Topic() {
         `http://localhost:5000/topics/${id}/comments`
       );
       setComments(result.data);
-      console.log(result.data);
     } catch (error) {
       console.error("fetchTopicComments error:", error);
     }
@@ -370,7 +373,7 @@ export default function Topic() {
               <ul>
                 <TopicComments
                   handleOnContextMenu={handleOnContextMenu}
-                  uid={topic.uid}
+                  uid={topic?.uid}
                   currentUser={currentUser}
                   comments={comments}
                 />

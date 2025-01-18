@@ -1,35 +1,41 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext.jsx";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import LoadingSpinner from "./Spinner.jsx";
 import TopicListSettings from "./TopicList/TopicListSettings.jsx";
 import TopicList from "./TopicList/TopicList.jsx";
 import TagBar from "./TagBar/TagBar.jsx";
-import "./Home.css"
+import axios from "axios";
+import "./Home.css";
 
 export default function Home() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [topicInfoList, setTopicInfoList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
-  const { token } = useAuth();
+  const [sortOrder, setSortOrder] = useState(
+    searchParams.get("sort") || "desc"
+  );
+  const navigate = useNavigate();
+  const { currentUser, token } = useAuth();
 
-  async function fetchTopics(page) {
+  const handleChange = e => {
+    searchParams.set("sort", e.target.value);
+    setSearchParams(searchParams);
+    setSortOrder(e.target.value);
+  };
+
+  async function fetchTopics(sortOrder) {
     try {
       const response = await axios.get(
-        `http://localhost:5000/topics?page=${page}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        `http://localhost:5000/topics?page=${page}&sort=${sortOrder}${
+          currentUser ? "&user_id=" + currentUser.uid : ""
+        }`
       );
-      const topics = Array.isArray(response.data)
-        ? response.data
-        : response.data.topics || [];
-
+      const topics = response.data || [];
       setTopicInfoList(prev => [...prev, ...topics]);
-      setHasMore(topics.length > 0); // якщо повернулось 0 тем, більше даних немає
+      setHasMore(topics.length > 0);
     } catch (error) {
       console.error(error);
     } finally {
@@ -38,8 +44,13 @@ export default function Home() {
   }
 
   useEffect(() => {
-    fetchTopics(page);
-  }, [page]);
+    fetchTopics(searchParams.get("sort") || "desc");
+  }, [page, searchParams]);
+
+  useEffect(() => {
+    setTopicInfoList([]);
+    setPage(1);
+  }, [sortOrder]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -62,7 +73,7 @@ export default function Home() {
   return (
     <>
       <ul className="submain_in">
-        <TopicListSettings />
+        <TopicListSettings sortOrder={sortOrder} handleChange={handleChange} />
         <TopicList topicInfoList={topicInfoList} />
       </ul>
       <TagBar />

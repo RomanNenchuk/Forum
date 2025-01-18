@@ -1,5 +1,18 @@
 import { pool } from "../db.js"; // Підключення до бази даних
 
+// Функція для отримання всіх реакцій теми
+const getTopicReactions = async topicId => {
+  const query = `
+    SELECT e.name, e.icon, COUNT(r.emoji_id) AS count
+    FROM reactions r
+    INNER JOIN emoji e ON r.emoji_id = e.id
+    WHERE r.topic_id = $1
+    GROUP BY e.name, e.icon
+  `;
+  const result = await pool.query(query, [topicId]);
+  return result.rows;
+};
+
 export const setTopicReaction = async (req, res) => {
   const topicId = req.params.id;
   const { reaction } = req.body;
@@ -13,9 +26,8 @@ export const setTopicReaction = async (req, res) => {
     `;
     const emojiResult = await pool.query(emojiQuery, [reaction]);
 
-    if (emojiResult.rowCount === 0) {
+    if (emojiResult.rowCount === 0)
       return res.status(404).json({ message: "Emoji not found" });
-    }
 
     const emojiId = emojiResult.rows[0].id;
 
@@ -42,12 +54,12 @@ export const setTopicReaction = async (req, res) => {
           WHERE id = $1
           RETURNING *;
         `;
-        const deleteResult = await pool.query(deleteQuery, [
-          existingReaction.id,
-        ]);
+        await pool.query(deleteQuery, [existingReaction.id]);
+
+        const updatedReactions = await getTopicReactions(topicId);
         return res.status(200).json({
-          message: "Reaction removed",
-          reaction: deleteResult.rows[0],
+          active: null,
+          reactions: updatedReactions,
         });
       }
 
@@ -58,13 +70,13 @@ export const setTopicReaction = async (req, res) => {
         WHERE id = $2
         RETURNING *;
       `;
-      const updateResult = await pool.query(updateQuery, [
-        emojiId,
-        existingReaction.id,
-      ]);
-      return res
-        .status(200)
-        .json({ message: "Reaction updated", reaction: updateResult.rows[0] });
+      await pool.query(updateQuery, [emojiId, existingReaction.id]);
+
+      const updatedReactions = await getTopicReactions(topicId);
+      return res.status(200).json({
+        active: reaction,
+        reactions: updatedReactions,
+      });
     }
 
     // якщо реакції ще немає, додаємо нову
@@ -73,10 +85,13 @@ export const setTopicReaction = async (req, res) => {
       VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
       RETURNING *;
     `;
-    const insertResult = await pool.query(insertQuery, [uid, topicId, emojiId]);
-    return res
-      .status(201)
-      .json({ message: "Reaction added", reaction: insertResult.rows[0] });
+    await pool.query(insertQuery, [uid, topicId, emojiId]);
+
+    const updatedReactions = await getTopicReactions(topicId);
+    return res.status(201).json({
+      active: reaction,
+      reactions: updatedReactions,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
