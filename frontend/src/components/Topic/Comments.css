@@ -5,6 +5,13 @@
     width: 55%;
     margin-top:1vh;
 }
+.comment-outer-reply{
+    border: 0.1vh solid black;
+    border-radius: 2vh;
+    padding:1vh;
+    width: 50%;
+    margin-top:1vh;
+}
 input{
     background-color: #d3e5ee;
     border:none;

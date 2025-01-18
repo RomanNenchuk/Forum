@@ -98,15 +98,14 @@ export default function Topic() {
         reply
         author_username
         avatar
-        level
-        reply_root
         reply_text
+        reply_timestamp
        */
       const result = await axios.get(
         `http://localhost:5000/topics/${id}/comments`
       );
-      setComments(result.data);
       console.log(result.data);
+      setComments(result.data);
     } catch (error) {
       console.error("fetchTopicComments error:", error);
     }
@@ -136,8 +135,8 @@ export default function Topic() {
         reply: reply?.id || -1,
         author_username: userName,
         avatar: avatar,
-        level: reply?.level + 1 || 0,
         reply_text: null,
+        reply_timestamp: reply?.timestamp || null,
       };
       const result = await axios.post(
         `http://localhost:5000/topics/comments`,

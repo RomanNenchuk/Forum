@@ -14,19 +14,19 @@ export default function TopicComments({
 }) {
   let sortedComments = comments;
   sortedComments.sort((a, b) => {
-    // ще не готово
-    if (a.reply === b.id) {
-      return 1;
+    let ta = (a.reply === -1 ? a.timestamp : a.reply_timestamp),
+        tb = (b.reply === -1 ? b.timestamp : b.reply_timestamp);
+    if (ta === tb) {
+      return new Date(ta).getTime() - new Date(tb).getTime();
+    } else {
+      return new Date(tb).getTime() - new Date(ta).getTime();
     }
-    if (a.reply === b.reply) {
-      return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
-    }
-    return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+    // return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
   });
   return (
     <ul
       style={{
-        display: "flex",
+        // display: "flex",
         width: "100%",
         flexDirection: "column-reverse",
       }}
@@ -36,7 +36,8 @@ export default function TopicComments({
             return (
               <div
                 key={index}
-                className="comment-outer"
+                className={`comment-outer${ comment.reply === -1 ? "" : "-reply" }`
+                }
                 style={
                   currentUser?.uid === comment.author_id
                     ? {

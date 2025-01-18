@@ -36,9 +36,9 @@ export default function TopicContextMenu({
       {
         text: "Відповісти",
         icon: replyIcon,
-        onClick: () => {
+        onClick: (contextMenu.selectedCommentItem?.reply === -1 ? () => {
           setReply(contextMenu.selectedCommentItem);
-        }
+        } : null),
       },
     ].filter(button => button.onClick);
   return(

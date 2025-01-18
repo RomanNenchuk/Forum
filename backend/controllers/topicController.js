@@ -129,8 +129,8 @@ export const getTopicComments = async (req, res) => {
       c.reply,
       u.username AS author_username,
       u.avatar,
-      c.level,
-      o.text AS reply_text
+      o.text AS reply_text,
+      o.timestamp AS reply_timestamp
     FROM 
       comments c
     LEFT JOIN
@@ -140,7 +140,7 @@ export const getTopicComments = async (req, res) => {
     WHERE 
       c.topic_id = $1
     ORDER BY 
-      c.id ASC; 
+      c.id ASC;
     `;
     const result = (await pool.query(query, [id])).rows;
     res.status(200).json(result ?? []);
@@ -155,8 +155,8 @@ export const PostNewComment = async (req, res) => {
   try {
     const query = `
       INSERT INTO comments (
-        text, timestamp, author_id, topic_id, attachments, reply, level
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+        text, timestamp, author_id, topic_id, attachments, reply
+      ) VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *;
     `;
     const reply_text_query = `
@@ -169,7 +169,6 @@ export const PostNewComment = async (req, res) => {
       comm.topic_id,
       comm.attachments,
       comm.reply,
-      comm.level
     ]);
     let reply_text = "";
     if (comm.reply !== -1) {
