@@ -37,6 +37,7 @@ export default function TopicList({ topicInfoList }) {
   }
   return (
     <>
+      {console.log(topicInfoList)}
       {topicInfoList.map((topic, index) => (
         <TopicArea
           topic={topic}

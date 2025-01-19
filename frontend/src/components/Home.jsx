@@ -18,7 +18,6 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
 
-  const navigate = useNavigate();
   const { currentUser } = useAuth();
 
   const handleChange = e => {
@@ -64,10 +63,12 @@ export default function Home() {
   }, [queryParams]);
 
   useEffect(() => {
-    if (queryParams.page === 1) {
-      setTopicInfoList([]);
-    }
-  }, [queryParams.sortOrder]);
+    setTopicInfoList([]);
+    setQueryParams(prev => ({
+      ...prev,
+      page: 1,
+    }));
+  }, [currentUser]);
 
   useEffect(() => {
     const handleScroll = () => {

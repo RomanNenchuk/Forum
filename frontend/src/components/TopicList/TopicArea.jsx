@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import InteractWindow from "./InteractWindow.jsx";
@@ -18,13 +18,15 @@ export default function TopicArea({
   initialReactions,
   userReaction,
 }) {
-  const [activeReactions, setActiveReactions] = useState(() =>
-    reactionSetter(initialReactions, userReaction)
-  );
+  const [activeReactions, setActiveReactions] = useState([]);
 
   const location = useLocation();
   const navigate = useNavigate();
   const { currentUser, token } = useAuth();
+
+  useEffect(() => {
+    setActiveReactions(reactionSetter(initialReactions, userReaction));
+  }, [initialReactions, userReaction]);
 
   async function handleClick(emoji) {
     if (!currentUser)
