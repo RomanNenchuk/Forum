@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext.jsx";
+import reactionListSetter from "../../utils/reactionListSetter.jsx";
 import InteractWindow from "./InteractWindow.jsx";
 import { VscSettings } from "react-icons/vsc";
 import { IoChatboxEllipsesOutline } from "react-icons/io5";
@@ -10,22 +11,22 @@ import axios from "axios";
 
 export default function TopicArea({
   topic,
-  index,
-  indx,
-  isEmo,
-  setEmo,
   reactionList,
   initialReactions,
   userReaction,
 }) {
   const [activeReactions, setActiveReactions] = useState([]);
-
   const location = useLocation();
   const navigate = useNavigate();
   const { currentUser, token } = useAuth();
+  const [isEmojiWindowVisible, setIsEmojiWindowVisible] = useState(false);
+
+  function toggleEmojiWindow() {
+    setIsEmojiWindowVisible(prev => !prev);
+  }
 
   useEffect(() => {
-    setActiveReactions(reactionSetter(initialReactions, userReaction));
+    setActiveReactions(reactionListSetter(initialReactions, userReaction));
   }, [initialReactions, userReaction]);
 
   async function handleClick(emoji) {
@@ -49,55 +50,19 @@ export default function TopicArea({
           },
         }
       );
-
       setActiveReactions(() =>
-        reactionSetter(response.data.reactions, response.data.active)
+        reactionListSetter(response.data.reactions, response.data.active)
       );
     } catch (error) {
       console.error(error);
     }
   }
 
-  function reactionSetter(initialReactions, userReaction) {
-    // Додати "thumbs_up" і "thumbs_down", якщо їх немає
-    let resultReactions = [...initialReactions];
-    const hasThumbsUp = resultReactions.some(
-      reaction => reaction.name === "thumbs_up"
-    );
-    const hasThumbsDown = resultReactions.some(
-      reaction => reaction.name === "thumbs_down"
-    );
-
-    if (!hasThumbsUp)
-      resultReactions.push({ icon: "👍", name: "thumbs_up", count: 0 });
-    if (!hasThumbsDown)
-      resultReactions.push({ icon: "👎", name: "thumbs_down", count: 0 });
-
-    resultReactions = resultReactions.sort((a, b) => {
-      const order = ["thumbs_up", "thumbs_down"];
-      const indexA = order.indexOf(a.name);
-      const indexB = order.indexOf(b.name);
-      if (indexA !== -1 && indexB !== -1) return indexA - indexB;
-      else if (indexA !== -1) return -1;
-      else if (indexB !== -1) return 1;
-      return b.count - a.count;
-    });
-
-    // Додати прапорець active для реакції користувача
-    resultReactions = resultReactions.map(reaction => {
-      if (reaction.name === userReaction) {
-        return { ...reaction, active: true };
-      }
-      return reaction;
-    });
-    return resultReactions;
-  }
-
   return (
-    <li className="topic-card" key={index}>
+    <li className="topic-card">
       <div>
         <Link
-          to={`topics/${topic.id}`}
+          to={`/topics/${topic.id}`}
           style={{ textDecoration: "none" }}
           state={{ backgroundLocation: location }}
         >
@@ -110,7 +75,6 @@ export default function TopicArea({
               avThickness="0.4vh"
               profileName={topic.author_full_name}
             />
-
             <div className="topic-title">
               <span style={{ marginBottom: "1vh" }}>{topic.title}</span>
             </div>
@@ -135,16 +99,12 @@ export default function TopicArea({
           </div>
           <div className="chat-settings">
             <IoChatboxEllipsesOutline size="3.5vh" />
-            <div className="emo-container" onClick={() => setEmo(indx + 1)}>
+            <div className="emo-container" onClick={toggleEmojiWindow}>
               😀
-              {isEmo == indx + 1 ? (
-                <InteractWindow
-                  reactionList={reactionList}
-                  onClick={handleClick}
-                />
-              ) : (
-                ""
-              )}
+              <InteractWindow
+                reactionList={reactionList}
+                onClick={handleClick}
+              />
             </div>
             <VscSettings size="3.5vh" />
           </div>

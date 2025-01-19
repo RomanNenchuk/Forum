@@ -61,6 +61,16 @@ ul {
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
   border-top: 2px solid #5f8575;
   border-bottom: 2px solid #5f8575;
+  opacity: 0; /* Початково прихований */
+  visibility: hidden; /* Щоб елемент не блокував взаємодію */
+  pointer-events: none; /* Забороняє взаємодію, поки пікер невидимий */
+  transition: opacity 0.3s ease, visibility 0.3s ease; /* Плавний перехід */
+}
+.emo-container:hover .outer-interact,
+.outer-interact:hover {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
 }
 
 .inner-interact {
@@ -190,7 +200,6 @@ ul {
   display: flex;
   flex-direction: column;
 }
-
 .topic-card {
   display: flex;
   flex-direction: column;

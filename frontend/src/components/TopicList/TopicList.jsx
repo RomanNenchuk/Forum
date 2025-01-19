@@ -28,23 +28,12 @@ const reactionList = [
 ];
 
 export default function TopicList({ topicInfoList }) {
-  const [isEmoWindVisible, setEmoWind] = useState(0);
-
-  function setWind(index) {
-    if (isEmoWindVisible == index) setEmoWind(0);
-    else setEmoWind(index);
-    console.log(index);
-  }
   return (
     <>
-      {console.log(topicInfoList)}
       {topicInfoList.map((topic, index) => (
         <TopicArea
-          topic={topic}
-          indx={index}
           key={index}
-          isEmo={isEmoWindVisible}
-          setEmo={setWind}
+          topic={topic}
           reactionList={reactionList}
           initialReactions={topic.reactions}
           userReaction={topic.user_reaction?.name}
