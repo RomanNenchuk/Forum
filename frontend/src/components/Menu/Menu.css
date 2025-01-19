@@ -26,7 +26,7 @@
   padding: 0;
   margin: 0;
 }
-.linker{
+.linker {
   text-decoration: none;
   outline: none;
 }
@@ -87,7 +87,7 @@ header {
   font-family: "InriaSans-Bold";
   color: #ff0000;
 }
-.hd-logo img{
+.hd-logo img {
   height: 10vh;
   width: auto;
 }
@@ -107,7 +107,7 @@ header {
 .hd-search input::placeholder {
   color: #808080;
   font-family: "Actor", Arial, sans;
-  font-size: 2.5vh;  /**/
+  font-size: 2.5vh; /**/
 }
 .hd-search-btn,
 .hd-btn {
@@ -122,7 +122,7 @@ header {
   color: #fff;
   gap: 0.7vh;
 }
-.hd-search img{
+.hd-search img {
   height: 4vh;
   width: auto;
 }
@@ -150,8 +150,6 @@ header {
   /* font-size: 32px; */
 }
 
-
-
 /* ~~~~~~~~~~~~~~~~ */
 /* ~~~   menu   ~~~ */
 /* ~~~~~~~~~~~~~~~~ */
@@ -176,7 +174,7 @@ header {
   padding-top: 3vh;
 }
 
-.mn-menu-el a{
+.mn-menu-el a {
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -197,11 +195,11 @@ header {
   background-color: #d9d9d98c;
 }
 
-.mn-menu-el img{
+.mn-menu-el img {
   height: 3.5vh;
 }
 
-.side-expand{
+.side-expand {
   margin-top: 0.5vh;
   display: flex;
   height: auto;

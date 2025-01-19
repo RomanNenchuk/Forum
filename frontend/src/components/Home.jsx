@@ -10,62 +10,92 @@ import "./Home.css";
 
 export default function Home() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [queryParams, setQueryParams] = useState({
+    page: 1,
+    sortOrder: searchParams.get("sort") || "desc",
+  });
   const [topicInfoList, setTopicInfoList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
-  const [page, setPage] = useState(1);
-  const [sortOrder, setSortOrder] = useState(
-    searchParams.get("sort") || "desc"
-  );
+
   const navigate = useNavigate();
-  const { currentUser, token } = useAuth();
+  const { currentUser } = useAuth();
 
   const handleChange = e => {
-    searchParams.set("sort", e.target.value);
+    const newSortOrder = e.target.value;
+    searchParams.set("sort", newSortOrder);
     setSearchParams(searchParams);
-    setSortOrder(e.target.value);
+    // скидання сторінки при зміні сортування
+    setQueryParams(prev => ({
+      ...prev,
+      sortOrder: newSortOrder,
+      page: 1,
+    }));
   };
 
-  async function fetchTopics(sortOrder) {
-    try {
-      const response = await axios.get(
-        `http://localhost:5000/topics?page=${page}&sort=${sortOrder}${
-          currentUser ? "&user_id=" + currentUser.uid : ""
-        }`
-      );
-      const topics = response.data || [];
-      setTopicInfoList(prev => [...prev, ...topics]);
-      setHasMore(topics.length > 0);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
+  function loadMore() {
+    setQueryParams(prev => ({
+      ...prev,
+      page: prev.page + 1,
+    }));
   }
 
   useEffect(() => {
-    fetchTopics(searchParams.get("sort") || "desc");
-  }, [page, searchParams]);
+    async function fetchTopics() {
+      try {
+        const response = await axios.get(
+          `http://localhost:5000/topics?page=${queryParams.page}&sort=${
+            queryParams.sortOrder
+          }${currentUser ? "&user_id=" + currentUser.uid : ""}`
+        );
+        const topics = response.data || [];
+        setTopicInfoList(prev =>
+          queryParams.page === 1 ? topics : [...prev, ...topics]
+        );
+        setHasMore(topics.length > 0);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchTopics();
+  }, [queryParams]);
 
   useEffect(() => {
-    setTopicInfoList([]);
-    setPage(1);
-  }, [sortOrder]);
+    if (queryParams.page === 1) {
+      setTopicInfoList([]);
+    }
+  }, [queryParams.sortOrder]);
 
   useEffect(() => {
     const handleScroll = () => {
-      if (
-        window.innerHeight + document.documentElement.scrollTop >=
-          document.documentElement.offsetHeight - 200 &&
-        hasMore &&
-        !loading
-      ) {
-        setPage(prev => prev + 1);
+      const targetElement = document.querySelector(".forum-container");
+      const elementHeight = targetElement ? targetElement.offsetHeight : 0;
+      const totalHeight =
+        window.innerHeight + document.documentElement.scrollTop;
+      const documentHeight = Math.max(
+        document.documentElement.offsetHeight,
+        elementHeight
+      );
+
+      if (totalHeight >= documentHeight - 200 && hasMore && !loading) {
+        loadMore();
       }
     };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    function debounce(func, wait) {
+      let timeout;
+      return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), wait);
+      };
+    }
+
+    const debouncedHandleScroll = debounce(handleScroll, 200);
+    window.addEventListener("scroll", debouncedHandleScroll);
+    return () => window.removeEventListener("scroll", debouncedHandleScroll);
   }, [hasMore, loading]);
 
   if (loading && topicInfoList.length === 0) return <LoadingSpinner />;
@@ -73,7 +103,10 @@ export default function Home() {
   return (
     <>
       <ul className="submain_in">
-        <TopicListSettings sortOrder={sortOrder} handleChange={handleChange} />
+        <TopicListSettings
+          sortOrder={queryParams.sortOrder}
+          handleChange={handleChange}
+        />
         <TopicList topicInfoList={topicInfoList} />
       </ul>
       <TagBar />

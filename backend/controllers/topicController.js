@@ -5,7 +5,15 @@ export const getTopicsPreview = async (req, res) => {
   const { page = 1, limit = 10, sort, user_id } = req.query;
   const offset = (page - 1) * limit;
 
-  const sortOrder = sort.toUpperCase() === "ASC" ? "ASC" : "DESC";
+  // Визначаємо критерії сортування
+  const sortCriteria = {
+    asc: "topics.date ASC",
+    desc: "topics.date DESC",
+    rating: "rating DESC",
+  };
+
+  // Перевірка переданого параметра сортування
+  const orderBy = sortCriteria[sort] || "topics.date DESC";
 
   try {
     // 1. Отримуємо базову інформацію про теми
@@ -19,11 +27,24 @@ export const getTopicsPreview = async (req, res) => {
         title, 
         email, 
         author, 
-        rating, 
+        COALESCE(SUM(emoji.score), 0) AS rating,
         topics.date
       FROM topics
       INNER JOIN users ON users.uid = topics.author
-      ORDER BY topics.date ${sortOrder}
+      LEFT JOIN reactions
+        ON topics.id = reactions.topic_id
+      LEFT JOIN emoji
+        ON emoji.id = reactions.emoji_id
+      GROUP BY 
+        topics.id, 
+        fullname, 
+        username, 
+        avatar, 
+        title, 
+        email, 
+        author, 
+        topics.date
+      ORDER BY ${orderBy}
       LIMIT $1 OFFSET $2;
       `,
       [limit, offset]
@@ -42,7 +63,6 @@ export const getTopicsPreview = async (req, res) => {
       FROM reactions
       INNER JOIN emoji ON reactions.emoji_id = emoji.id
       GROUP BY topic_id, emoji.name, emoji.icon;
-    
       `
     );
 
