@@ -18,13 +18,15 @@ export default function TopicListSettings({ sortOrder, handleChange }) {
       >
         <button className="add-topic-button">+ Додати тему</button>
       </Link>
-      <button className="dropdown-button">
-        <select className="arrow" value={sortOrder} onChange={handleChange}>
-          <option value="desc">Найновіші</option>
-          <option value="asc">Найстаріші</option>
-          <option value="rating">Рейтинг</option>
-        </select>
-      </button>
+      <select
+        className="dropdown-button"
+        value={sortOrder}
+        onChange={handleChange}
+      >
+        <option value="desc">Новіші</option>
+        <option value="asc">Давніші</option>
+        <option value="rating">Популярні</option>
+      </select>
     </div>
   );
 }

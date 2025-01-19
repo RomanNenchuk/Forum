@@ -25,16 +25,18 @@ ul {
 }
 .dropdown-button {
   background-color: #f5f5f5; /* Світлий фон */
-  color: black;
+  color: #0b2f20;
   border: 0.1vh solid #ccc; /* Сіра рамка */
   padding: 1vh 2.3vh;
   font-size: 3vh;
   font-family: Arial, sans-serif;
-  border-radius: 0.6vh; /* Закруглені краї */
+  border-radius: 0.6vh;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  text-align: left;
+  outline: none;
 }
 #subroot {
   background-color: rgb(244, 236, 224);

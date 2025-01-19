@@ -19,11 +19,6 @@ export default function TopicArea({
   const location = useLocation();
   const navigate = useNavigate();
   const { currentUser, token } = useAuth();
-  const [isEmojiWindowVisible, setIsEmojiWindowVisible] = useState(false);
-
-  function toggleEmojiWindow() {
-    setIsEmojiWindowVisible(prev => !prev);
-  }
 
   useEffect(() => {
     setActiveReactions(reactionListSetter(initialReactions, userReaction));
@@ -99,7 +94,7 @@ export default function TopicArea({
           </div>
           <div className="chat-settings">
             <IoChatboxEllipsesOutline size="3.5vh" />
-            <div className="emo-container" onClick={toggleEmojiWindow}>
+            <div className="emo-container">
               😀
               <InteractWindow
                 reactionList={reactionList}

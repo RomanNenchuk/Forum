@@ -27,13 +27,23 @@ export default function TopicInput({
 
   return (
     <div>
-      {reply && <div>
-        <span>{reply.author_username}</span>
-        <span>: {reply.text}</span>
-        <button onClick={() => resetReply()}>Х</button>
-      </div>}
-      <div style = {{display: "flex", flexDirection: "row",alignItems:"center", width: "95%", gap: "0.5vh"}}>
-          {/* <FileUploader
+      {reply && (
+        <div>
+          <span>{reply.author_username}</span>
+          <span>: {reply.text}</span>
+          <button onClick={() => resetReply()}>Х</button>
+        </div>
+      )}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          width: "95%",
+          gap: "0.5vh",
+        }}
+      >
+        {/* <FileUploader
             setFiles={setFiles}
             editId={editId}
             setIsEditModalOpen={setIsEditModalOpen}
@@ -41,28 +51,37 @@ export default function TopicInput({
             text={text}
             setText={text}
           /> */}
-          <input
-            type="text"
-            value={isEditModalOpen || isSendModalOpen ? "" : text}
-            onChange={onChange}
-            placeholder="Напишіть повідомлення..."
-            style = {{flex: "1", height: "4vh",}}
+        <input
+          id="comment-input"
+          type="text"
+          value={isEditModalOpen || isSendModalOpen ? "" : text}
+          onChange={onChange}
+          placeholder="Напишіть повідомлення..."
+          style={{ flex: "1", height: "4vh" }}
+        />
+        <div onClick={sendComment}>
+          <img
+            style={{ width: "3vh", height: "3vh" }}
+            src={sendSmileIcon}
+            alt="Smile"
           />
-          <div onClick={sendComment}>
-            <img style = {{width: "3vh", height: "3vh"}} src={sendSmileIcon} alt="Smile" />
-          </div>
-          {(editId === -1 || isEditModalOpen || isSendModalOpen) && (
-            <div onClick={sendComment}>
-              <img style = {{width: "3vh", height: "3vh"}} src={sendMessageIcon} alt="Send" />
-            </div>
-          )}
-          {editId !== -1 && !isEditModalOpen && !isSendModalOpen && (
-            <>
-              <MdEdit size="3vh" onClick={editComment} />
-              <img src={cancelIcon} alt="Cancel" onClick={onCancel} />
-            </>
-          )}
         </div>
+        {(editId === -1 || isEditModalOpen || isSendModalOpen) && (
+          <div onClick={sendComment}>
+            <img
+              style={{ width: "3vh", height: "3vh" }}
+              src={sendMessageIcon}
+              alt="Send"
+            />
+          </div>
+        )}
+        {editId !== -1 && !isEditModalOpen && !isSendModalOpen && (
+          <>
+            <MdEdit size="3vh" onClick={editComment} />
+            <img src={cancelIcon} alt="Cancel" onClick={onCancel} />
+          </>
+        )}
+      </div>
     </div>
   );
 }

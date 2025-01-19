@@ -5,18 +5,15 @@ export const getTopicsPreview = async (req, res) => {
   const { page = 1, limit = 10, sort, user_id } = req.query;
   const offset = (page - 1) * limit;
 
-  // Визначаємо критерії сортування
   const sortCriteria = {
     asc: "topics.date ASC",
     desc: "topics.date DESC",
     rating: "rating DESC",
   };
-
-  // Перевірка переданого параметра сортування
   const orderBy = sortCriteria[sort] || "topics.date DESC";
 
   try {
-    // 1. Отримуємо базову інформацію про теми
+    // 1. базова інформація про теми
     const topicsResult = await pool.query(
       `
       SELECT 
@@ -52,7 +49,7 @@ export const getTopicsPreview = async (req, res) => {
 
     const topics = topicsResult.rows;
 
-    // 2. Отримуємо всі реакції до тем
+    // 2. всі реакції до тем
     const reactionsResult = await pool.query(
       `
       SELECT 
@@ -68,7 +65,7 @@ export const getTopicsPreview = async (req, res) => {
 
     const reactions = reactionsResult.rows;
 
-    // 3. Отримуємо реакції конкретного користувача (якщо user_id передано)
+    // 3.реакції конкретного користувача (якщо user_id передано)
     let userReactions = [];
     if (user_id) {
       const userReactionsResult = await pool.query(
@@ -85,7 +82,7 @@ export const getTopicsPreview = async (req, res) => {
       userReactions = userReactionsResult.rows;
     }
 
-    // 4. Збираємо результати
+    // 4. результати
     const topicsWithReactions = topics.map(topic => {
       const topicReactions = reactions
         .filter(reaction => reaction.topic_id === topic.id)
@@ -118,7 +115,7 @@ export const getTopic = async (req, res) => {
     const { id } = req.params;
     const { user_id } = req.query;
 
-    // 1. Отримуємо базову інформацію про тему
+    // 1. базова інформація про тему
     const topicResult = await pool.query(
       `
       SELECT 
@@ -146,7 +143,7 @@ export const getTopic = async (req, res) => {
 
     const topic = topicResult.rows[0];
 
-    // 2. Отримуємо всі реакції до теми
+    // 2. всі реакції до теми
     const reactionsResult = await pool.query(
       `
       SELECT 
@@ -167,7 +164,7 @@ export const getTopic = async (req, res) => {
       count: parseInt(reaction.count, 10),
     }));
 
-    // 3. Отримуємо реакцію конкретного користувача (якщо user_id передано)
+    // 3. реакція конкретного користувача (якщо user_id передано)
     let userReaction = null;
     if (user_id) {
       const userReactionResult = await pool.query(
@@ -188,7 +185,7 @@ export const getTopic = async (req, res) => {
       }
     }
 
-    // 4. Формуємо відповідь
+    // 4. результати
     res.status(200).json({
       ...topic,
       reactions,
@@ -204,7 +201,7 @@ export const saveTopic = async (req, res) => {
   const {
     title,
     author,
-    tags = ["u_tag"],
+    tags = [],
     description,
     rating = 0,
     status = "active",
@@ -214,6 +211,9 @@ export const saveTopic = async (req, res) => {
   const client = await pool.connect();
 
   try {
+    let processedTags = tags?.filter(tag => tag);
+    if (!processedTags.length) processedTags.push("u_tag");
+
     // Починаємо транзакцію
     await client.query("BEGIN");
 
@@ -227,7 +227,7 @@ export const saveTopic = async (req, res) => {
       FROM tags_array
       ON CONFLICT (tag_name) DO NOTHING;
     `;
-    await client.query(tagInsertQuery, [tags]);
+    await client.query(tagInsertQuery, [processedTags]);
 
     // 2. Створити новий запис в таблиці topics
     const topicInsertQuery = `
@@ -250,7 +250,7 @@ export const saveTopic = async (req, res) => {
     const getTagsIdQuery = `
       SELECT tag_id FROM tags WHERE tag_name = ANY($1::TEXT[]);
     `;
-    const tagsResult = await client.query(getTagsIdQuery, [tags]);
+    const tagsResult = await client.query(getTagsIdQuery, [processedTags]);
     const tagIds = tagsResult.rows.map(row => row.tag_id);
 
     // 4. Додати зв'язки між темою і тегами в таблицю topic_tags
@@ -289,7 +289,8 @@ export const getTopicComments = async (req, res) => {
       c.reply,
       u.username AS author_username,
       u.avatar,
-      o.text AS reply_text
+      o.text AS reply_text,
+      o.timestamp AS reply_timestamp
     FROM 
       comments c
     LEFT JOIN
@@ -299,7 +300,7 @@ export const getTopicComments = async (req, res) => {
     WHERE 
       c.topic_id = $1
     ORDER BY 
-      c.id ASC; 
+      c.id ASC;
     `;
     const result = (await pool.query(query, [id])).rows;
     res.status(200).json(result ?? []);
@@ -314,8 +315,8 @@ export const PostNewComment = async (req, res) => {
   try {
     const query = `
       INSERT INTO comments (
-        text, timestamp, author_id, topic_id, attachments, reply, level
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+        text, timestamp, author_id, topic_id, attachments, reply
+      ) VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *;
     `;
     const reply_text_query = `
@@ -328,7 +329,6 @@ export const PostNewComment = async (req, res) => {
       comm.topic_id,
       comm.attachments,
       comm.reply,
-      comm.level,
     ]);
     let reply_text = "";
     if (comm.reply !== -1) {
