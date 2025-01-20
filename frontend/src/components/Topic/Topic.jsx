@@ -51,7 +51,7 @@ export default function Topic() {
       delete buf.avatar
       delete buf.authorfullname
       setTopic(buf);
-      setExtendInfo(buf?.description?.length < 150 ? 2 : 0)
+      setExtendInfo(!buf?.description || buf?.description?.length < 150 ? 2 : 0)
     } finally {
       setLoading(false);
     }
