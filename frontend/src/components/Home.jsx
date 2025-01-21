@@ -14,17 +14,19 @@ export default function Home() {
     setQueryParams,
     hasMore,
     loading,
-    searchParams,
-    setSearchParams,
+    setLoading,
+    urlSearchParams,
+    setUrlSearchParams,
     topicInfoList,
     setTopicInfoList,
     fetchTopics,
+    debounce,
   } = useTopicSearch();
 
   const handleChange = e => {
     const newSortOrder = e.target.value;
-    searchParams.set("sort", newSortOrder);
-    setSearchParams(searchParams);
+    urlSearchParams.set("sort", newSortOrder);
+    setUrlSearchParams(urlSearchParams);
     // скидання сторінки при зміні сортування
     setQueryParams(prev => ({
       ...prev,
@@ -41,8 +43,20 @@ export default function Home() {
   }
 
   useEffect(() => {
-    fetchTopics();
+    const fetchData = debounce(async () => {
+      await fetchTopics();
+    }, 300);
+    setLoading(true);
+    fetchData();
   }, [queryParams]);
+
+  useEffect(() => {
+    setQueryParams({
+      page: 1,
+      sortOrder: urlSearchParams.get("sort") || "desc",
+      tags: urlSearchParams.get("tags") || "",
+    });
+  }, [urlSearchParams]);
 
   useEffect(() => {
     setTopicInfoList([]);
@@ -93,7 +107,6 @@ export default function Home() {
         <TopicList topicInfoList={topicInfoList} />
       </ul>
       <TagBar />
-      {loading && <LoadingSpinner />}
     </>
   );
 }

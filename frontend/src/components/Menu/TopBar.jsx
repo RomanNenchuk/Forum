@@ -9,34 +9,50 @@ import "./Menu.css";
 export default function TopBar({ currentUser, avatar, fullName }) {
   const location = useLocation();
   const {
-    searchQuery,
-    setSearchQuery,
+    searchInput,
+    setSearchInput,
     setQueryParams,
+    urlSearchParams,
+    setUrlSearchParams,
     getTagList,
-    fetchTopics,
   } = useTopicSearch();
   const navigate = useNavigate();
 
   function handleSearch(e) {
     e.preventDefault();
     navigate("/");
+    const tags = getTagList();
     setQueryParams(prev => ({
       ...prev,
-      tags: getTagList(),
+      tags,
     }));
+    if (tags !== "") {
+      urlSearchParams.set("tags", tags);
+      setUrlSearchParams(urlSearchParams);
+    }
   }
 
   return (
     <header>
       <div className="header-inr">
-        <Link to="/" className="linker">
-          <div className="hd-col">
-            <div className="hd-logo">
-              <img src={logo} alt="UFORUM" />
-              <span>
-                <span>U</span>FORUM
-              </span>
-            </div>
+        <Link
+          to="/"
+          className="hd-col home-link"
+          onClick={() => {
+            setUrlSearchParams({});
+            setSearchInput("");
+            setQueryParams({
+              page: 1,
+              sortOrder: "desc",
+              tags: "",
+            });
+          }}
+        >
+          <div className="hd-logo">
+            <img src={logo} alt="UFORUM" />
+            <span>
+              <span>U</span>FORUM
+            </span>
           </div>
         </Link>
         <div className="hd-col">
@@ -45,8 +61,8 @@ export default function TopBar({ currentUser, avatar, fullName }) {
             <input
               className="hd-search-input"
               type="text"
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
+              value={searchInput}
+              onChange={e => setSearchInput(e.target.value)}
               placeholder="Я шукаю..."
             />
             <button className="hd-search-btn" type="submit">

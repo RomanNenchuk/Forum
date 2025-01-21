@@ -12,18 +12,20 @@ export function useTopicSearch() {
 export function TopicSearchProvider({ children }) {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [urlSearchParams, setUrlSearchParams] = useSearchParams();
+  const [searchInput, setSearchInput] = useState(
+    urlSearchParams.get("tags") || ""
+  );
   const [topicInfoList, setTopicInfoList] = useState([]);
   const [queryParams, setQueryParams] = useState({
     page: 1,
-    sortOrder: searchParams.get("sort") || "desc",
-    tags: searchParams.get("tags") || "",
+    sortOrder: urlSearchParams.get("sort") || "desc",
+    tags: urlSearchParams.get("tags") || "",
   });
   const { currentUser } = useAuth();
 
   function getTagList() {
-    let tagList = searchQuery?.replace(/@/g, "")?.split(",");
+    let tagList = searchInput?.replace(/@/g, "")?.split(",");
     tagList = tagList?.map(tag => {
       const processedTag = tag.trim();
       if (processedTag) return processedTag;
@@ -31,10 +33,22 @@ export function TopicSearchProvider({ children }) {
     return tagList && tagList.length > 0 ? tagList.join(",") : "";
   }
 
+  function debounce(func, delay) {
+    let timeout;
+
+    return function (...args) {
+      const context = this;
+
+      clearTimeout(timeout);
+
+      timeout = setTimeout(() => {
+        func.apply(context, args);
+      }, delay);
+    };
+  }
+
   async function fetchTopics() {
     try {
-      // const tags = getTagList();
-      console.log(queryParams);
       const response = await axios.get(
         `http://localhost:5000/topics?page=${queryParams.page}&sort=${
           queryParams.sortOrder
@@ -42,7 +56,6 @@ export function TopicSearchProvider({ children }) {
           queryParams.tags !== "" ? "&tags=" + queryParams.tags : ""
         }`
       );
-
       const topics = response.data || [];
       setTopicInfoList(prev =>
         queryParams.page === 1 ? topics : [...prev, ...topics]
@@ -56,18 +69,20 @@ export function TopicSearchProvider({ children }) {
   }
 
   const value = {
-    searchQuery,
-    setSearchQuery,
+    searchInput,
+    setSearchInput,
     queryParams,
     setQueryParams,
     hasMore,
     loading,
-    searchParams,
-    setSearchParams,
+    setLoading,
+    urlSearchParams,
+    setUrlSearchParams,
     topicInfoList,
     setTopicInfoList,
     getTagList,
     fetchTopics,
+    debounce,
   };
 
   return (

@@ -30,7 +30,9 @@
   text-decoration: none;
   outline: none;
 }
-
+.home-link {
+  cursor: pointer;
+}
 .wrapper {
   display: flex;
   flex-direction: column;
