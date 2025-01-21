@@ -6,6 +6,7 @@ import { AuthProvider } from "../contexts/AuthContext";
 import { UserInfoProvider } from "../contexts/UserInfoContext";
 import { ChatProvider } from "../contexts/ChatContext";
 import { SocketProvider } from "../contexts/SocketProviderContext";
+import { TopicSearchProvider } from "../contexts/TopicSearchContext.jsx";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import PrivateRoute from "./PrivateRoute";
 import NotFound from "./NotFound";
@@ -26,7 +27,9 @@ function App() {
     <Router>
       <AuthProvider>
         <UserInfoProvider>
-          <AppRoutes />
+          <TopicSearchProvider>
+            <AppRoutes />
+          </TopicSearchProvider>
         </UserInfoProvider>
       </AuthProvider>
     </Router>

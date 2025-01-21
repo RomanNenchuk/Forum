@@ -121,6 +121,7 @@ header {
   cursor: pointer;
   color: #fff;
   gap: 0.7vh;
+  outline: none;
 }
 .hd-search img {
   height: 4vh;

@@ -1,5 +1,6 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useTopicSearch } from "../../contexts/TopicSearchContext.jsx";
 import ProfileHeader from "../ProfileHeader";
 import logo from "../../assets/logo.svg";
 import seachIcon from "../../assets/search.svg";
@@ -7,6 +8,24 @@ import "./Menu.css";
 
 export default function TopBar({ currentUser, avatar, fullName }) {
   const location = useLocation();
+  const {
+    searchQuery,
+    setSearchQuery,
+    setQueryParams,
+    getTagList,
+    fetchTopics,
+  } = useTopicSearch();
+  const navigate = useNavigate();
+
+  function handleSearch(e) {
+    e.preventDefault();
+    navigate("/");
+    setQueryParams(prev => ({
+      ...prev,
+      tags: getTagList(),
+    }));
+  }
+
   return (
     <header>
       <div className="header-inr">
@@ -21,17 +40,19 @@ export default function TopBar({ currentUser, avatar, fullName }) {
           </div>
         </Link>
         <div className="hd-col">
-          <div className="hd-search">
+          <form className="hd-search" onSubmit={handleSearch}>
             <img src={seachIcon} alt="Search" />
             <input
               className="hd-search-input"
               type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
               placeholder="Я шукаю..."
             />
-            <div className="hd-search-btn">
+            <button className="hd-search-btn" type="submit">
               <span>Знайти</span>
-            </div>
-          </div>
+            </button>
+          </form>
         </div>
         <div className="hd-col">
           {currentUser ? (

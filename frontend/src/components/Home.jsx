@@ -1,24 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext.jsx";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useTopicSearch } from "../contexts/TopicSearchContext.jsx";
 import LoadingSpinner from "./Spinner.jsx";
 import TopicListSettings from "./TopicList/TopicListSettings.jsx";
 import TopicList from "./TopicList/TopicList.jsx";
 import TagBar from "./TagBar/TagBar.jsx";
-import axios from "axios";
 import "./Home.css";
 
 export default function Home() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [queryParams, setQueryParams] = useState({
-    page: 1,
-    sortOrder: searchParams.get("sort") || "desc",
-  });
-  const [topicInfoList, setTopicInfoList] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [hasMore, setHasMore] = useState(true);
-
   const { currentUser } = useAuth();
+  const {
+    queryParams,
+    setQueryParams,
+    hasMore,
+    loading,
+    searchParams,
+    setSearchParams,
+    topicInfoList,
+    setTopicInfoList,
+    fetchTopics,
+  } = useTopicSearch();
 
   const handleChange = e => {
     const newSortOrder = e.target.value;
@@ -40,25 +41,6 @@ export default function Home() {
   }
 
   useEffect(() => {
-    async function fetchTopics() {
-      try {
-        const response = await axios.get(
-          `http://localhost:5000/topics?page=${queryParams.page}&sort=${
-            queryParams.sortOrder
-          }${currentUser ? "&user_id=" + currentUser.uid : ""}`
-        );
-        const topics = response.data || [];
-        setTopicInfoList(prev =>
-          queryParams.page === 1 ? topics : [...prev, ...topics]
-        );
-        setHasMore(topics.length > 0);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
     fetchTopics();
   }, [queryParams]);
 
@@ -103,7 +85,7 @@ export default function Home() {
 
   return (
     <>
-      <ul className="submain_in">
+      <ul className="submain-in">
         <TopicListSettings
           sortOrder={queryParams.sortOrder}
           handleChange={handleChange}

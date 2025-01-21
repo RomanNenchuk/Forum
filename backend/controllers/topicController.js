@@ -2,7 +2,7 @@ import { pool } from "../db.js";
 
 // для відображення на головній сторінці
 export const getTopicsPreview = async (req, res) => {
-  const { page = 1, limit = 10, sort, user_id } = req.query;
+  const { page = 1, limit = 10, sort, user_id, tags } = req.query;
   const offset = (page - 1) * limit;
 
   const sortCriteria = {
@@ -13,7 +13,25 @@ export const getTopicsPreview = async (req, res) => {
   const orderBy = sortCriteria[sort] || "topics.date DESC";
 
   try {
-    // 1. базова інформація про теми
+    let tagsFilterQuery = "";
+    let tagsParams = [];
+    if (tags) {
+      const tagList = tags.split(",").map(tag => tag.trim());
+      tagsParams = [...tagList];
+      const placeholders = tagList
+        .map((_, index) => `$${index + 3}`)
+        .join(", ");
+      tagsFilterQuery = `
+        AND topics.id IN (
+          SELECT topic_id
+          FROM topic_tags
+          INNER JOIN tags ON tags.tag_id = topic_tags.tag_id
+          WHERE tags.tag_name IN (${placeholders})
+        )
+      `;
+    }
+
+    // Основний запит для тем
     const topicsResult = await pool.query(
       `
       SELECT 
@@ -32,6 +50,8 @@ export const getTopicsPreview = async (req, res) => {
         ON topics.id = reactions.topic_id
       LEFT JOIN emoji
         ON emoji.id = reactions.emoji_id
+      WHERE 1=1
+        ${tagsFilterQuery}
       GROUP BY 
         topics.id, 
         fullname, 
@@ -44,12 +64,12 @@ export const getTopicsPreview = async (req, res) => {
       ORDER BY ${orderBy}
       LIMIT $1 OFFSET $2;
       `,
-      [limit, offset]
+      [limit, offset, ...tagsParams]
     );
 
     const topics = topicsResult.rows;
 
-    // 2. всі реакції до тем
+    // Запит для всіх реакцій
     const reactionsResult = await pool.query(
       `
       SELECT 
@@ -65,7 +85,7 @@ export const getTopicsPreview = async (req, res) => {
 
     const reactions = reactionsResult.rows;
 
-    // 3.реакції конкретного користувача (якщо user_id передано)
+    // Запит для реакцій конкретного користувача (якщо user_id передано)
     let userReactions = [];
     if (user_id) {
       const userReactionsResult = await pool.query(
@@ -82,7 +102,7 @@ export const getTopicsPreview = async (req, res) => {
       userReactions = userReactionsResult.rows;
     }
 
-    // 4. результати
+    // Формування фінального результату
     const topicsWithReactions = topics.map(topic => {
       const topicReactions = reactions
         .filter(reaction => reaction.topic_id === topic.id)
