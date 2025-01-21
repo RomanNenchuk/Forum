@@ -55,6 +55,7 @@ export default function Home() {
       page: 1,
       sortOrder: urlSearchParams.get("sort") || "desc",
       tags: urlSearchParams.get("tags") || "",
+      authors: urlSearchParams.get("authors") || "",
     });
   }, [urlSearchParams]);
 

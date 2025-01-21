@@ -2,7 +2,7 @@ import { pool } from "../db.js";
 
 // для відображення на головній сторінці
 export const getTopicsPreview = async (req, res) => {
-  const { page = 1, limit = 10, sort, user_id, tags } = req.query;
+  const { page = 1, limit = 10, sort, user_id, tags, authors } = req.query;
   const offset = (page - 1) * limit;
 
   const sortCriteria = {
@@ -14,10 +14,12 @@ export const getTopicsPreview = async (req, res) => {
 
   try {
     let tagsFilterQuery = "";
-    let tagsParams = [];
-    if (tags) {
-      const tagList = tags.split(",").map(tag => tag.trim());
-      tagsParams = [...tagList];
+    const tagList =
+      tags
+        ?.split(",")
+        ?.map(tag => tag.trim())
+        ?.filter(Boolean) || [];
+    if (tagList.length > 0) {
       const placeholders = tagList
         .map((_, index) => `$${index + 3}`)
         .join(", ");
@@ -27,7 +29,25 @@ export const getTopicsPreview = async (req, res) => {
           FROM topic_tags
           INNER JOIN tags ON tags.tag_id = topic_tags.tag_id
           WHERE tags.tag_name IN (${placeholders})
+          GROUP BY topic_id
+          HAVING COUNT(DISTINCT tags.tag_name) = ${tagList.length}
         )
+      `;
+    }
+
+    let authorsFilterQuery = "";
+    const authorList =
+      authors
+        ?.split(",")
+        ?.map(author => author.trim())
+        ?.filter(Boolean) || [];
+    if (authorList.length > 0) {
+      const startingIndex = tagList ? tagList.length + 3 : 3;
+      const placeholders = authorList
+        .map((_, index) => `$${index + startingIndex}`)
+        .join(",");
+      authorsFilterQuery = `
+          AND users.username IN (${placeholders})
       `;
     }
 
@@ -51,7 +71,8 @@ export const getTopicsPreview = async (req, res) => {
       LEFT JOIN emoji
         ON emoji.id = reactions.emoji_id
       WHERE 1=1
-        ${tagsFilterQuery}
+      ${tagsFilterQuery}
+      ${authorsFilterQuery}
       GROUP BY 
         topics.id, 
         fullname, 
@@ -64,7 +85,7 @@ export const getTopicsPreview = async (req, res) => {
       ORDER BY ${orderBy}
       LIMIT $1 OFFSET $2;
       `,
-      [limit, offset, ...tagsParams]
+      [limit, offset, ...tagList, ...authorList]
     );
 
     const topics = topicsResult.rows;

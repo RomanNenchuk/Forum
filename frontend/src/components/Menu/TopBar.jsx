@@ -15,19 +15,20 @@ export default function TopBar({ currentUser, avatar, fullName }) {
     urlSearchParams,
     setUrlSearchParams,
     getTagList,
+    getSearchInputData,
   } = useTopicSearch();
   const navigate = useNavigate();
 
   function handleSearch(e) {
     e.preventDefault();
     navigate("/");
-    const tags = getTagList();
-    setQueryParams(prev => ({
-      ...prev,
-      tags,
-    }));
-    if (tags !== "") {
-      urlSearchParams.set("tags", tags);
+    const { tagList, authorList } = getSearchInputData();
+    urlSearchParams.delete("tags");
+    urlSearchParams.delete("authors");
+
+    if (tagList) urlSearchParams.set("tags", tagList);
+    if (authorList) urlSearchParams.set("authors", authorList);
+    if (tagList || authorList) {
       setUrlSearchParams(urlSearchParams);
     }
   }

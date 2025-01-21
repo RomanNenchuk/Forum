@@ -21,6 +21,7 @@ export function TopicSearchProvider({ children }) {
     page: 1,
     sortOrder: urlSearchParams.get("sort") || "desc",
     tags: urlSearchParams.get("tags") || "",
+    authors: urlSearchParams.get("authors") || "",
   });
   const { currentUser } = useAuth();
 
@@ -31,6 +32,34 @@ export function TopicSearchProvider({ children }) {
       if (processedTag) return processedTag;
     });
     return tagList && tagList.length > 0 ? tagList.join(",") : "";
+  }
+
+  function getSearchInputData() {
+    let searchData = searchInput
+      ?.split(/[,;|]/)
+      ?.map(piece => piece.trim())
+      ?.filter(piece => piece);
+    if (!searchData || searchData?.length === 0) return;
+    let tagList = [];
+    let authorList = [];
+    searchData.forEach(piece => {
+      if (piece[0] === "~") authorList.push(piece.slice(1).trim());
+      else if (piece[0] === "@") tagList.push(piece.slice(1).trim());
+      else tagList.push(piece);
+    });
+
+    const result = {
+      tagList,
+      authorList,
+    };
+
+    if (tagList?.length)
+      result.tagList = tagList && tagList.length > 0 ? tagList.join(",") : "";
+    if (authorList?.length)
+      result.authorList =
+        authorList && authorList.length > 0 ? authorList.join(",") : "";
+
+    return result;
   }
 
   function debounce(func, delay) {
@@ -54,7 +83,7 @@ export function TopicSearchProvider({ children }) {
           queryParams.sortOrder
         }${currentUser ? "&user_id=" + currentUser.uid : ""}${
           queryParams.tags !== "" ? "&tags=" + queryParams.tags : ""
-        }`
+        }${queryParams.authors !== "" ? "&authors=" + queryParams.authors : ""}`
       );
       const topics = response.data || [];
       setTopicInfoList(prev =>
@@ -81,6 +110,7 @@ export function TopicSearchProvider({ children }) {
     topicInfoList,
     setTopicInfoList,
     getTagList,
+    getSearchInputData,
     fetchTopics,
     debounce,
   };
