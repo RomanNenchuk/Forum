@@ -21,6 +21,7 @@ export default function Login({ closeModal }) {
   const navigate = useNavigate();
   const location = useLocation();
   const backgroundPath = location.state?.backgroundLocation || "/";
+  console.log(backgroundPath);
   const redirectPath = location.state?.redirectPath || "/";
 
   async function handleLogInWithGoogle(e) {

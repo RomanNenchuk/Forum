@@ -22,15 +22,16 @@ export default function TopBar({ currentUser, avatar, fullName }) {
   function handleSearch(e) {
     e.preventDefault();
     navigate("/");
-    const { tagList, authorList } = getSearchInputData();
+    const result = getSearchInputData();
     urlSearchParams.delete("tags");
     urlSearchParams.delete("authors");
 
-    if (tagList) urlSearchParams.set("tags", tagList);
-    if (authorList) urlSearchParams.set("authors", authorList);
-    if (tagList || authorList) {
+    if (result?.tagList?.length > 0)
+      urlSearchParams.set("tags", result.tagList);
+    if (result?.authorList?.length > 0)
+      urlSearchParams.set("authors", result.authorList);
+    if (result?.tagList?.length > 0 || result?.authorList?.length > 0)
       setUrlSearchParams(urlSearchParams);
-    }
   }
 
   return (
@@ -88,7 +89,13 @@ export default function TopBar({ currentUser, avatar, fullName }) {
           ) : (
             <Link
               to="/login"
-              state={{ backgroundLocation: location, redirectPath: location }}
+              state={{
+                backgroundLocation: {
+                  pathname: location.pathname,
+                  search: location.search,
+                },
+                redirectPath: location,
+              }}
             >
               <button className="hd-btn">
                 Вхід

@@ -41,6 +41,7 @@ function AppRoutes() {
 
   return (
     <>
+      {console.log(backgroundLocation)}
       <Routes location={backgroundLocation}>
         <Route element={<Menu />}>
           <Route path="/" element={<Home />} />

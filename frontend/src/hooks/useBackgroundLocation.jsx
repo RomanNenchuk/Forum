@@ -29,7 +29,13 @@ export function useBackgroundLocation() {
     if (!originalBackground.current && state.backgroundLocation) {
       originalBackground.current = state.backgroundLocation;
     }
-    backgroundLocation = originalBackground.current || { pathname: "/" };
+    backgroundLocation = {
+      ...(originalBackground.current || { pathname: "/" }),
+      state: {
+        ...(originalBackground.current?.state || {}),
+        reloadBackground: false, // прапорець, щоб не перевантажувалася сторінка на задньому фоні, якщо це модальний маршрут
+      },
+    };
     showBackground = true;
   } else {
     // якщо шлях не модальний, очищую збережений фон

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import { useTopicSearch } from "../contexts/TopicSearchContext.jsx";
+import { useLocation } from "react-router-dom";
 import LoadingSpinner from "./Spinner.jsx";
 import TopicListSettings from "./TopicList/TopicListSettings.jsx";
 import TopicList from "./TopicList/TopicList.jsx";
@@ -9,6 +10,8 @@ import "./Home.css";
 
 export default function Home() {
   const { currentUser } = useAuth();
+
+  const location = useLocation();
   const {
     queryParams,
     setQueryParams,
@@ -20,6 +23,7 @@ export default function Home() {
     topicInfoList,
     setTopicInfoList,
     fetchTopics,
+    setSearchInput,
     debounce,
   } = useTopicSearch();
 
@@ -51,6 +55,24 @@ export default function Home() {
   }, [queryParams]);
 
   useEffect(() => {
+    if (location?.state?.reloadBackground === false) return;
+
+    let searchInputTags = urlSearchParams.get("tags");
+    if (searchInputTags)
+      searchInputTags =
+        "@ " + urlSearchParams.get("tags").split(",").join(", @ ");
+
+    let searchInputAuthors = urlSearchParams.get("authors");
+    if (searchInputAuthors)
+      searchInputAuthors = "~ " + searchInputAuthors.split(",").join(", ~ ");
+
+    if (searchInputTags || searchInputAuthors)
+      setSearchInput(
+        (searchInputAuthors || "") +
+          (searchInputAuthors && searchInputTags ? ", " : "") +
+          (searchInputTags || "")
+      );
+
     setQueryParams({
       page: 1,
       sortOrder: urlSearchParams.get("sort") || "desc",
