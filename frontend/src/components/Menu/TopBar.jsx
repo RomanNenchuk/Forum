@@ -47,6 +47,7 @@ export default function TopBar({ currentUser, avatar, fullName }) {
               page: 1,
               sortOrder: "desc",
               tags: "",
+              authors: "",
             });
           }}
         >

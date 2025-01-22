@@ -49,7 +49,7 @@ export default function Home() {
   useEffect(() => {
     const fetchData = debounce(async () => {
       await fetchTopics();
-    }, 300);
+    }, 200);
     setLoading(true);
     fetchData();
   }, [queryParams]);

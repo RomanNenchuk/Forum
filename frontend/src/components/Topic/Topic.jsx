@@ -23,7 +23,7 @@ export default function Topic() {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const location = useLocation();
-  const navigator = useNavigate();
+  const navigate = useNavigate();
   const [extendfInfo, setExtendInfo] = useState();
 
   const [text, setText] = useState("");
@@ -290,7 +290,7 @@ export default function Topic() {
       <div className="header">
         <IoArrowBack
           onClick={() => {
-            navigator("/");
+            navigate(-1);
           }}
           size={30}
         />
@@ -392,7 +392,7 @@ export default function Topic() {
               currentUser
                 ? sendComment
                 : () => {
-                    navigator("/login");
+                    navigate("/login");
                   }
             }
             editComment={editComment}
