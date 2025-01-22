@@ -84,7 +84,9 @@ export default function Topic() {
       delete buf.avatar;
       delete buf.authorfullname;
       setTopic(buf);
-      setExtendInfo(!buf?.description || buf?.description?.length < 150 ? 2 : 0)
+      setExtendInfo(
+        !buf?.description || buf?.description?.length < 150 ? 2 : 0
+      );
     } finally {
       setLoading(false);
     }
@@ -301,64 +303,61 @@ export default function Topic() {
           <div className="block left">
             <div className="info-list">
               <TopicList topicInfoList={[topic]} />
-
-              <div className="extra-info">
-                <div style={{ padding: "2vh" }}>
-                  <span className="extra-info-header">
-                    Додаткова інформація
-                  </span>
-                  <span
-                    className="extra-info-p"
-                    onClick={() => {
-                      console.log(currentUser);
-                    }}
-                  >
-                    {extendfInfo === 2 ? (
-                      topic?.description
-                    ) : extendfInfo === 1 ? (
-                      <>
-                        {topic?.description}
-                        <span
-                          className="extention-info"
-                          onClick={() => setExtendInfo(0)}
-                        >
-                          Показати менше
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        {topic?.description?.slice(0, 152)}
-                        <span
-                          className="extention-info"
-                          onClick={() => setExtendInfo(1)}
-                        >
-                          ... Дізнатися більше
-                        </span>
-                      </>
-                    )}
-                  </span>
-                  {extendfInfo && topic.attachments.length > 0 && (
-                    <Container fluid>
-                      <Carousel
-                        style={{ padding: "2vh" }}
-                        className="carousel slide carousel-fade"
+            </div>
+            <div className="extra-info">
+              <div style={{ padding: "2vh" }}>
+                <span className="extra-info-header">Додаткова інформація</span>
+                <span
+                  className="extra-info-p"
+                  onClick={() => {
+                    console.log(currentUser);
+                  }}
+                >
+                  {extendfInfo === 2 ? (
+                    topic?.description
+                  ) : extendfInfo === 1 ? (
+                    <>
+                      {topic?.description}
+                      <span
+                        className="extention-info"
+                        onClick={() => setExtendInfo(0)}
                       >
-                        {topic.attachments.map((attachment, index) => (
-                          <Carousel.Item key={index}>
-                            <img
-                              className="d-block w-100"
-                              src={attachment}
-                              alt={`Slide ${index + 1}`}
-                              onClick={() =>
-                                console.log(`Clicked on slide ${index + 1}`)
-                              }
-                            />
-                          </Carousel.Item>
-                        ))}
-                      </Carousel>
-                    </Container>
+                        Показати менше
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      {topic?.description?.slice(0, 152)}
+                      <span
+                        className="extention-info"
+                        onClick={() => setExtendInfo(1)}
+                      >
+                        ... Дізнатися більше
+                      </span>
+                    </>
                   )}
-                </div>
+                </span>
+                {extendfInfo && topic.attachments.length > 0 && (
+                  <Container fluid>
+                    <Carousel
+                      style={{ padding: "2vh" }}
+                      className="carousel slide carousel-fade"
+                    >
+                      {topic.attachments.map((attachment, index) => (
+                        <Carousel.Item key={index}>
+                          <img
+                            className="d-block w-100"
+                            src={attachment}
+                            alt={`Slide ${index + 1}`}
+                            onClick={() =>
+                              console.log(`Clicked on slide ${index + 1}`)
+                            }
+                          />
+                        </Carousel.Item>
+                      ))}
+                    </Carousel>
+                  </Container>
+                )}
               </div>
             </div>
           </div>
@@ -379,28 +378,28 @@ export default function Topic() {
                 />
               </ul>
             </div>
+            <TopicInput
+              isEditModalOpen={isEditModalOpen}
+              isSendModalOpen={isSendModalOpen}
+              setIsEditModalOpen={setIsEditModalOpen}
+              setIsSendModalOpen={setIsSendModalOpen}
+              setFiles={setFiles}
+              text={text}
+              setText={setText}
+              sendComment={
+                currentUser
+                  ? sendComment
+                  : () => {
+                      navigate("/login");
+                    }
+              }
+              editComment={editComment}
+              editId={editId}
+              onCancel={handleCloseModal}
+              reply={reply}
+              resetReply={resetReply}
+            />
           </div>
-          <TopicInput
-            isEditModalOpen={isEditModalOpen}
-            isSendModalOpen={isSendModalOpen}
-            setIsEditModalOpen={setIsEditModalOpen}
-            setIsSendModalOpen={setIsSendModalOpen}
-            setFiles={setFiles}
-            text={text}
-            setText={setText}
-            sendComment={
-              currentUser
-                ? sendComment
-                : () => {
-                    navigate("/login");
-                  }
-            }
-            editComment={editComment}
-            editId={editId}
-            onCancel={handleCloseModal}
-            reply={reply}
-            resetReply={resetReply}
-          />
           <TopicContextMenu
             positionX={contextMenu.position.x}
             positionY={contextMenu.position.y}

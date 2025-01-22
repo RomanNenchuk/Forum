@@ -7,7 +7,7 @@ import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useUserInfo } from "../../contexts/UserInfoContext.jsx";
 // import "./Auth.css";
 
-export default function Signup({ closeModal }) {
+export default function Signup({ onCloseModal }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [nextForm, setNextForm] = useState(false);
@@ -102,7 +102,7 @@ export default function Signup({ closeModal }) {
         passwordRef={passwordRef}
         handleSignUpWithGoogle={handleSignUpWithGoogle}
         setNextForm={setNextForm}
-        closeModal={closeModal}
+        onCloseModal={onCloseModal}
         setError={setError}
         loading={loading}
       />
@@ -115,7 +115,7 @@ export default function Signup({ closeModal }) {
         majorRef={majorRef}
         imageInputRef={imageInputRef}
         handleSubmit={handleRegister}
-        closeModal={closeModal}
+        onCloseModal={onCloseModal}
         setNextForm={setNextForm}
         setImage={setImage}
         loading={loading}

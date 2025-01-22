@@ -254,6 +254,7 @@ ul.chat-messages {
   font-size: 14px;
 }
 .uTou-message {
+  user-select: none;
   position: relative;
   display: flex;
   justify-content: flex-end;

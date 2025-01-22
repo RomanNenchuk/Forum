@@ -1,8 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
+import MediaModal from "../MediaModal/MediaModal.jsx";
 import fileIcon from "../../assets/file.svg";
 import "./AttachedFiles.css";
 
 export default function AttachedFiles({ urls, onImageLoad }) {
+  const [mediaModalInfo, setMediaModalInfo] = useState({
+    isOpen: false,
+    url: null,
+  });
+
   return (
     <div className="media-grid">
       {urls?.map((url, index) => {
@@ -14,6 +20,12 @@ export default function AttachedFiles({ urls, onImageLoad }) {
             alt={`media-${index}`}
             onLoad={onImageLoad}
             className="media-image"
+            onClick={() => {
+              setMediaModalInfo({
+                isOpen: true,
+                url,
+              });
+            }}
           />
         ) : (
           <a key={index} href={url} target="blank" style={{ width: "100%" }}>
@@ -33,6 +45,17 @@ export default function AttachedFiles({ urls, onImageLoad }) {
           </a>
         );
       })}
+      {mediaModalInfo.isOpen && (
+        <MediaModal
+          url={mediaModalInfo.url}
+          onClose={() =>
+            setMediaModalInfo({
+              isOpen: false,
+              url: null,
+            })
+          }
+        />
+      )}
     </div>
   );
 }

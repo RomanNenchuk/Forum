@@ -103,6 +103,7 @@ export default function ChatMessages({
               marginLeft: "20px",
               marginRight: "20px",
               fontSize: "17px",
+              userSelect: "text",
             }}
           >
             {msg.text}

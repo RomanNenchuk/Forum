@@ -19,7 +19,7 @@ export default function FirstStepForm({
   redirectPath,
   handleSignUpWithGoogle,
   setNextForm,
-  closeModal,
+  onCloseModal,
   setError,
   loading,
   emailRef,
@@ -60,7 +60,7 @@ export default function FirstStepForm({
 
   return (
     <div style={style}>
-      <ModalHeader title={"Реєстрація"} onClose={closeModal} />
+      <ModalHeader title={"Реєстрація"} onClose={onCloseModal} />
       <Card.Body>
         {error && <Alert variant="danger">{error}</Alert>}
         <GoogleAuthButton onClick={handleSignUpWithGoogle} className="my-3" />

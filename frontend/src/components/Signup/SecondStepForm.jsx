@@ -13,7 +13,7 @@ export default function SecondStepForm({
   majorRef,
   imageInputRef,
   handleSubmit,
-  closeModal,
+  onCloseModal,
   setNextForm,
   setImage,
   loading,
@@ -25,7 +25,7 @@ export default function SecondStepForm({
         title={"Реєстрація"}
         renderArrowBack={true}
         onBack={() => setNextForm(false)}
-        onClose={closeModal}
+        onClose={onCloseModal}
       />
       <Card.Body>
         {error && <Alert variant="danger">{error}</Alert>}
