@@ -2,12 +2,23 @@ import React, { useState, useRef } from "react";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
 import { Container, Card, Form, Button, Alert } from "react-bootstrap";
+import handleUpload from "../utils/uploadFiles.jsx";
+import FileButtonUploader from "./FileButtonUploader.jsx";
+import ActionButton from "./ActionButton/ActionButton.jsx";
+import TitleInput from "./TitleInput.jsx";
+import SearchInput from "./SearchInput.jsx";
+import BaseWrapInput from "./BaseWrapInput.jsx";
+import { IoArrowBack } from "react-icons/io5";
+import './CreateTopic.css'
 import axios from "axios";
 
 export default function CreateTopic() {
   const titleRef = useRef();
-  const tagsRef = useRef();
+  
   const navigate = useNavigate();
+  
+  const headerFileRef = useRef()
+
 
   const { currentUser, token } = useAuth();
 
@@ -15,18 +26,42 @@ export default function CreateTopic() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [headerFiles, setHeaderFiles] = useState([])
+  const [extendfiles, setExtendFiles] = useState([])
+  const [firstStepChoose, setFirstStepChoose] = useState(0)
+  const [step, setStep] = useState(0)
+  const [selectedTag, setSelected] = useState([])
+
+  const [buf, setBuf] = useState()
+
+  const tagList = [
+    "Вища математика",
+    "ООП",
+    "ДМ",
+    "Бази даних",
+    "ООЕ",
+    "Бекенд",
+    "АСД",
+    "ЕЕ",
+    "ЧМ",
+  ];
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
     setSuccess("");
     setLoading(true);
-
+    if (!buf.title ){
+      setError("Незаповнено усі необхідні поля: не надано назву для теми")
+      setTimeout(()=>{setError(false)},3000)
+      setLoading(false)
+      return
+    }
     const topicData = {
-      title: titleRef.current.value,
-      author: currentUser.uid,
-      tags: tagsRef.current.value.split(",").map(tag => tag.trim()), // Розділяємо теги через кому
+      ...buf,
+      author: currentUser.uid, 
       description: descriptionRef.current.value,
+      attachments: await handleUpload(extendfiles,currentUser.id),
     };
 
     try {
@@ -53,33 +88,40 @@ export default function CreateTopic() {
     }
   }
 
+  function getFromFirst(){
+    setBuf(()=>{return{
+      title: titleRef.current.value,
+      tags: selectedTag, 
+    }})
+  }
   return (
-    <Container className="d-flex align-items-center justify-content-center">
-      <div className="w-90">
-        <Card>
-          <Card.Body>
-            <h2 className="text-center mb-4">Create Topic</h2>
+    <Container>
+      <div className="cr-topic-in">
+            <div> {step ? (<IoArrowBack onClick = {()=>{setStep(0)}} size = "4vh" / >) : ''}
+              <h2 className="text-center mb-4 ">Створити тему</h2></div>
             {error && <Alert variant="danger">{error}</Alert>}
             {success && <Alert variant="success">{success}</Alert>}
+            {!step ? (<div style = {{display: "flex", flexDirection:'row', justifyContent:"space-between",width: "30%",padding: "2vh"}}>
+              <div style = {firstStepChoose === 0 ? {boxShadow: "0 0.3vh 0 0 #659287"} : {}}
+              onClick = {()=>setFirstStepChoose(0)}>Текст</div>
+              <div style = {firstStepChoose !== 0 ? {boxShadow: "0 0.3vh 0 0 #659287"} : {}}
+              onClick = {()=>setFirstStepChoose(1)}>Фото&Відео</div>
+            </div>) : ''}
             <Form onSubmit={handleSubmit}>
-              <Form.Group id="title" className="mb-3">
-                <Form.Label>Title</Form.Label>
-                <Form.Control type="text" ref={titleRef} required />
-              </Form.Group>
-              <Form.Group id="tags" className="mb-3">
-                <Form.Label>Tags (comma-separated)</Form.Label>
-                <Form.Control type="text" ref={tagsRef} />
-              </Form.Group>
-              <Form.Group id="description" className="mb-3">
-                <Form.Label>Description</Form.Label>
-                <Form.Control as="textarea" ref={descriptionRef} rows={3} />
-              </Form.Group>
-              <Button disabled={loading} className="w-100 mt-3" type="submit">
-                {loading ? "Creating..." : "Create Topic"}
-              </Button>
+              {!step ? (<TitleInput titleRef={titleRef} limit = {400}/>) : ''}
+              {!step ? (<SearchInput resData = {selectedTag} setResData = {setSelected} data = {tagList} />) : ''}
+              {step ? (<BaseWrapInput ref = {descriptionRef} />) : ""}
+              
+
+              {step ? (
+                <FileButtonUploader files = {extendfiles} setFiles = {setExtendFiles}/>
+              ) : 
+              firstStepChoose ? (
+                <FileButtonUploader files = {headerFiles} setFiles = {setHeaderFiles}/>
+              ) : ''}
+              {!step ? (<ActionButton onClick = {(e)=>{ e.preventDefault();e.stopPropagation(); getFromFirst(); setStep(1)}} label = "Продовжити" loading={null} type = "button"/>) :
+              (<ActionButton label = {loading ? "Створення..." : "Створити тему"} loading={loading} type = "submit"/>)}
             </Form>
-          </Card.Body>
-        </Card>
       </div>
     </Container>
   );

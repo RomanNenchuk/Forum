@@ -16,3 +16,9 @@
   background-color: white;
   border: 1px solid #659287;
 }
+.submit-button:active{
+  color: #659287;
+  background-color: white;
+  border: 1px solid #659287;
+  box-shadow: 0 0 1vh 1vh #659287;
+}

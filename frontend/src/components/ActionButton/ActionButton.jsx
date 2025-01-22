@@ -17,6 +17,7 @@ export default function ActionButton({
         variant={variant}
         type={type}
         onClick={onClick}
+        style = {loading ? {color: "#659287",backgroundColor: "white", border: "1px solid #659287"} : {}}
       >
         {label}
       </Button>
