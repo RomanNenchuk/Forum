@@ -127,7 +127,10 @@ export default function Home() {
           sortOrder={queryParams.sortOrder}
           handleChange={handleChange}
         />
-        <TopicList topicInfoList={topicInfoList} />
+        <TopicList 
+          topicInfoList={topicInfoList}
+          setTopicInfoList={setTopicInfoList} 
+        />
       </ul>
       <TagBar />
     </>
