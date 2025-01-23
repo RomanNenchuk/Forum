@@ -21,7 +21,6 @@ export default function TopBar({ currentUser, avatar, fullName }) {
 
   function handleSearch(e) {
     e.preventDefault();
-    navigate("/");
     const result = getSearchInputData();
     urlSearchParams.delete("tags");
     urlSearchParams.delete("authors");
@@ -32,6 +31,11 @@ export default function TopBar({ currentUser, avatar, fullName }) {
       urlSearchParams.set("authors", result.authorList);
     if (result?.tagList?.length > 0 || result?.authorList?.length > 0)
       setUrlSearchParams(urlSearchParams);
+
+    navigate({
+      pathname: "/",
+      search: urlSearchParams.toString(),
+    });
   }
 
   return (
