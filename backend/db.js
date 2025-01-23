@@ -1,6 +1,7 @@
 import pkg from "pg";
 import dotenv from "dotenv";
 dotenv.config({ path: "./config/.env" });
+import { refreshPopuarTagsView } from "./controllers/tagController.js";
 
 const { Pool } = pkg;
 
@@ -47,7 +48,10 @@ const keepAliveQuery = async () => {
   }
 };
 
-// Виконуємо запит кожні 4 хвилини
+// виконую запит кожні 4 хвилини
 setInterval(keepAliveQuery, 4 * 60 * 1000);
+
+// кожні 30хв оновлюю представлення популярних тегів
+setInterval(refreshPopuarTagsView, 15 * 60 * 1000);
 
 export { pool, connectDB };
