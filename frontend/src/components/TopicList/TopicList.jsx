@@ -27,7 +27,7 @@ const reactionList = [
   { icon: "💩", name: "pile_of_poo" },
 ];
 
-export default function TopicList({ topicInfoList }) {
+export default function TopicList({ topicInfoList, setTopicInfoList }) {
   return (
     <>
       {topicInfoList.map((topic, index) => (
@@ -37,6 +37,7 @@ export default function TopicList({ topicInfoList }) {
           reactionList={reactionList}
           initialReactions={topic.reactions}
           userReaction={topic.user_reaction?.name}
+          setTopics={setTopicInfoList}
         />
       ))}
     </>

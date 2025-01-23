@@ -12,6 +12,9 @@
   width: 50%;
   margin-top: 1vh;
 }
+.comment-input-container {
+  width: 90%;
+}
 #comment-input {
   background-color: #d3e5ee;
   border: none;

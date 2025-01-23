@@ -42,6 +42,11 @@
 
 .left {
   max-width: 87vh;
+  flex-grow: 1;
+}
+
+.right {
+  flex-grow: 3;
 }
 
 .palka {

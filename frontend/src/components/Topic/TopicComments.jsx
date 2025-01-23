@@ -14,21 +14,19 @@ export default function TopicComments({
 }) {
   let sortedComments = comments;
   sortedComments.sort((a, b) => {
-    let ta = (a.reply === -1 ? a.timestamp : a.reply_timestamp),
-        tb = (b.reply === -1 ? b.timestamp : b.reply_timestamp);
+    // default sort
+    let ta = a.reply === -1 ? a.timestamp : a.reply_timestamp,
+      tb = b.reply === -1 ? b.timestamp : b.reply_timestamp;
     if (ta === tb) {
       return new Date(ta).getTime() - new Date(tb).getTime();
     } else {
       return new Date(tb).getTime() - new Date(ta).getTime();
     }
-    // return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
   });
   return (
     <ul
       style={{
-        // display: "flex",
         width: "100%",
-        flexDirection: "column-reverse",
       }}
     >
       {sortedComments.length
@@ -36,8 +34,9 @@ export default function TopicComments({
             return (
               <div
                 key={index}
-                className={`comment-outer${ comment.reply === -1 ? "" : "-reply" }`
-                }
+                className={`comment-outer${
+                  comment.reply === -1 ? "" : "-reply"
+                }`}
                 style={
                   currentUser?.uid === comment.author_id
                     ? {
@@ -63,6 +62,7 @@ export default function TopicComments({
                   sizeFont="2vh"
                   size="4vh"
                 />
+                <AttachedFiles urls={comment?.attachments} />
                 <span>{comment.text}</span>
                 <br />
                 <span>{timestampToTime(comment.timestamp)}</span>

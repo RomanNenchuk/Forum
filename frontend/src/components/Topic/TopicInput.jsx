@@ -8,7 +8,6 @@ import cancelIcon from "../../assets/cancel.svg";
 export default function TopicInput({
   isEditModalOpen,
   isSendModalOpen,
-  setIsEditModalOpen,
   setIsSendModalOpen,
   setFiles,
   text,
@@ -26,7 +25,7 @@ export default function TopicInput({
   }
 
   return (
-    <div>
+    <div className="comment-input-container">
       {reply && (
         <div>
           <span>{reply.author_username}</span>
@@ -43,14 +42,10 @@ export default function TopicInput({
           gap: "0.5vh",
         }}
       >
-        {/* <FileUploader
-            setFiles={setFiles}
-            editId={editId}
-            setIsEditModalOpen={setIsEditModalOpen}
-            setIsSendModalOpen={setIsSendModalOpen}
-            text={text}
-            setText={text}
-          /> */}
+        <FileUploader
+          setFiles={setFiles}
+          setIsSendModalOpen={setIsSendModalOpen}
+        />
         <input
           id="comment-input"
           type="text"

@@ -1,5 +1,5 @@
 import { pool } from "../db.js";
-
+import { deleteAttachments } from "../controllers/fileController.js";
 // для відображення на головній сторінці
 export const getTopicsPreview = async (req, res) => {
   const { page = 1, limit = 10, sort, user_id, tags, authors } = req.query;
@@ -376,7 +376,7 @@ export const PostNewComment = async (req, res) => {
       reply_text = (await pool.query(reply_text_query, [comm.reply])).rows[0]
         .text;
     }
-    res.status(200).json({
+    res.status(201).json({
       id: result.rows[0].id,
       reply_text: reply_text,
     });
@@ -391,9 +391,10 @@ export const deleteComment = async (req, res) => {
   try {
     const query = `DELETE FROM comments WHERE id = $1 RETURNING attachments`;
     const response = await pool.query(query, [id]);
-
+    if(response.rows.length)
+      deleteAttachments(response.rows[0].attachments);
     res.status(200).json({
-      attachments: response.rows.length > 0 ? response.rows[0].attachments : [],
+      done: true,
     });
   } catch (error) {
     console.error(error);
@@ -414,6 +415,41 @@ export const editComments = async (req, res) => {
     res.status(200).json(result.rows[0]);
   } catch (error) {
     console.error("Error with editComments: ", error);
+    res.status(500);
+  }
+};
+
+
+export const deleteTopic = async (req, res) => {
+  const client = await pool.connect();
+  const id = req.params.id;
+  try {
+    // починаю транзакцію
+    await client.query("BEGIN");
+
+    const GET_TOPIC_COMMENTS_QUERY = `SELECT id FROM comments WHERE topic_id = $1 `;
+    const DELETE_COMMENT_QUERY = `DELETE FROM comments WHERE id = $1 RETURNING attachments`;
+    const DELETE_TOPIC_QUERY = `DELETE FROM topics WHERE id = $1`;
+
+    // отримую id коментів, що належать цій темі
+    const comments_to_delete = await pool.query(GET_TOPIC_COMMENTS_QUERY, [id]);
+
+    // видаляю кожен комент з бази даних
+    for(let {id: id_to_delete} of comments_to_delete.rows) {
+      const response = await pool.query(DELETE_COMMENT_QUERY, [id_to_delete]);
+      if(response.rows.length)
+        deleteAttachments(response.rows[0].attachments);
+    }
+
+    // видаляю тему з бази даних
+    await pool.query(DELETE_TOPIC_QUERY, [id]);
+
+    // завершую транзакцію
+    await client.query("COMMIT");
+
+    res.status(200).json({ done: true });
+  } catch (error) {
+    console.error("Error with deleteTopic: ", error);
     res.status(500);
   }
 };
