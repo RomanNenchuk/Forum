@@ -61,7 +61,8 @@ export default function TopicArea({
         `http://localhost:5000/topics/${topic.id}`
       );
       if (res.data.done) {
-        setTopics(prev => prev.filter(item => item.id != topic.id));
+        if (location.pathname === '/') setTopics(prev => prev.filter(item => item.id != topic.id));
+        else navigate("/");
       }
     }
   }
