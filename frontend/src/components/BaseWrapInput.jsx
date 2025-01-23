@@ -2,6 +2,7 @@ import React, { forwardRef } from "react";
 import { Form } from "react-bootstrap";
 
 const BaseWrapInput = forwardRef((props, ref) => {
+  const { value } = props
   function wrapInput() {
     if (ref?.current) {
       ref.current.style.height = "auto"; // Скидаємо висоту, щоб уникнути "залипання"
@@ -18,6 +19,7 @@ const BaseWrapInput = forwardRef((props, ref) => {
         rows={9999999999}
         cols={150}
         wrap="soft"
+        value = {value}
         onChange={wrapInput} // Викликаємо функцію під час змін
         placeholder="Введіть додаткову інформацію..."
       />
