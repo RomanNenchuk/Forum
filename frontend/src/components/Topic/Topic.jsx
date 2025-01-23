@@ -4,11 +4,14 @@ import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useUserInfo } from "../../contexts/UserInfoContext";
 // import { useBodyScrollLock } from "../../hooks/useBodyScrollLock.jsx";
+import handleUpload from "../../utils/uploadFiles.jsx";
 import ProfileHeader from "../ProfileHeader";
 import LoadingSpinner from "../Spinner";
 import TopicList from "../TopicList/TopicList";
 import TopicInput from "./TopicInput";
 import TopicComments from "./TopicComments";
+import FileSendModal from "../FileModal/FileSendModal.jsx";
+import FileEditModal from "../FileModal/FileEditModal.jsx";
 import "./Topic.css";
 
 import { IoArrowBack } from "react-icons/io5";
@@ -135,7 +138,7 @@ export default function Topic() {
         timestamp: new Date().toISOString(),
         author_id: currentUser.uid,
         topic_id: id,
-        attachment: [],
+        attachments: [],
         reply: reply?.id || -1,
         author_username: userName,
         avatar: avatar,
@@ -149,68 +152,100 @@ export default function Topic() {
       comm.id = result.data.id;
       comm.reply_text = result.data.reply_text;
 
-      setComments(prev => [...prev, comm]);
-      setText("");
-      resetReply();
-      return;
+      setComments(prev => [comm, ...prev]);
+    } else {
+      // якщо користувач обере більше 10 файлів, то розбиваємо їх на частини по 10
+      const CHUNK_SIZE = 10;
+      const fileChunks = [];
+      for (let i = 0; i < files.length; i += CHUNK_SIZE) {
+        fileChunks.push(files.slice(i, i + CHUNK_SIZE));
+      }
+
+      for (let i = 0; i < fileChunks.length; i++) {
+        const chunk = fileChunks[i];
+        const attachments = await handleUpload(chunk);
+
+        const comm = {
+          // має бути таким же, як і result.data з fetchTopicComents
+          id: -1,
+          text: text.trim(),
+          timestamp: new Date().toISOString(),
+          author_id: currentUser.uid,
+          topic_id: id,
+          attachments,
+          reply: reply?.id || -1,
+          author_username: userName,
+          avatar: avatar,
+          reply_text: null,
+          reply_timestamp: reply?.timestamp || null,
+        };
+        const result = await axios.post(
+          `http://localhost:5000/topics/comments`,
+          comm
+        );
+        comm.id = result.data.id;
+        comm.reply_text = result.data.reply_text;
+
+        setComments(prev => [comm, ...prev]);
+      }
     }
-
-    // якщо користувач обере більше 10 файлів, то розбиваємо їх на частини по 10
-    // const CHUNK_SIZE = 10;
-    // const fileChunks = [];
-    // for (let i = 0; i < files.length; i += CHUNK_SIZE) {
-    //   fileChunks.push(files.slice(i, i + CHUNK_SIZE));
-    // }
-
-    // for (let i = 0; i < fileChunks.length; i++) {
-    //   const chunk = fileChunks[i];
-    //   const attachments = await handleUpload(chunk);
-
-    //   const msg = {
-    //     id: -1,
-    //     attachments,
-    //     userName: userName,
-    //     sender_id: currentUser.uid,
-    //     text: text.trim(),
-    //     timestamp: new Date().toISOString(),
-    //     reply: reply,
-    //   };
-
-    //   socket.emit("send-message", msg, receiverId, res => {
-    //     msg.id = res.id;
-    //     msg.reply_text = res.reply_text;
-    //     setMessages(prev => [...prev, msg]);
-
-    //     if (i === fileChunks.length - 1) {
-    //       setText("");
-    //       setFiles([]);
-    //     }
-    //   });
-    //   setIsSendModalOpen(false);
-    // }
-    // resetReply();
+    setText("");
+    setFiles([]);
+    setIsSendModalOpen(false);
+    resetReply();
   }
 
   async function editComment() {
     try {
+      const newAttachments = files.filter(file => !file.isFromDatabase);
+      let newAttachmentsUrls = null;
+  
+      // Завантаження нових файлів
+      if (newAttachments.length) {
+        newAttachmentsUrls = await handleUpload(newAttachments, currentUser.uid);
+      }
+
       let newComm;
       let newComments = comments.map(comm => {
         if (comm.id === editId) {
+          let cleanedAttachments = [];
           if (comm.attachments) {
-            // тут буде реалізаці едіту вкладень
+            const updatedAttachments = comm.attachments.map(attachment => {
+              // Перевірка, чи потрібно замінити це вкладення
+              const replacementIndex = filesToDelete.findIndex(
+                file => file.url === attachment
+              );
+              if (replacementIndex !== -1) {
+                // Якщо є заміна, беремо перший новий файл
+                return newAttachmentsUrls?.shift() || null;
+              }
+              return attachment; // Якщо немає заміни, залишаємо оригінал
+            });
+
+            // Видаляємо всі null (вкладення, які замінилися)
+            cleanedAttachments = updatedAttachments.filter(
+              attachment => attachment !== null
+            );
+
+            // Якщо залишилися нові вкладення, додаємо їх у кінець
+            if (newAttachmentsUrls?.length) {
+              cleanedAttachments.push(...newAttachmentsUrls);
+            }
           }
+
           newComm = {
             ...comm,
             text: comm.attachments ? text : text || comm.text,
-            //attachments:
+            attachments: cleanedAttachments,
           };
           return newComm;
         }
         return comm;
       });
 
-      setEditId(-1);
-      setText("");
+      setFiles([]);
+      handleCloseModal();
+      resetReply();
       if (newComm) {
         setComments(newComments);
         await axios.patch(
@@ -225,8 +260,7 @@ export default function Topic() {
 
   async function deleteComment(commId) {
     try {
-      // для видалення файлів повідомлення (треба дописати)
-      const attach = await axios.delete(
+      await axios.delete(
         `http://localhost:5000/topics/comments/${commId}`
       );
       for (const comm of comments) {
@@ -383,7 +417,6 @@ export default function Topic() {
           <TopicInput
             isEditModalOpen={isEditModalOpen}
             isSendModalOpen={isSendModalOpen}
-            setIsEditModalOpen={setIsEditModalOpen}
             setIsSendModalOpen={setIsSendModalOpen}
             setFiles={setFiles}
             text={text}
@@ -413,7 +446,31 @@ export default function Topic() {
             setEditId={setEditId}
             setText={setText}
             setReply={setReply}
+            setFiles={setFiles}
+            setIsEditModalOpen={setIsEditModalOpen}
           />
+          {isEditModalOpen && (
+            <FileEditModal
+              files={files}
+              setFiles={setFiles}
+              onClose={handleCloseModal}
+              text={text}
+              setText={setText}
+              setFilesToDelete={setFilesToDelete}
+              editId={editId}
+              onEdit={editComment}
+            />
+          )}
+          {isSendModalOpen && (
+            <FileSendModal
+              files={files}
+              setFiles={setFiles}
+              onClose={handleCloseModal}
+              text={text}
+              setText={setText}
+              onSubmit={sendComment}
+            />
+          )}
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { pool } from "../db.js";
-
+import { deleteAttachments } from "../controllers/fileController.js";
 // для відображення на головній сторінці
 export const getTopicsPreview = async (req, res) => {
   const { page = 1, limit = 10, sort, user_id, tags, authors } = req.query;
@@ -391,9 +391,10 @@ export const deleteComment = async (req, res) => {
   try {
     const query = `DELETE FROM comments WHERE id = $1 RETURNING attachments`;
     const response = await pool.query(query, [id]);
-
+    if(response.rows.length)
+      deleteAttachments(response.rows[0].attachments);
     res.status(200).json({
-      attachments: response.rows.length > 0 ? response.rows[0].attachments : [],
+      done: true,
     });
   } catch (error) {
     console.error(error);
@@ -412,6 +413,26 @@ export const editComments = async (req, res) => {
     `;
     const result = await pool.query(query, [text, attachments, id]);
     res.status(200).json(result.rows[0]);
+  } catch (error) {
+    console.error("Error with editComments: ", error);
+    res.status(500);
+  }
+};
+
+
+export const deleteTopic = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const GET_TOPIC_COMMENTS_QUERY = `
+      SELECT 
+        c.id
+      FROM
+        comments c
+      WHERE
+        c.topic_id = $1
+    `;
+    const comments_to_delete = await pool.query(GET_TOPIC_COMMENTS_QUERY, [id]);
+    res.status(200).json(result.rows);
   } catch (error) {
     console.error("Error with editComments: ", error);
     res.status(500);

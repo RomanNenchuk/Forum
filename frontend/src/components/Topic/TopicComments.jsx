@@ -13,7 +13,7 @@ export default function TopicComments({
   uid,
 }) {
   let sortedComments = comments;
-  sortedComments.sort((a, b) => {
+  sortedComments.sort((a, b) => { // default sort
     let ta = (a.reply === -1 ? a.timestamp : a.reply_timestamp),
         tb = (b.reply === -1 ? b.timestamp : b.reply_timestamp);
     if (ta === tb) {
@@ -21,14 +21,11 @@ export default function TopicComments({
     } else {
       return new Date(tb).getTime() - new Date(ta).getTime();
     }
-    // return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
   });
   return (
     <ul
       style={{
-        // display: "flex",
         width: "100%",
-        flexDirection: "column-reverse",
       }}
     >
       {sortedComments.length
@@ -62,6 +59,9 @@ export default function TopicComments({
                   }
                   sizeFont="2vh"
                   size="4vh"
+                />
+                <AttachedFiles
+                  urls={comment?.attachments}
                 />
                 <span>{comment.text}</span>
                 <br />
