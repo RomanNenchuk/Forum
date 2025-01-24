@@ -12,6 +12,7 @@ import ChatInput from "./ChatInput.jsx";
 import FileSendModal from "../FileModal/FileSendModal.jsx";
 import FileEditModal from "../FileModal/FileEditModal.jsx";
 import ChatContextMenu from "./ChatContextMenu.jsx";
+import ChatActionMenu from "./ChatActionMenu.jsx";
 import ChatMessages from "./ChatMessages.jsx";
 import LoadingSpinner from "../Spinner.jsx";
 import chatControllerIcon from "../../assets/chat-controller.svg";
@@ -20,6 +21,7 @@ import "react-bootstrap";
 export default function Chat() {
   const [text, setText] = useState("");
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
+  const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
   const [files, setFiles] = useState([]);
   const [filesToDelete, setFilesToDelete] = useState([]); // Список файлів на видалення
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -32,9 +34,21 @@ export default function Chat() {
     text: "",
     attachment: "",
   });
+  const [actionMenu, setActionMenu] = useState({
+    selectedTopic: -1,
+    selectedTopicItem: null,
+    position: {
+      x: 0,
+      y: 0,
+    },
+    toggled: false,
+  });
 
   useBodyScrollLock(isContextMenuOpen);
+  useBodyScrollLock(isActionMenuOpen);
 
+  const actionMenuRef = useRef(null);
+  const settingsRef = useRef(null);
   const contextMenuRef = useRef(null);
 
   const { receiverId } = useParams();
@@ -83,6 +97,18 @@ export default function Chat() {
     }
     document.addEventListener("click", handler);
     return () => document.removeEventListener("click", handler);
+  }, []);
+
+  useEffect(() => {
+    function handler(e) {
+      if (actionMenuRef.current) {
+        if (!actionMenuRef.current.contains(e.target)) {
+          resetActionMenu();
+        }
+      }
+    }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
 
   useEffect(() => {
@@ -160,6 +186,32 @@ export default function Chat() {
         y,
       },
       toggled: true,
+    });
+  }
+
+  function handleOnActionMenu(e) {
+    e.preventDefault();
+    const actionMenuAttr = settingsRef.current.getBoundingClientRect();
+    let x = actionMenuAttr.x - actionMenuRef.current?.offsetWidth + 20;
+    let y = actionMenuAttr.bottom;
+    setIsActionMenuOpen(true);
+    setActionMenu({
+      position: {
+        x,
+        y,
+      },
+      toggled: true,
+    });
+  }
+
+  function resetActionMenu() {
+    setIsActionMenuOpen(false);
+    setActionMenu({
+      position: {
+        x: 0,
+        y: 0,
+      },
+      toggled: false,
     });
   }
 
@@ -337,7 +389,11 @@ export default function Chat() {
             <p>{otherUserName}</p>
           </Link>
         </div>
-        <div className="chat-ct-hd-pre-svg">
+        <div
+          className="chat-ct-hd-pre-svg"
+          onClick={handleOnActionMenu}
+          ref={settingsRef}
+        >
           <img src={chatControllerIcon} alt="Settings" />
         </div>
       </div>
@@ -362,6 +418,14 @@ export default function Chat() {
         currentUser={currentUser}
         contextMenu={contextMenu}
         setReply={setReply}
+      />
+
+      <ChatActionMenu
+        positionX={actionMenu.position.x}
+        positionY={actionMenu.position.y}
+        isToggled={actionMenu.toggled}
+        actionMenuRef={actionMenuRef}
+        resetActionMenu={resetActionMenu}
       />
 
       <ChatInput

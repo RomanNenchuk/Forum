@@ -391,8 +391,7 @@ export const deleteComment = async (req, res) => {
   try {
     const query = `DELETE FROM comments WHERE id = $1 RETURNING attachments`;
     const response = await pool.query(query, [id]);
-    if(response.rows.length)
-      deleteAttachments(response.rows[0].attachments);
+    if (response.rows.length) deleteAttachments(response.rows[0].attachments);
     res.status(200).json({
       done: true,
     });
@@ -419,7 +418,6 @@ export const editComments = async (req, res) => {
   }
 };
 
-
 export const deleteTopic = async (req, res) => {
   const client = await pool.connect();
   const id = req.params.id;
@@ -432,24 +430,32 @@ export const deleteTopic = async (req, res) => {
     const DELETE_TOPIC_QUERY = `DELETE FROM topics WHERE id = $1`;
 
     // отримую id коментів, що належать цій темі
-    const comments_to_delete = await pool.query(GET_TOPIC_COMMENTS_QUERY, [id]);
+    const comments_to_delete = await client.query(GET_TOPIC_COMMENTS_QUERY, [
+      id,
+    ]);
 
     // видаляю кожен комент з бази даних
-    for(let {id: id_to_delete} of comments_to_delete.rows) {
-      const response = await pool.query(DELETE_COMMENT_QUERY, [id_to_delete]);
-      if(response.rows.length)
-        deleteAttachments(response.rows[0].attachments);
+    for (let { id: id_to_delete } of comments_to_delete.rows) {
+      const response = await client.query(DELETE_COMMENT_QUERY, [id_to_delete]);
+      if (response.rows.length)
+        deleteAttachments(response.rows[0].attachments).catch(error =>
+          console.error(error)
+        );
     }
 
     // видаляю тему з бази даних
-    await pool.query(DELETE_TOPIC_QUERY, [id]);
+    await client.query(DELETE_TOPIC_QUERY, [id]);
 
     // завершую транзакцію
     await client.query("COMMIT");
 
     res.status(200).json({ done: true });
   } catch (error) {
+    // у разі помилки відміняю транзакцію
+    await client.query("ROLLBACK");
+    res.status(500).json({ error: "Internal server error" });
     console.error("Error with deleteTopic: ", error);
-    res.status(500);
+  } finally {
+    client.release();
   }
 };

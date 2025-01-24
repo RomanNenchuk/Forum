@@ -244,6 +244,7 @@ ul.chat-messages {
 }
 .message-author-name {
   margin-right: 20px;
+  user-select: text;
 }
 .message-reply-label {
   margin: 10px 10px 0 10px;

@@ -1,7 +1,10 @@
 import React from "react";
+import { useParams } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext.jsx";
-import ActionMenu from "../ActionMenu/ActionMenu.jsx";
+import { useChat } from "../../contexts/ChatContext.jsx";
+import ActionMenu from "../PopupMenus/ActionMenu.jsx";
 import deleteIcon from "../../assets/delete-context-menu.svg";
+import cleanIcon from "../../assets/clean.svg";
 
 export default function TopicActionMenu({
   positionX,
@@ -9,22 +12,26 @@ export default function TopicActionMenu({
   isToggled,
   actionMenuRef,
   resetActionMenu,
-  actionMenu,
-  deleteTopic,
 }) {
+  const { deleteChat, clearChat } = useChat();
   const { currentUser } = useAuth();
+  const { receiverId } = useParams();
   const buttons = [
     {
       text: "Видалити",
       icon: deleteIcon,
-      onClick:
-        actionMenu.selectedTopicItem?.author === currentUser?.uid
-          ? () => {
-              deleteTopic(actionMenu.selectedTopic);
-            }
-          : null,
+      onClick: () => {
+        deleteChat(receiverId, currentUser.uid);
+      },
     },
-  ].filter(button => button.onClick);
+    {
+      text: "Очистити",
+      icon: cleanIcon,
+      onClick: () => {
+        clearChat(receiverId, currentUser.uid);
+      },
+    },
+  ];
   return (
     <ActionMenu
       positionX={positionX}

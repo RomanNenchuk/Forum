@@ -1,5 +1,5 @@
 import React from "react";
-import ContextMenu from "../ContextMenu/ContextMenu";
+import ContextMenu from "../PopupMenus/ContextMenu";
 import deleteIcon from "../../assets/delete-context-menu.svg";
 import editIcon from "../../assets/edit-file.svg";
 import replyIcon from "../../assets/reply-context-menu.svg";

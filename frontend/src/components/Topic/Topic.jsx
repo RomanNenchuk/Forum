@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Container, Card, Carousel } from "react-bootstrap";
-import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
+import { Container, Carousel } from "react-bootstrap";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useUserInfo } from "../../contexts/UserInfoContext";
 import handleUpload from "../../utils/uploadFiles.jsx";
-import ProfileHeader from "../ProfileHeader";
 import LoadingSpinner from "../Spinner";
 import TopicList from "../TopicList/TopicList";
 import TopicInput from "./TopicInput";
@@ -109,7 +108,6 @@ export default function Topic() {
       const result = await axios.get(
         `http://localhost:5000/topics/${id}/comments`
       );
-      console.log(result.data);
       setComments(result.data);
     } catch (error) {
       console.error("fetchTopicComments error:", error);

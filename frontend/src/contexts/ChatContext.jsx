@@ -1,4 +1,5 @@
 import React, { useContext, useState, createContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import { useSocket } from "./SocketProviderContext";
 import axios from "axios";
@@ -14,6 +15,7 @@ export function ChatProvider({ children }) {
   const [messages, setMessages] = useState([]);
   const socket = useSocket();
   const { currentUser, token } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!socket) return;
@@ -100,6 +102,43 @@ export function ChatProvider({ children }) {
     }
   }
 
+  async function deleteChat(receiver_id, sender_id) {
+    const chat_id = [receiver_id, sender_id]
+      .sort((a, b) => a.localeCompare(b))
+      .join("_");
+    try {
+      const response = await axios.delete(
+        `http://localhost:5000/chats/${chat_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      navigate("/chats");
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async function clearChat(receiver_id, sender_id) {
+    const chat_id = [receiver_id, sender_id]
+      .sort((a, b) => a.localeCompare(b))
+      .join("_");
+    try {
+      const response = await axios.delete(
+        `http://localhost:5000/chats/${chat_id}/messages`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      fetchOrCreateChat(receiver_id, sender_id);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   const value = {
     chatList,
     setChatList,
@@ -108,6 +147,8 @@ export function ChatProvider({ children }) {
     fetchChatList,
     fetchOrCreateChat,
     sortChatList,
+    deleteChat,
+    clearChat,
   };
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;

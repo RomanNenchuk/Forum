@@ -55,28 +55,10 @@ export default function TopicArea({
     }
   }
 
-  async function deleteTopic() {
-    if (confirm("Ви впевнені, що хочете видлити тему?")) {
-      console.log("On delete topic " + topic.id);
-      const res = await axios.delete(
-        `http://localhost:5000/topics/${topic.id}`
-      );
-      if (res.data.done) {
-        if (location.pathname === "/")
-          setTopics(prev => prev.filter(item => item.id != topic.id));
-        else navigate("/");
-      }
-    }
-  }
-
   return (
     <li className="topic-card">
       <div>
-        <Link
-          to={`/topics/${topic.id}`}
-          style={{ textDecoration: "none" }}
-          state={{ backgroundLocation: location }}
-        >
+        <Link to={`/topics/${topic.id}`} style={{ textDecoration: "none" }}>
           <div className="topic-content">
             <ProfileHeader
               id={topic.author}
@@ -109,7 +91,9 @@ export default function TopicArea({
             ))}
           </div>
           <div className="chat-settings">
-            <IoChatboxEllipsesOutline size="3.5vh" />
+            <Link to={`/topics/${topic.id}`} style={{ textDecoration: "none" }}>
+              <IoChatboxEllipsesOutline size="3.5vh" />
+            </Link>
             <div className="emo-container">
               😀
               <InteractWindow
@@ -119,6 +103,7 @@ export default function TopicArea({
             </div>
             <VscSettings
               size="3.5vh"
+              style={{ cursor: "pointer" }}
               onClick={e => handleOnActionMenu(e, topic)}
             />
           </div>

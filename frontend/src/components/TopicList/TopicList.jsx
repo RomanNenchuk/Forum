@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import TopicArea from "./TopicArea.jsx";
+import TopicActionMenu from "./TopicActionMenu.jsx";
 import "./TopicList.css";
-import TopicActionMenu from "../Topic/TopicActionMenu.jsx";
+import axios from "axios";
 
 const reactionList = [
   { icon: "😁", name: "beaming_face_with_smiling_eyes" },
@@ -45,8 +46,6 @@ export default function TopicList({ topicInfoList, setTopicInfoList }) {
   function handleOnActionMenu(e, topic) {
     e.preventDefault();
     const actionMenuAttr = actionMenuRef.current.getBoundingClientRect();
-    console.log(actionMenuAttr);
-
     const isRight = e.clientX > window?.innerWidth / 2;
     const isBottom = e.clientY > window?.innerHeight / 2;
 
@@ -94,11 +93,14 @@ export default function TopicList({ topicInfoList, setTopicInfoList }) {
   }
 
   async function deleteTopic(id) {
-    if (confirm("Ви впевнені, що хочете видлити тему?")) {
+    if (confirm("Ви впевнені, що хочете видалити тему?")) {
       console.log("On delete topic " + id);
-      const res = await axios.delete(`http://localhost:5000/topics/${id}`);
-      if (res.data.done) {
-        setTopicInfoList(prev => prev.filter(item => item.id != id));
+      try {
+        const res = await axios.delete(`http://localhost:5000/topics/${id}`);
+        if (res.data.done)
+          setTopicInfoList(prev => prev.filter(item => item.id != id));
+      } catch (error) {
+        console.error(error);
       }
     }
   }
