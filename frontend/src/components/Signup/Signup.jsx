@@ -118,6 +118,7 @@ export default function Signup({ onCloseModal }) {
         onCloseModal={onCloseModal}
         setNextForm={setNextForm}
         setImage={setImage}
+        setError={setError}
         loading={loading}
       />
     </Card>

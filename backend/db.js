@@ -51,7 +51,7 @@ const keepAliveQuery = async () => {
 // виконую запит кожні 4 хвилини
 setInterval(keepAliveQuery, 4 * 60 * 1000);
 
-// кожні 30хв оновлюю представлення популярних тегів
+// кожні 15хв оновлюю представлення популярних тегів
 setInterval(refreshPopuarTagsView, 15 * 60 * 1000);
 
 export { pool, connectDB };

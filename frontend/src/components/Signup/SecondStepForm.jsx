@@ -16,6 +16,7 @@ export default function SecondStepForm({
   onCloseModal,
   setNextForm,
   setImage,
+  setError,
   loading,
   style,
 }) {
@@ -36,6 +37,7 @@ export default function SecondStepForm({
               setPreview={setPreview}
               imageInputRef={imageInputRef}
               setImage={setImage}
+              setError={setError}
             />
           </Form.Group>
 

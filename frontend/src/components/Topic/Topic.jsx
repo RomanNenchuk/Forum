@@ -3,7 +3,6 @@ import { Container, Card, Carousel } from "react-bootstrap";
 import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useUserInfo } from "../../contexts/UserInfoContext";
-// import { useBodyScrollLock } from "../../hooks/useBodyScrollLock.jsx";
 import handleUpload from "../../utils/uploadFiles.jsx";
 import ProfileHeader from "../ProfileHeader";
 import LoadingSpinner from "../Spinner";
@@ -32,7 +31,6 @@ export default function Topic() {
   const [text, setText] = useState("");
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
 
-  // useBodyScrollLock(isContextMenuOpen);
   const [files, setFiles] = useState([]);
   const [filesToDelete, setFilesToDelete] = useState([]); // Список файлів на видалення
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -55,11 +53,9 @@ export default function Topic() {
 
   // вантажу інформацію з БД при монтуванні компонента
   useEffect(() => {
-    // document.body.classList.add("body-overflow");
     setLoading(true);
     fetchTopic();
     fetchTopicComments();
-    // document.body.classList.remove("body-overflow");
   }, [id]);
   // обробник кліку на сторінці
   useEffect(() => {
@@ -372,7 +368,7 @@ export default function Topic() {
                     </>
                   )}
                 </span>
-                {extendfInfo && topic.attachments.length > 0 && (
+                {extendfInfo && topic.attachments.length > 0 ? (
                   <Container fluid>
                     <Carousel
                       style={{ padding: "2vh" }}
@@ -392,7 +388,7 @@ export default function Topic() {
                       ))}
                     </Carousel>
                   </Container>
-                )}
+                ) : null}
               </div>
             </div>
           </div>

@@ -1,7 +1,7 @@
 import { pool } from "../db.js";
 
 export const getTagList = async (req, res) => {
-  const { search, all } = req.query; // Додаємо параметр "all"
+  const { search, all } = req.query;
   try {
     let query, params;
 

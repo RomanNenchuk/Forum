@@ -15,6 +15,7 @@ export default function TopicArea({
   initialReactions,
   userReaction,
   setTopics,
+  handleOnActionMenu,
 }) {
   const [activeReactions, setActiveReactions] = useState([]);
   const location = useLocation();
@@ -51,18 +52,6 @@ export default function TopicArea({
       );
     } catch (error) {
       console.error(error);
-    }
-  }
-
-  async function deleteTopic() {
-    if (confirm("Ви впевнені, що хочете видлити тему?")) {
-      console.log("On delete topic " + topic.id);
-      const res = await axios.delete(
-        `http://localhost:5000/topics/${topic.id}`
-      );
-      if (res.data.done) {
-        setTopics(prev => prev.filter(item => item.id != topic.id));
-      }
     }
   }
 
@@ -114,12 +103,12 @@ export default function TopicArea({
                 onClick={handleClick}
               />
             </div>
-            <VscSettings size="3.5vh" />
+            <VscSettings
+              size="3.5vh"
+              onClick={e => handleOnActionMenu(e, topic)}
+            />
           </div>
         </div>
-        {topic.author === currentUser?.uid && (
-          <button onClick={deleteTopic}>Видалити</button>
-        )}
       </div>
     </li>
   );
