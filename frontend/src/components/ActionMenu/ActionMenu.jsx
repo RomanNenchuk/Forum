@@ -1,8 +1,5 @@
 import React from "react";
-import { useAuth } from "../../contexts/AuthContext.jsx";
-import ContextMenu from "../ContextMenu/ContextMenu.jsx";
-import deleteIcon from "../../assets/delete-context-menu.svg";
-import "./TopicList.css";
+import "./ActionMenu.css";
 
 export default function ActionMenu({
   positionX,
@@ -11,28 +8,14 @@ export default function ActionMenu({
   actionMenuRef,
   resetActionMenu,
   actionMenu,
-  deleteTopic,
+  buttons = [],
 }) {
-  const { currentUser } = useAuth();
-  const buttons = [
-    {
-      text: "Видалити",
-      icon: deleteIcon,
-      onClick:
-        actionMenu.selectedTopicItem?.author === currentUser?.uid
-          ? () => {
-              deleteTopic(actionMenu.selectedTopic);
-            }
-          : null,
-    },
-  ].filter(button => button.onClick);
-
   return (
     <menu
       ref={actionMenuRef}
       style={{
-        top: positionY + 20 + "px",
-        left: positionX,
+        top: positionY - 13 + "px",
+        left: positionX + 20 + "px",
       }}
       className={`context-menu ${isToggled && buttons?.length ? "active" : ""}`}
     >

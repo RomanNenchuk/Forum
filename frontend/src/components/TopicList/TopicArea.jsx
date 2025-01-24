@@ -55,6 +55,20 @@ export default function TopicArea({
     }
   }
 
+  async function deleteTopic() {
+    if (confirm("Ви впевнені, що хочете видлити тему?")) {
+      console.log("On delete topic " + topic.id);
+      const res = await axios.delete(
+        `http://localhost:5000/topics/${topic.id}`
+      );
+      if (res.data.done) {
+        if (location.pathname === "/")
+          setTopics(prev => prev.filter(item => item.id != topic.id));
+        else navigate("/");
+      }
+    }
+  }
+
   return (
     <li className="topic-card">
       <div>

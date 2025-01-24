@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
 import { Container, Card, Form, Button, Alert } from "react-bootstrap";
@@ -32,25 +32,20 @@ export default function CreateTopic() {
   const [step, setStep] = useState(0)
   const [selectedTag, setSelected] = useState([])
 
-  const [buf, setBuf] = useState()
-
-  const tagList = [
-    "Вища математика",
-    "ООП",
-    "ДМ",
-    "Бази даних",
-    "ООЕ",
-    "Бекенд",
-    "АСД",
-    "ЕЕ",
-    "ЧМ",
-  ];
+  const [buf, setBuf] = useState({
+    title: '',
+    tags: [], 
+    description: '',
+    attachments: []
+  })
+  
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
     setSuccess("");
     setLoading(true);
+    getFromSecond();
     if (!buf.title ){
       setError("Незаповнено усі необхідні поля: не надано назву для теми")
       setTimeout(()=>{setError(false)},3000)
@@ -61,7 +56,7 @@ export default function CreateTopic() {
       ...buf,
       author: currentUser.uid, 
       description: descriptionRef.current.value,
-      attachments: await handleUpload(extendfiles,currentUser.id),
+      attachments: await handleUpload(buf.attachments, currentUser.id),
     };
 
     try {
@@ -94,10 +89,20 @@ export default function CreateTopic() {
       tags: selectedTag, 
     }})
   }
+  function getFromSecond(){
+    const temp = descriptionRef.current.value || ""; // Додаткова перевірка
+    console.log(temp)
+    setBuf((prevBuf) => ({
+      ...prevBuf,
+      description: temp,    //??не оновлює
+      attachments: extendfiles
+    }))
+    
+  }
   return (
     <Container>
       <div className="cr-topic-in">
-            <div> {step ? (<IoArrowBack onClick = {()=>{setStep(0)}} size = "4vh" / >) : ''}
+            <div> {step ? (<IoArrowBack onClick = {()=>{getFromSecond(),setTimeout(()=>{setStep(0)}, 50)}} size = "4vh" / >) : ''}
               <h2 className="text-center mb-4 ">Створити тему</h2></div>
             {error && <Alert variant="danger">{error}</Alert>}
             {success && <Alert variant="success">{success}</Alert>}
@@ -108,9 +113,9 @@ export default function CreateTopic() {
               onClick = {()=>setFirstStepChoose(1)}>Фото&Відео</div>
             </div>) : ''}
             <Form onSubmit={handleSubmit}>
-              {!step ? (<TitleInput titleRef={titleRef} limit = {400}/>) : ''}
-              {!step ? (<SearchInput resData = {selectedTag} setResData = {setSelected} data = {tagList} />) : ''}
-              {step ? (<BaseWrapInput ref = {descriptionRef} />) : ""}
+              {!step ? (<TitleInput titleRef={titleRef} limit = {255} value = {buf.title}/>) : ''}
+              {!step ? (<SearchInput resData = {selectedTag} setResData = {setSelected} />) : ''}
+              {step ? (<BaseWrapInput ref = {descriptionRef} value = {buf.description}/>) : ""}
               
 
               {step ? (

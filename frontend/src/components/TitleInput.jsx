@@ -7,7 +7,7 @@ import "./CreateTopic.css"
 
 
 
-const TitleInput = ({titleRef, limit}) =>{
+const TitleInput = ({titleRef, limit, value}) =>{
   const countRef = useRef()
     const [counter, setCounter] = useState(0)
 
@@ -25,7 +25,7 @@ const TitleInput = ({titleRef, limit}) =>{
 return <Form.Group id="title" className="mb-3">
                 <Form.Control className = 'for_font input-left'as="textarea" 
                   rows = {9999999999} cols = {150} maxLength={limit} 
-                  ref={titleRef} required onChange={()=>{countLength(); wrapInput(titleRef)}}
+                  ref={titleRef} defaultValue = {value} required onChange={()=>{countLength(); wrapInput(titleRef)}}
                   
                   placeholder="Введіть назву теми"/>
                   <span ref = {countRef} className="right-counter">

@@ -1,0 +1,38 @@
+import React from "react";
+import { useAuth } from "../../contexts/AuthContext.jsx";
+import ActionMenu from "../ActionMenu/ActionMenu.jsx";
+import deleteIcon from "../../assets/delete-context-menu.svg";
+
+export default function TopicActionMenu({
+  positionX,
+  positionY,
+  isToggled,
+  actionMenuRef,
+  resetActionMenu,
+  actionMenu,
+  deleteTopic,
+}) {
+  const { currentUser } = useAuth();
+  const buttons = [
+    {
+      text: "Видалити",
+      icon: deleteIcon,
+      onClick:
+        actionMenu.selectedTopicItem?.author === currentUser?.uid
+          ? () => {
+              deleteTopic(actionMenu.selectedTopic);
+            }
+          : null,
+    },
+  ].filter(button => button.onClick);
+  return (
+    <ActionMenu
+      positionX={positionX}
+      positionY={positionY}
+      isToggled={isToggled}
+      actionMenuRef={actionMenuRef}
+      buttons={buttons}
+      resetActionMenu={resetActionMenu}
+    />
+  );
+}

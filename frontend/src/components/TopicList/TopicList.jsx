@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import TopicArea from "./TopicArea.jsx";
-import ActionMenu from "./ActionMenu.jsx";
 import "./TopicList.css";
+import TopicActionMenu from "../Topic/TopicActionMenu.jsx";
 
 const reactionList = [
   { icon: "😁", name: "beaming_face_with_smiling_eyes" },
@@ -45,6 +45,7 @@ export default function TopicList({ topicInfoList, setTopicInfoList }) {
   function handleOnActionMenu(e, topic) {
     e.preventDefault();
     const actionMenuAttr = actionMenuRef.current.getBoundingClientRect();
+    console.log(actionMenuAttr);
 
     const isRight = e.clientX > window?.innerWidth / 2;
     const isBottom = e.clientY > window?.innerHeight / 2;
@@ -53,7 +54,7 @@ export default function TopicList({ topicInfoList, setTopicInfoList }) {
     let y = e.clientY;
 
     if (isRight) x -= actionMenuAttr.width;
-    if (isBottom) y -= actionMenuAttr.height;
+    if (isBottom) y -= 57;
     setIsActionMenuOpen(true);
 
     setActionMenu({
@@ -114,7 +115,7 @@ export default function TopicList({ topicInfoList, setTopicInfoList }) {
           handleOnActionMenu={handleOnActionMenu}
         />
       ))}
-      <ActionMenu
+      <TopicActionMenu
         positionX={actionMenu.position.x}
         positionY={actionMenu.position.y}
         isToggled={actionMenu.toggled}

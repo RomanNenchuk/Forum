@@ -49,7 +49,6 @@ export default function ChatContextMenu(props) {
 
               if (dbFiles) setFiles(prevFiles => [...dbFiles, ...prevFiles]);
 
-              console.log(contextMenu.selectedMessageItem);
               setText(contextMenu.selectedMessageItem?.text || "");
               setEditId(contextMenu.selectedMessage);
 
@@ -64,7 +63,6 @@ export default function ChatContextMenu(props) {
       icon: replyIcon,
       onClick: setReply
         ? () => {
-            console.log(contextMenu.selectedMessageItem);
             setReply({
               id: contextMenu.selectedMessageItem.id,
               author: contextMenu.selectedMessageItem.fullname,
