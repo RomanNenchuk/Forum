@@ -84,7 +84,7 @@ export default function TopicArea({
               profileName={topic.author_full_name}
             />
             <div className="topic-title">
-              <span style={{ marginBottom: "1vh" }}>{topic.title}</span>
+              <span style={{ marginBottom: "1vh", overflowWrap: "break-word" }}>{topic.title}</span>
             </div>
           </div>
         </Link>

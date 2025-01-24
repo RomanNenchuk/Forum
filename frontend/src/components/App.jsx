@@ -19,6 +19,8 @@ import CreateTopic from "./CreateTopic.jsx";
 import ChatList from "./Chat/ChatList.jsx";
 import Chat from "./Chat/Chat.jsx";
 import Modal from "./Modal.jsx";
+import MyTopic from "./MyTopic/MyTopic.jsx";
+import TagExtention from "./TagBar/TagExtention.jsx";
 import { useBackgroundLocation } from "../hooks/useBackgroundLocation.jsx";
 import DefaultChatScreen from "./DefaultChatScreen.jsx";
 
@@ -45,6 +47,7 @@ function AppRoutes() {
         <Route element={<Menu />}>
           <Route path="/" element={<Home />} />
           <Route path="/topics/:id" element={<Topic />} />
+          <Route path="/mytopics" element={<MyTopic />} />
           {/* <Route path="/profiles/:id" element={<Profile />} /> */}
 
           <Route element={<PrivateRoute />}>
@@ -102,6 +105,14 @@ function AppRoutes() {
             element={
               <Modal>
                 <Profile />
+              </Modal>
+            }
+          />
+          <Route
+            path="/tags"
+            element={
+              <Modal>
+                <TagExtention />
               </Modal>
             }
           />

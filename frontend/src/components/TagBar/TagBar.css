@@ -15,32 +15,30 @@
   text-align: left;
   text-underline-position: from-font;
   text-decoration-skip-ink: none;
-  margin-bottom: 5vh;
+  margin-bottom: 2vh;
 }
 
 .tag {
-  font-size: 2.5vh;
   font-weight: 500;
   font-family: "Inter", Arial, sans-serif;
-  font-size: 3.5vh;
-  font-weight: 500;
+  font-size: 2.5vh;
+  font-weight: 700;
   line-height: 4vh;
   text-align: left;
   text-underline-position: from-font;
   text-decoration-skip-ink: none;
-  margin-bottom: 2.5vh;
+  margin-bottom: 0.5vh;
 }
 
 .tag-list {
   padding: 1vh;
   position: sticky;
-  top: 20vh;
-  height: 50vh;
-  display: flex;
+  top: 17vh;
+  display: block;
+  height: 80vh;
   flex-direction: column;
   right: 0;
   width: 36vh;
-  overflow: hidden;
   background-color: rgb(255, 230, 169);
   border: 0.1vh solid black;
   font-size: 2vh;
