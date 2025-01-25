@@ -13,6 +13,7 @@ import FileEditModal from "../FileModal/FileEditModal.jsx";
 import { useScrollLock } from "../../hooks/useScrollLock.jsx";
 import TopicContextMenu from "./TopicContextMenu";
 import { IoArrowBack } from "react-icons/io5";
+import arrowBackIcon from "../../assets/arrow-back.svg";
 import axios from "axios";
 import "./Topic.css";
 
@@ -329,11 +330,13 @@ export default function Topic() {
   return (
     <div className="extention-area">
       <div className="header">
-        <IoArrowBack
+        <img
+          src={arrowBackIcon}
+          alt="Back"
+          style={{ cursor: "pointer" }}
           onClick={() => {
             navigate(-1);
           }}
-          size={30}
         />
         <span>Дискусія</span>
       </div>
@@ -371,7 +374,7 @@ export default function Topic() {
                         className="extention-info"
                         onClick={() => setExtendInfo(1)}
                       >
-                        ... Дізнатися більше
+                        Показати більше...
                       </span>
                     </>
                   )}

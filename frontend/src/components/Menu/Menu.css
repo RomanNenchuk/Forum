@@ -172,7 +172,7 @@ header {
 .mn-menu-row {
   display: flex;
   flex-direction: column;
-
+  border-top: 1px solid #000000;
   gap: 1vh;
   padding-top: 3vh;
 }
@@ -207,4 +207,7 @@ header {
   display: flex;
   height: auto;
   width: auto;
+}
+.active {
+  background-color: #cbcbcca8;
 }

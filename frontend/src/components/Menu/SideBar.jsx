@@ -26,19 +26,23 @@ export default function SideBar({ isExpanded, setExpand }) {
     else setExpand(true);
   }, [location]);
 
+  const isActive = path => location.pathname.startsWith(path);
+
   return (
     <div
       className="main-page-menu"
       style={{ width: isExpanded ? "45vh" : "10vh" }}
     >
       <div className="mn-menu-row mn-menu-row1">
-        <div className="mn-menu-el">
+        <div
+          className={`mn-menu-el ${location.pathname === "/" ? "active" : ""}`}
+        >
           <Link to="/" id="/mn-menu-home">
             <img src={homeIcon} alt="Home" />
             {isExpanded && <span>Головна сторінка</span>}
           </Link>
         </div>
-        <div className="mn-menu-el">
+        <div className={`mn-menu-el ${isActive("/chats") ? "active" : ""}`}>
           <Link
             to={currentUser ? `/chats` : "/login"}
             id="mn-menu-chats"
@@ -51,13 +55,13 @@ export default function SideBar({ isExpanded, setExpand }) {
             {isExpanded && <span>Чати</span>}
           </Link>
         </div>
-        <div className="mn-menu-el">
+        <div className={`mn-menu-el ${isActive("/events") ? "active" : ""}`}>
           <Link id="mn-menu-events">
             <img src={eventsIcon} alt="Events" />
             {isExpanded && <span>Події</span>}
           </Link>
         </div>
-        <div className="mn-menu-el">
+        <div className={`mn-menu-el ${isActive("/topics") ? "active" : ""}`}>
           <Link id="mn-menu-events">
             <img src={themeIcon} alt="Events" />
             {isExpanded && <span>Теми</span>}
@@ -79,19 +83,19 @@ export default function SideBar({ isExpanded, setExpand }) {
         </div>
       </div>
       <div className="mn-menu-row mn-menu-row3">
-        <div className="mn-menu-el">
+        <div className={`mn-menu-el ${isActive("/about") ? "active" : ""}`}>
           <Link id="mn-menu-about">
             <img src={aboutIcon} alt="About" />
             {isExpanded && <span>Про застосунок</span>}
           </Link>
         </div>
-        <div className="mn-menu-el">
+        <div className={`mn-menu-el ${isActive("/team") ? "active" : ""}`}>
           <Link id="mn-menu-team">
             <img src={teamIcon} alt="Team" />
             {isExpanded && <span>Команда</span>}
           </Link>
         </div>
-        <div className="mn-menu-el">
+        <div className={`mn-menu-el ${isActive("/help") ? "active" : ""}`}>
           <Link id="mn-menu-help">
             <img src={helpIcon} alt="Help" />
             {isExpanded && <span>Допомога</span>}

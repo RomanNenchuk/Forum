@@ -17,9 +17,18 @@
   position: sticky;
   background-color: #acc3d3a8;
   margin-top: 14vh;
+  padding-left: 77px;
   height: 10vmin;
   width: 100%;
+  gap: 20px;
   z-index: 0;
+  font-family: Actor;
+  font-size: 25px;
+  font-weight: 400;
+  line-height: 30.08px;
+  letter-spacing: -0.01em;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
 }
 
 .header span {
