@@ -1,18 +1,18 @@
-import React, {useState , useEffect} from "react";
+import React, {useState ,useRef,  useEffect} from "react";
 import { Link } from "react-router-dom";
-import { useUserInfo } from "../../contexts/UserInfoContext";
 import { useAuth } from "../../contexts/AuthContext";
-import { useTopicSearch } from "../../contexts/TopicSearchContext";
 import AltSpinner from '../AltSpinner/AltSpinner'
+import { useScrollLock } from "../../hooks/useScrollLock.jsx";
 import TopicArea from "../TopicList/TopicArea";
+import TopicActionMenu from "../TopicList/TopicActionMenu";
 import axios from "axios";
-import { Container } from "react-bootstrap";
+
 
 const MyTopic = () => {
     const {currentUser } = useAuth()
     const [ data , setData ] = useState([])
     const [ loading, setLoading ]= useState(false)
-    
+    const topicListRef = useRef()
     const [firstStepChoose, setFirstStepChoose] = useState(0)
     
     
@@ -41,6 +41,88 @@ const MyTopic = () => {
         { icon: "💀", name: "skull" },
         { icon: "💩", name: "pile_of_poo" },
       ];
+
+    
+      const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
+      const [actionMenu, setActionMenu] = useState({
+        selectedTopic: -1,
+        selectedTopicItem: null,
+        position: {
+          x: 0,
+          y: 0,
+        },
+        toggled: false,
+      });
+    
+      const actionMenuRef = useRef(null);
+      useScrollLock(isActionMenuOpen, topicListRef);
+    
+      function handleOnActionMenu(e, topic) {
+        e.preventDefault();
+        const actionMenuAttr = actionMenuRef.current.getBoundingClientRect();
+        const isRight = e.clientX > window?.innerWidth / 2;
+        const isBottom = e.clientY > window?.innerHeight / 2;
+    
+        let x = e.clientX;
+        let y = e.clientY;
+    
+        if (isRight) x -= actionMenuAttr.width;
+        if (isBottom) y -= 57;
+        setIsActionMenuOpen(true);
+    
+        setActionMenu({
+          selectedTopic: topic.id,
+          selectedTopicItem: topic,
+          position: {
+            x,
+            y,
+          },
+          toggled: true,
+        });
+      }
+    
+      useEffect(() => {
+        function handler(e) {
+          if (actionMenuRef.current) {
+            if (!actionMenuRef.current.contains(e.target)) {
+              resetActionMenu();
+            }
+          }
+        }
+        document.addEventListener("mousedown", handler);
+        document.addEventListener("scroll", handler);
+        return () => {
+          document.removeEventListener("mousedown", handler);
+          document.removeEventListener("scroll", handler);
+        };
+      }, []);
+    
+      function resetActionMenu() {
+        setIsActionMenuOpen(false);
+        setActionMenu({
+          selectedTopic: -1,
+          selectedTopicItem: null,
+          position: {
+            x: 0,
+            y: 0,
+          },
+          toggled: false,
+        });
+      }
+    
+      async function deleteTopic(id) {
+        if (confirm("Ви впевнені, що хочете видалити тему?")) {
+          console.log("On delete topic " + id);
+          try {
+            const res = await axios.delete(`http://localhost:5000/topics/${id}`);
+            if (res.data.done)
+              setTopicInfoList(prev => prev.filter(item => item.id != id));
+          } catch (error) {
+            console.error(error);
+          }
+        }
+      }
+      
     
     
     const fetchData = async () => {
@@ -84,6 +166,8 @@ const MyTopic = () => {
     useEffect(() => {
         fetchData();
     }, [currentUser]);
+
+
     return (<div style = {{display: "flex", flexDirection: "column", overflow:"hidden",width: "100%"}}>
         <div style = {{marginTop: "14vh", width: "100%"}}>
             <div style = {{marginTop: "3vh",width: "100%"}}>
@@ -118,6 +202,7 @@ const MyTopic = () => {
                   >
                     {data.map((el, index) => (
                       <div
+                      
                         key={el.id}
                         style={{
                           gridColumn: `${index - Math.floor(index / 2) * 2 + 1}`,
@@ -129,10 +214,22 @@ const MyTopic = () => {
                           initialReactions={el.reactions}
                           userReaction={el.user_reaction}
                           setTopics={setData}
+                          handleOnActionMenu={handleOnActionMenu}
                         />
                       </div>
+                      
                     ))}
+                    <TopicActionMenu
+                            positionX={actionMenu.position.x}
+                            positionY={actionMenu.position.y}
+                            isToggled={actionMenu.toggled}
+                            actionMenuRef={actionMenuRef}
+                            resetActionMenu={resetActionMenu}
+                            actionMenu={actionMenu}
+                            deleteTopic={deleteTopic}
+                          />
                   </div>
+                  
                 ) : (
                   <AltSpinner />)}
             </div>
