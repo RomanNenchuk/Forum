@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { useAuth } from "../contexts/AuthContext.jsx";
-import { useTopicSearch } from "../contexts/TopicSearchContext.jsx";
+import React, { useEffect, useState, useRef } from "react";
+import { useAuth } from "../../contexts/AuthContext.jsx";
+import { useTopicSearch } from "../../contexts/TopicSearchContext.jsx";
 import { useLocation } from "react-router-dom";
-import LoadingSpinner from "./Spinner.jsx";
-import TopicListSettings from "./TopicList/TopicListSettings.jsx";
-import TopicList from "./TopicList/TopicList.jsx";
-import TagBar from "./TagBar/TagBar.jsx";
+import LoadingSpinner from "../Spinner.jsx";
+import TopicListSettings from "../TopicList/TopicListSettings.jsx";
+import TopicList from "../TopicList/TopicList.jsx";
+import TagBar from "../TagBar/TagBar.jsx";
 import "./Home.css";
 
 export default function Home() {
   const { currentUser } = useAuth();
-
+  const topicListRef = useRef(null);
   const location = useLocation();
   const {
     queryParams,
@@ -122,14 +122,15 @@ export default function Home() {
 
   return (
     <>
-      <ul className="submain-in">
+      <ul className="submain-in" ref={topicListRef}>
         <TopicListSettings
           sortOrder={queryParams.sortOrder}
           handleChange={handleChange}
         />
-        <TopicList 
+        <TopicList
           topicInfoList={topicInfoList}
-          setTopicInfoList={setTopicInfoList} 
+          setTopicInfoList={setTopicInfoList}
+          // topicListRef={topicListRef}
         />
       </ul>
       <TagBar />

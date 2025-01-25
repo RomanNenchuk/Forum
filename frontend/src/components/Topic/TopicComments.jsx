@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Container, Card } from "react-bootstrap";
-import { useAuth } from "../../contexts/AuthContext.jsx";
+import React from "react";
+import { Card } from "react-bootstrap";
 import AttachedFiles from "../AttachedFiles/AttachedFiles.jsx";
 import { timestampToTime } from "../../utils/getCurrentTime.jsx";
 import ProfileHeader from "../ProfileHeader.jsx";
@@ -25,6 +24,7 @@ export default function TopicComments({
   });
   return (
     <ul
+      className="topic-comments"
       style={{
         width: "100%",
       }}

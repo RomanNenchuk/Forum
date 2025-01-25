@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import TopicArea from "./TopicArea.jsx";
 import TopicActionMenu from "./TopicActionMenu.jsx";
+import { useScrollLock } from "../../hooks/useScrollLock.jsx";
 import "./TopicList.css";
 import axios from "axios";
 
@@ -29,7 +30,11 @@ const reactionList = [
   { icon: "💩", name: "pile_of_poo" },
 ];
 
-export default function TopicList({ topicInfoList, setTopicInfoList }) {
+export default function TopicList({
+  topicInfoList,
+  setTopicInfoList,
+  topicListRef,
+}) {
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
   const [actionMenu, setActionMenu] = useState({
     selectedTopic: -1,
@@ -42,6 +47,7 @@ export default function TopicList({ topicInfoList, setTopicInfoList }) {
   });
 
   const actionMenuRef = useRef(null);
+  useScrollLock(isActionMenuOpen, topicListRef);
 
   function handleOnActionMenu(e, topic) {
     e.preventDefault();
@@ -76,7 +82,11 @@ export default function TopicList({ topicInfoList, setTopicInfoList }) {
       }
     }
     document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener("scroll", handler);
+    return () => {
+      document.removeEventListener("mousedown", handler);
+      document.removeEventListener("scroll", handler);
+    };
   }, []);
 
   function resetActionMenu() {
@@ -105,7 +115,7 @@ export default function TopicList({ topicInfoList, setTopicInfoList }) {
     }
   }
   return (
-    <>
+    <ul className="topic-list">
       {topicInfoList.map((topic, index) => (
         <TopicArea
           key={index}
@@ -126,6 +136,6 @@ export default function TopicList({ topicInfoList, setTopicInfoList }) {
         actionMenu={actionMenu}
         deleteTopic={deleteTopic}
       />
-    </>
+    </ul>
   );
 }

@@ -11,10 +11,10 @@ export default function ChatMessages({
   handleOnContextMenu,
   userSentMessage,
   setUserSentMessage,
+  chatMessagesRef,
 }) {
   const { messages } = useChat();
   const { currentUser } = useAuth();
-  const chatMessagesRef = useRef(null);
 
   const isAtBottom = () => {
     if (chatMessagesRef.current) {

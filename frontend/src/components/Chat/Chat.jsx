@@ -5,7 +5,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useChat } from "../../contexts/ChatContext";
 import { useSocket } from "../../contexts/SocketProviderContext";
 import { useUserInfo } from "../../contexts/UserInfoContext";
-import { useBodyScrollLock } from "../../hooks/useBodyScrollLock.jsx";
+import { useScrollLock } from "../../hooks/useScrollLock.jsx";
 import getChatId from "../../utils/getChatId.jsx";
 import handleUpload from "../../utils/uploadFiles.jsx";
 import ChatInput from "./ChatInput.jsx";
@@ -44,12 +44,13 @@ export default function Chat() {
     toggled: false,
   });
 
-  useBodyScrollLock(isContextMenuOpen);
-  useBodyScrollLock(isActionMenuOpen);
-
   const actionMenuRef = useRef(null);
   const settingsRef = useRef(null);
   const contextMenuRef = useRef(null);
+  const chatMessagesRef = useRef(null);
+
+  useScrollLock(isContextMenuOpen, chatMessagesRef);
+  useScrollLock(isActionMenuOpen, chatMessagesRef);
 
   const { receiverId } = useParams();
   const {
@@ -401,6 +402,7 @@ export default function Chat() {
         handleOnContextMenu={handleOnContextMenu}
         userSentMessage={userSentMessage}
         setUserSentMessage={setUserSentMessage}
+        chatMessagesRef={chatMessagesRef}
       />
 
       <ChatContextMenu

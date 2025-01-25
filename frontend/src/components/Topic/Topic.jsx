@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Container, Carousel } from "react-bootstrap";
-import { useParams, useLocation, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useUserInfo } from "../../contexts/UserInfoContext";
 import handleUpload from "../../utils/uploadFiles.jsx";
@@ -10,11 +10,11 @@ import TopicInput from "./TopicInput";
 import TopicComments from "./TopicComments";
 import FileSendModal from "../FileModal/FileSendModal.jsx";
 import FileEditModal from "../FileModal/FileEditModal.jsx";
-import "./Topic.css";
-
-import { IoArrowBack } from "react-icons/io5";
+import { useScrollLock } from "../../hooks/useScrollLock.jsx";
 import TopicContextMenu from "./TopicContextMenu";
+import { IoArrowBack } from "react-icons/io5";
 import axios from "axios";
+import "./Topic.css";
 
 export const commentsOnOnePageCount = 10;
 
@@ -23,7 +23,6 @@ export default function Topic() {
   const [topic, setTopic] = useState(null);
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const location = useLocation();
   const navigate = useNavigate();
   const [extendfInfo, setExtendInfo] = useState();
 
@@ -47,8 +46,12 @@ export default function Topic() {
   });
 
   const contextMenuRef = useRef(null);
+  const topicCommentsRef = useRef(null);
+  const topicItemRef = useRef(null);
   const { currentUser } = useAuth();
   const { userName, avatar } = useUserInfo();
+
+  useScrollLock(isContextMenuOpen, topicCommentsRef);
 
   // вантажу інформацію з БД при монтуванні компонента
   useEffect(() => {
@@ -310,9 +313,6 @@ export default function Topic() {
       toggled: true,
     });
   }
-  useEffect(() => {
-    console.log(reply?.id);
-  }, [reply]);
 
   if (loading) return <LoadingSpinner />;
 
@@ -329,9 +329,9 @@ export default function Topic() {
       </div>
       <div className="topic-and-comments">
         <div className="in-block-for-flex">
-          <div className="block left">
+          <div className="block left" ref={topicItemRef}>
             <div className="info-list">
-              <TopicList topicInfoList={[topic]} />
+              <TopicList topicInfoList={[topic]} topicListRef={topicItemRef} />
             </div>
             <div className="extra-info">
               <div style={{ padding: "2vh" }}>
@@ -395,17 +395,15 @@ export default function Topic() {
 
           <div className="palka"></div>
 
-          <div className="block right">
+          <div className="block right" ref={topicCommentsRef}>
             <div style={{ width: "90%" }}>
               <div className="comment-area">Коментарі</div>
-              <ul>
-                <TopicComments
-                  handleOnContextMenu={handleOnContextMenu}
-                  uid={topic?.uid}
-                  currentUser={currentUser}
-                  comments={comments}
-                />
-              </ul>
+              <TopicComments
+                handleOnContextMenu={handleOnContextMenu}
+                uid={topic?.uid}
+                currentUser={currentUser}
+                comments={comments}
+              />
             </div>
             <TopicInput
               isEditModalOpen={isEditModalOpen}

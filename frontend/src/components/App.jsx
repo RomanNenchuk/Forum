@@ -13,7 +13,7 @@ import NotFound from "./NotFound";
 import ForgotPassword from "./ForgotPassword/ForgotPassword";
 import UpdateProfile from "./UpdateProfile/UpdateProfile.jsx";
 import Menu from "./Menu/Menu.jsx";
-import Home from "./Home.jsx";
+import Home from "./Home/Home.jsx";
 import Topic from "./Topic/Topic.jsx";
 import CreateTopic from "./CreateTopic.jsx";
 import ChatList from "./Chat/ChatList.jsx";
