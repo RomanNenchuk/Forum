@@ -99,10 +99,18 @@
 
 .comment-area {
   display: flex;
-  height: 5vh;
   align-items: center;
   justify-content: center;
-  font-size: 3vh;
+  font-size: 23px;
+  font-family: Inter;
+  font-size: 23px;
+  font-weight: 500;
+  line-height: 27.84px;
+  letter-spacing: -0.01em;
+  text-align: left;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+  margin-top: 30px;
 }
 .reply-label {
   background: rgba(172, 195, 211, 0.8);

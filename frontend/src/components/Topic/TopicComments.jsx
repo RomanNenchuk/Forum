@@ -26,12 +26,7 @@ export default function TopicComments({
     }
   });
   return (
-    <ul
-      className="topic-comments"
-      style={{
-        width: "100%",
-      }}
-    >
+    <ul className="topic-comments">
       {sortedComments.length
         ? sortedComments.map((comment, index) => {
             return (
@@ -40,19 +35,6 @@ export default function TopicComments({
                 className={`comment-outer${
                   comment.reply === -1 ? "" : "-reply"
                 }`}
-                style={
-                  currentUser?.uid === comment.author_id
-                    ? {
-                        textAlign: "right",
-                        marginLeft: "auto",
-                        marginRight: "2vh",
-                      }
-                    : {
-                        textAlign: "left",
-                        marginRight: "auto",
-                        marginLeft: "2vh",
-                      }
-                }
                 onContextMenu={e => handleOnContextMenu(e, comment)}
               >
                 <div className="header-container">
@@ -67,6 +49,7 @@ export default function TopicComments({
                     sizeFont="16px"
                     size="37px"
                   />
+                  <span className="header-delimiter">•</span>
                   <span className="comment-timestamp">
                     {formatRelativeTime(comment.timestamp)}
                   </span>

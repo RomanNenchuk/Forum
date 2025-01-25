@@ -100,7 +100,7 @@ export default function ChatMessages({
           />
           <p
             style={{
-              margin: "20px",
+              margin: "0 20px 20px 20px",
               fontSize: "17px",
               userSelect: "text",
             }}
