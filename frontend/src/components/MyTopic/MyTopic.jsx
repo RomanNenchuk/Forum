@@ -15,6 +15,7 @@ const MyTopic = () => {
     
     const [firstStepChoose, setFirstStepChoose] = useState(0)
     
+    
 
     const reactionList = [
         { icon: "😁", name: "beaming_face_with_smiling_eyes" },
@@ -40,54 +41,100 @@ const MyTopic = () => {
         { icon: "💀", name: "skull" },
         { icon: "💩", name: "pile_of_poo" },
       ];
+    
+    
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+            const response = await axios.get(`http://localhost:5000/topics/mytopics?user_id=${currentUser.uid}`);
+            setData(response.data);
+        } catch (error) {
+            console.error("Error fetching user topics:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    const fetchSavedData = async () => {
+        try {
+          setLoading(true);
+          const response = await axios.get(
+            `http://localhost:5000/topics`
+          );
+          setData(response.data);
+        } catch (error) {
+          console.error("Error fetching user topics:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+   
+    const toChoose = (choose) => {
+        setLoading(true)
+        if(choose){
+            setFirstStepChoose(1)
+            fetchSavedData()
+        }
+        else{
+            setFirstStepChoose(0)
+            fetchData()
+        }
+    }
+
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true);
-                const response = await axios.get(`http://localhost:5000/topics/mytopics?user_id=${currentUser.uid}`);
-                setData(response.data);
-            } catch (error) {
-                console.error("Error fetching user topics:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchData();
     }, [currentUser]);
-
-
-    
     return (<div style = {{display: "flex", flexDirection: "column", overflow:"hidden",width: "100%"}}>
         <div style = {{marginTop: "14vh", width: "100%"}}>
             <div style = {{marginTop: "3vh",width: "100%"}}>
             <div style = {{display: "flex",width: "100%", flexDirection:'row', justifyContent:"space-around",padding: "2vh"}}>
               <div style = {firstStepChoose === 0 ? {boxShadow: "0 0.3vh 0 0 #659287",fontSize: "3vh"} : {fontSize: "3vh"}}
-              onClick = {()=>setFirstStepChoose(0)}>Мої теми</div>
+              onClick = {()=>toChoose(0)}>Мої теми</div>
               <div style = {firstStepChoose !== 0 ? {boxShadow: "0 0.3vh 0 0 #659287" ,fontSize: "3vh"} : {fontSize: "3vh"}}
-              onClick = {()=>{setFirstStepChoose(1);console.log(data)}}>Збережені теми</div>
+              onClick = {()=>{toChoose(1)}}>Збережені теми</div>
             </div>
             <div style = {{marginTop: "3vh",display: "flex",justifyContent: "center", width: "100%"}}>
-            <Link
+           {!firstStepChoose ? <Link
                 to={currentUser ? "/create-topic" : "/login"}
                 state={{redirectPath: "/create-topic",}}
                 style = {{width: "55%"}}
             >
                 <button style = {{width: "100%", borderRadius: "0px"}} className="add-topic-button">+ Додати тему</button>
-            </Link>
+            </Link> : ''}
             </div>
             </div>
             <div style = {{display: "flex",justifyContent: "center"}}>
-            {!loading ? <div style = {{display: "grid", gap: "5vh", gridTemplateColumns: "repeat(2, 1fr)",width: "90%",
-            justifyContent: "center",marginTop : "4vh", gridTemplateRows: "repeat(auto-fill, 1fr)"}}>
-                {data.map((el, index) => (
-                    <div style={{ gridColumn: `${index - Math.floor(index / 2) * 2 + 1}` }}>
-                        <TopicArea topic={el} reactionList={reactionList} 
-                        initialReactions={el.reactions}   userReaction={el.user_reaction} setTopics={setData}  />
-                    </div>
-                ))}
-            </div> : <AltSpinner />}
+            {!loading ? (
+                  <div
+                    style={{
+                      display: "grid",
+                      gap: "5vh",
+                      gridTemplateColumns: "repeat(2, 1fr)",
+                      width: "90%",
+                      justifyContent: "center",
+                      marginTop: "4vh",
+                      gridTemplateRows: "repeat(auto-fill, 1fr)",
+                    }}
+                  >
+                    {data.map((el, index) => (
+                      <div
+                        key={el.id}
+                        style={{
+                          gridColumn: `${index - Math.floor(index / 2) * 2 + 1}`,
+                        }}
+                      >
+                        <TopicArea
+                          topic={el}
+                          reactionList={reactionList}
+                          initialReactions={el.reactions}
+                          userReaction={el.user_reaction}
+                          setTopics={setData}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <AltSpinner />)}
             </div>
         </div>
     </div>)
