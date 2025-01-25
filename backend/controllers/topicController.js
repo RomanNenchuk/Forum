@@ -328,7 +328,7 @@ export const getTopicComments = async (req, res) => {
       c.topic_id,
       c.attachments,
       c.reply,
-      u.username AS author_username,
+      u.fullname AS author_fullname,
       u.avatar,
       o.text AS reply_text,
       o.timestamp AS reply_timestamp
@@ -351,7 +351,7 @@ export const getTopicComments = async (req, res) => {
   }
 };
 
-export const PostNewComment = async (req, res) => {
+export const postNewComment = async (req, res) => {
   const comm = req.body;
   try {
     const query = `

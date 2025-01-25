@@ -6,7 +6,7 @@ import {
   saveTopic,
   getTopic,
   getTopicComments,
-  PostNewComment,
+  postNewComment,
   deleteComment,
   editComments,
   deleteTopic,
@@ -20,7 +20,7 @@ router.get("/", getTopicsPreview);
 
 router.post("/", middleware.decodeToken, saveTopic);
 
-router.post("/comments", PostNewComment);
+router.post("/comments", postNewComment);
 
 router.get("/:id/comments", getTopicComments);
 

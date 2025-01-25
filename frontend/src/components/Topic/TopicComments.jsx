@@ -1,7 +1,10 @@
 import React from "react";
 import { Card } from "react-bootstrap";
 import AttachedFiles from "../AttachedFiles/AttachedFiles.jsx";
-import { timestampToTime } from "../../utils/getCurrentTime.jsx";
+import {
+  timestampToTime,
+  formatRelativeTime,
+} from "../../utils/getCurrentTime.jsx";
 import ProfileHeader from "../ProfileHeader.jsx";
 import "./Comments.css";
 
@@ -52,20 +55,24 @@ export default function TopicComments({
                 }
                 onContextMenu={e => handleOnContextMenu(e, comment)}
               >
-                <ProfileHeader
-                  id={comment.author_id}
-                  avatar={comment.avatar}
-                  profileName={
-                    comment.author_username +
-                    (uid === comment.author_id ? "(Автор)" : "")
-                  }
-                  sizeFont="2vh"
-                  size="4vh"
-                />
+                <div className="header-container">
+                  <ProfileHeader
+                    id={comment.author_id}
+                    avatar={comment.avatar}
+                    profileName={
+                      comment.author_fullname +
+                      (uid === comment.author_id ? "(Автор)" : "")
+                    }
+                    textStyle={{ color: "#000" }}
+                    sizeFont="16px"
+                    size="37px"
+                  />
+                  <span className="comment-timestamp">
+                    {formatRelativeTime(comment.timestamp)}
+                  </span>
+                </div>
                 <AttachedFiles urls={comment?.attachments} />
-                <span>{comment.text}</span>
-                <br />
-                <span>{timestampToTime(comment.timestamp)}</span>
+                <p className="comment-text">{comment.text}</p>
               </div>
             );
           })

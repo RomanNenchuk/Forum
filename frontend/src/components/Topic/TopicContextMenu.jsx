@@ -62,7 +62,12 @@ export default function TopicContextMenu({
       onClick:
         contextMenu.selectedCommentItem?.reply === -1
           ? () => {
-              setReply(contextMenu.selectedCommentItem);
+              setReply({
+                id: contextMenu.selectedCommentItem.id,
+                author: contextMenu.selectedCommentItem.author_fullname,
+                text: contextMenu.selectedCommentItem.text,
+                attachment: contextMenu.selectedCommentItem.attachments[0],
+              });
             }
           : null,
     },

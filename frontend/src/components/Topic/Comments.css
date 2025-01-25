@@ -1,9 +1,26 @@
+.comment-list-group {
+  overflow-y: auto;
+  width: 100%;
+  padding-bottom: 5px;
+}
 .comment-outer {
   border: 0.1vh solid black;
   border-radius: 2vh;
   padding: 1vh;
   width: 55%;
   margin-top: 1vh;
+}
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.comment-timestamp {
+  font-size: 14px;
+  color: #555;
+}
+.comment-text {
+  margin: 20px 0;
 }
 .comment-outer-reply {
   border: 0.1vh solid black;
@@ -13,16 +30,26 @@
   margin-top: 1vh;
 }
 .comment-input-container {
-  width: 90%;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 43px;
+  width: 100%;
+  padding: 22px 22px 22px 23px;
+  background: #acc3d3a8;
 }
 #comment-input {
-  background-color: #d3e5ee;
+  flex-grow: 1;
+  background-color: #acc3d3a8;
   border: none;
   border-radius: 1vh;
+  font-size: 18px;
+  font-family: "Inter";
+  background: transparent;
+  outline: none;
+  padding: 3px 10px;
 }
-#comment-input::placeholder {
-  color: #88aaab;
-}
-#comment-input:focus {
-  outline-color: #88aaab;
+#chat-message-input::placeholder {
+  color: #659290;
+  letter-spacing: 0.02em;
 }

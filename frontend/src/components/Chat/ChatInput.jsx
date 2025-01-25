@@ -2,10 +2,9 @@ import React, { useState, useRef, useEffect } from "react";
 import FileUploader from "../FileUploader.jsx";
 import { useChat } from "../../contexts/ChatContext.jsx";
 import sendMessageIcon from "../../assets/send-message.svg";
-import sendSmileIcon from "../../assets/send-smile.svg";
 import { MdEdit } from "react-icons/md";
-import EmojiPicker from "emoji-picker-react";
 import cancelIcon from "../../assets/cancel.svg";
+import EmojiPickerButton from "../EmojiPickerButton/EmojiPickerButton.jsx";
 
 export default function ChatInput({
   isEditModalOpen,
@@ -31,10 +30,6 @@ export default function ChatInput({
       setText("");
     };
   }, []);
-
-  const handleEmojiClick = emojiData => {
-    setText(prev => prev + emojiData.emoji);
-  };
 
   function hasAttachments() {
     const message = messages.find(msg => msg.id === editId);
@@ -108,19 +103,7 @@ export default function ChatInput({
         ref={inputRef}
         placeholder="Напишіть повідомлення..."
       />
-      <div className="send-smile-container">
-        <div className="send-smile-btn">
-          <img src={sendSmileIcon} alt="Smile" />
-        </div>
-        <div className="invisible-gap"></div>
-        <div className="emoji-picker">
-          <EmojiPicker
-            onEmojiClick={handleEmojiClick}
-            height={400}
-            width={300}
-          />
-        </div>
-      </div>
+      <EmojiPickerButton setText={setText} />
       {(editId === -1 || isEditModalOpen || isSendModalOpen) && (
         <div className="send-msg-btn" onClick={sendMessage}>
           <img src={sendMessageIcon} alt="Send" />

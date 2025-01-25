@@ -34,7 +34,12 @@ export default function Topic() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
   const [editId, setEditId] = useState(-1);
-  const [reply, setReply] = useState(null);
+  const [reply, setReply] = useState({
+    id: -1,
+    author: null,
+    text: "",
+    attachment: "",
+  });
   const [contextMenu, setContextMenu] = useState({
     selectedComment: -1,
     selectedCommentItem: null,
@@ -49,7 +54,7 @@ export default function Topic() {
   const topicCommentsRef = useRef(null);
   const topicItemRef = useRef(null);
   const { currentUser } = useAuth();
-  const { userName, avatar } = useUserInfo();
+  const { fullName, avatar } = useUserInfo();
 
   useScrollLock(isContextMenuOpen, topicCommentsRef);
 
@@ -125,7 +130,12 @@ export default function Topic() {
   };
 
   function resetReply() {
-    setReply(null);
+    setReply({
+      id: -1,
+      author: null,
+      text: "",
+      attachment: "",
+    });
   }
 
   async function sendComment() {
@@ -139,7 +149,7 @@ export default function Topic() {
         topic_id: id,
         attachments: [],
         reply: reply?.id || -1,
-        author_username: userName,
+        author_fullname: fullName,
         avatar: avatar,
         reply_text: null,
         reply_timestamp: reply?.timestamp || null,
@@ -173,7 +183,7 @@ export default function Topic() {
           topic_id: id,
           attachments,
           reply: reply?.id || -1,
-          author_username: userName,
+          author_fullname: fullName,
           avatar: avatar,
           reply_text: null,
           reply_timestamp: reply?.timestamp || null,
@@ -390,13 +400,9 @@ export default function Topic() {
               </div>
             </div>
           </div>
-
           <div className="palka"></div>
-
-          <div className="palka"></div>
-
           <div className="block right" ref={topicCommentsRef}>
-            <div style={{ width: "90%" }}>
+            <div className="comment-list-group">
               <div className="comment-area">Коментарі</div>
               <TopicComments
                 handleOnContextMenu={handleOnContextMenu}
@@ -423,7 +429,7 @@ export default function Topic() {
               editId={editId}
               onCancel={handleCloseModal}
               reply={reply}
-              resetReply={resetReply}
+              setReply={setReply}
             />
           </div>
           <TopicContextMenu

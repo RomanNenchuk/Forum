@@ -10,8 +10,7 @@ import languageIcon from "../../assets/language.svg";
 import modIcon from "../../assets/theme.svg";
 import aboutIcon from "../../assets/about.svg";
 import teamIcon from "../../assets/team.svg";
-import themeIcon from "../../assets/side-theme.png";
-import { RiExpandRightFill, RiExpandLeftFill } from "react-icons/ri";
+import themeIcon from "../../assets/side-theme.svg";
 import "./Menu.css";
 
 export default function SideBar({ isExpanded, setExpand }) {
@@ -33,26 +32,6 @@ export default function SideBar({ isExpanded, setExpand }) {
       style={{ width: isExpanded ? "45vh" : "10vh" }}
     >
       <div className="mn-menu-row mn-menu-row1">
-        <div
-          className="side-expand"
-          style={
-            isExpanded
-              ? { justifyContent: "end" }
-              : { justifyContent: "center" }
-          }
-        >
-          {isExpanded ? (
-            <RiExpandLeftFill
-              size="4vh"
-              onClick={() => setExpand(!isExpanded)}
-            />
-          ) : (
-            <RiExpandRightFill
-              size="4vh"
-              onClick={() => setExpand(!isExpanded)}
-            />
-          )}
-        </div>
         <div className="mn-menu-el">
           <Link to="/" id="/mn-menu-home">
             <img src={homeIcon} alt="Home" />

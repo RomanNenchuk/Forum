@@ -34,25 +34,24 @@
   align-items: center;
   justify-content: space-between;
   overflow-x: hidden;
-  overflow-y: scroll;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  overflow: hidden;
   height: 76vh;
 }
 
 .left {
-  max-width: 87vh;
-  flex-grow: 1;
-}
-
-.right {
-  flex-grow: 3;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 2%;
+  overflow: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .palka {
+  margin: auto 5px;
   display: sticky;
-  height: 100vh;
-  width: 0.3vh;
+  height: 95%;
+  width: 0.5px;
   background-color: gray;
 }
 .info-list {
@@ -104,4 +103,26 @@
   align-items: center;
   justify-content: center;
   font-size: 3vh;
+}
+.reply-label {
+  background: rgba(172, 195, 211, 0.8);
+  height: 100%;
+  position: absolute;
+  top: -100%;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+  align-items: center;
+}
+.reply-label-info {
+  max-width: 90%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.reply-label-author {
+  font-weight: 600;
 }
