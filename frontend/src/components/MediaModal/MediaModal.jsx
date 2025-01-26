@@ -19,7 +19,6 @@ export default function MediaModal({ url, onClose }) {
   }, [onClose]);
 
   const handleWheel = e => {
-    e.preventDefault();
     setScale(prevScale =>
       Math.max(0.5, Math.min(3, prevScale + e.deltaY * -0.001))
     );

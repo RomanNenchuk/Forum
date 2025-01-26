@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ContextMenu from "../PopupMenus/ContextMenu.jsx";
 import deleteIcon from "../../assets/delete-context-menu.svg";
 import editIcon from "../../assets/edit-file.svg";
@@ -67,11 +67,18 @@ export default function TopicContextMenu({
                 author: contextMenu.selectedCommentItem.author_fullname,
                 text: contextMenu.selectedCommentItem.text,
                 attachment: contextMenu.selectedCommentItem.attachments[0],
+                timestamp: contextMenu.selectedCommentItem.timestamp,
               });
             }
           : null,
     },
   ].filter(button => button.onClick);
+
+  useEffect(() => {
+    if (!isToggled || buttons.length === 0) {
+      resetContextMenu();
+    }
+  }, [contextMenu.selectedCommentItem]);
   return (
     <ContextMenu
       positionX={positionX}

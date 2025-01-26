@@ -40,6 +40,7 @@ export default function Topic() {
     author: null,
     text: "",
     attachment: "",
+    timestamp: null,
   });
   const [contextMenu, setContextMenu] = useState({
     selectedComment: -1,
@@ -136,6 +137,7 @@ export default function Topic() {
       author: null,
       text: "",
       attachment: "",
+      timestamp: null,
     });
   }
 
@@ -162,7 +164,10 @@ export default function Topic() {
       comm.id = result.data.id;
       comm.reply_text = result.data.reply_text;
 
-      setComments(prev => [comm, ...prev]);
+      setComments(prev => {
+        console.log([...prev, comm]);
+        return [...prev, comm];
+      });
     } else {
       // якщо користувач обере більше 10 файлів, то розбиваємо їх на частини по 10
       const CHUNK_SIZE = 10;
@@ -196,7 +201,7 @@ export default function Topic() {
         comm.id = result.data.id;
         comm.reply_text = result.data.reply_text;
 
-        setComments(prev => [comm, ...prev]);
+        setComments(prev => [...prev, comm]);
       }
     }
     setText("");
@@ -404,8 +409,8 @@ export default function Topic() {
             </div>
           </div>
           <div className="palka"></div>
-          <div className="block right" ref={topicCommentsRef}>
-            <div className="comment-list-group">
+          <div className="block right">
+            <div className="comment-list-group" ref={topicCommentsRef}>
               <div className="comment-area">Коментарі</div>
               <TopicComments
                 handleOnContextMenu={handleOnContextMenu}
@@ -432,7 +437,7 @@ export default function Topic() {
               editId={editId}
               onCancel={handleCloseModal}
               reply={reply}
-              setReply={setReply}
+              resetReply={resetReply}
             />
           </div>
           <TopicContextMenu

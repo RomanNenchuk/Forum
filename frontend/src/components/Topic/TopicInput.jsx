@@ -18,7 +18,7 @@ export default function TopicInput({
   editId,
   onCancel,
   reply,
-  setReply,
+  resetReply,
 }) {
   function onChange(e) {
     if (isEditModalOpen || isSendModalOpen) return;
@@ -40,18 +40,7 @@ export default function TopicInput({
                 "*Видалене повідомлення*"}
             </span>
           </div>
-          <img
-            src={cancelIcon}
-            alt="Cancel"
-            onClick={() =>
-              setReply({
-                id: -1,
-                author: null,
-                text: "",
-                attachment: "",
-              })
-            }
-          />
+          <img src={cancelIcon} alt="Cancel" onClick={resetReply} />
         </div>
       )}
 
