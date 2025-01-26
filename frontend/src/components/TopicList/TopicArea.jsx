@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import reactionListSetter from "../../utils/reactionListSetter.jsx";
@@ -14,6 +14,7 @@ export default function TopicArea({
   reactionList,
   initialReactions,
   userReaction,
+  setTopics,
   handleOnActionMenu,
 }) {
   const [activeReactions, setActiveReactions] = useState(
@@ -23,6 +24,10 @@ export default function TopicArea({
   const location = useLocation();
   const navigate = useNavigate();
   const { currentUser, token } = useAuth();
+
+  useEffect(() => {
+    setActiveReactions(reactionListSetter(initialReactions, userReaction));
+  }, [initialReactions, userReaction]);
 
   async function handleClick(emoji) {
     if (!currentUser)
