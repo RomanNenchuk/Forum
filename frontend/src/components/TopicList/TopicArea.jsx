@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import reactionListSetter from "../../utils/reactionListSetter.jsx";
@@ -14,17 +14,15 @@ export default function TopicArea({
   reactionList,
   initialReactions,
   userReaction,
-  setTopics,
   handleOnActionMenu,
 }) {
-  const [activeReactions, setActiveReactions] = useState([]);
+  const [activeReactions, setActiveReactions] = useState(
+    reactionListSetter(initialReactions, userReaction)
+  );
+
   const location = useLocation();
   const navigate = useNavigate();
   const { currentUser, token } = useAuth();
-
-  useEffect(() => {
-    setActiveReactions(reactionListSetter(initialReactions, userReaction));
-  }, [initialReactions, userReaction]);
 
   async function handleClick(emoji) {
     if (!currentUser)
@@ -34,7 +32,6 @@ export default function TopicArea({
           redirectPath: location,
         },
       });
-
     try {
       const response = await axios.put(
         `http://localhost:5000/topics/${topic.id}/reactions`,
@@ -69,7 +66,9 @@ export default function TopicArea({
               profileName={topic.author_full_name}
             />
             <div className="topic-title">
-              <span style={{ marginBottom: "1vh" }}>{topic.title}</span>
+              <span style={{ marginBottom: "1vh", overflowWrap: "break-word" }}>
+                {topic.title}
+              </span>
             </div>
           </div>
         </Link>

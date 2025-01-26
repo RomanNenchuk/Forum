@@ -15,55 +15,52 @@
   text-align: left;
   text-underline-position: from-font;
   text-decoration-skip-ink: none;
-  margin-bottom: 5vh;
+  margin-bottom: 2vh;
 }
 
 .tag {
-  font-size: 2.5vh;
   font-weight: 500;
   font-family: "Inter", Arial, sans-serif;
-  font-size: 3.5vh;
-  font-weight: 500;
+  font-size: 2.5vh;
+  font-weight: 700;
   line-height: 4vh;
   text-align: left;
   text-underline-position: from-font;
   text-decoration-skip-ink: none;
-  margin-bottom: 2.5vh;
+  margin-bottom: 0.5vh;
 }
 
 .tag-list {
   padding: 1vh;
   position: sticky;
-  top: 20vh;
-  height: 50vh;
-  display: flex;
+  top: 17vh;
+  display: block;
+  height: 80vh;
   flex-direction: column;
   right: 0;
-  width: 36vh;
-  overflow: hidden;
+  min-width: 36vh;
   background-color: rgb(255, 230, 169);
   border: 0.1vh solid black;
   font-size: 2vh;
 }
 
-
-.tag-outer-ext{
+.tag-outer-ext {
   position: fixed;
   right: 37vh;
   top: 20vh;
 }
 
 .tag-list-title-ext {
-  position:sticky;
+  position: sticky;
   width: 100%;
   background-color: rgb(255, 230, 169);
-  top:0px;
+  top: 0px;
   border-bottom: 0.2vh solid black;
   margin-bottom: 1vh;
   z-index: 2;
 }
 
-.tag-list-title-ext span{
+.tag-list-title-ext span {
   font-size: 3vh;
   font-weight: 400;
   line-height: 4vh;
@@ -73,8 +70,7 @@
   font-family: "Actor", Arial, sans-serif;
 }
 
-
-.tag-list-title-ext input{
+.tag-list-title-ext input {
   background-color: rgb(220, 220, 220);
   outline: none;
   border: 0.1vh solid black;
@@ -82,12 +78,11 @@
   margin: 1vh;
   font-size: 2.6vh;
   overflow-x: scroll;
-  
 }
-.tag-list-title-ext input::placeholder{
+.tag-list-title-ext input::placeholder {
   color: black;
   font-size: 2.4vh;
-  padding:1vh;
+  padding: 1vh;
 }
 .tag-ext {
   font-size: 2.5vh;
@@ -112,13 +107,10 @@
   height: 50vh;
   width: 36vh;
   overflow: auto;
-  scrollbar-width: none; 
-  -ms-overflow-style: none; 
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 
   background-color: rgb(255, 255, 255);
   border: 0.1vh solid black;
   font-size: 2vh;
 }
-
-
-  

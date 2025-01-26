@@ -9,6 +9,7 @@ import TagBar from "../TagBar/TagBar.jsx";
 import "./Home.css";
 
 export default function Home() {
+  const [tagBarLoading, setTagBarLoading] = useState(true);
   const { currentUser } = useAuth();
   const topicListRef = useRef(null);
   const location = useLocation();
@@ -118,7 +119,8 @@ export default function Home() {
     return () => window.removeEventListener("scroll", debouncedHandleScroll);
   }, [hasMore, loading]);
 
-  if (loading && topicInfoList.length === 0) return <LoadingSpinner />;
+  if (loading && tagBarLoading && topicInfoList.length === 0)
+    return <LoadingSpinner />;
 
   return (
     <>
@@ -130,10 +132,12 @@ export default function Home() {
         <TopicList
           topicInfoList={topicInfoList}
           setTopicInfoList={setTopicInfoList}
-          // topicListRef={topicListRef}
         />
       </ul>
-      <TagBar />
+      <TagBar
+        tagBarLoading={tagBarLoading}
+        setTagBarLoading={setTagBarLoading}
+      />
     </>
   );
 }
