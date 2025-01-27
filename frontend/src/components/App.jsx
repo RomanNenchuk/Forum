@@ -20,7 +20,7 @@ import ChatList from "./Chat/ChatList.jsx";
 import Chat from "./Chat/Chat.jsx";
 import Modal from "./Modal.jsx";
 import MyTopic from "./MyTopic/MyTopic.jsx";
-import TagExtention from "./TagBar/TagExtention.jsx";
+import ExpandedTags from "./TagBar/ExpandedTags.jsx";
 import { useBackgroundLocation } from "../hooks/useBackgroundLocation.jsx";
 import DefaultChatScreen from "./DefaultChatScreen.jsx";
 
@@ -112,7 +112,7 @@ function AppRoutes() {
             path="/tags"
             element={
               <Modal>
-                <TagExtention />
+                <ExpandedTags />
               </Modal>
             }
           />
