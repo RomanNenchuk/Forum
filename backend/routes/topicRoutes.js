@@ -5,13 +5,14 @@ import {
   getTopicsPreview,
   saveTopic,
   getTopic,
-  getTopicComments,
   postNewComment,
   deleteComment,
   editComments,
   deleteTopic,
-  getUserTopic
+  getUserTopic,
 } from "../controllers/topicController.js";
+
+import { getTopicComments } from "../controllers/commentController.js";
 
 import { setTopicReaction } from "../controllers/emojiController.js";
 
@@ -23,7 +24,7 @@ router.post("/", middleware.decodeToken, saveTopic);
 
 router.post("/comments", postNewComment);
 
-router.get("/mytopics", getUserTopic)
+router.get("/mytopics", getUserTopic);
 
 router.get("/:id/comments", getTopicComments);
 
@@ -36,7 +37,5 @@ router.delete("/comments/:id", deleteComment);
 router.patch("/comments/:id", editComments);
 
 router.delete("/:id", deleteTopic);
-
-
 
 export default router;

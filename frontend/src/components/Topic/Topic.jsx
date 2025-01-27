@@ -115,10 +115,12 @@ export default function Topic() {
         reply_text
         reply_timestamp
        */
-      const result = await axios.get(
-        `http://localhost:5000/topics/${id}/comments`
+      const response = await axios.get(
+        `http://localhost:5000/topics/${id}/comments${
+          currentUser ? "?user_id=" + currentUser.uid : ""
+        }`
       );
-      setComments(result.data);
+      setComments(response.data);
     } catch (error) {
       console.error("fetchTopicComments error:", error);
     }
@@ -414,8 +416,7 @@ export default function Topic() {
               <div className="comment-area">Коментарі</div>
               <TopicComments
                 handleOnContextMenu={handleOnContextMenu}
-                uid={topic?.uid}
-                currentUser={currentUser}
+                topicAuthorId={topic?.uid}
                 comments={comments}
               />
             </div>

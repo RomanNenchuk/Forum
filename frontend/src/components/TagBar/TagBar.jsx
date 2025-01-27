@@ -13,7 +13,6 @@ export default function TagBar({ tagBarLoading, setTagBarLoading }) {
       try {
         const res = await axios.get("http://localhost:5000/tags");
         setData(res.data);
-        console.log(res.data);
       } catch (error) {
         console.error("Error fetching tags:", error);
       } finally {

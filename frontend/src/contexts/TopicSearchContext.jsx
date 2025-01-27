@@ -78,7 +78,6 @@ export function TopicSearchProvider({ children }) {
 
   async function fetchTopics() {
     try {
-      console.log("fetched");
       const response = await axios.get(
         `http://localhost:5000/topics?page=${queryParams.page}&sort=${
           queryParams.sortOrder

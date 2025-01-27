@@ -1,5 +1,6 @@
 import { pool } from "../db.js";
 import { deleteAttachments } from "../controllers/fileController.js";
+
 // для відображення на головній сторінці
 export const getTopicsPreview = async (req, res) => {
   const { page = 1, limit = 10, sort, user_id, tags, authors } = req.query;
@@ -66,10 +67,10 @@ export const getTopicsPreview = async (req, res) => {
         topics.date
       FROM topics
       INNER JOIN users ON users.uid = topics.author
-      LEFT JOIN reactions
-        ON topics.id = reactions.topic_id
+      LEFT JOIN topic_reactions
+        ON topics.id = topic_reactions.topic_id
       LEFT JOIN emoji
-        ON emoji.id = reactions.emoji_id
+        ON emoji.id = topic_reactions.emoji_id
       WHERE 1=1
       ${tagsFilterQuery}
       ${authorsFilterQuery}
@@ -98,8 +99,8 @@ export const getTopicsPreview = async (req, res) => {
         emoji.name,
         emoji.icon,
         COUNT(*) AS count
-      FROM reactions
-      INNER JOIN emoji ON reactions.emoji_id = emoji.id
+      FROM topic_reactions
+      INNER JOIN emoji ON topic_reactions.emoji_id = emoji.id
       GROUP BY topic_id, emoji.name, emoji.icon;
       `
     );
@@ -114,8 +115,8 @@ export const getTopicsPreview = async (req, res) => {
         SELECT 
           topic_id, 
           emoji.name AS name
-        FROM reactions
-        LEFT JOIN emoji ON reactions.emoji_id = emoji.id
+        FROM topic_reactions
+        LEFT JOIN emoji ON topic_reactions.emoji_id = emoji.id
         WHERE user_id = $1;
         `,
         [user_id]
@@ -152,7 +153,7 @@ export const getTopicsPreview = async (req, res) => {
 };
 
 export const getUserTopic = async (req, res) => {
-  const { page = 1, limit = 10, sort, user_id, tags, authors } = req.query;
+  const { page = 1, limit = 10, user_id } = req.query;
   const offset = (page - 1) * limit;
   try {
     const topicsResult = await pool.query(
@@ -170,10 +171,10 @@ export const getUserTopic = async (req, res) => {
       FROM topics
       
       INNER JOIN users ON users.uid = topics.author
-      LEFT JOIN reactions
-        ON topics.id = reactions.topic_id
+      LEFT JOIN topic_reactions
+        ON topics.id = topic_reactions.topic_id
       LEFT JOIN emoji
-        ON emoji.id = reactions.emoji_id
+        ON emoji.id = topic_reactions.emoji_id
       WHERE users.uid = $1
       GROUP BY topics.id, fullname, username, avatar, title, email, author, topics.date
       LIMIT $2 OFFSET $3
@@ -188,8 +189,8 @@ export const getUserTopic = async (req, res) => {
         emoji.name,
         emoji.icon,
         COUNT(*) AS count
-      FROM reactions
-      INNER JOIN emoji ON reactions.emoji_id = emoji.id
+      FROM topic_reactions
+      INNER JOIN emoji ON topic_reactions.emoji_id = emoji.id
       
       GROUP BY topic_id, emoji.name, emoji.icon;
       `
@@ -202,8 +203,8 @@ export const getUserTopic = async (req, res) => {
         SELECT 
           topic_id, 
           emoji.name AS name
-        FROM reactions
-        LEFT JOIN emoji ON reactions.emoji_id = emoji.id
+        FROM topic_reactions
+        LEFT JOIN emoji ON topic_reactions.emoji_id = emoji.id
         WHERE user_id = $1;
         `,
       [user_id]
@@ -232,7 +233,7 @@ export const getUserTopic = async (req, res) => {
 
     res.status(200).json(topicsWithReactions);
   } catch (error) {
-    res.status(500).json("ffifoiuf");
+    res.status(500).json("Internal server error");
     console.error(error);
   }
 };
@@ -277,9 +278,9 @@ export const getTopic = async (req, res) => {
         emoji.name AS name, 
         emoji.icon AS icon, 
         COUNT(*) AS count
-      FROM reactions
-      INNER JOIN emoji ON reactions.emoji_id = emoji.id
-      WHERE reactions.topic_id = $1
+      FROM topic_reactions
+      INNER JOIN emoji ON topic_reactions.emoji_id = emoji.id
+      WHERE topic_reactions.topic_id = $1
       GROUP BY emoji.name, emoji.icon
       `,
       [id]
@@ -299,9 +300,9 @@ export const getTopic = async (req, res) => {
         SELECT 
           emoji.name AS name, 
           emoji.icon AS icon
-        FROM reactions
-        INNER JOIN emoji ON reactions.emoji_id = emoji.id
-        WHERE reactions.topic_id = $1 AND reactions.user_id = $2
+        FROM topic_reactions
+        INNER JOIN emoji ON topic_reactions.emoji_id = emoji.id
+        WHERE topic_reactions.topic_id = $1 AND topic_reactions.user_id = $2
         LIMIT 1
         `,
         [id, user_id]
@@ -402,40 +403,40 @@ export const saveTopic = async (req, res) => {
   }
 };
 
-export const getTopicComments = async (req, res) => {
-  const id = req.params.id;
-  try {
-    const query = `
-    SELECT
-      c.id, 
-      c.text,
-      c.timestamp,
-      c.author_id,
-      c.topic_id,
-      c.attachments,
-      c.reply,
-      u.fullname AS author_fullname,
-      u.avatar,
-      o.text AS reply_text,
-      o.timestamp AS reply_timestamp
-    FROM 
-      comments c
-    LEFT JOIN
-      users u ON c.author_id = u.uid
-    LEFT JOIN
-      comments o ON c.reply = o.id
-    WHERE 
-      c.topic_id = $1
-    ORDER BY 
-      c.id ASC;
-    `;
-    const result = (await pool.query(query, [id])).rows;
-    res.status(200).json(result ?? []);
-  } catch (error) {
-    console.error("getTopicComments:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
+// export const getTopicComments = async (req, res) => {
+//   const id = req.params.id;
+//   try {
+//     const query = `
+//     SELECT
+//       c.id,
+//       c.text,
+//       c.timestamp,
+//       c.author_id,
+//       c.topic_id,
+//       c.attachments,
+//       c.reply,
+//       u.fullname AS author_fullname,
+//       u.avatar,
+//       o.text AS reply_text,
+//       o.timestamp AS reply_timestamp
+//     FROM
+//       comments c
+//     LEFT JOIN
+//       users u ON c.author_id = u.uid
+//     LEFT JOIN
+//       comments o ON c.reply = o.id
+//     WHERE
+//       c.topic_id = $1
+//     ORDER BY
+//       c.id ASC;
+//     `;
+//     const result = (await pool.query(query, [id])).rows;
+//     res.status(200).json(result ?? []);
+//   } catch (error) {
+//     console.error("getTopicComments:", error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// };
 
 export const postNewComment = async (req, res) => {
   const comm = req.body;
