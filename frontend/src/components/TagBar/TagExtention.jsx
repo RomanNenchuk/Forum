@@ -10,6 +10,9 @@ import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useUserInfo } from "../../contexts/UserInfoContext.jsx";
 import { useNavigate, useLocation } from "react-router-dom";
 import { RxCross2 } from "react-icons/rx";
+import { IoCloseCircleOutline } from "react-icons/io5";
+import searchIcon from '../../assets/search.svg';
+
 import axios from "axios";
 
 import "../CreateTopic.css";
@@ -60,10 +63,22 @@ function TagExtention({ onCloseModal }) {
 
   if (loading) return <div>Завантаження...</div>; // Відображення стану завантаження
   return (
-    <Card style={{ scrollbarWidth: "none" }}>
-      <ModalHeader title={"Усі теги"} onClose={onCloseModal} />
+    <Card style={{ scrollbarWidth: "none", overflow: "hidden"}}>
+      
+      <div class="corner-line" style = {{top: "81%", left: "2%"}}></div>
+      <div class="corner-line" style = {{top: "2%", left: "97%", transform: "rotate(180deg)"}}></div>
+      <div style = {{position: "fixed", width: "100%", left: "93%", top: "1%", borderRadius: "50%", backgroundColor: "#d9d9d9",
+        width: "30px", height: "auto"
+      }}>
+        <IoCloseCircleOutline size={30} onClick={()=>{onCloseModal()}}/></div>
+        <div style={{display: "flex", justifyContent: "center", marginTop: "20px",fontSize: "30px", fontWeight:700
+
+        }}>Усі теги</div>
+      
+      
       <Card.Body style={{ scrollbarWidth: "none" }}>
-        <div style={{ display: "flex", flexDirection: "row" }}>
+        <div style={{ display: "flex", flexDirection: "row", alignItems: "center",  marginTop: "1vh",backgroundColor: "#d9d9d9", marginBottom: "2vh" }}>
+          <img src = {searchIcon} style = {{height: '3.5vh', width: "auto", margin: "1vh"}}/>
           <input
             className="for_font input-left"
             style={{ width: "100%" }}
@@ -104,11 +119,11 @@ function TagExtention({ onCloseModal }) {
                 SelectTags(tag);
               }}
             >
-              @ {tag.tag_name}
+              # {tag.tag_name}
             </h5>
           ))}
         </div>
-        <div style={{ marginBottom: "1vh" }}>
+        <div style={{ transform: "scale(0.8)", marginBottom: "1vh" }}>
           <ActionButton label="Пошук за тегами" />
         </div>
       </Card.Body>

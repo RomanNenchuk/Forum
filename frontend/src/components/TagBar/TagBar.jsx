@@ -32,7 +32,7 @@ export default function TagBar({ tagBarLoading, setTagBarLoading }) {
           <>
             {data.map((tag, index) => (
               <h5 className="tag" key={index}>
-                @ {tag.tag_name}
+                # {tag.tag_name}
               </h5>
             ))}
             <Link to="/tags">
