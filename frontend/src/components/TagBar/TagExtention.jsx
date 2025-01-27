@@ -1,13 +1,21 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Form, Card, Alert } from "react-bootstrap";
-import ModalHeader from "../ModalHeader/ModalHeader.jsx";
+import React, {
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+  useState,
+} from "react";
+import { Card } from "react-bootstrap";
+import debounce from "../../utils/debounce.jsx";
 import ActionButton from "../ActionButton/ActionButton.jsx";
 import { RxCross2 } from "react-icons/rx";
+import { IoCloseCircleOutline } from "react-icons/io5";
+import searchIcon from "../../assets/search.svg";
+import LoadingSpinner from "../AltSpinner/AltSpinner.jsx";
 import axios from "axios";
 import "../CreateTopic.css";
-import { FaObjectUngroup } from "react-icons/fa";
 
-function TagExtention({ onCloseModal }) {
+export default function TagExtention({ onCloseModal }) {
   const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedTags, setSelectedTags] = useState([]);
@@ -17,8 +25,8 @@ function TagExtention({ onCloseModal }) {
   const searchRef = useRef();
   const LIMIT = 25;
 
-  async function fetchTags(prompt = "", pageNum = 1) {
-    setLoading(true);
+  const fetchTags = useCallback(async (prompt = "", pageNum = 1) => {
+    console.log("fetch");
     try {
       const params = prompt
         ? `?search=${prompt}&page=${pageNum}&limit=${LIMIT}`
@@ -27,12 +35,11 @@ function TagExtention({ onCloseModal }) {
       console.log(pageNum);
 
       if (pageNum === 1) {
-        setTags(response.data); // Оновити список тегів для нового пошуку
+        setTags(response.data);
       } else {
-        setTags(prev => [...prev, ...response.data]); // Додати нові елементи до існуючих
+        setTags(prev => [...prev, ...response.data]);
       }
 
-      // Якщо отримано менше, ніж ліміт, значить більше сторінок немає
       if (response.data.length < LIMIT) {
         setHasMore(false);
       }
@@ -41,9 +48,10 @@ function TagExtention({ onCloseModal }) {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
 
   function selectTag(selected) {
+    if (selectedTags.length >= 5) return;
     setSelectedTags(prevData => [...new Set(prevData).add(selected)]);
   }
 
@@ -52,9 +60,14 @@ function TagExtention({ onCloseModal }) {
       return prev.filter(tag => tag !== deleted);
     });
   }
+  const debouncedFetchTags = useMemo(
+    () => debounce(fetchTags, 500),
+    [fetchTags]
+  );
 
   function handleChange() {
-    fetchTags(searchRef.current.value, 1);
+    setLoading(true);
+    debouncedFetchTags(searchRef.current.value, 1);
   }
 
   useEffect(() => {
@@ -88,10 +101,58 @@ function TagExtention({ onCloseModal }) {
   }, [page]);
 
   return (
-    <Card>
-      <ModalHeader title={"Усі теги"} onClose={onCloseModal} />
-      <Card.Body>
-        <div style={{ display: "flex", flexDirection: "row" }}>
+    <Card style={{ scrollbarWidth: "none", overflow: "hidden" }}>
+      <div className="corner-line" style={{ top: "81%", left: "2%" }}></div>
+      <div
+        className="corner-line"
+        style={{ top: "2%", left: "97%", transform: "rotate(180deg)" }}
+      ></div>
+      <div
+        style={{
+          position: "fixed",
+          // width: "100%",
+          left: "93%",
+          top: "1%",
+          borderRadius: "50%",
+          backgroundColor: "#d9d9d9",
+          width: "30px",
+          height: "auto",
+        }}
+      >
+        <IoCloseCircleOutline
+          size={30}
+          onClick={() => {
+            onCloseModal();
+          }}
+        />
+      </div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          marginTop: "20px",
+          fontSize: "30px",
+          fontWeight: 700,
+        }}
+      >
+        Усі теги
+      </div>
+
+      <Card.Body style={{ scrollbarWidth: "none" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            marginTop: "1vh",
+            backgroundColor: "#d9d9d9",
+            marginBottom: "2vh",
+          }}
+        >
+          <img
+            src={searchIcon}
+            style={{ height: "3.5vh", width: "auto", margin: "1vh" }}
+          />
           <input
             className="for_font input-left"
             style={{ width: "100%" }}
@@ -101,34 +162,41 @@ function TagExtention({ onCloseModal }) {
             onChange={handleChange}
           ></input>
         </div>
-        {selectedTags.map((el, index) => (
+        {selectedTags.map((tag, index) => (
           <span
             key={index}
             className="selected-tags"
             style={{ marginTop: "0.3vh" }}
           >
-            {el.tag_name}
-            <RxCross2 color="black" onClick={() => deleteTag(el)} />
+            {tag.tag_name}
+            <RxCross2 color="black" onClick={() => deleteTag(tag)} />
           </span>
         ))}
         <div className="tag-list-container" ref={tagListRef}>
-          {tags.map((tag, index) => (
-            <h5
-              className="tag"
-              key={index}
-              onClick={() => {
-                selectTag(tag);
-              }}
-            >
-              @ {tag.tag_name}
-            </h5>
-          ))}
+          <>
+            {loading ? (
+              <LoadingSpinner />
+            ) : (
+              <>
+                {tags.map((tag, index) => (
+                  <h5
+                    className="tag"
+                    key={index}
+                    onClick={() => {
+                      selectTag(tag);
+                    }}
+                  >
+                    # {tag.tag_name}
+                  </h5>
+                ))}
+              </>
+            )}
+          </>
         </div>
-        <div style={{ marginBottom: "1vh" }}>
+        <div style={{ transform: "scale(0.8)", marginBottom: "1vh" }}>
           <ActionButton label="Пошук за тегами" />
         </div>
       </Card.Body>
     </Card>
   );
 }
-export default TagExtention;

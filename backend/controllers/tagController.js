@@ -18,10 +18,7 @@ export const getTagList = async (req, res) => {
           `;
       params = [`%${search}%`, limit, offset];
     }
-
     const { rows } = await pool.query(query, params);
-    console.log(rows.length);
-
     return res.status(200).json(rows);
   } catch (error) {
     console.error(error);

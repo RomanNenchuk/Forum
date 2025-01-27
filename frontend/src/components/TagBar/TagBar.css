@@ -115,6 +115,23 @@
   font-size: 2vh;
 }
 
+.corner-line {
+  position: fixed;
+  width: 0.66px; /* Товщина вертикальної лінії */
+  height: 100px; /* Висота вертикальної лінії */
+  background-color: black;
+}
+
+.corner-line::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100px; /* Довжина горизонтальної лінії */
+  height: 0.66px; /* Товщина горизонтальної лінії */
+  background-color: black;
+}
+
 .tag-list-container {
   height: 60vh;
   width: 100%;

@@ -10,7 +10,9 @@ export default function TagBar({ tagBarLoading, setTagBarLoading }) {
   useEffect(() => {
     const fetchTags = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/tags");
+        const res = await axios.get(
+          "http://localhost:5000/tags?page=1&limit=15"
+        );
         setData(res.data);
       } catch (error) {
         console.error("Error fetching tags:", error);
@@ -30,7 +32,7 @@ export default function TagBar({ tagBarLoading, setTagBarLoading }) {
           <>
             {data.map((tag, index) => (
               <h5 className="tag" key={index}>
-                @ {tag.tag_name}
+                # {tag.tag_name}
               </h5>
             ))}
             <Link to="/tags">
