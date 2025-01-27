@@ -74,6 +74,7 @@ export default function Profile({ closeModal }) {
               />
             </Link>
             <img src={followIcon} alt="Слідкувати" />
+            <img src={unfollowIcon} alt="Не слідкувати" />
           </>
         )}
         <div className="profile-info">

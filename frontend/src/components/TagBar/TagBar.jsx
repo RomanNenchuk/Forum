@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./TagBar.css";
-import TagExtent from "./TagExtent";
 import axios from "axios";
 
 export default function TagBar({ tagBarLoading, setTagBarLoading }) {
