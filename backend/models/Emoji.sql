@@ -10,7 +10,8 @@ CREATE TABLE topic_reactions (
     user_id VARCHAR(255) NOT NULL REFERENCES users(uid) ON DELETE CASCADE,
     topic_id INT NOT NULL REFERENCES topics(id) ON DELETE CASCADE,
     emoji_id INT NOT NULL REFERENCES emoji(id) ON DELETE CASCADE,
-    UNIQUE (user_id, topic_id) -- Забезпечує, що користувач може додати тільки одну реакцію до теми
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (user_id, topic_id)
 );
 
 CREATE TABLE comment_reactions (
@@ -18,5 +19,6 @@ CREATE TABLE comment_reactions (
     user_id VARCHAR(255) NOT NULL REFERENCES users(uid) ON DELETE CASCADE,
     comment_id INT NOT NULL REFERENCES comments(id) ON DELETE CASCADE,
     emoji_id INT NOT NULL REFERENCES emoji(id) ON DELETE CASCADE,
-    UNIQUE (user_id, comment_id) -- Забезпечує, що користувач може додати тільки одну реакцію до теми
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (user_id, comment_id)
 );

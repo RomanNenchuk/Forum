@@ -14,7 +14,7 @@ import UpdateProfileForm from "./UpdateProfileForm.jsx";
 import ModalHeader from "../ModalHeader/ModalHeader.jsx";
 import axios from "axios";
 
-export default function UpdateProfile({ closeModal }) {
+export default function UpdateProfile({ onClose }) {
   const {
     currentUser,
     token,
@@ -163,7 +163,7 @@ export default function UpdateProfile({ closeModal }) {
     <Card>
       <ModalHeader
         title="Оновити профіль"
-        onClose={closeModal}
+        onClose={onClose}
         onBack={navigateToProfile}
       />
       <Card.Body>

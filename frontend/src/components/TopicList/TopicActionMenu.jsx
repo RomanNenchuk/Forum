@@ -10,7 +10,7 @@ export default function TopicActionMenu({
   actionMenuRef,
   resetActionMenu,
   actionMenu,
-  deleteTopic,
+  onDeleteClick,
 }) {
   const { currentUser } = useAuth();
   const buttons = [
@@ -20,7 +20,7 @@ export default function TopicActionMenu({
       onClick:
         actionMenu.selectedTopicItem?.author === currentUser?.uid
           ? () => {
-              deleteTopic(actionMenu.selectedTopic);
+              onDeleteClick(actionMenu.selectedTopic);
             }
           : null,
     },

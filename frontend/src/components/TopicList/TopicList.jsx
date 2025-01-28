@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import TopicArea from "./TopicArea.jsx";
 import TopicActionMenu from "./TopicActionMenu.jsx";
+import ConfirmationModal from "../ConfirmationModal/ConfirmationModal.jsx";
 import { useScrollLock } from "../../hooks/useScrollLock.jsx";
 import "./TopicList.css";
 import axios from "axios";
@@ -36,6 +38,8 @@ export default function TopicList({
   topicListRef,
 }) {
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [topicToDeleteId, setTopicToDeleteId] = useState(null);
   const [actionMenu, setActionMenu] = useState({
     selectedTopic: -1,
     selectedTopicItem: null,
@@ -45,6 +49,7 @@ export default function TopicList({
     },
     toggled: false,
   });
+  const navigate = useNavigate();
 
   const actionMenuRef = useRef(null);
   useScrollLock(isActionMenuOpen, topicListRef);
@@ -102,18 +107,31 @@ export default function TopicList({
     });
   }
 
-  async function deleteTopic(id) {
-    if (confirm("Ви впевнені, що хочете видалити тему?")) {
-      console.log("On delete topic " + id);
-      try {
-        const res = await axios.delete(`http://localhost:5000/topics/${id}`);
-        if (res.data.done)
-          setTopicInfoList(prev => prev.filter(item => item.id != id));
-      } catch (error) {
-        console.error(error);
-      }
+  const deleteTopic = async id => {
+    try {
+      const res = await axios.delete(`http://localhost:5000/topics/${id}`);
+      if (res.data.done)
+        setTopicInfoList(prev => prev.filter(item => item.id !== id));
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsConfirmModalOpen(false);
+      setTopicToDeleteId(null);
     }
-  }
+  };
+
+  const handleDeleteClick = id => {
+    setTopicToDeleteId(id);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (topicToDeleteId) {
+      deleteTopic(topicToDeleteId);
+      navigate("/");
+    }
+  };
+
   return (
     <ul className="topic-list">
       {topicInfoList.length === 0 ? (
@@ -140,8 +158,15 @@ export default function TopicList({
         actionMenuRef={actionMenuRef}
         resetActionMenu={resetActionMenu}
         actionMenu={actionMenu}
-        deleteTopic={deleteTopic}
+        onDeleteClick={handleDeleteClick}
       />
+      {isConfirmModalOpen ? (
+        <ConfirmationModal
+          onClose={() => setIsConfirmModalOpen(false)}
+          onConfirm={handleConfirmDelete}
+          message="Видалити цю тему?"
+        />
+      ) : null}
     </ul>
   );
 }
