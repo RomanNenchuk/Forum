@@ -31,7 +31,14 @@ export default function TagBar({ tagBarLoading, setTagBarLoading }) {
         {tagBarLoading ? null : (
           <>
             {data.map((tag, index) => (
-              <h5 className="tag" key={index}>
+              <h5
+                className="tag"
+                key={index}
+                onClick={() => {
+                  navigator.clipboard.writeText(`# ${tag.tag_name}`);
+                }}
+                style={{ cursor: "pointer" }}
+              >
                 # {tag.tag_name}
               </h5>
             ))}
