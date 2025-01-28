@@ -116,17 +116,23 @@ export default function TopicList({
   }
   return (
     <ul className="topic-list">
-      {topicInfoList.map((topic, index) => (
-        <TopicArea
-          key={index}
-          topic={topic}
-          reactionList={reactionList}
-          initialReactions={topic.reactions}
-          userReaction={topic.user_reaction?.name}
-          setTopics={setTopicInfoList}
-          handleOnActionMenu={handleOnActionMenu}
-        />
-      ))}
+      {topicInfoList.length === 0 ? (
+        <div className="topics-not-found">
+          За Вашим запитом нічого не знайдено {"("}
+        </div>
+      ) : (
+        topicInfoList.map((topic, index) => (
+          <TopicArea
+            key={index}
+            topic={topic}
+            reactionList={reactionList}
+            initialReactions={topic.reactions}
+            userReaction={topic.user_reaction?.name}
+            setTopics={setTopicInfoList}
+            handleOnActionMenu={handleOnActionMenu}
+          />
+        ))
+      )}
       <TopicActionMenu
         positionX={actionMenu.position.x}
         positionY={actionMenu.position.y}

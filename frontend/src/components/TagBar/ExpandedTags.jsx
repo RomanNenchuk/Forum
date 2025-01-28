@@ -7,7 +7,9 @@ import React, {
 } from "react";
 import { Card } from "react-bootstrap";
 import debounce from "../../utils/debounce.jsx";
+import { useNavigate } from "react-router-dom";
 import ActionButton from "../ActionButton/ActionButton.jsx";
+import { useTopicSearch } from "../../contexts/TopicSearchContext.jsx";
 import { RxCross2 } from "react-icons/rx";
 import { IoCloseCircleOutline } from "react-icons/io5";
 import searchIcon from "../../assets/search.svg";
@@ -21,9 +23,11 @@ export default function TagExtention({ onCloseModal }) {
   const [selectedTags, setSelectedTags] = useState([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const { urlSearchParams } = useTopicSearch();
   const tagListRef = useRef(null);
   const searchRef = useRef();
   const LIMIT = 25;
+  const navigate = useNavigate();
 
   const fetchTags = useCallback(async (prompt = "", pageNum = 1) => {
     try {
@@ -31,7 +35,6 @@ export default function TagExtention({ onCloseModal }) {
         ? `?search=${prompt}&page=${pageNum}&limit=${LIMIT}`
         : `?page=${pageNum}&limit=${LIMIT}`;
       const response = await axios.get("http://localhost:5000/tags" + params);
-      console.log(pageNum);
 
       if (pageNum === 1) {
         setTags(response.data);
@@ -67,6 +70,18 @@ export default function TagExtention({ onCloseModal }) {
   function handleChange() {
     setLoading(true);
     debouncedFetchTags(searchRef.current.value, 1);
+  }
+
+  function handleClick() {
+    const tagList = selectedTags.map(tag => tag.tag_name).join(",");
+    urlSearchParams.delete("tags");
+    urlSearchParams.delete("authors");
+    console.log(tagList);
+    if (selectedTags.length > 0) urlSearchParams.set("tags", tagList);
+    navigate({
+      pathname: "/",
+      search: urlSearchParams.toString(),
+    });
   }
 
   useEffect(() => {
@@ -118,7 +133,7 @@ export default function TagExtention({ onCloseModal }) {
             style={{ height: "3.5vh", width: "auto", margin: "1vh" }}
           />
           <input
-            className="for_font input-left"
+            className="for_font tag-search-input"
             type="text"
             placeholder="Знайти тег"
             ref={searchRef}
@@ -167,7 +182,7 @@ export default function TagExtention({ onCloseModal }) {
           </>
         </div>
         <div style={{ margin: "20px 0 30px 0" }}>
-          <ActionButton label="Пошук за тегами" />
+          <ActionButton label="Пошук за тегами" onClick={handleClick} />
         </div>
       </Card.Body>
     </Card>

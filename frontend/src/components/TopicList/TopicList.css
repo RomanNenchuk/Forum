@@ -243,3 +243,8 @@ ul {
   cursor: pointer;
   margin-right: 8px;
 }
+.topics-not-found {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 18px;
+}

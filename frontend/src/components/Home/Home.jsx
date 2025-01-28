@@ -61,11 +61,11 @@ export default function Home() {
     let searchInputTags = urlSearchParams.get("tags");
     if (searchInputTags)
       searchInputTags =
-        "@ " + urlSearchParams.get("tags").split(",").join(", @ ");
+        "# " + urlSearchParams.get("tags").split(",").join(", # ");
 
     let searchInputAuthors = urlSearchParams.get("authors");
     if (searchInputAuthors)
-      searchInputAuthors = "~ " + searchInputAuthors.split(",").join(", ~ ");
+      searchInputAuthors = "@ " + searchInputAuthors.split(",").join(", @ ");
 
     if (searchInputTags || searchInputAuthors)
       setSearchInput(
