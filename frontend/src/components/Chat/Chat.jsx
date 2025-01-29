@@ -373,11 +373,34 @@ export default function Chat() {
     setFilesToDelete([]);
     resetEdit();
   }
+  const location = useLocation();
+
+  useEffect(() => {
+    if(socket && location.state?.text){
+      console.log(location.state?.text);
+      const msg = {
+        id: -1,
+        attachments: [],
+        fullname: fullName,
+        sender_id: currentUser.uid,
+        text: location.state?.text.trim(),
+        timestamp: new Date().toISOString(),
+        reply: reply?.id,
+        reply_fullname: reply?.author,
+        reply_text: reply?.text,
+        reply_attachment: reply?.attachment,
+      };
+      socket.emit("send-message", msg, receiverId, res => {
+        msg.id = res.id;
+        setMessages(prev => [...prev, msg]);
+      });
+    }
+  }, [socket]);
 
   if (loading) return <LoadingSpinner />;
 
-  const location = useLocation();
   const otherUserName = location.state?.otherUserName || "Користувач";
+  
 
   return (
     <div className="chat-container">

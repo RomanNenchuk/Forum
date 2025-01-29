@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import TopicArea from "./TopicArea.jsx";
 import TopicActionMenu from "./TopicActionMenu.jsx";
 import { useScrollLock } from "../../hooks/useScrollLock.jsx";
+import { useAuth } from "../../contexts/AuthContext.jsx";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./TopicList.css";
 import axios from "axios";
 
@@ -45,12 +47,15 @@ export default function TopicList({
     },
     toggled: false,
   });
-
+  const [switchText, setSwitchText] = useState("");
+  const {currentUser} = useAuth();
   const actionMenuRef = useRef(null);
+  const navigate = useNavigate();
   useScrollLock(isActionMenuOpen, topicListRef);
 
   function handleOnActionMenu(e, topic) {
     e.preventDefault();
+    isTopicSaved(currentUser?.uid, topic.id);
     const actionMenuAttr = actionMenuRef.current.getBoundingClientRect();
     const isRight = e.clientX > window?.innerWidth / 2;
     const isBottom = e.clientY > window?.innerHeight / 2;
@@ -114,6 +119,34 @@ export default function TopicList({
       }
     }
   }
+
+  async function switchTopicToUser(user_id, topic_id) {
+    try {
+      const res = await axios.patch(`http://localhost:5000/topics/switch`, { user_id, topic_id, });
+      // console.log(res.data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function isTopicSaved(user_id, topic_id) {
+    try {
+      const res = await axios.get(`http://localhost:5000/topics/save?user_id=${user_id}&topic_id=${topic_id}`);
+      // console.log(res.data);
+      setSwitchText(res.data.saved ? "Не зберігати" : "Зберегти тему");
+    } catch(error) {
+      console.error("Ne worka(");
+    }
+  }
+
+  function handleShareClick() {
+    navigate(`/share`, {
+      state: {
+        topic_url: `${location.origin}/topics/${actionMenu.selectedTopic}`,
+      }
+    });
+  }
+
   return (
     <ul className="topic-list">
       {topicInfoList.map((topic, index) => (
@@ -135,6 +168,9 @@ export default function TopicList({
         resetActionMenu={resetActionMenu}
         actionMenu={actionMenu}
         deleteTopic={deleteTopic}
+        handleTopicToUser={switchTopicToUser}
+        switchText={switchText}
+        handleShareClick={handleShareClick}
       />
     </ul>
   );

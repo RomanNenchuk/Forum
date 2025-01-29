@@ -142,6 +142,7 @@ const MyTopic = () => {
           const response = await axios.get(
             `http://localhost:5000/topics`
           );
+          console.log(response.data);
           setData(response.data);
         } catch (error) {
           console.error("Error fetching user topics:", error);

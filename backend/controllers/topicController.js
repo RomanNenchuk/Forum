@@ -66,10 +66,10 @@ export const getTopicsPreview = async (req, res) => {
         topics.date
       FROM topics
       INNER JOIN users ON users.uid = topics.author
-      LEFT JOIN reactions
-        ON topics.id = reactions.topic_id
+      LEFT JOIN topic_reactions
+        ON topics.id = topic_reactions.topic_id
       LEFT JOIN emoji
-        ON emoji.id = reactions.emoji_id
+        ON emoji.id = topic_reactions.emoji_id
       WHERE 1=1
       ${tagsFilterQuery}
       ${authorsFilterQuery}
@@ -98,8 +98,8 @@ export const getTopicsPreview = async (req, res) => {
         emoji.name,
         emoji.icon,
         COUNT(*) AS count
-      FROM reactions
-      INNER JOIN emoji ON reactions.emoji_id = emoji.id
+      FROM topic_reactions
+      INNER JOIN emoji ON topic_reactions.emoji_id = emoji.id
       GROUP BY topic_id, emoji.name, emoji.icon;
       `
     );
@@ -114,8 +114,8 @@ export const getTopicsPreview = async (req, res) => {
         SELECT 
           topic_id, 
           emoji.name AS name
-        FROM reactions
-        LEFT JOIN emoji ON reactions.emoji_id = emoji.id
+        FROM topic_reactions
+        LEFT JOIN emoji ON topic_reactions.emoji_id = emoji.id
         WHERE user_id = $1;
         `,
         [user_id]
@@ -170,10 +170,10 @@ export const getUserTopic = async (req, res) => {
       FROM topics
       
       INNER JOIN users ON users.uid = topics.author
-      LEFT JOIN reactions
-        ON topics.id = reactions.topic_id
+      LEFT JOIN topic_reactions
+        ON topics.id = topic_reactions.topic_id
       LEFT JOIN emoji
-        ON emoji.id = reactions.emoji_id
+        ON emoji.id = topic_reactions.emoji_id
       WHERE users.uid = $1
       GROUP BY topics.id, fullname, username, avatar, title, email, author, topics.date
       LIMIT $2 OFFSET $3
@@ -188,8 +188,8 @@ export const getUserTopic = async (req, res) => {
         emoji.name,
         emoji.icon,
         COUNT(*) AS count
-      FROM reactions
-      INNER JOIN emoji ON reactions.emoji_id = emoji.id
+      FROM topic_reactions
+      INNER JOIN emoji ON topic_reactions.emoji_id = emoji.id
       
       GROUP BY topic_id, emoji.name, emoji.icon;
       `
@@ -202,8 +202,8 @@ export const getUserTopic = async (req, res) => {
         SELECT 
           topic_id, 
           emoji.name AS name
-        FROM reactions
-        LEFT JOIN emoji ON reactions.emoji_id = emoji.id
+        FROM topic_reactions
+        LEFT JOIN emoji ON topic_reactions.emoji_id = emoji.id
         WHERE user_id = $1;
         `,
       [user_id]
@@ -277,9 +277,9 @@ export const getTopic = async (req, res) => {
         emoji.name AS name, 
         emoji.icon AS icon, 
         COUNT(*) AS count
-      FROM reactions
-      INNER JOIN emoji ON reactions.emoji_id = emoji.id
-      WHERE reactions.topic_id = $1
+      FROM topic_reactions
+      INNER JOIN emoji ON topic_reactions.emoji_id = emoji.id
+      WHERE topic_reactions.topic_id = $1
       GROUP BY emoji.name, emoji.icon
       `,
       [id]
@@ -299,9 +299,9 @@ export const getTopic = async (req, res) => {
         SELECT 
           emoji.name AS name, 
           emoji.icon AS icon
-        FROM reactions
-        INNER JOIN emoji ON reactions.emoji_id = emoji.id
-        WHERE reactions.topic_id = $1 AND reactions.user_id = $2
+        FROM topic_reactions
+        INNER JOIN emoji ON topic_reactions.emoji_id = emoji.id
+        WHERE topic_reactions.topic_id = $1 AND topic_reactions.user_id = $2
         LIMIT 1
         `,
         [id, user_id]
@@ -545,3 +545,60 @@ export const deleteTopic = async (req, res) => {
     client.release();
   }
 };
+
+
+export const switchTopicToUser = async (req, res) => {
+  const {user_id, topic_id} = req.body;
+  try {
+    const CHECK_QUERY = `
+      SELECT * FROM saved_topics WHERE user_id = $1 AND topic_id = $2;
+    `
+    const SAVE_QUERY = `
+      INSERT INTO saved_topics (user_id, topic_id) VALUES ($1, $2);
+    `;
+    const DELETE_QUERY = `
+      DELETE FROM saved_topics WHERE user_id = $1 AND topic_id = $2;
+    `
+    const exist = await pool.query(CHECK_QUERY, [user_id, topic_id]);
+    if (!exist.rows.length) {
+      await pool.query(SAVE_QUERY, [user_id, topic_id]);
+      res.status(201).json({ status: "saved" });
+    } else {
+      await pool.query(DELETE_QUERY, [user_id, topic_id]);
+      res.status(200).json({ satus: "deleted" });
+    }
+  } catch(error) {
+    console.error("Error in saveTopicToUser: ", error);
+    res.status(500).json({ status: "failed" });
+  }
+}
+
+export const getIsTopicSaved = async (req, res) => {
+  try {
+    const { user_id, topic_id } = req.query;
+    const QUERY = `
+    SELECT * FROM saved_topics WHERE user_id = $1 AND topic_id = $2;
+    `
+    const result = await pool.query(QUERY, [user_id, topic_id]);
+    if(result.rows.length) {
+      res.status(200).json({ saved: true });
+    } else {
+      res.status(200).json({ saved: false });
+    }
+  } catch(error) {
+    console.log(error);
+    res.status(500).json({ saved: false });
+  }
+}
+
+export const getSavedTopics = async (req, res) => {
+  try {
+    const { user_id } = req.query;
+    const QUERY = ``;
+    const result = await pool.query(QUERY, []);
+    res.status(200).json(result.rows);
+  } catch(error) {
+    console.log(error);
+    res.status(500).json({});
+  }
+}

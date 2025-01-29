@@ -2,6 +2,7 @@ import React from "react";
 import Signup from "./Signup/Signup.jsx";
 import Login from "./Login/Login.jsx";
 import Profile from "./Profile";
+import Share from "./Share.jsx";
 import { AuthProvider } from "../contexts/AuthContext";
 import { UserInfoProvider } from "../contexts/UserInfoContext";
 import { ChatProvider } from "../contexts/ChatContext";
@@ -49,7 +50,7 @@ function AppRoutes() {
           <Route path="/topics/:id" element={<Topic />} />
           <Route path="/mytopics" element={<MyTopic />} />
           {/* <Route path="/profiles/:id" element={<Profile />} /> */}
-
+          
           <Route element={<PrivateRoute />}>
             {/* <Route path="/update-profile" element={<UpdateProfile />} /> */}
             <Route path="/create-topic" element={<CreateTopic />} />
@@ -68,6 +69,14 @@ function AppRoutes() {
                 </SocketProvider>
               }
             />
+            <Route
+            path="/share"
+            element={
+              <Modal>
+                <Share />
+              </Modal>
+            }
+          />
           </Route>
         </Route>
         <Route path="*" element={<NotFound />} />

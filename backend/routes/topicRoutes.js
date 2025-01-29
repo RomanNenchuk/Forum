@@ -10,7 +10,10 @@ import {
   deleteComment,
   editComments,
   deleteTopic,
-  getUserTopic
+  getUserTopic,
+  switchTopicToUser,
+  getIsTopicSaved,
+  getSavedTopics,
 } from "../controllers/topicController.js";
 
 import { setTopicReaction } from "../controllers/emojiController.js";
@@ -29,6 +32,10 @@ router.get("/:id/comments", getTopicComments);
 
 router.put("/:id/reactions", middleware.decodeToken, setTopicReaction);
 
+router.get("/save", getIsTopicSaved);
+
+router.get("/saved", getSavedTopics);
+
 router.get("/:id", getTopic);
 
 router.delete("/comments/:id", deleteComment);
@@ -37,6 +44,6 @@ router.patch("/comments/:id", editComments);
 
 router.delete("/:id", deleteTopic);
 
-
+router.patch("/switch", switchTopicToUser);
 
 export default router;

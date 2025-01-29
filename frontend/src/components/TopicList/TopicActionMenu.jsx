@@ -11,8 +11,12 @@ export default function TopicActionMenu({
   resetActionMenu,
   actionMenu,
   deleteTopic,
+  handleTopicToUser,
+  switchText,
+  handleShareClick,
 }) {
   const { currentUser } = useAuth();
+
   const buttons = [
     {
       text: "Видалити",
@@ -24,6 +28,18 @@ export default function TopicActionMenu({
             }
           : null,
     },
+    {
+      text: switchText,
+      icon: null,
+      onClick: 
+        actionMenu.selectedTopicItem?.author !== currentUser?.uid ? 
+        () => handleTopicToUser(currentUser.uid, actionMenu.selectedTopic) : null,
+    },
+    {
+      text: "Переслати",
+      icon: null,
+      onClick: () => handleShareClick(),
+    }
   ].filter(button => button.onClick);
   return (
     <ActionMenu
