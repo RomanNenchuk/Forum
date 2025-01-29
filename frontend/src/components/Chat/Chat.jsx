@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useChat } from "../../contexts/ChatContext";
 import { useSocket } from "../../contexts/SocketProviderContext";
@@ -374,10 +374,10 @@ export default function Chat() {
     resetEdit();
   }
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if(socket && location.state?.text){
-      console.log(location.state?.text);
       const msg = {
         id: -1,
         attachments: [],
@@ -393,6 +393,12 @@ export default function Chat() {
       socket.emit("send-message", msg, receiverId, res => {
         msg.id = res.id;
         setMessages(prev => [...prev, msg]);
+      });
+      navigate(".", { 
+        replace: true, 
+        state: { 
+          otherUserName: location.state?.otherUserName
+        } 
       });
     }
   }, [socket]);

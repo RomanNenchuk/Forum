@@ -69,14 +69,6 @@ function AppRoutes() {
                 </SocketProvider>
               }
             />
-            <Route
-            path="/share"
-            element={
-              <Modal>
-                <Share />
-              </Modal>
-            }
-          />
           </Route>
         </Route>
         <Route path="*" element={<NotFound />} />

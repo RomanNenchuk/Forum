@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import TopicArea from "./TopicArea.jsx";
 import TopicActionMenu from "./TopicActionMenu.jsx";
 import ConfirmationModal from "../ConfirmationModal/ConfirmationModal.jsx";
+import Share from "../Share.jsx";
 import { useScrollLock } from "../../hooks/useScrollLock.jsx";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -156,12 +157,12 @@ export default function TopicList({
     }
   }
 
+  const [isShareModalOpen, setShareModalOpen] = useState(false);
+  const [shareId, setShareId] = useState(-1);
+
   function handleShareClick() {
-    navigate(`/share`, {
-      state: {
-        topic_url: `${location.origin}/topics/${actionMenu.selectedTopic}`,
-      }
-    });
+    setShareId(actionMenu.selectedTopic);
+    setShareModalOpen(true);
   }
 
   return (
@@ -202,6 +203,12 @@ export default function TopicList({
           message="Видалити цю тему?"
         />
       ) : null}
+      {isShareModalOpen ? (
+        <Share
+          onCloseModal={() => setShareModalOpen(false)}
+          url={`${location.origin}/topics/${shareId}`}
+        />
+      ): null}
     </ul>
   );
 }
