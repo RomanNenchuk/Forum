@@ -12,7 +12,7 @@ import {
   getUserTopic,
   switchTopicToUser,
   getIsTopicSaved,
-  getSavedTopics,,
+  getSavedTopics,
 } from "../controllers/topicController.js";
 
 import { getTopicComments } from "../controllers/commentController.js";
