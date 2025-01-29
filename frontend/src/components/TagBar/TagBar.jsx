@@ -1,11 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import ToastPortal from "../Toast/Toast.jsx";
 import "./TagBar.css";
 import axios from "axios";
 
 export default function TagBar({ tagBarLoading, setTagBarLoading }) {
-  const [isExtentTag, setExtentTag] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [data, setData] = useState([]);
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, type, item = "") => {
+    if (toast) clearTimeout(toast.timeoutId);
+
+    const newToast = {
+      id: Date.now(),
+      message,
+      type,
+      item,
+      timeoutId: setTimeout(() => setToast(null), 3000),
+    };
+
+    setToast(newToast);
+  };
+
+  const handleTagClick = tagName => {
+    navigator.clipboard.writeText(`# ${tagName}`);
+    showToast("скопійовано", "success", `# ${tagName}`);
+  };
 
   useEffect(() => {
     const fetchTags = async () => {
@@ -34,9 +55,7 @@ export default function TagBar({ tagBarLoading, setTagBarLoading }) {
               <h5
                 className="tag"
                 key={index}
-                onClick={() => {
-                  navigator.clipboard.writeText(`# ${tag.tag_name}`);
-                }}
+                onClick={() => handleTagClick(tag.tag_name)}
                 style={{ cursor: "pointer" }}
               >
                 # {tag.tag_name}
@@ -45,7 +64,7 @@ export default function TagBar({ tagBarLoading, setTagBarLoading }) {
             <Link to="/tags">
               <span
                 style={{ cursor: "pointer" }}
-                onClick={() => setExtentTag(!isExtentTag)}
+                onClick={() => setExtentTag(!isExpanded)}
               >
                 Показати більше
               </span>
@@ -53,6 +72,15 @@ export default function TagBar({ tagBarLoading, setTagBarLoading }) {
           </>
         )}
       </div>
+      {toast && (
+        <ToastPortal
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          item={toast.item}
+          onClose={() => setToast(null)}
+        />
+      )}
     </>
   );
 }
