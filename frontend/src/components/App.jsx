@@ -1,7 +1,7 @@
 import React from "react";
 import Signup from "./Signup/Signup.jsx";
 import Login from "./Login/Login.jsx";
-import Profile from "./Profile";
+import Profile from "./Profile/Profile.jsx";
 import { AuthProvider } from "../contexts/AuthContext";
 import { UserInfoProvider } from "../contexts/UserInfoContext";
 import { ChatProvider } from "../contexts/ChatContext";

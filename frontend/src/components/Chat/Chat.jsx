@@ -11,19 +11,19 @@ import handleUpload from "../../utils/uploadFiles.jsx";
 import ChatInput from "./ChatInput.jsx";
 import FileSendModal from "../FileModal/FileSendModal.jsx";
 import FileEditModal from "../FileModal/FileEditModal.jsx";
+import ConfirmationModal from "../ConfirmationModal/ConfirmationModal.jsx";
 import ChatContextMenu from "./ChatContextMenu.jsx";
 import ChatActionMenu from "./ChatActionMenu.jsx";
 import ChatMessages from "./ChatMessages.jsx";
 import LoadingSpinner from "../Spinner.jsx";
 import chatControllerIcon from "../../assets/chat-controller.svg";
-import "react-bootstrap";
 
 export default function Chat() {
   const [text, setText] = useState("");
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
   const [files, setFiles] = useState([]);
-  const [filesToDelete, setFilesToDelete] = useState([]); // Список файлів на видалення
+  const [filesToDelete, setFilesToDelete] = useState([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
   const [userSentMessage, setUserSentMessage] = useState(false);

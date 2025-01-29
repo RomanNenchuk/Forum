@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useChat } from "../../contexts/ChatContext.jsx";
 import ActionMenu from "../PopupMenus/ActionMenu.jsx";
+import ConfirmationModal from "../ConfirmationModal/ConfirmationModal.jsx";
 import deleteIcon from "../../assets/delete-context-menu.svg";
 import cleanIcon from "../../assets/clean.svg";
 
@@ -13,33 +14,71 @@ export default function TopicActionMenu({
   actionMenuRef,
   resetActionMenu,
 }) {
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    message: "",
+    onConfirm: () => {},
+  });
   const { deleteChat, clearChat } = useChat();
   const { currentUser } = useAuth();
   const { receiverId } = useParams();
+
   const buttons = [
     {
       text: "Видалити",
       icon: deleteIcon,
       onClick: () => {
-        deleteChat(receiverId, currentUser.uid);
+        setConfirmModal({
+          isOpen: true,
+          message: "Видалити цей чат?",
+          onConfirm: () => {
+            deleteChat(receiverId, currentUser.uid);
+            resetConfirmModal();
+          },
+        });
       },
     },
     {
       text: "Очистити",
       icon: cleanIcon,
       onClick: () => {
-        clearChat(receiverId, currentUser.uid);
+        setConfirmModal({
+          isOpen: true,
+          message: "Очистити цей чат?",
+          onConfirm: () => {
+            clearChat(receiverId, currentUser.uid);
+            resetConfirmModal();
+          },
+        });
       },
     },
   ];
+
+  const resetConfirmModal = () => {
+    setConfirmModal({
+      isOpen: false,
+      message: "",
+      onConfirm: () => {},
+    });
+  };
+
   return (
-    <ActionMenu
-      positionX={positionX}
-      positionY={positionY}
-      isToggled={isToggled}
-      actionMenuRef={actionMenuRef}
-      buttons={buttons}
-      resetActionMenu={resetActionMenu}
-    />
+    <>
+      {confirmModal.isOpen ? (
+        <ConfirmationModal
+          onClose={resetConfirmModal}
+          onConfirm={confirmModal.onConfirm}
+          message={confirmModal.message}
+        />
+      ) : null}
+      <ActionMenu
+        positionX={positionX}
+        positionY={positionY}
+        isToggled={isToggled}
+        actionMenuRef={actionMenuRef}
+        buttons={buttons}
+        resetActionMenu={resetActionMenu}
+      />
+    </>
   );
 }
