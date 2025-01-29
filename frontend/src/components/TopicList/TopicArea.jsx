@@ -49,6 +49,7 @@ export default function TopicArea({
           },
         }
       );
+      console.log(response.data);
       setActiveReactions(() =>
         reactionListSetter(response.data.reactions, response.data.active)
       );

@@ -1,18 +1,37 @@
 import React, { useMemo } from "react";
 import { Card } from "react-bootstrap";
-import AttachedFiles from "../AttachedFiles/AttachedFiles.jsx";
-import {
-  timestampToTime,
-  formatRelativeTime,
-} from "../../utils/getCurrentTime.jsx";
-import ProfileHeader from "../ProfileHeader.jsx";
+import CommentArea from "./CommentArea";
 import "./Comments.css";
+
+const reactionList = [
+  { icon: "😁", name: "beaming_face_with_smiling_eyes" },
+  { icon: "😅", name: "grinning_face_with_sweat" },
+  { icon: "😎", name: "smiling_face_with_sunglasses" },
+  { icon: "🤔", name: "thinking_face" },
+  { icon: "😐", name: "neutral_face" },
+  { icon: "😯", name: "hushed_face" },
+  { icon: "😔", name: "pensive_face" },
+  { icon: "😬", name: "grimacing_face" },
+  { icon: "💪", name: "flexed_biceps" },
+  { icon: "👌", name: "OK_hand" },
+  { icon: "❤️", name: "red_heart" },
+  { icon: "💔", name: "broken_heart" },
+  { icon: "🙅‍♂️", name: "man_gesturing_NO" },
+  { icon: "🙅‍♀️", name: "woman_gesturing_NO" },
+  { icon: "🤦‍♂️", name: "man_facepalming" },
+  { icon: "🤦‍♀️", name: "woman_facepalming" },
+  { icon: "🤷‍♂️", name: "man_shrugging" },
+  { icon: "🤷‍♀️", name: "woman_shrugging" },
+  { icon: "😡", name: "enraged_face" },
+  { icon: "🤡", name: "clown_face" },
+  { icon: "💀", name: "skull" },
+  { icon: "💩", name: "pile_of_poo" },
+];
 
 export default function TopicComments({
   handleOnContextMenu,
   comments,
-  currentUser,
-  uid,
+  topicAuthorId,
 }) {
   const sortedComments = useMemo(() => {
     const temp = [...comments].sort((a, b) => {
@@ -25,42 +44,23 @@ export default function TopicComments({
         return new Date(tb).getTime() - new Date(ta).getTime();
       }
     });
-    console.log(temp);
     return temp;
   }, [comments]);
 
   return (
     <ul className="topic-comments">
       {sortedComments.length ? (
-        sortedComments.map((comment, index) => {
-          return (
-            <div
-              key={index}
-              className={`comment-outer${comment.reply === -1 ? "" : "-reply"}`}
-              onContextMenu={e => handleOnContextMenu(e, comment)}
-            >
-              <div className="header-container">
-                <ProfileHeader
-                  id={comment.author_id}
-                  avatar={comment.avatar}
-                  profileName={
-                    comment.author_fullname +
-                    (uid === comment.author_id ? "(Автор)" : "")
-                  }
-                  textStyle={{ color: "#000" }}
-                  sizeFont="16px"
-                  size="37px"
-                />
-                <span className="header-delimiter">•</span>
-                <span className="comment-timestamp">
-                  {formatRelativeTime(comment.timestamp)}
-                </span>
-              </div>
-              <AttachedFiles urls={comment?.attachments} />
-              <p className="comment-text">{comment.text}</p>
-            </div>
-          );
-        })
+        sortedComments.map(comment => (
+          <CommentArea
+            key={comment.id}
+            comment={comment}
+            topicAuthorId={topicAuthorId}
+            handleOnContextMenu={handleOnContextMenu}
+            initialReactions={comment.reactions}
+            userReaction={comment.user_reaction?.name}
+            reactionList={reactionList}
+          />
+        ))
       ) : (
         <Card>
           <Card.Body>

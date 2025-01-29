@@ -25,15 +25,6 @@ export function TopicSearchProvider({ children }) {
   });
   const { currentUser } = useAuth();
 
-  function getTagList() {
-    let tagList = searchInput?.replace(/@/g, "")?.split(",");
-    tagList = tagList?.map(tag => {
-      const processedTag = tag.trim();
-      if (processedTag) return processedTag;
-    });
-    return tagList && tagList.length > 0 ? tagList.join(",") : "";
-  }
-
   function getSearchInputData() {
     let searchData = searchInput
       ?.split(/[,;|]/)
@@ -43,8 +34,8 @@ export function TopicSearchProvider({ children }) {
     let tagList = [];
     let authorList = [];
     searchData.forEach(piece => {
-      if (piece[0] === "~") authorList.push(piece.slice(1).trim());
-      else if (piece[0] === "@") tagList.push(piece.slice(1).trim());
+      if (piece[0] === "@") authorList.push(piece.slice(1).trim());
+      else if (piece[0] === "#") tagList.push(piece.slice(1).trim());
       else tagList.push(piece);
     });
 
@@ -78,7 +69,6 @@ export function TopicSearchProvider({ children }) {
 
   async function fetchTopics() {
     try {
-      console.log("fetched");
       const response = await axios.get(
         `http://localhost:5000/topics?page=${queryParams.page}&sort=${
           queryParams.sortOrder
@@ -110,7 +100,6 @@ export function TopicSearchProvider({ children }) {
     setUrlSearchParams,
     topicInfoList,
     setTopicInfoList,
-    getTagList,
     getSearchInputData,
     fetchTopics,
     debounce,

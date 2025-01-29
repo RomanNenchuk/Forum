@@ -14,10 +14,10 @@ export default function FileEditModal({
   setFilesToDelete,
   text,
   setText,
-  editId,
   onEdit,
 }) {
   const [currentIndex, setCurrentIndex] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef();
 
   function handleChangeClick(index) {
@@ -53,6 +53,11 @@ export default function FileEditModal({
         return prevfile;
       });
     });
+  };
+
+  const handleSubmit = () => {
+    setIsSubmitting(true);
+    onEdit();
   };
 
   return (
@@ -110,8 +115,12 @@ export default function FileEditModal({
               <button className={styles.cancelButton} onClick={onClose}>
                 Скасувати
               </button>
-              <button className={styles.submitButton} onClick={onEdit}>
-                Зберегти
+              <button
+                className={styles.submitButton}
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Збереження..." : "Зберегти"}
               </button>
             </div>
           </div>

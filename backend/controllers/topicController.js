@@ -1,5 +1,6 @@
 import { pool } from "../db.js";
 import { deleteAttachments } from "../controllers/fileController.js";
+
 // для відображення на головній сторінці
 export const getTopicsPreview = async (req, res) => {
   const { page = 1, limit = 10, sort, user_id, tags, authors } = req.query;
@@ -152,7 +153,7 @@ export const getTopicsPreview = async (req, res) => {
 };
 
 export const getUserTopic = async (req, res) => {
-  const { page = 1, limit = 10, sort, user_id, tags, authors } = req.query;
+  const { page = 1, limit = 10, user_id } = req.query;
   const offset = (page - 1) * limit;
   try {
     const topicsResult = await pool.query(
@@ -232,7 +233,7 @@ export const getUserTopic = async (req, res) => {
 
     res.status(200).json(topicsWithReactions);
   } catch (error) {
-    res.status(500).json("ffifoiuf");
+    res.status(500).json("Internal server error");
     console.error(error);
   }
 };
@@ -402,40 +403,40 @@ export const saveTopic = async (req, res) => {
   }
 };
 
-export const getTopicComments = async (req, res) => {
-  const id = req.params.id;
-  try {
-    const query = `
-    SELECT
-      c.id, 
-      c.text,
-      c.timestamp,
-      c.author_id,
-      c.topic_id,
-      c.attachments,
-      c.reply,
-      u.fullname AS author_fullname,
-      u.avatar,
-      o.text AS reply_text,
-      o.timestamp AS reply_timestamp
-    FROM 
-      comments c
-    LEFT JOIN
-      users u ON c.author_id = u.uid
-    LEFT JOIN
-      comments o ON c.reply = o.id
-    WHERE 
-      c.topic_id = $1
-    ORDER BY 
-      c.id ASC;
-    `;
-    const result = (await pool.query(query, [id])).rows;
-    res.status(200).json(result ?? []);
-  } catch (error) {
-    console.error("getTopicComments:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
+// export const getTopicComments = async (req, res) => {
+//   const id = req.params.id;
+//   try {
+//     const query = `
+//     SELECT
+//       c.id,
+//       c.text,
+//       c.timestamp,
+//       c.author_id,
+//       c.topic_id,
+//       c.attachments,
+//       c.reply,
+//       u.fullname AS author_fullname,
+//       u.avatar,
+//       o.text AS reply_text,
+//       o.timestamp AS reply_timestamp
+//     FROM
+//       comments c
+//     LEFT JOIN
+//       users u ON c.author_id = u.uid
+//     LEFT JOIN
+//       comments o ON c.reply = o.id
+//     WHERE
+//       c.topic_id = $1
+//     ORDER BY
+//       c.id ASC;
+//     `;
+//     const result = (await pool.query(query, [id])).rows;
+//     res.status(200).json(result ?? []);
+//   } catch (error) {
+//     console.error("getTopicComments:", error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// };
 
 export const postNewComment = async (req, res) => {
   const comm = req.body;

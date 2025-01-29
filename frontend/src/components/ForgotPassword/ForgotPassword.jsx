@@ -7,7 +7,7 @@ import { useLocation } from "react-router-dom";
 import { Form, Card, Alert } from "react-bootstrap";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 
-export default function ForgotPassword({ onCloseModal }) {
+export default function ForgotPassword({ onClose }) {
   const emailRef = useRef();
   const { resetPassword } = useAuth();
   const [error, setError] = useState("");
@@ -36,7 +36,7 @@ export default function ForgotPassword({ onCloseModal }) {
   return (
     <>
       <Card>
-        <ModalHeader title={"Скидання паролю"} onClose={onCloseModal} />
+        <ModalHeader title={"Скидання паролю"} onClose={onClose} />
         <Card.Body>
           {error && <Alert variant="danger">{error}</Alert>}
           {message && <Alert variant="success">{message}</Alert>}

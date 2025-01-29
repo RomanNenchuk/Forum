@@ -5,7 +5,6 @@ import {
   getTopicsPreview,
   saveTopic,
   getTopic,
-  getTopicComments,
   postNewComment,
   deleteComment,
   editComments,
@@ -13,8 +12,10 @@ import {
   getUserTopic,
   switchTopicToUser,
   getIsTopicSaved,
-  getSavedTopics,
+  getSavedTopics,,
 } from "../controllers/topicController.js";
+
+import { getTopicComments } from "../controllers/commentController.js";
 
 import { setTopicReaction } from "../controllers/emojiController.js";
 
@@ -26,7 +27,7 @@ router.post("/", middleware.decodeToken, saveTopic);
 
 router.post("/comments", postNewComment);
 
-router.get("/mytopics", getUserTopic)
+router.get("/mytopics", getUserTopic);
 
 router.get("/:id/comments", getTopicComments);
 

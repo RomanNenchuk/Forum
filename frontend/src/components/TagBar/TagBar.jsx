@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./TagBar.css";
-import TagExtent from "./TagExtent";
 import axios from "axios";
 
 export default function TagBar({ tagBarLoading, setTagBarLoading }) {
@@ -11,9 +10,10 @@ export default function TagBar({ tagBarLoading, setTagBarLoading }) {
   useEffect(() => {
     const fetchTags = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/tags");
+        const res = await axios.get(
+          "http://localhost:5000/tags?page=1&limit=15"
+        );
         setData(res.data);
-        console.log(res.data);
       } catch (error) {
         console.error("Error fetching tags:", error);
       } finally {
@@ -31,7 +31,14 @@ export default function TagBar({ tagBarLoading, setTagBarLoading }) {
         {tagBarLoading ? null : (
           <>
             {data.map((tag, index) => (
-              <h5 className="tag" key={index}>
+              <h5
+                className="tag"
+                key={index}
+                onClick={() => {
+                  navigator.clipboard.writeText(`# ${tag.tag_name}`);
+                }}
+                style={{ cursor: "pointer" }}
+              >
                 # {tag.tag_name}
               </h5>
             ))}

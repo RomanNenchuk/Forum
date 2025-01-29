@@ -1,31 +1,23 @@
 import { pool } from "../db.js";
 
 export const getTagList = async (req, res) => {
-  const { search, all } = req.query;
+  const { page = 1, limit = 25, search, all } = req.query;
+  const offset = (page - 1) * limit;
   try {
     let query, params;
 
-    if (all === "true") {
-      query = `
-          SELECT *
-          FROM popular_tags
-          WHERE tag_name ILIKE $1
-        `;
-      params = [`%${search || ""}%`];
+    if (!search || search.trim() === "") {
+      query = "SELECT * FROM popular_tags LIMIT $1 OFFSET $2;";
+      params = [limit, offset];
     } else {
-      if (!search || search.trim() === "") {
-        query = "SELECT * FROM popular_tags LIMIT 15;";
-      } else {
-        query = `
+      query = `
             SELECT * 
             FROM popular_tags 
             WHERE tag_name ILIKE $1
-            LIMIT 15;
+            LIMIT $2 OFFSET $3;
           `;
-        params = [`%${search}%`];
-      }
+      params = [`%${search}%`, limit, offset];
     }
-
     const { rows } = await pool.query(query, params);
     return res.status(200).json(rows);
   } catch (error) {

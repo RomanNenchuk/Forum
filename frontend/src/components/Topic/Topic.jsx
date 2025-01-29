@@ -24,6 +24,7 @@ export default function Topic() {
   const [topic, setTopic] = useState(null);
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [commentLoading, setCommentLoading] = useState(true);
   const navigate = useNavigate();
   const [extendfInfo, setExtendInfo] = useState();
 
@@ -63,6 +64,7 @@ export default function Topic() {
   // вантажу інформацію з БД при монтуванні компонента
   useEffect(() => {
     setLoading(true);
+    setCommentLoading(true);
     fetchTopic();
     fetchTopicComments();
   }, [id]);
@@ -95,6 +97,8 @@ export default function Topic() {
       setExtendInfo(
         !buf?.description || buf?.description?.length < 150 ? 2 : 0
       );
+    } catch (error) {
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -115,12 +119,16 @@ export default function Topic() {
         reply_text
         reply_timestamp
        */
-      const result = await axios.get(
-        `http://localhost:5000/topics/${id}/comments`
+      const response = await axios.get(
+        `http://localhost:5000/topics/${id}/comments${
+          currentUser ? "?user_id=" + currentUser.uid : ""
+        }`
       );
-      setComments(result.data);
+      setComments(response.data);
     } catch (error) {
       console.error("fetchTopicComments error:", error);
+    } finally {
+      setCommentLoading(false);
     }
   }
 
@@ -412,12 +420,15 @@ export default function Topic() {
           <div className="block right">
             <div className="comment-list-group" ref={topicCommentsRef}>
               <div className="comment-area">Коментарі</div>
-              <TopicComments
-                handleOnContextMenu={handleOnContextMenu}
-                uid={topic?.uid}
-                currentUser={currentUser}
-                comments={comments}
-              />
+              {commentLoading ? (
+                <LoadingSpinner />
+              ) : (
+                <TopicComments
+                  handleOnContextMenu={handleOnContextMenu}
+                  topicAuthorId={topic?.uid}
+                  comments={comments}
+                />
+              )}
             </div>
             <TopicInput
               isEditModalOpen={isEditModalOpen}

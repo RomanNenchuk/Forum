@@ -10,7 +10,7 @@ export default function TopicActionMenu({
   actionMenuRef,
   resetActionMenu,
   actionMenu,
-  deleteTopic,
+  onDeleteClick,
   handleTopicToUser,
   switchText,
   handleShareClick,
@@ -24,7 +24,7 @@ export default function TopicActionMenu({
       onClick:
         actionMenu.selectedTopicItem?.author === currentUser?.uid
           ? () => {
-              deleteTopic(actionMenu.selectedTopic);
+              onDeleteClick(actionMenu.selectedTopic);
             }
           : null,
     },

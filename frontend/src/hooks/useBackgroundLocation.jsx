@@ -7,7 +7,7 @@ const MODAL_PATHS = [
   "/forgot-password",
   "/profile",
   "/update-profile",
-  "/tags"
+  "/tags",
 ];
 
 export function useBackgroundLocation() {
