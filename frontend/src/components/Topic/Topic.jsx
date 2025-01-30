@@ -1,22 +1,21 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Container, Card, Carousel } from "react-bootstrap";
-import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
+import { Container, Carousel } from "react-bootstrap";
+import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useUserInfo } from "../../contexts/UserInfoContext";
-// import { useBodyScrollLock } from "../../hooks/useBodyScrollLock.jsx";
 import handleUpload from "../../utils/uploadFiles.jsx";
-import ProfileHeader from "../ProfileHeader";
 import LoadingSpinner from "../Spinner";
 import TopicList from "../TopicList/TopicList";
 import TopicInput from "./TopicInput";
 import TopicComments from "./TopicComments";
 import FileSendModal from "../FileModal/FileSendModal.jsx";
 import FileEditModal from "../FileModal/FileEditModal.jsx";
-import "./Topic.css";
-
-import { IoArrowBack } from "react-icons/io5";
+import { useScrollLock } from "../../hooks/useScrollLock.jsx";
 import TopicContextMenu from "./TopicContextMenu";
+import { IoArrowBack } from "react-icons/io5";
+import arrowBackIcon from "../../assets/arrow-back.svg";
 import axios from "axios";
+import "./Topic.css";
 
 export const commentsOnOnePageCount = 10;
 
@@ -25,20 +24,25 @@ export default function Topic() {
   const [topic, setTopic] = useState(null);
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const location = useLocation();
+  const [commentLoading, setCommentLoading] = useState(true);
   const navigate = useNavigate();
   const [extendfInfo, setExtendInfo] = useState();
 
   const [text, setText] = useState("");
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
 
-  // useBodyScrollLock(isContextMenuOpen);
   const [files, setFiles] = useState([]);
   const [filesToDelete, setFilesToDelete] = useState([]); // Список файлів на видалення
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
   const [editId, setEditId] = useState(-1);
-  const [reply, setReply] = useState(null);
+  const [reply, setReply] = useState({
+    id: -1,
+    author: null,
+    text: "",
+    attachment: "",
+    timestamp: null,
+  });
   const [contextMenu, setContextMenu] = useState({
     selectedComment: -1,
     selectedCommentItem: null,
@@ -50,16 +54,19 @@ export default function Topic() {
   });
 
   const contextMenuRef = useRef(null);
+  const topicCommentsRef = useRef(null);
+  const topicItemRef = useRef(null);
   const { currentUser } = useAuth();
-  const { userName, avatar } = useUserInfo();
+  const { fullName, avatar } = useUserInfo();
+
+  useScrollLock(isContextMenuOpen, topicCommentsRef);
 
   // вантажу інформацію з БД при монтуванні компонента
   useEffect(() => {
-    // document.body.classList.add("body-overflow");
     setLoading(true);
+    setCommentLoading(true);
     fetchTopic();
     fetchTopicComments();
-    // document.body.classList.remove("body-overflow");
   }, [id]);
   // обробник кліку на сторінці
   useEffect(() => {
@@ -90,6 +97,8 @@ export default function Topic() {
       setExtendInfo(
         !buf?.description || buf?.description?.length < 150 ? 2 : 0
       );
+    } catch (error) {
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -110,13 +119,16 @@ export default function Topic() {
         reply_text
         reply_timestamp
        */
-      const result = await axios.get(
-        `http://localhost:5000/topics/${id}/comments`
+      const response = await axios.get(
+        `http://localhost:5000/topics/${id}/comments${
+          currentUser ? "?user_id=" + currentUser.uid : ""
+        }`
       );
-      console.log(result.data);
-      setComments(result.data);
+      setComments(response.data);
     } catch (error) {
       console.error("fetchTopicComments error:", error);
+    } finally {
+      setCommentLoading(false);
     }
   }
 
@@ -128,7 +140,13 @@ export default function Topic() {
   };
 
   function resetReply() {
-    setReply(null);
+    setReply({
+      id: -1,
+      author: null,
+      text: "",
+      attachment: "",
+      timestamp: null,
+    });
   }
 
   async function sendComment() {
@@ -142,7 +160,7 @@ export default function Topic() {
         topic_id: id,
         attachments: [],
         reply: reply?.id || -1,
-        author_username: userName,
+        author_fullname: fullName,
         avatar: avatar,
         reply_text: null,
         reply_timestamp: reply?.timestamp || null,
@@ -154,7 +172,10 @@ export default function Topic() {
       comm.id = result.data.id;
       comm.reply_text = result.data.reply_text;
 
-      setComments(prev => [comm, ...prev]);
+      setComments(prev => {
+        console.log([...prev, comm]);
+        return [...prev, comm];
+      });
     } else {
       // якщо користувач обере більше 10 файлів, то розбиваємо їх на частини по 10
       const CHUNK_SIZE = 10;
@@ -176,7 +197,7 @@ export default function Topic() {
           topic_id: id,
           attachments,
           reply: reply?.id || -1,
-          author_username: userName,
+          author_fullname: fullName,
           avatar: avatar,
           reply_text: null,
           reply_timestamp: reply?.timestamp || null,
@@ -188,7 +209,7 @@ export default function Topic() {
         comm.id = result.data.id;
         comm.reply_text = result.data.reply_text;
 
-        setComments(prev => [comm, ...prev]);
+        setComments(prev => [...prev, comm]);
       }
     }
     setText("");
@@ -316,28 +337,27 @@ export default function Topic() {
       toggled: true,
     });
   }
-  useEffect(() => {
-    console.log(reply?.id);
-  }, [reply]);
 
   if (loading) return <LoadingSpinner />;
 
   return (
     <div className="extention-area">
       <div className="header">
-        <IoArrowBack
+        <img
+          src={arrowBackIcon}
+          alt="Back"
+          style={{ cursor: "pointer" }}
           onClick={() => {
             navigate(-1);
           }}
-          size={30}
         />
         <span>Дискусія</span>
       </div>
       <div className="topic-and-comments">
         <div className="in-block-for-flex">
-          <div className="block left">
+          <div className="block left" ref={topicItemRef}>
             <div className="info-list">
-              <TopicList topicInfoList={[topic]} />
+              <TopicList topicInfoList={[topic]} topicListRef={topicItemRef} />
             </div>
             <div className="extra-info">
               <div style={{ padding: "2vh" }}>
@@ -367,12 +387,12 @@ export default function Topic() {
                         className="extention-info"
                         onClick={() => setExtendInfo(1)}
                       >
-                        ... Дізнатися більше
+                        Показати більше...
                       </span>
                     </>
                   )}
                 </span>
-                {extendfInfo && topic.attachments.length > 0 && (
+                {extendfInfo && topic.attachments.length > 0 ? (
                   <Container fluid>
                     <Carousel
                       style={{ padding: "2vh" }}
@@ -392,26 +412,23 @@ export default function Topic() {
                       ))}
                     </Carousel>
                   </Container>
-                )}
+                ) : null}
               </div>
             </div>
           </div>
-
           <div className="palka"></div>
-
-          <div className="palka"></div>
-
           <div className="block right">
-            <div style={{ width: "90%" }}>
+            <div className="comment-list-group" ref={topicCommentsRef}>
               <div className="comment-area">Коментарі</div>
-              <ul>
+              {commentLoading ? (
+                <LoadingSpinner />
+              ) : (
                 <TopicComments
                   handleOnContextMenu={handleOnContextMenu}
-                  uid={topic?.uid}
-                  currentUser={currentUser}
+                  topicAuthorId={topic?.uid}
                   comments={comments}
                 />
-              </ul>
+              )}
             </div>
             <TopicInput
               isEditModalOpen={isEditModalOpen}

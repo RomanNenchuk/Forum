@@ -2,6 +2,7 @@ import React from "react";
 import Signup from "./Signup/Signup.jsx";
 import Login from "./Login/Login.jsx";
 import Profile from "./Profile";
+import Share from "./Share.jsx";
 import { AuthProvider } from "../contexts/AuthContext";
 import { UserInfoProvider } from "../contexts/UserInfoContext";
 import { ChatProvider } from "../contexts/ChatContext";
@@ -13,12 +14,14 @@ import NotFound from "./NotFound";
 import ForgotPassword from "./ForgotPassword/ForgotPassword";
 import UpdateProfile from "./UpdateProfile/UpdateProfile.jsx";
 import Menu from "./Menu/Menu.jsx";
-import Home from "./Home.jsx";
+import Home from "./Home/Home.jsx";
 import Topic from "./Topic/Topic.jsx";
 import CreateTopic from "./CreateTopic.jsx";
 import ChatList from "./Chat/ChatList.jsx";
 import Chat from "./Chat/Chat.jsx";
 import Modal from "./Modal.jsx";
+import MyTopic from "./MyTopic/MyTopic.jsx";
+import ExpandedTags from "./TagBar/ExpandedTags.jsx";
 import { useBackgroundLocation } from "../hooks/useBackgroundLocation.jsx";
 import DefaultChatScreen from "./DefaultChatScreen.jsx";
 
@@ -45,8 +48,9 @@ function AppRoutes() {
         <Route element={<Menu />}>
           <Route path="/" element={<Home />} />
           <Route path="/topics/:id" element={<Topic />} />
+          <Route path="/mytopics" element={<MyTopic />} />
           {/* <Route path="/profiles/:id" element={<Profile />} /> */}
-
+          
           <Route element={<PrivateRoute />}>
             {/* <Route path="/update-profile" element={<UpdateProfile />} /> */}
             <Route path="/create-topic" element={<CreateTopic />} />
@@ -102,6 +106,14 @@ function AppRoutes() {
             element={
               <Modal>
                 <Profile />
+              </Modal>
+            }
+          />
+          <Route
+            path="/tags"
+            element={
+              <Modal>
+                <ExpandedTags />
               </Modal>
             }
           />

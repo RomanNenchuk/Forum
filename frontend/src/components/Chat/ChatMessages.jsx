@@ -11,10 +11,10 @@ export default function ChatMessages({
   handleOnContextMenu,
   userSentMessage,
   setUserSentMessage,
+  chatMessagesRef,
 }) {
   const { messages } = useChat();
   const { currentUser } = useAuth();
-  const chatMessagesRef = useRef(null);
 
   const isAtBottom = () => {
     if (chatMessagesRef.current) {
@@ -100,7 +100,7 @@ export default function ChatMessages({
           />
           <p
             style={{
-              margin: "20px",
+              margin: "0 20px 20px 20px",
               fontSize: "17px",
               userSelect: "text",
             }}

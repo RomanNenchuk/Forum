@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useState, useRef } from "react";
 import Modal from "../Modal.jsx";
 import ModalHeader from "../ModalHeader/ModalHeader.jsx";
 import styles from "./FileModal.module.css";
@@ -14,6 +14,7 @@ export default function FileSendModal({
   setText,
   onSubmit,
 }) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef();
 
   const handleFileChange = e => {
@@ -26,6 +27,11 @@ export default function FileSendModal({
         isFromDatabase: false,
       })),
     ]);
+  };
+
+  const handleSubmit = () => {
+    setIsSubmitting(true);
+    onSubmit();
   };
 
   const handleRemoveFile = index => {
@@ -83,10 +89,11 @@ export default function FileSendModal({
                   Скасувати
                 </button>
                 <button
-                  onClick={onSubmit}
+                  onClick={handleSubmit}
                   className={`${styles.submitButton} ${styles.submitButtonSend}`}
+                  disabled={isSubmitting}
                 >
-                  Надіслати
+                  {isSubmitting ? "Надсилання..." : "Надіслати"}
                 </button>
               </div>
             </div>

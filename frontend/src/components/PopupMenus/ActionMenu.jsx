@@ -1,22 +1,22 @@
 import React from "react";
-import "./ContextMenu.css";
+import "./PopupMenu.css";
 
-export default function ContextMenu({
+export default function ActionMenu({
   positionX,
   positionY,
   isToggled,
-  contextMenuRef,
+  actionMenuRef,
+  resetActionMenu,
   buttons = [],
-  resetContextMenu,
 }) {
   return (
     <menu
-      ref={contextMenuRef}
+      ref={actionMenuRef}
       style={{
-        top: positionY + 2 + "px",
-        left: positionX + 2 + "px",
+        top: positionY + "px",
+        left: positionX + "px",
       }}
-      className={`context-menu ${isToggled ? "active" : ""}`}
+      className={`context-menu ${isToggled && buttons?.length ? "active" : ""}`}
     >
       {buttons.map(({ text, icon, onClick }, index) => (
         <button
@@ -25,7 +25,7 @@ export default function ContextMenu({
             e.stopPropagation();
             if (onClick) {
               onClick();
-              resetContextMenu();
+              resetActionMenu();
             }
           }}
           className={`context-menu-button ${!onClick ? "disabled" : ""}`}

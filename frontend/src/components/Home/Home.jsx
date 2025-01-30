@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { useAuth } from "../contexts/AuthContext.jsx";
-import { useTopicSearch } from "../contexts/TopicSearchContext.jsx";
+import React, { useEffect, useState, useRef } from "react";
+import { useAuth } from "../../contexts/AuthContext.jsx";
+import { useTopicSearch } from "../../contexts/TopicSearchContext.jsx";
 import { useLocation } from "react-router-dom";
-import LoadingSpinner from "./Spinner.jsx";
-import TopicListSettings from "./TopicList/TopicListSettings.jsx";
-import TopicList from "./TopicList/TopicList.jsx";
-import TagBar from "./TagBar/TagBar.jsx";
+import LoadingSpinner from "../Spinner.jsx";
+import TopicListSettings from "../TopicList/TopicListSettings.jsx";
+import TopicList from "../TopicList/TopicList.jsx";
+import TagBar from "../TagBar/TagBar.jsx";
 import "./Home.css";
 
 export default function Home() {
+  const [tagBarLoading, setTagBarLoading] = useState(true);
   const { currentUser } = useAuth();
-
+  const topicListRef = useRef(null);
   const location = useLocation();
   const {
     queryParams,
@@ -60,11 +61,11 @@ export default function Home() {
     let searchInputTags = urlSearchParams.get("tags");
     if (searchInputTags)
       searchInputTags =
-        "@ " + urlSearchParams.get("tags").split(",").join(", @ ");
+        "# " + urlSearchParams.get("tags").split(",").join(", # ");
 
     let searchInputAuthors = urlSearchParams.get("authors");
     if (searchInputAuthors)
-      searchInputAuthors = "~ " + searchInputAuthors.split(",").join(", ~ ");
+      searchInputAuthors = "@ " + searchInputAuthors.split(",").join(", @ ");
 
     if (searchInputTags || searchInputAuthors)
       setSearchInput(
@@ -118,21 +119,25 @@ export default function Home() {
     return () => window.removeEventListener("scroll", debouncedHandleScroll);
   }, [hasMore, loading]);
 
-  if (loading && topicInfoList.length === 0) return <LoadingSpinner />;
+  if (loading && tagBarLoading && topicInfoList.length === 0)
+    return <LoadingSpinner />;
 
   return (
     <>
-      <ul className="submain-in">
+      <ul className="submain-in" ref={topicListRef}>
         <TopicListSettings
           sortOrder={queryParams.sortOrder}
           handleChange={handleChange}
         />
-        <TopicList 
+        <TopicList
           topicInfoList={topicInfoList}
-          setTopicInfoList={setTopicInfoList} 
+          setTopicInfoList={setTopicInfoList}
         />
       </ul>
-      <TagBar />
+      <TagBar
+        tagBarLoading={tagBarLoading}
+        setTagBarLoading={setTagBarLoading}
+      />
     </>
   );
 }

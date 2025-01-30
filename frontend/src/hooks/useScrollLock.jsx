@@ -1,25 +1,28 @@
 import { useEffect } from "react";
 
-export function useBodyScrollLock(isLocked) {
+export function useScrollLock(isLocked, ref) {
   useEffect(() => {
-    const element = document.querySelector(".chat-messages");
+    let element = ref?.current;
+    if (!element) {
+      element = document.querySelector("html");
+      return;
+    }
+
     if (isLocked) {
       const fullWidth = element.offsetWidth;
-      // Ширина контентної області без прокрутки
       const contentWidth = element.clientWidth;
-      // Ширина скролбара
       const scrollBarWidth = fullWidth - contentWidth;
 
       element.style.overflow = "hidden";
       element.style.paddingRight = `${scrollBarWidth}px`; // Компенсація
     } else {
-      element.style.overflowY = "auto";
+      element.style.overflow = "";
       element.style.paddingRight = ""; // Скидаємо відступ
     }
 
     return () => {
-      element.style.overflowY = "auto";
+      element.style.overflow = "";
       element.style.paddingRight = ""; // Скидаємо відступ при демонтованому компоненті
     };
-  }, [isLocked]);
+  }, [isLocked, ref]);
 }

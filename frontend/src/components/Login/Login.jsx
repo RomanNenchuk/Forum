@@ -10,7 +10,7 @@ import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useUserInfo } from "../../contexts/UserInfoContext.jsx";
 import { useNavigate, useLocation } from "react-router-dom";
 
-export default function Login({ onCloseModal }) {
+export default function Login({ onClose }) {
   const emailOrUsernameRef = useRef();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -89,7 +89,7 @@ export default function Login({ onCloseModal }) {
 
   return (
     <Card>
-      <ModalHeader title={"Вхід у систему"} onClose={onCloseModal} />
+      <ModalHeader title={"Вхід у систему"} onClose={onClose} />
       <Card.Body>
         {error && <Alert variant="danger">{error}</Alert>}
 

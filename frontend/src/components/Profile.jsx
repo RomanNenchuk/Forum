@@ -12,7 +12,8 @@ import unfollowIcon from "../assets/unfollow.svg";
 import "./Profile.css";
 import ModalLoading from "./ModalLoading.jsx";
 import axios from "axios";
-export default function Profile({ closeModal }) {
+
+export default function Profile({ onClose }) {
   const { id } = useParams();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -45,7 +46,7 @@ export default function Profile({ closeModal }) {
   }
   async function onUnsubscribing(){
     try {
-      const result = axios.delete(`http://localhost:5000/subscriptions/${id}`, {user1_id : currentUser.uid});
+      const result = axios.delete(`http://localhost:5000/subscriptions/${id}`, {data : {user1_id : currentUser.uid},});
     }
     catch (error) {
       console.error(error);
@@ -63,7 +64,7 @@ export default function Profile({ closeModal }) {
 
   return (
     <ModalLoading modalLoading={loading}>
-      <ModalHeader title={author?.fullName || fullName} onClose={closeModal} />
+      <ModalHeader title={author?.fullName || fullName} onClose={onClose} />
       <Card.Body className="profile-modal-card-body">
         {error && <Alert variant="danger">{error}</Alert>}
         <div className="avatar-container text-center mb-4">

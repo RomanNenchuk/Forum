@@ -1,5 +1,6 @@
 import { pool } from "../db.js";
 import { deleteAttachments } from "../controllers/fileController.js";
+
 // для відображення на головній сторінці
 export const getTopicsPreview = async (req, res) => {
   const { page = 1, limit = 10, sort, user_id, tags, authors } = req.query;
@@ -66,10 +67,10 @@ export const getTopicsPreview = async (req, res) => {
         topics.date
       FROM topics
       INNER JOIN users ON users.uid = topics.author
-      LEFT JOIN reactions
-        ON topics.id = reactions.topic_id
+      LEFT JOIN topic_reactions
+        ON topics.id = topic_reactions.topic_id
       LEFT JOIN emoji
-        ON emoji.id = reactions.emoji_id
+        ON emoji.id = topic_reactions.emoji_id
       WHERE 1=1
       ${tagsFilterQuery}
       ${authorsFilterQuery}
@@ -98,8 +99,8 @@ export const getTopicsPreview = async (req, res) => {
         emoji.name,
         emoji.icon,
         COUNT(*) AS count
-      FROM reactions
-      INNER JOIN emoji ON reactions.emoji_id = emoji.id
+      FROM topic_reactions
+      INNER JOIN emoji ON topic_reactions.emoji_id = emoji.id
       GROUP BY topic_id, emoji.name, emoji.icon;
       `
     );
@@ -114,8 +115,8 @@ export const getTopicsPreview = async (req, res) => {
         SELECT 
           topic_id, 
           emoji.name AS name
-        FROM reactions
-        LEFT JOIN emoji ON reactions.emoji_id = emoji.id
+        FROM topic_reactions
+        LEFT JOIN emoji ON topic_reactions.emoji_id = emoji.id
         WHERE user_id = $1;
         `,
         [user_id]
@@ -148,6 +149,92 @@ export const getTopicsPreview = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const getUserTopic = async (req, res) => {
+  const { page = 1, limit = 10, user_id } = req.query;
+  const offset = (page - 1) * limit;
+  try {
+    const topicsResult = await pool.query(
+      `
+      SELECT 
+        topics.id, 
+        fullname AS author_full_name, 
+        username, 
+        avatar AS author_avatar, 
+        title, 
+        email, 
+        author, 
+        COALESCE(SUM(emoji.score), 0) AS rating,
+        topics.date
+      FROM topics
+      
+      INNER JOIN users ON users.uid = topics.author
+      LEFT JOIN topic_reactions
+        ON topics.id = topic_reactions.topic_id
+      LEFT JOIN emoji
+        ON emoji.id = topic_reactions.emoji_id
+      WHERE users.uid = $1
+      GROUP BY topics.id, fullname, username, avatar, title, email, author, topics.date
+      LIMIT $2 OFFSET $3
+      `,
+      [user_id, limit, offset]
+    );
+    const topics = topicsResult.rows;
+    const reactionsResult = await pool.query(
+      `
+      SELECT 
+        topic_id,
+        emoji.name,
+        emoji.icon,
+        COUNT(*) AS count
+      FROM topic_reactions
+      INNER JOIN emoji ON topic_reactions.emoji_id = emoji.id
+      
+      GROUP BY topic_id, emoji.name, emoji.icon;
+      `
+    );
+    const reactions = reactionsResult.rows;
+
+    let userReactions = [];
+    const userReactionsResult = await pool.query(
+      `
+        SELECT 
+          topic_id, 
+          emoji.name AS name
+        FROM topic_reactions
+        LEFT JOIN emoji ON topic_reactions.emoji_id = emoji.id
+        WHERE user_id = $1;
+        `,
+      [user_id]
+    );
+    userReactions = userReactionsResult.rows;
+
+    const topicsWithReactions = topics.map(topic => {
+      const topicReactions = reactions
+        .filter(reaction => reaction.topic_id === topic.id)
+        .map(reaction => ({
+          icon: reaction.icon,
+          name: reaction.name,
+          count: parseInt(reaction.count, 10),
+        }));
+
+      const userReaction = userReactions.find(
+        reaction => reaction.topic_id === topic.id
+      );
+
+      return {
+        ...topic,
+        reactions: topicReactions,
+        user_reaction: userReaction || null,
+      };
+    });
+
+    res.status(200).json(topicsWithReactions);
+  } catch (error) {
+    res.status(500).json("Internal server error");
+    console.error(error);
   }
 };
 
@@ -191,9 +278,9 @@ export const getTopic = async (req, res) => {
         emoji.name AS name, 
         emoji.icon AS icon, 
         COUNT(*) AS count
-      FROM reactions
-      INNER JOIN emoji ON reactions.emoji_id = emoji.id
-      WHERE reactions.topic_id = $1
+      FROM topic_reactions
+      INNER JOIN emoji ON topic_reactions.emoji_id = emoji.id
+      WHERE topic_reactions.topic_id = $1
       GROUP BY emoji.name, emoji.icon
       `,
       [id]
@@ -213,9 +300,9 @@ export const getTopic = async (req, res) => {
         SELECT 
           emoji.name AS name, 
           emoji.icon AS icon
-        FROM reactions
-        INNER JOIN emoji ON reactions.emoji_id = emoji.id
-        WHERE reactions.topic_id = $1 AND reactions.user_id = $2
+        FROM topic_reactions
+        INNER JOIN emoji ON topic_reactions.emoji_id = emoji.id
+        WHERE topic_reactions.topic_id = $1 AND topic_reactions.user_id = $2
         LIMIT 1
         `,
         [id, user_id]
@@ -316,42 +403,42 @@ export const saveTopic = async (req, res) => {
   }
 };
 
-export const getTopicComments = async (req, res) => {
-  const id = req.params.id;
-  try {
-    const query = `
-    SELECT
-      c.id, 
-      c.text,
-      c.timestamp,
-      c.author_id,
-      c.topic_id,
-      c.attachments,
-      c.reply,
-      u.username AS author_username,
-      u.avatar,
-      o.text AS reply_text,
-      o.timestamp AS reply_timestamp
-    FROM 
-      comments c
-    LEFT JOIN
-      users u ON c.author_id = u.uid
-    LEFT JOIN
-      comments o ON c.reply = o.id
-    WHERE 
-      c.topic_id = $1
-    ORDER BY 
-      c.id ASC;
-    `;
-    const result = (await pool.query(query, [id])).rows;
-    res.status(200).json(result ?? []);
-  } catch (error) {
-    console.error("getTopicComments:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
+// export const getTopicComments = async (req, res) => {
+//   const id = req.params.id;
+//   try {
+//     const query = `
+//     SELECT
+//       c.id,
+//       c.text,
+//       c.timestamp,
+//       c.author_id,
+//       c.topic_id,
+//       c.attachments,
+//       c.reply,
+//       u.fullname AS author_fullname,
+//       u.avatar,
+//       o.text AS reply_text,
+//       o.timestamp AS reply_timestamp
+//     FROM
+//       comments c
+//     LEFT JOIN
+//       users u ON c.author_id = u.uid
+//     LEFT JOIN
+//       comments o ON c.reply = o.id
+//     WHERE
+//       c.topic_id = $1
+//     ORDER BY
+//       c.id ASC;
+//     `;
+//     const result = (await pool.query(query, [id])).rows;
+//     res.status(200).json(result ?? []);
+//   } catch (error) {
+//     console.error("getTopicComments:", error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// };
 
-export const PostNewComment = async (req, res) => {
+export const postNewComment = async (req, res) => {
   const comm = req.body;
   try {
     const query = `
@@ -391,8 +478,7 @@ export const deleteComment = async (req, res) => {
   try {
     const query = `DELETE FROM comments WHERE id = $1 RETURNING attachments`;
     const response = await pool.query(query, [id]);
-    if(response.rows.length)
-      deleteAttachments(response.rows[0].attachments);
+    if (response.rows.length) deleteAttachments(response.rows[0].attachments);
     res.status(200).json({
       done: true,
     });
@@ -419,7 +505,6 @@ export const editComments = async (req, res) => {
   }
 };
 
-
 export const deleteTopic = async (req, res) => {
   const client = await pool.connect();
   const id = req.params.id;
@@ -432,24 +517,89 @@ export const deleteTopic = async (req, res) => {
     const DELETE_TOPIC_QUERY = `DELETE FROM topics WHERE id = $1`;
 
     // отримую id коментів, що належать цій темі
-    const comments_to_delete = await pool.query(GET_TOPIC_COMMENTS_QUERY, [id]);
+    const comments_to_delete = await client.query(GET_TOPIC_COMMENTS_QUERY, [
+      id,
+    ]);
 
     // видаляю кожен комент з бази даних
-    for(let {id: id_to_delete} of comments_to_delete.rows) {
-      const response = await pool.query(DELETE_COMMENT_QUERY, [id_to_delete]);
-      if(response.rows.length)
-        deleteAttachments(response.rows[0].attachments);
+    for (let { id: id_to_delete } of comments_to_delete.rows) {
+      const response = await client.query(DELETE_COMMENT_QUERY, [id_to_delete]);
+      if (response.rows.length)
+        deleteAttachments(response.rows[0].attachments).catch(error =>
+          console.error(error)
+        );
     }
 
     // видаляю тему з бази даних
-    await pool.query(DELETE_TOPIC_QUERY, [id]);
+    await client.query(DELETE_TOPIC_QUERY, [id]);
 
     // завершую транзакцію
     await client.query("COMMIT");
 
     res.status(200).json({ done: true });
   } catch (error) {
+    // у разі помилки відміняю транзакцію
+    await client.query("ROLLBACK");
+    res.status(500).json({ error: "Internal server error" });
     console.error("Error with deleteTopic: ", error);
-    res.status(500);
+  } finally {
+    client.release();
   }
 };
+
+
+export const switchTopicToUser = async (req, res) => {
+  const {user_id, topic_id} = req.body;
+  try {
+    const CHECK_QUERY = `
+      SELECT * FROM saved_topics WHERE user_id = $1 AND topic_id = $2;
+    `
+    const SAVE_QUERY = `
+      INSERT INTO saved_topics (user_id, topic_id) VALUES ($1, $2);
+    `;
+    const DELETE_QUERY = `
+      DELETE FROM saved_topics WHERE user_id = $1 AND topic_id = $2;
+    `
+    const exist = await pool.query(CHECK_QUERY, [user_id, topic_id]);
+    if (!exist.rows.length) {
+      await pool.query(SAVE_QUERY, [user_id, topic_id]);
+      res.status(201).json({ status: "saved" });
+    } else {
+      await pool.query(DELETE_QUERY, [user_id, topic_id]);
+      res.status(200).json({ satus: "deleted" });
+    }
+  } catch(error) {
+    console.error("Error in saveTopicToUser: ", error);
+    res.status(500).json({ status: "failed" });
+  }
+}
+
+export const getIsTopicSaved = async (req, res) => {
+  try {
+    const { user_id, topic_id } = req.query;
+    const QUERY = `
+    SELECT * FROM saved_topics WHERE user_id = $1 AND topic_id = $2;
+    `
+    const result = await pool.query(QUERY, [user_id, topic_id]);
+    if(result.rows.length) {
+      res.status(200).json({ saved: true });
+    } else {
+      res.status(200).json({ saved: false });
+    }
+  } catch(error) {
+    console.log(error);
+    res.status(500).json({ saved: false });
+  }
+}
+
+export const getSavedTopics = async (req, res) => {
+  try {
+    const { user_id } = req.query;
+    const QUERY = ``;
+    const result = await pool.query(QUERY, []);
+    res.status(200).json(result.rows);
+  } catch(error) {
+    console.log(error);
+    res.status(500).json({});
+  }
+}

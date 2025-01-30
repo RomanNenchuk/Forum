@@ -1,5 +1,5 @@
 import React from "react";
-import ContextMenu from "../ContextMenu/ContextMenu";
+import ContextMenu from "../PopupMenus/ContextMenu";
 import deleteIcon from "../../assets/delete-context-menu.svg";
 import editIcon from "../../assets/edit-file.svg";
 import replyIcon from "../../assets/reply-context-menu.svg";
@@ -49,7 +49,6 @@ export default function ChatContextMenu(props) {
 
               if (dbFiles) setFiles(prevFiles => [...dbFiles, ...prevFiles]);
 
-              console.log(contextMenu.selectedMessageItem);
               setText(contextMenu.selectedMessageItem?.text || "");
               setEditId(contextMenu.selectedMessage);
 
@@ -64,7 +63,6 @@ export default function ChatContextMenu(props) {
       icon: replyIcon,
       onClick: setReply
         ? () => {
-            console.log(contextMenu.selectedMessageItem);
             setReply({
               id: contextMenu.selectedMessageItem.id,
               author: contextMenu.selectedMessageItem.fullname,

@@ -1,17 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useChat } from "../../contexts/ChatContext";
 import { useSocket } from "../../contexts/SocketProviderContext";
 import { useUserInfo } from "../../contexts/UserInfoContext";
-import { useBodyScrollLock } from "../../hooks/useBodyScrollLock.jsx";
+import { useScrollLock } from "../../hooks/useScrollLock.jsx";
 import getChatId from "../../utils/getChatId.jsx";
 import handleUpload from "../../utils/uploadFiles.jsx";
 import ChatInput from "./ChatInput.jsx";
 import FileSendModal from "../FileModal/FileSendModal.jsx";
 import FileEditModal from "../FileModal/FileEditModal.jsx";
 import ChatContextMenu from "./ChatContextMenu.jsx";
+import ChatActionMenu from "./ChatActionMenu.jsx";
 import ChatMessages from "./ChatMessages.jsx";
 import LoadingSpinner from "../Spinner.jsx";
 import chatControllerIcon from "../../assets/chat-controller.svg";
@@ -20,6 +21,7 @@ import "react-bootstrap";
 export default function Chat() {
   const [text, setText] = useState("");
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
+  const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
   const [files, setFiles] = useState([]);
   const [filesToDelete, setFilesToDelete] = useState([]); // Список файлів на видалення
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -32,10 +34,23 @@ export default function Chat() {
     text: "",
     attachment: "",
   });
+  const [actionMenu, setActionMenu] = useState({
+    selectedTopic: -1,
+    selectedTopicItem: null,
+    position: {
+      x: 0,
+      y: 0,
+    },
+    toggled: false,
+  });
 
-  useBodyScrollLock(isContextMenuOpen);
-
+  const actionMenuRef = useRef(null);
+  const settingsRef = useRef(null);
   const contextMenuRef = useRef(null);
+  const chatMessagesRef = useRef(null);
+
+  useScrollLock(isContextMenuOpen, chatMessagesRef);
+  useScrollLock(isActionMenuOpen, chatMessagesRef);
 
   const { receiverId } = useParams();
   const {
@@ -83,6 +98,18 @@ export default function Chat() {
     }
     document.addEventListener("click", handler);
     return () => document.removeEventListener("click", handler);
+  }, []);
+
+  useEffect(() => {
+    function handler(e) {
+      if (actionMenuRef.current) {
+        if (!actionMenuRef.current.contains(e.target)) {
+          resetActionMenu();
+        }
+      }
+    }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
 
   useEffect(() => {
@@ -160,6 +187,32 @@ export default function Chat() {
         y,
       },
       toggled: true,
+    });
+  }
+
+  function handleOnActionMenu(e) {
+    e.preventDefault();
+    const actionMenuAttr = settingsRef.current.getBoundingClientRect();
+    let x = actionMenuAttr.x - actionMenuRef.current?.offsetWidth + 20;
+    let y = actionMenuAttr.bottom;
+    setIsActionMenuOpen(true);
+    setActionMenu({
+      position: {
+        x,
+        y,
+      },
+      toggled: true,
+    });
+  }
+
+  function resetActionMenu() {
+    setIsActionMenuOpen(false);
+    setActionMenu({
+      position: {
+        x: 0,
+        y: 0,
+      },
+      toggled: false,
     });
   }
 
@@ -320,11 +373,40 @@ export default function Chat() {
     setFilesToDelete([]);
     resetEdit();
   }
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if(socket && location.state?.text){
+      const msg = {
+        id: -1,
+        attachments: [],
+        fullname: fullName,
+        sender_id: currentUser.uid,
+        text: location.state?.text.trim(),
+        timestamp: new Date().toISOString(),
+        reply: reply?.id,
+        reply_fullname: reply?.author,
+        reply_text: reply?.text,
+        reply_attachment: reply?.attachment,
+      };
+      socket.emit("send-message", msg, receiverId, res => {
+        msg.id = res.id;
+        setMessages(prev => [...prev, msg]);
+      });
+      navigate(".", { 
+        replace: true, 
+        state: { 
+          otherUserName: location.state?.otherUserName
+        } 
+      });
+    }
+  }, [socket]);
 
   if (loading) return <LoadingSpinner />;
 
-  const location = useLocation();
   const otherUserName = location.state?.otherUserName || "Користувач";
+  
 
   return (
     <div className="chat-container">
@@ -337,7 +419,11 @@ export default function Chat() {
             <p>{otherUserName}</p>
           </Link>
         </div>
-        <div className="chat-ct-hd-pre-svg">
+        <div
+          className="chat-ct-hd-pre-svg"
+          onClick={handleOnActionMenu}
+          ref={settingsRef}
+        >
           <img src={chatControllerIcon} alt="Settings" />
         </div>
       </div>
@@ -345,6 +431,7 @@ export default function Chat() {
         handleOnContextMenu={handleOnContextMenu}
         userSentMessage={userSentMessage}
         setUserSentMessage={setUserSentMessage}
+        chatMessagesRef={chatMessagesRef}
       />
 
       <ChatContextMenu
@@ -362,6 +449,14 @@ export default function Chat() {
         currentUser={currentUser}
         contextMenu={contextMenu}
         setReply={setReply}
+      />
+
+      <ChatActionMenu
+        positionX={actionMenu.position.x}
+        positionY={actionMenu.position.y}
+        isToggled={actionMenu.toggled}
+        actionMenuRef={actionMenuRef}
+        resetActionMenu={resetActionMenu}
       />
 
       <ChatInput

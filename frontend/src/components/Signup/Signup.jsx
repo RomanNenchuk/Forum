@@ -7,7 +7,7 @@ import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useUserInfo } from "../../contexts/UserInfoContext.jsx";
 // import "./Auth.css";
 
-export default function Signup({ onCloseModal }) {
+export default function Signup({ onClose }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [nextForm, setNextForm] = useState(false);
@@ -102,7 +102,7 @@ export default function Signup({ onCloseModal }) {
         passwordRef={passwordRef}
         handleSignUpWithGoogle={handleSignUpWithGoogle}
         setNextForm={setNextForm}
-        onCloseModal={onCloseModal}
+        onClose={onClose}
         setError={setError}
         loading={loading}
       />
@@ -115,9 +115,10 @@ export default function Signup({ onCloseModal }) {
         majorRef={majorRef}
         imageInputRef={imageInputRef}
         handleSubmit={handleRegister}
-        onCloseModal={onCloseModal}
+        onClose={onClose}
         setNextForm={setNextForm}
         setImage={setImage}
+        setError={setError}
         loading={loading}
       />
     </Card>

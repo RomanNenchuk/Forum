@@ -170,3 +170,7 @@
   color: #659290;
   letter-spacing: 0.02em;
 }
+
+.confirmationButtons {
+  margin: 25px 0;
+}

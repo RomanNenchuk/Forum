@@ -9,6 +9,7 @@ import authRoutes from "./routes/authRoutes.js";
 import fileUploadRoutes from "./routes/fileUploadRoutes.js";
 import subscriptionRoutes from "./routes/userSubscriptionRoutes.js"
 import tagRoutes from "./routes/tagRoutes.js";
+import commentRoutes from "./routes/commentRoutes.js";
 import { Server } from "socket.io";
 import { chatSocket } from "./sockets/chatSocket.js";
 const app = express();
@@ -35,6 +36,8 @@ app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
 
 app.use("/topics", topicRoutes);
+
+app.use("/comments", commentRoutes);
 
 app.use("/chats", middleware.decodeToken, chatsRoutes);
 

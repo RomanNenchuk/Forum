@@ -1,40 +1,58 @@
-import React,{useState} from "react";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import "./TagBar.css";
-import TagExtent from "./TagExtent";
-import { FaSalesforce } from "react-icons/fa";
+import axios from "axios";
 
+export default function TagBar({ tagBarLoading, setTagBarLoading }) {
+  const [isExtentTag, setExtentTag] = useState(false);
+  const [data, setData] = useState([]);
 
-const tagList = [
-  "Вища математика",
-  "ООП",
-  "ДМ",
-  "Бази даних",
-  "ООЕ",
-  "Бекенд",
-  "АСД",
-  "ЕЕ",
-  "ЧМ",
-];
+  useEffect(() => {
+    const fetchTags = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:5000/tags?page=1&limit=15"
+        );
+        setData(res.data);
+      } catch (error) {
+        console.error("Error fetching tags:", error);
+      } finally {
+        setTagBarLoading(false);
+      }
+    };
 
+    fetchTags();
+  }, []);
 
-export default function TagBar() {
-  const [isExtentTag, setExtentTag] = useState(false)
-
-  
-    return (
+  return (
     <>
-    <div className="tag-list">
-      <h5 className="tag-list-title">Популярні теги</h5>
-      {tagList.map((tag, index) =>
-        index < 5 ? (
-          <h6 className="tag" key={index}>
-            @ {tag}
-          </h6>
-        ) : null
-      )}
-      <span style = {{cursor: "pointer"}}onClick = {()=>{setExtentTag(!isExtentTag)}}>Показати більше</span>
-    </div>
-    {isExtentTag ? <TagExtent tagList={tagList} onClose={() => setExtentTag(false)}/> : ''}
+      <div className="tag-list">
+        <h5 className="tag-list-title">Популярні теги</h5>
+        {tagBarLoading ? null : (
+          <>
+            {data.map((tag, index) => (
+              <h5
+                className="tag"
+                key={index}
+                onClick={() => {
+                  navigator.clipboard.writeText(`# ${tag.tag_name}`);
+                }}
+                style={{ cursor: "pointer" }}
+              >
+                # {tag.tag_name}
+              </h5>
+            ))}
+            <Link to="/tags">
+              <span
+                style={{ cursor: "pointer" }}
+                onClick={() => setExtentTag(!isExtentTag)}
+              >
+                Показати більше
+              </span>
+            </Link>
+          </>
+        )}
+      </div>
     </>
   );
 }

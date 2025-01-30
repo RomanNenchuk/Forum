@@ -14,7 +14,6 @@ export default function TopBar({ currentUser, avatar, fullName }) {
     setQueryParams,
     urlSearchParams,
     setUrlSearchParams,
-    getTagList,
     getSearchInputData,
   } = useTopicSearch();
   const navigate = useNavigate();
@@ -29,8 +28,6 @@ export default function TopBar({ currentUser, avatar, fullName }) {
       urlSearchParams.set("tags", result.tagList);
     if (result?.authorList?.length > 0)
       urlSearchParams.set("authors", result.authorList);
-    if (result?.tagList?.length > 0 || result?.authorList?.length > 0)
-      setUrlSearchParams(urlSearchParams);
 
     navigate({
       pathname: "/",
