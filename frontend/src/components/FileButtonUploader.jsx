@@ -21,9 +21,9 @@ const FileButtonUploader = ({files, setFiles}) => {
       backgroundColor: "#d9d9d9",
     }}
   >
-    <div style={{ display: "flex", flexDirection: "row", padding: "1vh" }}>
+    <div style={{ display: "flex", flexDirection: "row", padding: "1vh", fontSize: "2.5vh" }}>
       Завантажити файли
-      <img src={addFileIcon} />
+      <img src={addFileIcon} style = {{height: "3vh", width: "auto"}}/>
       <input
         type="file"
         style={{ display: "none" }}

@@ -32,6 +32,18 @@ export default function CreateTopic() {
   const [step, setStep] = useState(0)
   const [selectedTag, setSelected] = useState([])
 
+  const [scaleValue, setScaleValue] = useState(window.innerHeight * 0.0015);
+  const updateScaleValue = () => {
+    setScaleValue(window.innerHeight * 0.0015);
+  };
+
+  useEffect(() => {
+    window.addEventListener("resize", updateScaleValue);
+    return () => {
+      window.removeEventListener("resize", updateScaleValue);
+    };
+  }, []);
+
   const [buf, setBuf] = useState({
     title: '',
     tags: [], 
@@ -102,18 +114,19 @@ export default function CreateTopic() {
   return (
     <Container>
       <div className="cr-topic-in">
-            <div> {step ? (<IoArrowBack onClick = {()=>{getFromSecond(),setTimeout(()=>{setStep(0)}, 50)}} size = "4vh" / >) : ''}
-              <h2 className="text-center mb-4 ">Створити тему</h2></div>
+            <div style={{display: "grid", gridTemplateColumns: "repeat(3, 1fr)"}}> 
+              {step ? (<IoArrowBack style = {{gridColumn: 1}} onClick = {()=>{getFromSecond(),setTimeout(()=>{setStep(0)}, 50)}} size = "4vh" / >) : ''}
+              <span style = {{gridColumn: 2, fontSize: "4vh", textAlign: "center"}}>Створити тему</span></div>
             {error && <Alert variant="danger">{error}</Alert>}
             {success && <Alert variant="success">{success}</Alert>}
-            {!step ? (<div style = {{display: "flex", flexDirection:'row', justifyContent:"space-between",width: "30%",padding: "2vh"}}>
-              <div style = {firstStepChoose === 0 ? {boxShadow: "0 0.3vh 0 0 #659287"} : {}}
+            {!step ? (<div className = "chooser">
+              <div style = {firstStepChoose === 0 ? {fontSize: "2.5vh",boxShadow: "0 0.3vh 0 0 #659287"} : {fontSize: "2.5vh"}}
               onClick = {()=>setFirstStepChoose(0)}>Текст</div>
-              <div style = {firstStepChoose !== 0 ? {boxShadow: "0 0.3vh 0 0 #659287"} : {}}
+              <div style = {firstStepChoose !== 0 ? {fontSize: "2.5vh",boxShadow: "0 0.3vh 0 0 #659287"} : {fontSize: "2.5vh"}}
               onClick = {()=>setFirstStepChoose(1)}>Фото&Відео</div>
             </div>) : ''}
             <Form onSubmit={handleSubmit}>
-              {!step ? (<TitleInput titleRef={titleRef} limit = {255} value = {buf.title}/>) : ''}
+              {!step ? (<TitleInput titleRef={titleRef} limit = {!firstStepChoose ? 255 : 200} value = {buf.title}/>) : ''}
               {!step ? (<SearchInput resData = {selectedTag} setResData = {setSelected} />) : ''}
               {step ? (<BaseWrapInput ref = {descriptionRef} value = {buf.description}/>) : ""}
               
@@ -124,8 +137,11 @@ export default function CreateTopic() {
               firstStepChoose ? (
                 <FileButtonUploader files = {headerFiles} setFiles = {setHeaderFiles}/>
               ) : ''}
-              {!step ? (<ActionButton onClick = {(e)=>{ e.preventDefault();e.stopPropagation(); getFromFirst(); setStep(1)}} label = "Продовжити" loading={null} type = "button"/>) :
-              (<ActionButton label = {loading ? "Створення..." : "Створити тему"} loading={loading} type = "submit"/>)}
+              <div style = {{display: "flex", justifyContent: "center"}}>
+              <div className = "button" style = {{transform: `scale(${scaleValue})`}}>
+                {!step ? (<ActionButton onClick = {(e)=>{ e.preventDefault();e.stopPropagation(); getFromFirst(); setStep(1)}} label = "Продовжити" loading={null} type = "button"/>) :
+                (<ActionButton label = {loading ? "Створення..." : "Створити тему"} loading={loading} type = "submit"/>)}
+              </div></div>
             </Form>
       </div>
     </Container>
