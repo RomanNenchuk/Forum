@@ -40,6 +40,18 @@ export default function ChatMessages({
     scrollToBottom(chatMessagesRef);
   }, []);
 
+  const [scaleValue, setScaleValue] = useState(window.innerHeight * 0.0015);
+    const updateScaleValue = () => {
+      setScaleValue(window.innerHeight * 0.0015);
+    };
+  
+    useEffect(() => {
+      window.addEventListener("resize", updateScaleValue);
+      return () => {
+        window.removeEventListener("resize", updateScaleValue);
+      };
+    }, []);
+
   return (
     <ul
       ref={chatMessagesRef}
@@ -71,19 +83,23 @@ export default function ChatMessages({
                 className="message-reply-label"
                 style={
                   msg.sender_id === currentUser.uid
-                    ? {
-                        textAlign: "right",
-                        marginLeft: "auto",
-                        backgroundColor: "#a3beb7",
-                      }
-                    : {
-                        textAlign: "left",
-                        marginRight: "auto",
-                        backgroundColor: "#c2c1be",
-                      }
+                  ? {
+                    display: "flex", flexDirection: "row",
+                    justifyContent: "flex-end",
+                    alignItems: "center",
+                    marginLeft: "auto",
+                    backgroundColor: "#a3beb7",
+                  }
+                : {
+                    display: "flex", flexDirection: "row",
+                    justifyContent: "flex-start",
+                    alignItems: "center",
+                    marginRight: "auto",
+                    backgroundColor: "#c2c1be",
+                  }
                 }
               >
-                <img src={replyIcon} alt="Reply to" /> {"  "}
+                <div style = {{transform: `scale(${scaleValue})`}}><img src={replyIcon} alt="Reply to" /> {"  "}</div>
                 {msg.reply_fullname ? msg.reply_fullname + ": " : ""}
                 {msg.reply_text ||
                   msg.reply_attachment?.slice(
@@ -100,16 +116,16 @@ export default function ChatMessages({
           />
           <p
             style={{
-              margin: "0 20px 20px 20px",
-              fontSize: "17px",
-              userSelect: "text",
+              margin: "0 6% 2vh 6%",
+              fontSize: "2.5vh",              userSelect: "text",
+              overflowWrap: "break-word"
             }}
           >
             {msg.text}
           </p>
           <span
             className="message-timestamp"
-            style={{ fontSize: "15px", color: "black", fontWeight: 100 }}
+            style={{ fontWeight: 100 }}
           >
             {timestampToTime(msg.timestamp)}
           </span>

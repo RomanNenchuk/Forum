@@ -114,7 +114,8 @@ export default function Chat() {
 
   useEffect(() => {
     if (!socket) return;
-
+    const cont = document.querySelector(".forum-container");
+    cont.style.overflow = "hidden";
     socket.on("receive-message", msg => {
       console.log(msg);
       setMessages(prev => [...prev, msg]);
@@ -140,6 +141,9 @@ export default function Chat() {
       socket.off("delete-message");
       socket.off("edit-message");
       socket.emit("leave-chat", currentUser.uid);
+
+      const cont = document.querySelector(".forum-container");
+      cont.style.overflow = "auto";
     };
   }, [socket, currentUser, receiverId]);
 
@@ -424,7 +428,7 @@ export default function Chat() {
           onClick={handleOnActionMenu}
           ref={settingsRef}
         >
-          <img src={chatControllerIcon} alt="Settings" />
+          <img src={chatControllerIcon} style = {{height: '4vh', width: "auto"}} alt="Settings" />
         </div>
       </div>
       <ChatMessages

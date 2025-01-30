@@ -24,6 +24,18 @@ export default function ChatInput({
   const inputRef = useRef();
   const { messages } = useChat();
 
+  const [scaleValue, setScaleValue] = useState(window.innerHeight * 0.0015);
+    const updateScaleValue = () => {
+      setScaleValue(window.innerHeight * 0.0015);
+    };
+  
+    useEffect(() => {
+      window.addEventListener("resize", updateScaleValue);
+      return () => {
+        window.removeEventListener("resize", updateScaleValue);
+      };
+    }, []);
+
   useEffect(() => {
     inputRef.current.focus();
     return () => {
@@ -83,14 +95,14 @@ export default function ChatInput({
       )}
 
       {editId === -1 && !hasAttachments() ? (
-        <FileUploader
+        <div style = {{transform: `scale(${scaleValue})`}}><FileUploader
           setFiles={setFiles}
           editId={editId}
           setIsEditModalOpen={setIsEditModalOpen}
           setIsSendModalOpen={setIsSendModalOpen}
           text={text}
           setText={text}
-        />
+        /></div>
       ) : null}
 
       <input
@@ -103,16 +115,16 @@ export default function ChatInput({
         ref={inputRef}
         placeholder="Напишіть повідомлення..."
       />
-      <EmojiPickerButton setText={setText} />
+      <div style = {{transform: `scale(${scaleValue})`}}><EmojiPickerButton setText={setText} /></div>
       {(editId === -1 || isEditModalOpen || isSendModalOpen) && (
         <div className="send-msg-btn" onClick={sendMessage}>
-          <img src={sendMessageIcon} alt="Send" />
+          <div style = {{transform: `scale(${scaleValue})`}}><img src={sendMessageIcon} alt="Send" /></div>
         </div>
       )}
       {editId !== -1 && !isEditModalOpen && !isSendModalOpen && (
         <>
-          <MdEdit size={30} onClick={editMessage} />
-          <img src={cancelIcon} alt="Cancel" onClick={onCancel} />
+          <MdEdit size="3vh" onClick={editMessage} />
+          <div style = {{transform: `scale(${scaleValue})`}}><img src={cancelIcon} alt="Cancel" onClick={onCancel} /></div>
         </>
       )}
     </div>
