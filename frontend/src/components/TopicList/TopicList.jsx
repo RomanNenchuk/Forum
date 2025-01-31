@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import TopicArea from "./TopicArea.jsx";
 import TopicActionMenu from "./TopicActionMenu.jsx";
 import ConfirmationModal from "../ConfirmationModal/ConfirmationModal.jsx";
+import Share from "../Share.jsx";
 import { useScrollLock } from "../../hooks/useScrollLock.jsx";
+import { useAuth } from "../../contexts/AuthContext.jsx";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./TopicList.css";
 import axios from "axios";
 
@@ -49,6 +51,8 @@ export default function TopicList({
     },
     toggled: false,
   });
+  const [switchText, setSwitchText] = useState("");
+  const { currentUser } = useAuth();
   const navigate = useNavigate();
 
   const actionMenuRef = useRef(null);
@@ -56,6 +60,7 @@ export default function TopicList({
 
   function handleOnActionMenu(e, topic) {
     e.preventDefault();
+    isTopicSaved(currentUser?.uid, topic.id);
     const actionMenuAttr = actionMenuRef.current.getBoundingClientRect();
     const isRight = e.clientX > window?.innerWidth / 2;
     const isBottom = e.clientY > window?.innerHeight / 2;
@@ -132,11 +137,43 @@ export default function TopicList({
     }
   };
 
+  async function switchTopicToUser(user_id, topic_id) {
+    try {
+      const res = await axios.patch(`http://localhost:5000/topics/switch`, {
+        user_id,
+        topic_id,
+      });
+      // console.log(res.data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function isTopicSaved(user_id, topic_id) {
+    try {
+      const res = await axios.get(
+        `http://localhost:5000/topics/save?user_id=${user_id}&topic_id=${topic_id}`
+      );
+      // console.log(res.data);
+      setSwitchText(res.data.saved ? "Не зберігати" : "Зберегти тему");
+    } catch (error) {
+      console.error("Ne worka(");
+    }
+  }
+
+  const [isShareModalOpen, setShareModalOpen] = useState(false);
+  const [shareId, setShareId] = useState(-1);
+
+  function handleShareClick() {
+    setShareId(actionMenu.selectedTopic);
+    setShareModalOpen(true);
+  }
+
   return (
     <ul className="topic-list">
       {topicInfoList.length === 0 ? (
         <div className="topics-not-found">
-          За Вашим запитом нічого не знайдено {"("}
+          За Вашим запитом нічого не знайдено {":("}
         </div>
       ) : (
         topicInfoList.map((topic, index) => (
@@ -159,12 +196,21 @@ export default function TopicList({
         resetActionMenu={resetActionMenu}
         actionMenu={actionMenu}
         onDeleteClick={handleDeleteClick}
+        handleTopicToUser={switchTopicToUser}
+        switchText={switchText}
+        handleShareClick={handleShareClick}
       />
       {isConfirmModalOpen ? (
         <ConfirmationModal
           onClose={() => setIsConfirmModalOpen(false)}
           onConfirm={handleConfirmDelete}
           message="Видалити цю тему?"
+        />
+      ) : null}
+      {isShareModalOpen ? (
+        <Share
+          onCloseModal={() => setShareModalOpen(false)}
+          url={`${location.origin}/topics/${shareId}`}
         />
       ) : null}
     </ul>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Container, Carousel } from "react-bootstrap";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useUserInfo } from "../../contexts/UserInfoContext";
 import handleUpload from "../../utils/uploadFiles.jsx";
@@ -26,6 +26,7 @@ export default function Topic() {
   const [loading, setLoading] = useState(true);
   const [commentLoading, setCommentLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
   const [extendfInfo, setExtendInfo] = useState();
 
   const [text, setText] = useState("");

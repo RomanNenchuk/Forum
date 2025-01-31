@@ -225,11 +225,17 @@ ul {
   border: 0.6vh solid #fdbe10;
   border-radius: 2.9vh;
   padding: 2.5vh;
+  cursor: pointer;
+}
+
+.topic-title-container {
+  font-size: 3vh;
+  color: #333;
 }
 
 .topic-title {
-  font-size: 3vh;
-  color: #333;
+  margin-bottom: "1vh";
+  overflow-wrap: "break-word";
 }
 
 .topic-card-footer {

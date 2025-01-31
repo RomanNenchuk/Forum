@@ -48,49 +48,6 @@ export default function Home() {
   }
 
   useEffect(() => {
-    const fetchData = debounce(async () => {
-      await fetchTopics();
-    }, 200);
-    setLoading(true);
-    fetchData();
-  }, [queryParams]);
-
-  useEffect(() => {
-    if (location?.state?.reloadBackground === false) return;
-
-    let searchInputTags = urlSearchParams.get("tags");
-    if (searchInputTags)
-      searchInputTags =
-        "# " + urlSearchParams.get("tags").split(",").join(", # ");
-
-    let searchInputAuthors = urlSearchParams.get("authors");
-    if (searchInputAuthors)
-      searchInputAuthors = "@ " + searchInputAuthors.split(",").join(", @ ");
-
-    if (searchInputTags || searchInputAuthors)
-      setSearchInput(
-        (searchInputAuthors || "") +
-          (searchInputAuthors && searchInputTags ? ", " : "") +
-          (searchInputTags || "")
-      );
-
-    setQueryParams({
-      page: 1,
-      sortOrder: urlSearchParams.get("sort") || "desc",
-      tags: urlSearchParams.get("tags") || "",
-      authors: urlSearchParams.get("authors") || "",
-    });
-  }, [urlSearchParams]);
-
-  useEffect(() => {
-    setTopicInfoList([]);
-    setQueryParams(prev => ({
-      ...prev,
-      page: 1,
-    }));
-  }, [currentUser]);
-
-  useEffect(() => {
     const handleScroll = () => {
       const targetElement = document.querySelector(".forum-container");
       const elementHeight = targetElement ? targetElement.offsetHeight : 0;
@@ -106,18 +63,24 @@ export default function Home() {
       }
     };
 
-    function debounce(func, wait) {
-      let timeout;
-      return function (...args) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func(...args), wait);
-      };
-    }
-
     const debouncedHandleScroll = debounce(handleScroll, 200);
     window.addEventListener("scroll", debouncedHandleScroll);
     return () => window.removeEventListener("scroll", debouncedHandleScroll);
   }, [hasMore, loading]);
+
+  useEffect(() => {
+    const savedPosition = sessionStorage.getItem("scrollPosition");
+    if (savedPosition) {
+      setTimeout(() => {
+        window.scrollTo({
+          top: parseInt(savedPosition, 10),
+          left: 0,
+          behavior: "instant",
+        });
+        sessionStorage.removeItem("scrollPosition");
+      }, 50);
+    }
+  }, []);
 
   if (loading && tagBarLoading && topicInfoList.length === 0)
     return <LoadingSpinner />;

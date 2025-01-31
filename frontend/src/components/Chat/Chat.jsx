@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useChat } from "../../contexts/ChatContext";
 import { useSocket } from "../../contexts/SocketProviderContext";
@@ -11,7 +11,6 @@ import handleUpload from "../../utils/uploadFiles.jsx";
 import ChatInput from "./ChatInput.jsx";
 import FileSendModal from "../FileModal/FileSendModal.jsx";
 import FileEditModal from "../FileModal/FileEditModal.jsx";
-import ConfirmationModal from "../ConfirmationModal/ConfirmationModal.jsx";
 import ChatContextMenu from "./ChatContextMenu.jsx";
 import ChatActionMenu from "./ChatActionMenu.jsx";
 import ChatMessages from "./ChatMessages.jsx";
@@ -373,10 +372,38 @@ export default function Chat() {
     setFilesToDelete([]);
     resetEdit();
   }
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (socket && location.state?.text) {
+      const msg = {
+        id: -1,
+        attachments: [],
+        fullname: fullName,
+        sender_id: currentUser.uid,
+        text: location.state?.text.trim(),
+        timestamp: new Date().toISOString(),
+        reply: reply?.id,
+        reply_fullname: reply?.author,
+        reply_text: reply?.text,
+        reply_attachment: reply?.attachment,
+      };
+      socket.emit("send-message", msg, receiverId, res => {
+        msg.id = res.id;
+        setMessages(prev => [...prev, msg]);
+      });
+      navigate(".", {
+        replace: true,
+        state: {
+          otherUserName: location.state?.otherUserName,
+        },
+      });
+    }
+  }, [socket]);
 
   if (loading) return <LoadingSpinner />;
 
-  const location = useLocation();
   const otherUserName = location.state?.otherUserName || "Користувач";
 
   return (

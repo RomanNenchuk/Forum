@@ -64,7 +64,7 @@ export default function TagBar({ tagBarLoading, setTagBarLoading }) {
             <Link to="/tags">
               <span
                 style={{ cursor: "pointer" }}
-                onClick={() => setExtentTag(!isExpanded)}
+                onClick={() => setIsExpanded(!isExpanded)}
               >
                 Показати більше
               </span>

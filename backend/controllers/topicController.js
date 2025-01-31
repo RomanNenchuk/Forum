@@ -546,3 +546,60 @@ export const deleteTopic = async (req, res) => {
     client.release();
   }
 };
+
+
+export const switchTopicToUser = async (req, res) => {
+  const {user_id, topic_id} = req.body;
+  try {
+    const CHECK_QUERY = `
+      SELECT * FROM saved_topics WHERE user_id = $1 AND topic_id = $2;
+    `
+    const SAVE_QUERY = `
+      INSERT INTO saved_topics (user_id, topic_id) VALUES ($1, $2);
+    `;
+    const DELETE_QUERY = `
+      DELETE FROM saved_topics WHERE user_id = $1 AND topic_id = $2;
+    `
+    const exist = await pool.query(CHECK_QUERY, [user_id, topic_id]);
+    if (!exist.rows.length) {
+      await pool.query(SAVE_QUERY, [user_id, topic_id]);
+      res.status(201).json({ status: "saved" });
+    } else {
+      await pool.query(DELETE_QUERY, [user_id, topic_id]);
+      res.status(200).json({ satus: "deleted" });
+    }
+  } catch(error) {
+    console.error("Error in saveTopicToUser: ", error);
+    res.status(500).json({ status: "failed" });
+  }
+}
+
+export const getIsTopicSaved = async (req, res) => {
+  try {
+    const { user_id, topic_id } = req.query;
+    const QUERY = `
+    SELECT * FROM saved_topics WHERE user_id = $1 AND topic_id = $2;
+    `
+    const result = await pool.query(QUERY, [user_id, topic_id]);
+    if(result.rows.length) {
+      res.status(200).json({ saved: true });
+    } else {
+      res.status(200).json({ saved: false });
+    }
+  } catch(error) {
+    console.log(error);
+    res.status(500).json({ saved: false });
+  }
+}
+
+export const getSavedTopics = async (req, res) => {
+  try {
+    const { user_id } = req.query;
+    const QUERY = ``;
+    const result = await pool.query(QUERY, []);
+    res.status(200).json(result.rows);
+  } catch(error) {
+    console.log(error);
+    res.status(500).json({});
+  }
+}

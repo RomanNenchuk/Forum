@@ -1,4 +1,4 @@
-import React, { useContext, useState, createContext } from "react";
+import React, { useContext, useState, useEffect, createContext } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import axios from "axios";
@@ -24,6 +24,48 @@ export function TopicSearchProvider({ children }) {
     authors: urlSearchParams.get("authors") || "",
   });
   const { currentUser } = useAuth();
+
+  useEffect(() => {
+    const fetchData = debounce(async () => {
+      await fetchTopics();
+    }, 200);
+    setLoading(true);
+    fetchData();
+  }, [queryParams]);
+
+  useEffect(() => {
+    if (location?.state?.reloadBackground === false) return;
+
+    let searchInputTags = urlSearchParams.get("tags");
+    if (searchInputTags)
+      searchInputTags =
+        "# " + urlSearchParams.get("tags").split(",").join(", # ");
+
+    let searchInputAuthors = urlSearchParams.get("authors");
+    if (searchInputAuthors)
+      searchInputAuthors = "@ " + searchInputAuthors.split(",").join(", @ ");
+
+    if (searchInputTags || searchInputAuthors)
+      setSearchInput(
+        (searchInputAuthors || "") +
+          (searchInputAuthors && searchInputTags ? ", " : "") +
+          (searchInputTags || "")
+      );
+
+    setQueryParams({
+      page: 1,
+      sortOrder: urlSearchParams.get("sort") || "desc",
+      tags: urlSearchParams.get("tags") || "",
+      authors: urlSearchParams.get("authors") || "",
+    });
+  }, [urlSearchParams]);
+
+  useEffect(() => {
+    setQueryParams(prev => ({
+      ...prev,
+      page: 1,
+    }));
+  }, [currentUser]);
 
   function getSearchInputData() {
     let searchData = searchInput
@@ -56,15 +98,19 @@ export function TopicSearchProvider({ children }) {
   function debounce(func, delay) {
     let timeout;
 
-    return function (...args) {
+    function debounced(...args) {
       const context = this;
-
       clearTimeout(timeout);
-
       timeout = setTimeout(() => {
         func.apply(context, args);
       }, delay);
+    }
+
+    debounced.cancel = () => {
+      clearTimeout(timeout);
     };
+
+    return debounced;
   }
 
   async function fetchTopics() {

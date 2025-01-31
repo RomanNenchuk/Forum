@@ -8,6 +8,7 @@ import { IoChatboxEllipsesOutline } from "react-icons/io5";
 import ProfileHeader from "../ProfileHeader.jsx";
 import "./TopicList.css";
 import axios from "axios";
+import { useTopicSearch } from "../../contexts/TopicSearchContext.jsx";
 
 export default function TopicArea({
   topic,
@@ -24,6 +25,7 @@ export default function TopicArea({
   const location = useLocation();
   const navigate = useNavigate();
   const { currentUser, token } = useAuth();
+  const { queryParams } = useTopicSearch();
 
   useEffect(() => {
     setActiveReactions(reactionListSetter(initialReactions, userReaction));
@@ -58,26 +60,30 @@ export default function TopicArea({
     }
   }
 
+  const handleTopicClick = topicId => {
+    sessionStorage.setItem("scrollPosition", window.scrollY);
+    navigate(`/topics/${topicId}`);
+  };
+
   return (
     <li className="topic-card">
       <div>
-        <Link to={`/topics/${topic.id}`} style={{ textDecoration: "none" }}>
-          <div className="topic-content">
-            <ProfileHeader
-              id={topic.author}
-              avatar={topic.author_avatar}
-              size="6vh"
-              sizeFont="3vh"
-              avThickness="0.4vh"
-              profileName={topic.author_full_name}
-            />
-            <div className="topic-title">
-              <span style={{ marginBottom: "1vh", overflowWrap: "break-word" }}>
-                {topic.title}
-              </span>
-            </div>
+        <div
+          className="topic-content"
+          onClick={() => handleTopicClick(topic.id)}
+        >
+          <ProfileHeader
+            id={topic.author}
+            avatar={topic.author_avatar}
+            size="6vh"
+            sizeFont="3vh"
+            avThickness="0.4vh"
+            profileName={topic.author_full_name}
+          />
+          <div className="topic-title-container">
+            <span className="topic-title">{topic.title}</span>
           </div>
-        </Link>
+        </div>
         <div className="icons-menu">
           <div className="active-reactions">
             {activeReactions.map((reaction, index) => (
