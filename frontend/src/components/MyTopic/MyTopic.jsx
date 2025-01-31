@@ -130,6 +130,12 @@ const MyTopic = () => {
             setLoading(true);
             const response = await axios.get(`http://localhost:5000/topics/mytopics?user_id=${currentUser.uid}`);
             setData(response.data);
+            setData((prevState) => 
+              prevState.map((el) => ({
+                ...el, 
+                subscribed: 'none' 
+              }))
+            );
         } catch (error) {
             console.error("Error fetching user topics:", error);
         } finally {
@@ -140,7 +146,7 @@ const MyTopic = () => {
         try {
           setLoading(true);
           const response = await axios.get(
-            `http://localhost:5000/topics`
+            `http://localhost:5000/topics?user_id=${currentUser.uid}`
           );
           console.log(response.data);
           setData(response.data);
@@ -166,6 +172,8 @@ const MyTopic = () => {
 
     useEffect(() => {
         fetchData();
+       
+        
     }, [currentUser]);
 
 

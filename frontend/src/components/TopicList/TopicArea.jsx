@@ -7,6 +7,8 @@ import { VscSettings } from "react-icons/vsc";
 import { IoChatboxEllipsesOutline } from "react-icons/io5";
 import ProfileHeader from "../ProfileHeader.jsx";
 import "./TopicList.css";
+import subscribe from'./../../assets/subscribe.svg'
+import subscribed from'./../../assets/subscribed.svg'
 import axios from "axios";
 
 export default function TopicArea({
@@ -58,11 +60,59 @@ export default function TopicArea({
     }
   }
 
+  async function addSubscribe() {
+    try {
+      const res = await axios.post(
+        `http://localhost:5000/subscriptions/${topic.author}`,  
+        { user1_id: currentUser.uid }  
+      );
+  
+      if (res.data.done) { 
+        setTopics((prevState) => 
+            prevState.map((el) =>
+            el.author === topic.author
+              ? { ...el, subscribed: !el.subscribed }
+              : el
+          )
+        );
+      }
+    } catch (err) {
+      console.error(err); 
+    }
+  }
+  
+
+  async function delSubscribe() {
+    try {
+      const res = await axios.delete(
+        `http://localhost:5000/subscriptions/${topic.author}`,  
+        { 
+          data: { user1_id: currentUser.uid } // Передаємо тіло правильно
+        }
+      );
+  
+      if (res.data.done) { 
+        setTopics((prevState) => 
+          prevState.map((el) =>
+            el.author === topic.author
+              ? { ...el, subscribed: !el.subscribed }
+              : el
+          )
+        );
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+  
+
+
   return (
     <li className="topic-card">
       <div>
         <Link to={`/topics/${topic.id}`} style={{ textDecoration: "none" }}>
           <div className="topic-content">
+            <div style = {{display: "flex", flexDirection: "row", alignItems: "center"}}>
             <ProfileHeader
               id={topic.author}
               avatar={topic.author_avatar}
@@ -71,6 +121,17 @@ export default function TopicArea({
               avThickness="0.4vh"
               profileName={topic.author_full_name}
             />
+            {topic.subscribed === "none" ? "" : <img style = {{height: "5vh", width: "auto", marginLeft: "2%"}} 
+            src = {topic.subscribed ? subscribe : subscribed} 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if(!currentUser) navigate("/login"),exit()
+              else setTimeout(() => {
+                topic.subscribed ? delSubscribe() : addSubscribe();
+              }, 200);
+            }}/>}
+            </div>
             <div className="topic-title">
               <span style={{ marginBottom: "1vh", overflowWrap: "break-word" }}>
                 {topic.title}

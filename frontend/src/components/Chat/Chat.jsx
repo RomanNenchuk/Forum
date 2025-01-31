@@ -113,9 +113,19 @@ export default function Chat() {
   }, []);
 
   useEffect(() => {
+    // Блокування скролу при монтуванні
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      // Розблокування скролу перед розмонтуванням
+      document.body.style.overflow = "auto";
+    };
+  }, []);
+
+  useEffect(() => {
     if (!socket) return;
-    const cont = document.querySelector(".forum-container");
-    cont.style.overflow = "hidden";
+   
+
     socket.on("receive-message", msg => {
       console.log(msg);
       setMessages(prev => [...prev, msg]);
@@ -141,9 +151,6 @@ export default function Chat() {
       socket.off("delete-message");
       socket.off("edit-message");
       socket.emit("leave-chat", currentUser.uid);
-
-      const cont = document.querySelector(".forum-container");
-      cont.style.overflow = "auto";
     };
   }, [socket, currentUser, receiverId]);
 

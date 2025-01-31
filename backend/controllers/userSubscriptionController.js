@@ -4,6 +4,8 @@ export const addSubscription = async (req, res) => {
     const {user1_id} = req.body;
     const user2_id = req.params.user2_id;
 
+    if(user1_id == user2_id) return res.status(400).json({ done: false })
+
     const query1 = 
     `
     INSERT INTO user_subscriptions (user_id, subscription_id) VALUES ($1, $2);
@@ -27,6 +29,7 @@ export const addSubscription = async (req, res) => {
 export const deleteSubscription = async (req, res) => {
     const {user1_id} = req.body;
     const user2_id = req.params.user2_id;
+    if(user1_id == user2_id) return res.status(400).json({ done: false })
     console.log("deleting");
     const query2 = 
     `

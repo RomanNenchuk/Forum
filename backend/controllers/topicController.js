@@ -124,6 +124,20 @@ export const getTopicsPreview = async (req, res) => {
       userReactions = userReactionsResult.rows;
     }
 
+    let userSubscriptions = [];
+
+    if (user_id) {
+      
+        const resSubs = await pool.query(
+          `SELECT subscription_id FROM user_subscriptions WHERE user_id = $1`,
+          [user_id]
+        );
+        userSubscriptions = resSubs.rows; // Оновлюємо змінну тут
+    }
+    
+    console.log(userSubscriptions);
+    
+    console.log(userSubscriptions)
     // Формування фінального результату
     const topicsWithReactions = topics.map(topic => {
       const topicReactions = reactions
@@ -137,6 +151,13 @@ export const getTopicsPreview = async (req, res) => {
       const userReaction = userReactions.find(
         reaction => reaction.topic_id === topic.id
       );
+
+      if(userSubscriptions.find((subs)=> subs.subscription_id == topic.author)) topic.subscribed = true
+      else {
+        if (topic.author == user_id) topic.subscribed = "none"
+        else topic.subscribed = false;}
+
+
 
       return {
         ...topic,
@@ -211,6 +232,7 @@ export const getUserTopic = async (req, res) => {
     );
     userReactions = userReactionsResult.rows;
 
+
     const topicsWithReactions = topics.map(topic => {
       const topicReactions = reactions
         .filter(reaction => reaction.topic_id === topic.id)
@@ -223,6 +245,7 @@ export const getUserTopic = async (req, res) => {
       const userReaction = userReactions.find(
         reaction => reaction.topic_id === topic.id
       );
+
 
       return {
         ...topic,
