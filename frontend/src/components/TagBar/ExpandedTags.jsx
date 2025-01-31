@@ -15,7 +15,7 @@ import { IoCloseCircleOutline } from "react-icons/io5";
 import searchIcon from "../../assets/search.svg";
 import LoadingSpinner from "../AltSpinner/AltSpinner.jsx";
 import axios from "axios";
-import "../CreateTopic.css";
+import "../CreateTopic/CreateTopic.css";
 
 export default function TagExtention({ onCloseModal }) {
   const [tags, setTags] = useState([]);

@@ -38,6 +38,7 @@ export default function TopicList({
   topicInfoList,
   setTopicInfoList,
   topicListRef,
+  loading,
 }) {
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -143,7 +144,6 @@ export default function TopicList({
         user_id,
         topic_id,
       });
-      // console.log(res.data);
     } catch (error) {
       console.error(error);
     }
@@ -171,7 +171,7 @@ export default function TopicList({
 
   return (
     <ul className="topic-list">
-      {topicInfoList.length === 0 ? (
+      {topicInfoList.length === 0 && !loading ? (
         <div className="topics-not-found">
           За Вашим запитом нічого не знайдено {":("}
         </div>

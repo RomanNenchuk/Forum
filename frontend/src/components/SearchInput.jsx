@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { Form } from "react-bootstrap";
 import { RxCross2 } from "react-icons/rx";
-import "./CreateTopic.css";
+import "./CreateTopic/CreateTopic.css";
 import axios from "axios";
 
 const SearchInput = ({ resData, setResData }) => {
@@ -22,7 +22,7 @@ const SearchInput = ({ resData, setResData }) => {
     }
   }
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = e => {
     if (e.key === "Enter") {
       e.preventDefault(); // Запобігає відправці форми при натисканні Enter
       SelectTags(tagsRef.current.value);
@@ -30,7 +30,7 @@ const SearchInput = ({ resData, setResData }) => {
   };
 
   function SelectTags(selected) {
-    setResData((prevData) => [...new Set(prevData).add(selected)]);
+    setResData(prevData => [...new Set(prevData).add(selected)]);
   }
 
   function DeleteTags(deleted) {
@@ -55,23 +55,37 @@ const SearchInput = ({ resData, setResData }) => {
   return (
     <Form.Group id="tags" className="mb-3">
       <div>
-        <div style = {{display: "flex", flexDirection: "row",width: "100%"}}>
-        <Form.Control
-          type="text"
-          ref={tagsRef}
-          onFocus={() => setSearch(true)}
-          placeholder="Оберіть теги"
-          className="for_font input-left"
-          onChange={handleInputChange}
-          onBlur={() => setTimeout(() => setSearch(false), 150)}
-          onKeyDown={handleKeyDown}
-          maxLength = {100}
-          style={{ position: "relative", zIndex: 2 }}
-        /><div style = {{display: 'flex', justifyContent: "center", alignItems: "center", cursor: "pointer",
-          paddingLeft: "0.5vh", paddingRight: "0.5vh",
-          backgroundColor: "#659287", color: "white", 
-        }} 
-        onClick = {()=>{SelectTags(tagsRef.current.value)}}>Додати</div></div>
+        <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
+          <Form.Control
+            type="text"
+            ref={tagsRef}
+            onFocus={() => setSearch(true)}
+            placeholder="Оберіть теги"
+            className="for_font input-left"
+            onChange={handleInputChange}
+            onBlur={() => setTimeout(() => setSearch(false), 150)}
+            onKeyDown={handleKeyDown}
+            maxLength={100}
+            style={{ position: "relative", zIndex: 2 }}
+          />
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              cursor: "pointer",
+              paddingLeft: "0.5vh",
+              paddingRight: "0.5vh",
+              backgroundColor: "#659287",
+              color: "white",
+            }}
+            onClick={() => {
+              SelectTags(tagsRef.current.value);
+            }}
+          >
+            Додати
+          </div>
+        </div>
         <div
           style={{
             position: "absolute",

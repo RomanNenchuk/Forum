@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect, createContext } from "react";
 import { useSearchParams } from "react-router-dom";
-import { useAuth } from "./AuthContext";
 import axios from "axios";
 
 const TopicSearchContext = createContext();
@@ -10,28 +9,17 @@ export function useTopicSearch() {
 }
 
 export function TopicSearchProvider({ children }) {
-  const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(true);
   const [urlSearchParams, setUrlSearchParams] = useSearchParams();
   const [searchInput, setSearchInput] = useState(
     urlSearchParams.get("tags") || ""
   );
-  const [topicInfoList, setTopicInfoList] = useState([]);
+  const [popularTagList, setPopularTagList] = useState([]);
   const [queryParams, setQueryParams] = useState({
     page: 1,
     sortOrder: urlSearchParams.get("sort") || "desc",
     tags: urlSearchParams.get("tags") || "",
     authors: urlSearchParams.get("authors") || "",
   });
-  const { currentUser } = useAuth();
-
-  useEffect(() => {
-    const fetchData = debounce(async () => {
-      await fetchTopics();
-    }, 200);
-    setLoading(true);
-    fetchData();
-  }, [queryParams]);
 
   useEffect(() => {
     if (location?.state?.reloadBackground === false) return;
@@ -61,11 +49,19 @@ export function TopicSearchProvider({ children }) {
   }, [urlSearchParams]);
 
   useEffect(() => {
-    setQueryParams(prev => ({
-      ...prev,
-      page: 1,
-    }));
-  }, [currentUser]);
+    const fetchTags = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:5000/tags?page=1&limit=15"
+        );
+        setPopularTagList(res.data);
+      } catch (error) {
+        console.error("Error fetching tags:", error);
+      }
+    };
+
+    fetchTags();
+  }, []);
 
   function getSearchInputData() {
     let searchData = searchInput
@@ -95,60 +91,16 @@ export function TopicSearchProvider({ children }) {
     return result;
   }
 
-  function debounce(func, delay) {
-    let timeout;
-
-    function debounced(...args) {
-      const context = this;
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        func.apply(context, args);
-      }, delay);
-    }
-
-    debounced.cancel = () => {
-      clearTimeout(timeout);
-    };
-
-    return debounced;
-  }
-
-  async function fetchTopics() {
-    try {
-      const response = await axios.get(
-        `http://localhost:5000/topics?page=${queryParams.page}&sort=${
-          queryParams.sortOrder
-        }${currentUser ? "&user_id=" + currentUser.uid : ""}${
-          queryParams.tags !== "" ? "&tags=" + queryParams.tags : ""
-        }${queryParams.authors !== "" ? "&authors=" + queryParams.authors : ""}`
-      );
-      const topics = response.data || [];
-      setTopicInfoList(prev =>
-        queryParams.page === 1 ? topics : [...prev, ...topics]
-      );
-      setHasMore(topics.length > 0);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
   const value = {
     searchInput,
     setSearchInput,
     queryParams,
     setQueryParams,
-    hasMore,
-    loading,
-    setLoading,
     urlSearchParams,
     setUrlSearchParams,
-    topicInfoList,
-    setTopicInfoList,
+    popularTagList,
+    setPopularTagList,
     getSearchInputData,
-    fetchTopics,
-    debounce,
   };
 
   return (

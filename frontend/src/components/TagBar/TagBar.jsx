@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
+import { useTopicSearch } from "../../contexts/TopicSearchContext.jsx";
 import { Link } from "react-router-dom";
 import ToastPortal from "../Toast/Toast.jsx";
 import "./TagBar.css";
-import axios from "axios";
 
 export default function TagBar({ tagBarLoading, setTagBarLoading }) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [data, setData] = useState([]);
   const [toast, setToast] = useState(null);
+  const { popularTagList } = useTopicSearch();
 
   const showToast = (message, type, item = "") => {
     if (toast) clearTimeout(toast.timeoutId);
@@ -28,30 +28,13 @@ export default function TagBar({ tagBarLoading, setTagBarLoading }) {
     showToast("скопійовано", "success", `# ${tagName}`);
   };
 
-  useEffect(() => {
-    const fetchTags = async () => {
-      try {
-        const res = await axios.get(
-          "http://localhost:5000/tags?page=1&limit=15"
-        );
-        setData(res.data);
-      } catch (error) {
-        console.error("Error fetching tags:", error);
-      } finally {
-        setTagBarLoading(false);
-      }
-    };
-
-    fetchTags();
-  }, []);
-
   return (
     <>
       <div className="tag-list">
         <h5 className="tag-list-title">Популярні теги</h5>
-        {tagBarLoading ? null : (
+        {
           <>
-            {data.map((tag, index) => (
+            {popularTagList.map((tag, index) => (
               <h5
                 className="tag"
                 key={index}
@@ -70,7 +53,7 @@ export default function TagBar({ tagBarLoading, setTagBarLoading }) {
               </span>
             </Link>
           </>
-        )}
+        }
       </div>
       {toast && (
         <ToastPortal

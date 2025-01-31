@@ -1,12 +1,28 @@
-.container {
+.create-topic-container {
   display: flex;
   justify-content: center;
-  margin-top: 14vh;
-  padding-top: 6vh;
+  margin-top: 5vh;
+  align-items: flex-start;
 }
-.cr-topic-in {
-  width: 60%;
+
+.header-container {
+  display: flex;
+  justify-content: center;
 }
+
+.title {
+  font-family: Inter;
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 31.47px;
+}
+
+.create-topic-inner {
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+}
+
 .right-counter {
   display: flex;
   justify-content: center;

@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { Form } from "react-bootstrap";
 
-import "./CreateTopic.css";
+import "./CreateTopic/CreateTopic.css";
 
 const TitleInput = ({ titleRef, limit, value }) => {
   const countRef = useRef();
