@@ -13,7 +13,7 @@ export const uploadFiles = multer({
         ? cb(null, true)
         : cb(new Error("Непідтримуваний формат обкладинки"), false);
     }
-    cb(null, true); // Для всіх інших файлів дозволено
+    cb(null, true);
   },
 }).fields([
   { name: "cover", maxCount: 1 },

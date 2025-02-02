@@ -9,6 +9,14 @@
   display: flex;
   justify-content: center;
   margin-bottom: 5vh;
+  position: relative;
+}
+
+.arrow-back {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .title {
@@ -43,8 +51,59 @@
 
 .file-upload-container {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 5px;
   align-items: center;
+  min-height: 70px;
+  list-style-type: none;
+  margin: 15px 0;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #bdbdbd;
+  border-radius: 10px;
+  max-height: 30vh;
+}
+
+.upload-files-cover {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  cursor: pointer;
+  width: 100%;
+  align-items: center;
+  margin: auto 0;
+}
+
+.uploaded-file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  background-color: #fff7eb;
+  border-radius: 15px;
+  overflow: hidden;
+  width: 100%;
+  min-height: 50px;
+}
+
+.file-name {
+  font-size: 18px;
+  color: #333333;
+  display: inline-block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.upload-files-cover span {
+  font-family: Inter;
+  font-size: 19px;
+  font-weight: 500;
+  line-height: 22.99px;
+  text-align: left;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
 }
 
 .right-counter {

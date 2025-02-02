@@ -30,9 +30,7 @@ function App() {
     <Router>
       <AuthProvider>
         <UserInfoProvider>
-          <TopicSearchProvider>
-            <AppRoutes />
-          </TopicSearchProvider>
+          <AppRoutes />
         </UserInfoProvider>
       </AuthProvider>
     </Router>
@@ -43,7 +41,7 @@ function AppRoutes() {
   const { backgroundLocation, showBackground } = useBackgroundLocation();
 
   return (
-    <>
+    <TopicSearchProvider backgroundLocation={backgroundLocation}>
       <Routes location={backgroundLocation}>
         <Route element={<Menu />}>
           <Route
@@ -143,7 +141,7 @@ function AppRoutes() {
           </Route>
         </Routes>
       )}
-    </>
+    </TopicSearchProvider>
   );
 }
 

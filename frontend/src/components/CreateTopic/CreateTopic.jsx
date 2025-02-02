@@ -3,13 +3,13 @@ import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
 import { Form, Alert } from "react-bootstrap";
 import CoverUploader from "./CoverUploader.jsx";
-import FileButtonUploader from "../FileButtonUploader.jsx";
 import TopicFileUploader from "./TopicFileUploader.jsx";
 import ActionButton from "../ActionButton/ActionButton.jsx";
 import TagBar from "../TagBar/TagBar.jsx";
 import TitleInput from "./TitleInput.jsx";
 import SearchInput from "./SearchInput.jsx";
 import BaseWrapInput from "../BaseWrapInput.jsx";
+import arrowBackIcon from "../../assets/arrow-back.svg";
 import { IoArrowBack } from "react-icons/io5";
 import "./CreateTopic.css";
 import axios from "axios";
@@ -68,11 +68,12 @@ export default function CreateTopic() {
         <div className="create-topic-inner">
           <div className="title-container">
             {!isFirstStep ? (
-              <IoArrowBack
+              <img
+                src={arrowBackIcon}
                 onClick={() => {
                   setIsFirstStep(true);
                 }}
-                size="4vh"
+                className="arrow-back"
               />
             ) : (
               ""
@@ -192,10 +193,6 @@ function SecondStep({
         description={description}
         setDescription={setDescription}
       />
-      {/* <FileButtonUploader
-        files={descriptionFiles}
-        setFiles={setDescriptionFiles}
-      /> */}
       <TopicFileUploader
         files={descriptionFiles}
         setFiles={setDescriptionFiles}

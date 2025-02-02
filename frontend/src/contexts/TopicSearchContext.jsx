@@ -8,7 +8,7 @@ export function useTopicSearch() {
   return useContext(TopicSearchContext);
 }
 
-export function TopicSearchProvider({ children }) {
+export function TopicSearchProvider({ children, backgroundLocation }) {
   const [urlSearchParams, setUrlSearchParams] = useSearchParams();
   const [searchInput, setSearchInput] = useState(
     urlSearchParams.get("tags") || ""
@@ -23,10 +23,7 @@ export function TopicSearchProvider({ children }) {
   const location = useLocation();
 
   useEffect(() => {
-    // console.log("urlparams changed");
-    if (location?.state?.reloadBackground === false) return;
-
-    // console.log(location);
+    if (backgroundLocation?.state?.reloadBackground === false) return;
 
     let searchInputTags = urlSearchParams.get("tags");
     if (searchInputTags)

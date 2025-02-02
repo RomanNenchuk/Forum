@@ -53,6 +53,11 @@
   overflow: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  width: 40%;
+}
+
+.right {
+  width: 60%;
 }
 
 .palka {
@@ -63,12 +68,12 @@
   background-color: gray;
 }
 .info-list {
-  width: 80%;
+  width: 90%;
   margin: 2vh 0;
 }
 .extra-info {
   background-color: white;
-  width: 80%;
+  width: 90%;
   border-radius: 3vh;
   border: 0.1vh solid black;
   box-shadow: 0.5vh 0.5vh 0.8vh 0.55vh #00000040;

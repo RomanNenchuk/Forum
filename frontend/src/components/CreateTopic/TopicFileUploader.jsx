@@ -3,14 +3,9 @@ import styles from "../FileModal/FileModal.module.css";
 import { Card } from "react-bootstrap";
 import deleteIcon from "../../assets/delete-button.svg";
 import fileIcon from "../../assets/file.svg";
+import addCoverIcon from "../../assets/add-cover.svg";
 
-export default function TopicFileUploader({
-  files,
-  onClose,
-  setFiles,
-  onSubmit,
-}) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export default function TopicFileUploader({ files, setFiles }) {
   const fileInputRef = useRef();
 
   const handleFileChange = e => {
@@ -25,32 +20,37 @@ export default function TopicFileUploader({
     ]);
   };
 
-  const handleSubmit = () => {
-    setIsSubmitting(true);
-    onSubmit();
-  };
-
   const handleRemoveFile = index => {
     setFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
   };
 
+  const handleImageClick = () => fileInputRef.current.click();
+
   return (
     <>
-      <ul className={styles.fileList}>
-        {files.map((file, index) => (
-          <li key={index} className={styles.fileItem}>
-            <div className={styles.fileHeader}>
-              <img src={fileIcon} alt="File" />
-              <span className={styles.fileName}>{file.name}</span>
-            </div>
-            <button
-              className={styles.removeButton}
-              onClick={() => handleRemoveFile(index)}
-            >
-              <img src={deleteIcon} alt="Delete" />
-            </button>
-          </li>
-        ))}
+      <ul className="file-upload-container">
+        {files.length ? (
+          files.map((file, index) => (
+            <li key={index} className="uploaded-file-item">
+              <div className="file-header">
+                <img src={fileIcon} alt="File" />
+                <span className="file-name">{file.name}</span>
+              </div>
+              <button
+                type="button"
+                className={styles.removeButton}
+                onClick={() => handleRemoveFile(index)}
+              >
+                <img src={deleteIcon} alt="Delete" />
+              </button>
+            </li>
+          ))
+        ) : (
+          <div className="upload-files-cover" onClick={handleImageClick}>
+            <span>Завантажити файли</span>
+            <img src={addCoverIcon} style={{ height: "27px" }} />
+          </div>
+        )}
       </ul>
       <div className={styles.actions}>
         <input
@@ -64,19 +64,10 @@ export default function TopicFileUploader({
           <button
             type="button"
             className={`${styles.addButton} ${styles.addButtonSend}`}
-            onClick={() => fileInputRef.current.click()}
+            onClick={handleImageClick}
           >
             Додати
           </button>
-          <div className={styles.actionButtonsGroup}>
-            <button
-              type="button"
-              className={`${styles.cancelButton} ${styles.cancelButtonSend}`}
-              onClick={onClose}
-            >
-              Скасувати
-            </button>
-          </div>
         </div>
       </div>
     </>

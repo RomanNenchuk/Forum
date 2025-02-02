@@ -13,7 +13,7 @@
   /* border: 0.1vh solid black; */
   border-radius: 2vh;
   padding: 1vh;
-  width: 80%;
+  width: 75%;
   margin-top: 70px;
 }
 .header-container {
@@ -36,8 +36,8 @@
   /* border: 0.1vh solid black; */
   border-radius: 2vh;
   padding: 1vh;
-  width: 80%;
-  margin: 10px 0 0 45px;
+  width: 70%;
+  margin: 10px 0 0 8vw;
 }
 .comment-input-container {
   position: relative;
@@ -65,4 +65,10 @@
 }
 .my-reaction {
   background-color: #ffe657;
+}
+.default-comment-notification {
+  margin-top: 40px;
+  padding: 10px;
+  border-radius: 20px;
+  font-size: 20px;
 }
