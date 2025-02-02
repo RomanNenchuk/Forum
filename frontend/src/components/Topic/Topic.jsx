@@ -93,7 +93,7 @@ export default function Topic() {
       buf.author_full_name = buf.authorfullname;
       delete buf.avatar;
       delete buf.authorfullname;
-      setTopic(buf);
+      setTopic([buf]);
       setExtendInfo(
         !buf?.description || buf?.description?.length < 150 ? 2 : 0
       );
@@ -353,11 +353,11 @@ export default function Topic() {
         />
         <span>Дискусія</span>
       </div>
-      <div className="topic-and-comments">
+      <div className="topic[0]-and-comments">
         <div className="in-block-for-flex">
           <div className="block left" ref={topicItemRef}>
             <div className="info-list">
-              <TopicList topicInfoList={[topic]} topicListRef={topicItemRef} />
+              <TopicList topicInfoList={topic} topicListRef={topicItemRef} setTopicInfoList={setTopic} />
             </div>
             <div className="extra-info">
               <div style={{ padding: "2vh" }}>
@@ -369,10 +369,10 @@ export default function Topic() {
                   }}
                 >
                   {extendfInfo === 2 ? (
-                    topic?.description
+                    topic[0]?.description
                   ) : extendfInfo === 1 ? (
                     <>
-                      {topic?.description}
+                      {topic[0]?.description}
                       <span
                         className="extention-info"
                         onClick={() => setExtendInfo(0)}
@@ -382,7 +382,7 @@ export default function Topic() {
                     </>
                   ) : (
                     <>
-                      {topic?.description?.slice(0, 152)}
+                      {topic[0]?.description?.slice(0, 152)}
                       <span
                         className="extention-info"
                         onClick={() => setExtendInfo(1)}
@@ -392,13 +392,13 @@ export default function Topic() {
                     </>
                   )}
                 </span>
-                {extendfInfo && topic.attachments.length > 0 ? (
+                {extendfInfo && topic[0].attachments.length > 0 ? (
                   <Container fluid>
                     <Carousel
                       style={{ padding: "2vh" }}
                       className="carousel slide carousel-fade"
                     >
-                      {topic.attachments.map((attachment, index) => (
+                      {topic[0].attachments.map((attachment, index) => (
                         <Carousel.Item key={index}>
                           <img
                             className="d-block w-100"
@@ -425,7 +425,7 @@ export default function Topic() {
               ) : (
                 <TopicComments
                   handleOnContextMenu={handleOnContextMenu}
-                  topicAuthorId={topic?.uid}
+                  topicAuthorId={topic[0]?.uid}
                   comments={comments}
                 />
               )}

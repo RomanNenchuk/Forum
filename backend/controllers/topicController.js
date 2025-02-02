@@ -64,9 +64,12 @@ export const getTopicsPreview = async (req, res) => {
         email, 
         author, 
         COALESCE(SUM(emoji.score), 0) AS rating,
-        topics.date
+        topics.date,
+        COALESCE(ARRAY_AGG(DISTINCT tags.tag_name) FILTER (WHERE tags.tag_name IS NOT NULL), '{}') AS tag_list
       FROM topics
       INNER JOIN users ON users.uid = topics.author
+      left join topic_tags on topics.id = topic_tags.topic_id
+      left join tags on topic_tags.tag_id = tags.tag_id
       LEFT JOIN topic_reactions
         ON topics.id = topic_reactions.topic_id
       LEFT JOIN emoji
@@ -135,9 +138,6 @@ export const getTopicsPreview = async (req, res) => {
         userSubscriptions = resSubs.rows; // Оновлюємо змінну тут
     }
     
-    console.log(userSubscriptions);
-    
-    console.log(userSubscriptions)
     // Формування фінального результату
     const topicsWithReactions = topics.map(topic => {
       const topicReactions = reactions
@@ -188,10 +188,13 @@ export const getUserTopic = async (req, res) => {
         email, 
         author, 
         COALESCE(SUM(emoji.score), 0) AS rating,
-        topics.date
+        topics.date,
+        COALESCE(ARRAY_AGG(DISTINCT tags.tag_name) FILTER (WHERE tags.tag_name IS NOT NULL), '{}') AS tag_list
       FROM topics
       
       INNER JOIN users ON users.uid = topics.author
+      left join topic_tags on topics.id = topic_tags.topic_id
+      left join tags on topic_tags.tag_id = tags.tag_id
       LEFT JOIN topic_reactions
         ON topics.id = topic_reactions.topic_id
       LEFT JOIN emoji
@@ -279,11 +282,14 @@ export const getTopic = async (req, res) => {
         author, 
         description, 
         attachments, 
-        TO_CHAR(topics.date, 'DD.MM.YYYY') AS formatted_date 
+        TO_CHAR(topics.date, 'DD.MM.YYYY') AS formatted_date
       FROM topics 
+      left join topic_tags on topics.id = topic_tags.topic_id
+      left join tags on topic_tags.tag_id = tags.tag_id
       INNER JOIN users 
-        ON topics.author = users.uid 
+        ON topics.author = users.uid  
       WHERE topics.id = $1
+      
       `,
       [id]
     );
@@ -336,11 +342,42 @@ export const getTopic = async (req, res) => {
       }
     }
 
-    // 4. результати
+    //4. отримання інфи про підписки юзера на автора
+    let userSubscriptions = [];
+
+    if (user_id) {
+      
+        const resSubs = await pool.query(
+          `SELECT subscription_id FROM user_subscriptions WHERE user_id = $1`,
+          [user_id]
+        );
+        userSubscriptions = resSubs.rows; 
+    }
+
+    //5. отримання спииску прикріплених до теми тегів
+    let tags_list = []
+
+    const resTags = await pool.query(
+      `SELECT 
+       COALESCE(ARRAY_AGG(DISTINCT tags.tag_name) FILTER (WHERE tags.tag_name IS NOT NULL), '{}') AS tag_list
+       FROM topics
+       LEFT JOIN topic_tags ON topics.id = topic_tags.topic_id
+       LEFT JOIN tags ON topic_tags.tag_id = tags.tag_id
+       WHERE topics.id = $1
+      `,[id]
+    )
+
+    tags_list = resTags.rows[0].tag_list
+
+    // 6. результати
     res.status(200).json({
       ...topic,
       reactions,
       user_reaction: userReaction,
+      tag_list: tags_list,
+      subscribed: userSubscriptions.find((subs)=> subs.subscription_id == topic.author) ? 
+      topic.subscribed = true : topic.author == user_id ?  topic.subscribed = 'none' : topic.subscribed = false
+      
     });
   } catch (error) {
     console.error(error);

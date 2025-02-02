@@ -56,9 +56,9 @@ export default function SideBar({ isExpanded, setExpand }) {
           </Link>
         </div>
         <div className={`mn-menu-el ${isActive("/events") ? "active" : ""}`}>
-          <Link id="mn-menu-events">
+          <Link id="mn-menu-events" to="/poptopics">
             <img src={eventsIcon} alt="Events" />
-            {isExpanded && <span>Події</span>}
+            {isExpanded && <span>Популярне</span>}
           </Link>
         </div>
         <div className={`mn-menu-el ${isActive("/topics") ? "active" : ""}`}>

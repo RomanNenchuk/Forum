@@ -137,6 +137,8 @@ export default function TopicArea({
                 {topic.title}
               </span>
             </div>
+            <div style = {{textAlign: "right", fontSize: "2.5vh", color: "gray"}}>
+              {topic.tag_list.map((el, index)=>{return index !== topic.tag_list.length - 1 ? `#${el} `: `#${el}`})}</div>
           </div>
         </Link>
         <div className="icons-menu">
