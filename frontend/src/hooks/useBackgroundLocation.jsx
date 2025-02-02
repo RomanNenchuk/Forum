@@ -37,6 +37,7 @@ export function useBackgroundLocation() {
         reloadBackground: false, // прапорець, щоб не перевантажувалася сторінка на задньому фоні, якщо це модальний маршрут
       },
     };
+    console.log(backgroundLocation);
     showBackground = true;
   } else {
     // якщо шлях не модальний, очищую збережений фон

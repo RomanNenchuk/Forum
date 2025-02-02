@@ -3,7 +3,6 @@ import middleware from "../middleware/index.js";
 
 import {
   getTopicsPreview,
-  saveTopic,
   getTopic,
   postNewComment,
   deleteComment,
@@ -19,11 +18,13 @@ import { getTopicComments } from "../controllers/commentController.js";
 
 import { setTopicReaction } from "../controllers/emojiController.js";
 
+import { saveTopic, uploadFiles } from "../controllers/saveTopicController.js";
+
 const router = express.Router();
 
 router.get("/", getTopicsPreview);
 
-router.post("/", middleware.decodeToken, saveTopic);
+router.post("/", uploadFiles, saveTopic);
 
 router.post("/comments", postNewComment);
 

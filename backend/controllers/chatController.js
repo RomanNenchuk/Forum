@@ -199,86 +199,47 @@ export const editMessage = async msg => {
   }
 };
 
-const deleteMessagesByChatId = async (client, chatId) => {
-  const getChatMessagesQuery =
-    "SELECT id, attachments FROM messages WHERE chat_id = $1";
-  const deleteChatMessagesQuery = `DELETE FROM messages WHERE id = $1 RETURNING attachments`;
+const deleteMessagesByChatId = async chatId => {
+  const deleteChatMessagesQuery =
+    "DELETE FROM messages WHERE chat_id = $1 RETURNING attachments";
+  try {
+    const response = await pool.query(deleteChatMessagesQuery, [chatId]);
+    // всі файли для видалення
+    let filesToDelete = [];
+    response.rows.forEach(({ attachments }) => {
+      if (attachments) filesToDelete.push(...attachments);
+    });
 
-  // отримую всі повідомлення для чату
-  const messagesToDelete = await client.query(getChatMessagesQuery, [chatId]);
-
-  // видаляю кожне повідомлення та його вкладення
-  for (let { id: idToDelete, attachments } of messagesToDelete.rows) {
-    const response = await client.query(deleteChatMessagesQuery, [idToDelete]);
-
-    // перевірка на наявність вкладень і їх видалення з хмари
-    if (response.rows.length && response.rows[0].attachments)
-      deleteAttachments(response.rows[0].attachments).catch(error =>
-        console.error("Error deleting attachments: ", error)
-      );
+    if (filesToDelete.length)
+      deleteAttachments(filesToDelete).catch(error => console.error(error));
+  } catch (error) {
+    console.error("Error deleting messages:", error);
+    throw error;
   }
 };
 
 export const deleteChat = async (req, res) => {
-  const client = await pool.connect();
   const id = req.params.id;
   try {
-    await client.query("BEGIN");
-
-    const getChatMessagesQuery =
-      "SELECT id, attachments FROM messages WHERE chat_id = $1";
-    const deleteChatMessagesQuery = `DELETE FROM messages WHERE id = $1 RETURNING attachments`;
     const deleteChatQuery = "DELETE FROM chats WHERE id = $1";
-
-    // отримую всі повідомлення для чату
-    const messagesToDelete = await client.query(getChatMessagesQuery, [id]);
-
-    // видаляю кожне повідомлення та його вкладення
-    for (let { id: idToDelete, attachments } of messagesToDelete.rows) {
-      const response = await client.query(deleteChatMessagesQuery, [
-        idToDelete,
-      ]);
-
-      // перевірка на наявність вкладень і їх видалення з хмари
-      if (response.rows.length && response.rows[0].attachments)
-        deleteAttachments(response.rows[0].attachments).catch(error =>
-          console.error(error)
-        );
-    }
-
+    // видалення всіх повідомлень
+    await deleteMessagesByChatId(id);
     // видалення самого чату
-    await client.query(deleteChatQuery, [id]);
-
-    // завершення транзакції
-    await client.query("COMMIT");
+    await pool.query(deleteChatQuery, [id]);
     res.status(200).json({ message: "Chat deleted successfully" });
   } catch (error) {
-    // у разі помилки скасовую транзакцію
-    await client.query("ROLLBACK");
     res.status(500).json({ error: "Internal server error" });
     console.error("Error deleting chat: ", error);
-  } finally {
-    client.release();
   }
 };
 
 export const clearChat = async (req, res) => {
   const id = req.params.id;
-
-  console.log(id);
-
-  const client = await pool.connect();
   try {
-    await client.query("BEGIN");
-
-    await deleteMessagesByChatId(client, id);
-    await client.query("COMMIT");
+    await deleteMessagesByChatId(id);
     res.status(200).json({ message: "Chat messages cleared successfully" });
   } catch (error) {
-    await client.query("ROLLBACK");
     res.status(500).json({ error: "Internal server error" });
     console.error("Error clearing chat: ", error);
-  } finally {
-    client.release();
   }
 };

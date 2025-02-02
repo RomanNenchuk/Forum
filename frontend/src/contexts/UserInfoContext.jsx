@@ -65,7 +65,7 @@ export function UserInfoProvider({ children }) {
     formData.append("profileImage", image);
     try {
       const response = await axios.post(
-        `http://localhost:5000/users/${uid}/profile-image`,
+        `http://localhost:5000/attachments/${uid}/profile-image`,
         formData,
         {
           headers: {
@@ -84,7 +84,7 @@ export function UserInfoProvider({ children }) {
   async function deleteAvatar(uid, token) {
     try {
       const response = await axios.delete(
-        `http://localhost:5000/users/${uid}/profile-image`,
+        `http://localhost:5000/attachments/${uid}/profile-image`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

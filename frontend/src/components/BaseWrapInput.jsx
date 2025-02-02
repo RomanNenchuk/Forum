@@ -1,12 +1,14 @@
-import React, { forwardRef } from "react";
+import React, { useRef } from "react";
 import { Form } from "react-bootstrap";
 
-const BaseWrapInput = forwardRef((props, ref) => {
-  const { value } = props
-  function wrapInput() {
-    if (ref?.current) {
-      ref.current.style.height = "auto"; // Скидаємо висоту, щоб уникнути "залипання"
-      ref.current.style.height = `${ref.current.scrollHeight}px`; // Встановлюємо нову висоту
+export default function BaseWrapInput({ description, setDescription }) {
+  const descriptionRef = useRef(null);
+
+  function handleChange(e) {
+    setDescription(e.target.value);
+    if (descriptionRef?.current) {
+      descriptionRef.current.style.height = "auto";
+      descriptionRef.current.style.height = `${descriptionRef.current.scrollHeight}px`;
     }
   }
 
@@ -15,18 +17,13 @@ const BaseWrapInput = forwardRef((props, ref) => {
       <Form.Control
         className="for_font input-left"
         as="textarea"
-        ref={ref}
-        rows={9999999999}
+        ref={descriptionRef}
         cols={150}
         wrap="soft"
-        value = {value}
-        onChange={wrapInput} // Викликаємо функцію під час змін
+        value={description}
+        onChange={handleChange}
         placeholder="Введіть додаткову інформацію..."
       />
     </Form.Group>
   );
-});
-
-export default BaseWrapInput;
-
-
+}

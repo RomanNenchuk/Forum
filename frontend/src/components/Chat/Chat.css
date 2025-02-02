@@ -217,6 +217,9 @@ ul.chat-messages {
   border-radius: 20px;
   z-index: 1;
 }
+.attached-files-container {
+  padding: 0 20px;
+}
 .mes-triangle {
   content: "";
   position: absolute;

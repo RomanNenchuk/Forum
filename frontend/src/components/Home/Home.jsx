@@ -13,8 +13,7 @@ export default function Home() {
   const { queryParams, setQueryParams, urlSearchParams, setUrlSearchParams } =
     useTopicSearch();
 
-  const { hasMore, loading, topicInfoList, setTopicInfoList, debounce } =
-    useTopicList();
+  const { hasMore, loading, topicInfoList, debounce } = useTopicList();
 
   const handleChange = e => {
     const newSortOrder = e.target.value;
@@ -78,11 +77,7 @@ export default function Home() {
           sortOrder={queryParams.sortOrder}
           handleChange={handleChange}
         />
-        <TopicList
-          topicInfoList={topicInfoList}
-          setTopicInfoList={setTopicInfoList}
-          loading={loading}
-        />
+        <TopicList topicInfoList={topicInfoList} />
       </ul>
       <TagBar
         tagBarLoading={tagBarLoading}

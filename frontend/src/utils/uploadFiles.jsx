@@ -13,3 +13,23 @@ export default async function handleUpload(files, id) {
     console.error(err);
   }
 }
+
+export async function handleImageUpload(image, topicId, token) {
+  const formData = new FormData();
+  formData.append("profileImage", image);
+  try {
+    const response = await axios.post(
+      `http://localhost:5000/attachments/${topicId}/topic-screensaver`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}

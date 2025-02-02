@@ -238,6 +238,18 @@ ul {
   overflow-wrap: "break-word";
 }
 
+.cover-container {
+  object-fit: contain;
+}
+
+.cover {
+  width: 100%;
+  border-radius: 2.5vh;
+  box-shadow: 2px 2px 5px #00000033;
+  max-height: 40vh;
+  object-fit: cover;
+}
+
 .topic-card-footer {
   display: flex;
   justify-content: space-between;

@@ -22,7 +22,8 @@ export default function AttachedFiles({ urls, onImageLoad }) {
                 alt={`media-${index}`}
                 onLoad={onImageLoad}
                 className="media-image"
-                onClick={() => {
+                onClick={e => {
+                  e.stopPropagation();
                   setMediaModalInfo({
                     isOpen: true,
                     url,

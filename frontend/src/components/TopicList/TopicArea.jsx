@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext.jsx";
+import AttachedFiles from "../AttachedFiles/AttachedFiles.jsx";
 import reactionListSetter from "../../utils/reactionListSetter.jsx";
 import InteractWindow from "./InteractWindow.jsx";
 import { VscSettings } from "react-icons/vsc";
@@ -83,6 +84,7 @@ export default function TopicArea({
           <div className="topic-title-container">
             <span className="topic-title">{topic.title}</span>
           </div>
+          {topic.cover ? <AttachedFiles urls={[topic.cover]} /> : null}
         </div>
         <div className="icons-menu">
           <div className="active-reactions">

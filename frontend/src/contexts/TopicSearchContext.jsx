@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect, createContext } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useLocation } from "react-router-dom";
 import axios from "axios";
 
 const TopicSearchContext = createContext();
@@ -20,9 +20,13 @@ export function TopicSearchProvider({ children }) {
     tags: urlSearchParams.get("tags") || "",
     authors: urlSearchParams.get("authors") || "",
   });
+  const location = useLocation();
 
   useEffect(() => {
+    // console.log("urlparams changed");
     if (location?.state?.reloadBackground === false) return;
+
+    // console.log(location);
 
     let searchInputTags = urlSearchParams.get("tags");
     if (searchInputTags)
@@ -59,7 +63,6 @@ export function TopicSearchProvider({ children }) {
         console.error("Error fetching tags:", error);
       }
     };
-
     fetchTags();
   }, []);
 

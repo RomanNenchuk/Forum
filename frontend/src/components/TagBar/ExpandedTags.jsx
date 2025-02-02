@@ -17,7 +17,7 @@ import LoadingSpinner from "../AltSpinner/AltSpinner.jsx";
 import axios from "axios";
 import "../CreateTopic/CreateTopic.css";
 
-export default function TagExtention({ onCloseModal }) {
+export default function ExpandedTags({ onClose }) {
   const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedTags, setSelectedTags] = useState([]);
@@ -29,28 +29,47 @@ export default function TagExtention({ onCloseModal }) {
   const LIMIT = 25;
   const navigate = useNavigate();
 
-  const fetchTags = useCallback(async (prompt = "", pageNum = 1) => {
-    try {
-      const params = prompt
-        ? `?search=${prompt}&page=${pageNum}&limit=${LIMIT}`
-        : `?page=${pageNum}&limit=${LIMIT}`;
-      const response = await axios.get("http://localhost:5000/tags" + params);
+  const fetchTags = useCallback(
+    async (prompt = "", pageNum = 1) => {
+      try {
+        const params = prompt
+          ? `?search=${prompt}&page=${pageNum}&limit=${LIMIT}`
+          : `?page=${pageNum}&limit=${LIMIT}`;
+        const response = await axios.get("http://localhost:5000/tags" + params);
 
-      if (pageNum === 1) {
-        setTags(response.data);
-      } else {
-        setTags(prev => [...prev, ...response.data]);
-      }
+        if (pageNum === 1) {
+          setTags(response.data);
+        } else {
+          setTags(prev => [...prev, ...response.data]);
+        }
 
-      if (response.data.length < LIMIT) {
-        setHasMore(false);
+        if (response.data.length < LIMIT) {
+          setHasMore(false);
+        }
+      } catch (error) {
+        console.error("Error fetching tags:", error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Error fetching tags:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+    [setTags, setHasMore, setLoading]
+  );
+
+  const debouncedFetchTags = useMemo(
+    () => debounce(fetchTags, 500),
+    [fetchTags]
+  );
+
+  useEffect(() => {
+    return () => debouncedFetchTags.cancel();
+  }, [debouncedFetchTags]);
+
+  function handleChange() {
+    setLoading(true);
+    setPage(1);
+    setHasMore(true);
+    debouncedFetchTags(searchRef.current.value, 1);
+  }
 
   function selectTag(selected) {
     if (selectedTags.length >= 5) return;
@@ -61,15 +80,6 @@ export default function TagExtention({ onCloseModal }) {
     setSelectedTags(prev => {
       return prev.filter(tag => tag !== deleted);
     });
-  }
-  const debouncedFetchTags = useMemo(
-    () => debounce(fetchTags, 500),
-    [fetchTags]
-  );
-
-  function handleChange() {
-    setLoading(true);
-    debouncedFetchTags(searchRef.current.value, 1);
   }
 
   function handleClick() {
@@ -121,8 +131,14 @@ export default function TagExtention({ onCloseModal }) {
         className="corner-line"
         style={{ top: "2%", left: "97%", transform: "rotate(180deg)" }}
       ></div>
-      <div className="close-button-container">
-        <IoCloseCircleOutline size={30} onClick={onCloseModal} />
+      <div
+        className="close-button-container"
+        onClick={() => {
+          console.log("Close");
+          onClose();
+        }}
+      >
+        <IoCloseCircleOutline size={30} />
       </div>
       <div className="modal-header">Усі теги</div>
 

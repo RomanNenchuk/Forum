@@ -4,8 +4,7 @@ import { Link } from "react-router-dom";
 import ToastPortal from "../Toast/Toast.jsx";
 import "./TagBar.css";
 
-export default function TagBar({ tagBarLoading, setTagBarLoading }) {
-  const [isExpanded, setIsExpanded] = useState(false);
+export default function TagBar() {
   const [toast, setToast] = useState(null);
   const { popularTagList } = useTopicSearch();
 
@@ -44,14 +43,17 @@ export default function TagBar({ tagBarLoading, setTagBarLoading }) {
                 # {tag.tag_name}
               </h5>
             ))}
-            <Link to="/tags">
-              <span
-                style={{ cursor: "pointer" }}
-                onClick={() => setIsExpanded(!isExpanded)}
-              >
-                Показати більше
-              </span>
-            </Link>
+            <Link to="/tags">Показати більше</Link>
+            {/* <Link
+              to="/login"
+              state={{
+                backgroundLocation: {
+                  pathname: location.pathname,
+                  search: location.search,
+                },
+                redirectPath: location,
+              }}
+            > */}
           </>
         }
       </div>

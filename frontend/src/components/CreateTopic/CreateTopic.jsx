@@ -1,81 +1,59 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
-import { Container, Form, Alert } from "react-bootstrap";
-import handleUpload from "../../utils/uploadFiles.jsx";
+import { Form, Alert } from "react-bootstrap";
+import CoverUploader from "./CoverUploader.jsx";
 import FileButtonUploader from "../FileButtonUploader.jsx";
+import TopicFileUploader from "./TopicFileUploader.jsx";
 import ActionButton from "../ActionButton/ActionButton.jsx";
 import TagBar from "../TagBar/TagBar.jsx";
-import TitleInput from "../TitleInput.jsx";
-import SearchInput from "../SearchInput.jsx";
+import TitleInput from "./TitleInput.jsx";
+import SearchInput from "./SearchInput.jsx";
 import BaseWrapInput from "../BaseWrapInput.jsx";
 import { IoArrowBack } from "react-icons/io5";
 import "./CreateTopic.css";
 import axios from "axios";
 
 export default function CreateTopic() {
-  const titleRef = useRef();
-
-  const navigate = useNavigate();
-
-  const headerFileRef = useRef();
-
   const { currentUser, token } = useAuth();
-
-  const descriptionRef = useRef();
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
-  const [headerFiles, setHeaderFiles] = useState([]);
-  const [extendfiles, setExtendFiles] = useState([]);
-  const [firstStepChoose, setFirstStepChoose] = useState(0);
-  const [step, setStep] = useState(0);
-  const [selectedTag, setSelected] = useState([]);
-
-  const [buf, setBuf] = useState({
-    title: "",
-    tags: [],
-    description: "",
-    attachments: [],
-  });
+  const [descriptionFiles, setDescriptionFiles] = useState([]);
+  const [isFirstTopicType, setIsFirstTopicType] = useState(true);
+  const [isFirstStep, setIsFirstStep] = useState(true);
+  const [selectedTagList, setSelectedTagList] = useState([]);
+  const [coverPreview, setCoverPreview] = useState(null);
+  const [cover, setCover] = useState(null);
+  const navigate = useNavigate();
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
     setSuccess("");
     setLoading(true);
-    getFromSecond();
-    if (!buf.title) {
-      setError("Незаповнено усі необхідні поля: не надано назву для теми");
-      setTimeout(() => {
-        setError(false);
-      }, 3000);
-      setLoading(false);
-      return;
-    }
-    const topicData = {
-      ...buf,
-      author: currentUser.uid,
-      description: descriptionRef.current.value,
-      attachments: await handleUpload(buf.attachments, currentUser.id),
-    };
-
     try {
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("author", currentUser.uid);
+      if (selectedTagList.length)
+        selectedTagList.forEach(tag => formData.append("tags[]", tag));
+      if (description) formData.append("description", description);
+      if (cover) formData.append("cover", cover);
+      if (descriptionFiles.length)
+        descriptionFiles.forEach(file =>
+          formData.append("attachments", file.data)
+        );
+
       const response = await axios.post(
         "http://localhost:5000/topics",
-        topicData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, // Передаємо токен
-          },
-        }
+        formData,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      if (response.status !== 201) {
-        throw new Error("Failed to create topic");
-      }
+      if (response.status !== 201) throw new Error("Failed to create topic");
       setSuccess("Topic created successfully!");
-
       setTimeout(() => navigate("/"), 1000);
     } catch (err) {
       setError(err.message);
@@ -84,133 +62,149 @@ export default function CreateTopic() {
     }
   }
 
-  function getFromFirst() {
-    setBuf(() => {
-      return {
-        title: titleRef.current.value,
-        tags: selectedTag,
-      };
-    });
-  }
-  function getFromSecond() {
-    const temp = descriptionRef.current.value || ""; // Додаткова перевірка
-    console.log(temp);
-    setBuf(prevBuf => ({
-      ...prevBuf,
-      description: temp, //??не оновлює
-      attachments: extendfiles,
-    }));
-  }
   return (
     <>
       <main className="create-topic-container">
         <div className="create-topic-inner">
-          <div className="header-container">
-            {" "}
-            {step ? (
+          <div className="title-container">
+            {!isFirstStep ? (
               <IoArrowBack
                 onClick={() => {
-                  getFromSecond(),
-                    setTimeout(() => {
-                      setStep(0);
-                    }, 50);
+                  setIsFirstStep(true);
                 }}
                 size="4vh"
               />
             ) : (
               ""
             )}
-            <h3 className="title">Створити тему</h3>
+            <h3 className="title">Створення теми</h3>
           </div>
           {error && <Alert variant="danger">{error}</Alert>}
           {success && <Alert variant="success">{success}</Alert>}
-          {!step ? (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                width: "30%",
-                padding: "2vh",
-              }}
-            >
-              <div
-                style={
-                  firstStepChoose === 0
-                    ? { boxShadow: "0 0.3vh 0 0 #659287" }
-                    : {}
-                }
-                onClick={() => setFirstStepChoose(0)}
-              >
-                Текст
-              </div>
-              <div
-                style={
-                  firstStepChoose !== 0
-                    ? { boxShadow: "0 0.3vh 0 0 #659287" }
-                    : {}
-                }
-                onClick={() => setFirstStepChoose(1)}
-              >
-                Фото&Відео
-              </div>
-            </div>
-          ) : (
-            ""
-          )}
           <Form onSubmit={handleSubmit}>
-            {!step ? (
-              <TitleInput titleRef={titleRef} limit={255} value={buf.title} />
-            ) : (
-              ""
-            )}
-            {!step ? (
-              <SearchInput resData={selectedTag} setResData={setSelected} />
-            ) : (
-              ""
-            )}
-            {step ? (
-              <BaseWrapInput ref={descriptionRef} value={buf.description} />
-            ) : (
-              ""
-            )}
-
-            {step ? (
-              <FileButtonUploader
-                files={extendfiles}
-                setFiles={setExtendFiles}
+            <div style={isFirstStep ? {} : { display: "none" }}>
+              <FirstStep
+                title={title}
+                setTitle={setTitle}
+                selectedTagList={selectedTagList}
+                setSelectedTagList={setSelectedTagList}
+                isFirstTopicType={isFirstTopicType}
+                setIsFirstTopicType={setIsFirstTopicType}
+                coverPreview={coverPreview}
+                setCoverPreview={setCoverPreview}
+                cover={cover}
+                setCover={setCover}
+                setIsFirstStep={setIsFirstStep}
+                setError={setError}
               />
-            ) : firstStepChoose ? (
-              <FileButtonUploader
-                files={headerFiles}
-                setFiles={setHeaderFiles}
-              />
-            ) : (
-              ""
-            )}
-            {!step ? (
-              <ActionButton
-                onClick={e => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  getFromFirst();
-                  setStep(1);
-                }}
-                label="Продовжити"
-                loading={null}
-                type="button"
-              />
-            ) : (
-              <ActionButton
-                label={loading ? "Створення..." : "Створити тему"}
+            </div>
+            <div style={isFirstStep ? { display: "none" } : {}}>
+              <SecondStep
+                descriptionFiles={descriptionFiles}
+                setDescriptionFiles={setDescriptionFiles}
+                description={description}
+                setDescription={setDescription}
                 loading={loading}
-                type="submit"
+                handleSubmit={handleSubmit}
               />
-            )}
+            </div>
           </Form>
         </div>
       </main>
       <TagBar />
+    </>
+  );
+}
+
+function FirstStep({
+  title,
+  setTitle,
+  selectedTagList,
+  setSelectedTagList,
+  isFirstTopicType,
+  setIsFirstTopicType,
+  setCover,
+  coverPreview,
+  setCoverPreview,
+  setIsFirstStep,
+  setError,
+}) {
+  function handleContinueClick(e) {
+    e.preventDefault();
+    setError("");
+    if (title.length < 15)
+      return setError("Недостатня кількість символів у заголовку");
+    setIsFirstStep(false);
+  }
+  return (
+    <>
+      <div className="topic-type">
+        <div
+          className={` topic-type-option ${
+            isFirstTopicType ? "topic-type-chosen" : ""
+          }`}
+          onClick={() => setIsFirstTopicType(true)}
+        >
+          Текст
+        </div>
+        <div
+          className={`topic-type-option ${
+            !isFirstTopicType ? "topic-type-chosen" : ""
+          }`}
+          onClick={() => setIsFirstTopicType(false)}
+        >
+          Фото&Відео
+        </div>
+      </div>
+      <TitleInput title={title} setTitle={setTitle} limit={255} />
+      <SearchInput
+        selectedTagList={selectedTagList}
+        setSelectedTagList={setSelectedTagList}
+      />
+      {!isFirstTopicType && (
+        <CoverUploader
+          coverPreview={coverPreview}
+          setCoverPreview={setCoverPreview}
+          setCover={setCover}
+          setError={setError}
+        />
+      )}
+      <ActionButton
+        className="my-4"
+        onClick={handleContinueClick}
+        label="Продовжити"
+        type="button"
+      />
+    </>
+  );
+}
+
+function SecondStep({
+  description,
+  setDescription,
+  descriptionFiles,
+  setDescriptionFiles,
+  loading,
+}) {
+  return (
+    <>
+      <BaseWrapInput
+        description={description}
+        setDescription={setDescription}
+      />
+      {/* <FileButtonUploader
+        files={descriptionFiles}
+        setFiles={setDescriptionFiles}
+      /> */}
+      <TopicFileUploader
+        files={descriptionFiles}
+        setFiles={setDescriptionFiles}
+      />
+      <ActionButton
+        label={loading ? "Створення..." : "Створити тему"}
+        loading={loading}
+        type="submit"
+      />
     </>
   );
 }

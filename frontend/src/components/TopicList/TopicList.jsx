@@ -8,6 +8,7 @@ import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./TopicList.css";
 import axios from "axios";
+import { useTopicList } from "../../contexts/TopicListContext.jsx";
 
 const reactionList = [
   { icon: "😁", name: "beaming_face_with_smiling_eyes" },
@@ -34,12 +35,8 @@ const reactionList = [
   { icon: "💩", name: "pile_of_poo" },
 ];
 
-export default function TopicList({
-  topicInfoList,
-  setTopicInfoList,
-  topicListRef,
-  loading,
-}) {
+export default function TopicList({ topicInfoList }) {
+  const { setTopicInfoList, loading } = useTopicList();
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [topicToDeleteId, setTopicToDeleteId] = useState(null);
@@ -57,7 +54,6 @@ export default function TopicList({
   const navigate = useNavigate();
 
   const actionMenuRef = useRef(null);
-  useScrollLock(isActionMenuOpen, topicListRef);
 
   function handleOnActionMenu(e, topic) {
     e.preventDefault();
