@@ -186,19 +186,24 @@
   width: 100%;
   background-color: white;
   list-style-type: none;
-  padding: 1vh;
-  padding-top: 2.3vh;
   border-radius: 0 0 3vh 3vh;
+  padding: 0 10px;
   font-size: 2.5vh;
   border: 0.1vh solid black;
   z-index: 1;
   overflow-y: auto;
-  height: 30vh;
+  max-height: 30vh;
 }
 .find-list-item {
   cursor: pointer;
-  padding: 0 5px;
   border-radius: 5px;
+  padding: 0 5px;
+}
+.find-list-item:first-child {
+  margin-top: 5px;
+}
+.find-list-item:last-child {
+  margin-bottom: 5px;
 }
 .find-list-item:hover {
   background-color: #d9d9d9;

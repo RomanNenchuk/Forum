@@ -19,6 +19,7 @@ export default function CreateTopic() {
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [warning, setWarning] = useState("");
   const [loading, setLoading] = useState(false);
   const [descriptionFiles, setDescriptionFiles] = useState([]);
   const [isFirstTopicType, setIsFirstTopicType] = useState(true);
@@ -38,13 +39,13 @@ export default function CreateTopic() {
       formData.append("title", title);
       formData.append("author", currentUser.uid);
       if (selectedTagList.length)
-        selectedTagList.forEach(tag => formData.append("tags[]", tag));
+        selectedTagList.forEach(tag => formData.append("tags", tag));
       if (description) formData.append("description", description);
       if (cover) formData.append("cover", cover);
       if (descriptionFiles.length)
-        descriptionFiles.forEach(file =>
-          formData.append("attachments", file.data)
-        );
+        descriptionFiles
+          .slice(0, 10)
+          .forEach(file => formData.append("attachments", file));
 
       const response = await axios.post(
         "http://localhost:5000/topics",
@@ -81,6 +82,7 @@ export default function CreateTopic() {
           </div>
           {error && <Alert variant="danger">{error}</Alert>}
           {success && <Alert variant="success">{success}</Alert>}
+          {warning && <Alert variant="warning">{warning}</Alert>}
           <Form onSubmit={handleSubmit}>
             <div style={isFirstStep ? {} : { display: "none" }}>
               <FirstStep
@@ -104,6 +106,7 @@ export default function CreateTopic() {
                 setDescriptionFiles={setDescriptionFiles}
                 description={description}
                 setDescription={setDescription}
+                setWarning={setWarning}
                 loading={loading}
                 handleSubmit={handleSubmit}
               />
@@ -184,6 +187,7 @@ function SecondStep({
   setDescription,
   descriptionFiles,
   setDescriptionFiles,
+  setWarning,
   loading,
 }) {
   return (
@@ -195,6 +199,7 @@ function SecondStep({
       <TopicFileUploader
         files={descriptionFiles}
         setFiles={setDescriptionFiles}
+        setWarning={setWarning}
       />
       <ActionButton
         label={loading ? "Створення..." : "Створити тему"}

@@ -56,6 +56,7 @@ const SearchInput = ({ selectedTagList, setSelectedTagList }) => {
       e.preventDefault();
       selectTag(tagsRef.current.value);
       tagsRef.current.value = "";
+      debouncedHandleSearch();
     }
   };
 
@@ -70,7 +71,9 @@ const SearchInput = ({ selectedTagList, setSelectedTagList }) => {
     setSelectedTagList([...buf]);
   }
 
-  function handleTagClick(tag) {
+  function handleTagClick(e, tag) {
+    e.preventDefault();
+    e.stopPropagation();
     selectTag(tag.tag_name);
     tagsRef.current.value = "";
   }
@@ -99,7 +102,7 @@ const SearchInput = ({ selectedTagList, setSelectedTagList }) => {
             className="tag-input"
             readOnly={selectedTagList.length > 4}
             onChange={handleInputChange}
-            onBlur={() => setTimeout(() => setIsDropdownListOpen(false), 300)}
+            onBlur={() => setIsDropdownListOpen(false)}
             onKeyDown={handleKeyDown}
             maxLength={100}
             style={{ position: "relative", zIndex: 2 }}
@@ -134,7 +137,7 @@ const SearchInput = ({ selectedTagList, setSelectedTagList }) => {
                   <li
                     key={tag.id || tag.tag_name}
                     className="find-list-item"
-                    onClick={() => handleTagClick(tag)}
+                    onMouseDown={e => handleTagClick(e, tag)}
                   >
                     {tag.tag_name}
                   </li>

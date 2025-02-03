@@ -1,23 +1,26 @@
-import React, { useState, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import DefaultFileUploadCover from "../DefaultFileUploadCover.jsx";
 import deleteIcon from "../../assets/delete-button.svg";
 import fileIcon from "../../assets/file.svg";
-import addCoverIcon from "../../assets/add-cover.svg";
 
-export default function TopicFileUploader({ files, setFiles }) {
+export default function TopicFileUploader({ files, setFiles, setWarning }) {
   const fileInputRef = useRef();
 
   const handleFileChange = e => {
-    const filesArray = Array.from(e.target.files);
-    setFiles(prev => [
-      ...prev,
-      ...filesArray.map(file => ({
-        data: file,
-        name: file.name,
-        isFromDatabase: false,
-      })),
-    ]);
+    setWarning("");
+    setFiles(prev => [...prev, ...Array.from(e.target.files)]);
   };
+
+  useEffect(() => {
+    setWarning("");
+    console.log("files changed");
+    if (files.length > 10) {
+      console.log("warning");
+      setWarning(
+        "Можна додати до 10 файлів. Решта вкладень не буде врахована."
+      );
+    }
+  }, [files]);
 
   const handleRemoveFile = index => {
     setFiles(prevFiles => prevFiles.filter((_, i) => i !== index));

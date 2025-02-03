@@ -70,7 +70,13 @@ export const saveTopic = async (req, res) => {
       `;
 
     let coverUrl = cover && uploadedFiles.length ? uploadedFiles[0] : null;
-    let attachmentsUrl = uploadedFiles.length ? uploadedFiles.slice(1) : [];
+    let attachmentsUrl = [];
+
+    if (uploadedFiles.length && coverUrl) {
+      attachmentsUrl = uploadedFiles.slice(1);
+    } else if (uploadedFiles.length && !coverUrl) {
+      attachmentsUrl = uploadedFiles;
+    }
 
     const topicResult = await client.query(topicInsertQuery, [
       title,
