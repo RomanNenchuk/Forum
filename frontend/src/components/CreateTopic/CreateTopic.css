@@ -3,6 +3,7 @@
   justify-content: center;
   margin-top: 20vh;
   align-items: flex-start;
+  width: 100%;
 }
 
 .title-container {
@@ -51,17 +52,18 @@
 
 .file-upload-container {
   display: flex;
+  width: 100%;
   flex-direction: column;
   gap: 5px;
   align-items: center;
   min-height: 70px;
   list-style-type: none;
   margin: 15px 0;
-  max-height: 300px;
   overflow-y: auto;
   border: 1px solid #bdbdbd;
   border-radius: 10px;
   max-height: 30vh;
+  padding: 5px;
 }
 
 .upload-files-cover {
@@ -120,6 +122,10 @@
   display: flex;
   flex-direction: row;
 }
+.tag-search-container {
+  display: flex;
+  width: 100%;
+}
 .for_font {
   font-size: 2.5vh;
   height: auto;
@@ -140,7 +146,8 @@
   color: black;
 }
 .title-input,
-.tag-input {
+.tag-input,
+.description-input {
   width: 100%;
   padding: 6px 12px;
   overflow-x: hidden;
@@ -152,9 +159,27 @@
   overflow: hidden;
 }
 .title-input::placeholder,
-.tag-input::placeholder {
+.tag-input::placeholder,
+.description-input::placeholder {
   color: #333;
 }
+
+.description-input {
+  max-height: 30vh;
+  overflow-y: auto;
+}
+
+.input-left:focus {
+  box-shadow: -0.5vh 0 0 0 #659287;
+}
+
+#title:focus-within,
+.tag-search-container:focus-within,
+.description-input:focus {
+  border-color: #4caf50;
+  box-shadow: 0 0 0.5vh 0.1vh rgba(76, 175, 80, 0.5);
+}
+
 .find-list {
   position: relative;
   top: -1vh;
@@ -204,7 +229,40 @@
   width: 100px;
   font-size: 20px;
 }
+.remove-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: 0.7;
+}
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 30px;
+}
 
-.input-left:focus {
-  box-shadow: -0.5vh 0 0 0 #659287;
+.add-button {
+  color: white;
+  padding: 6px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #659287;
+  border: none;
+  border-radius: 5px;
+  border: 1px solid transparent;
+  margin: 20px 0;
+  font-size: 20px;
+  min-width: 92px;
+}
+
+.add-button:hover {
+  color: #659287;
+  background-color: white;
+  border: 1px solid #659287;
 }

@@ -8,9 +8,8 @@ import ActionButton from "../ActionButton/ActionButton.jsx";
 import TagBar from "../TagBar/TagBar.jsx";
 import TitleInput from "./TitleInput.jsx";
 import SearchInput from "./SearchInput.jsx";
-import BaseWrapInput from "../BaseWrapInput.jsx";
+import DescriptionInput from "./DescriptionInput.jsx";
 import arrowBackIcon from "../../assets/arrow-back.svg";
-import { IoArrowBack } from "react-icons/io5";
 import "./CreateTopic.css";
 import axios from "axios";
 
@@ -189,7 +188,7 @@ function SecondStep({
 }) {
   return (
     <>
-      <BaseWrapInput
+      <DescriptionInput
         description={description}
         setDescription={setDescription}
       />

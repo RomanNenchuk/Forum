@@ -27,23 +27,28 @@ const TitleInput = ({ title, setTitle, limit, value }) => {
     setTitle(textarea.value);
   }
 
+  function handleKeyDown(e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+    }
+  }
+
   useEffect(() => {
     title ? setCounter(title.length) : setCounter(0);
   }, [title]);
 
   return (
     <Form.Group id="title" className="mb-3">
-      <textarea
+      <input
         className="title-input"
-        as="textarea"
-        cols={150}
+        type="text"
         maxLength={limit}
         ref={titleRef}
         defaultValue={value}
-        required
         onChange={handleChange}
+        onKeyDown={handleKeyDown}
         placeholder="Введіть назву теми"
-        rows={rows}
+        required
       />
       <span ref={countRef} className="right-counter">
         {counter}/{limit}

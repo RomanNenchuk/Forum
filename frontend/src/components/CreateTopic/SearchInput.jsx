@@ -86,7 +86,7 @@ const SearchInput = ({ selectedTagList, setSelectedTagList }) => {
         ))}
       </div>
       <div>
-        <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
+        <div className="tag-search-container">
           <input
             type="text"
             ref={tagsRef}

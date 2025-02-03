@@ -1,6 +1,5 @@
 import React, { useState, useRef } from "react";
-import styles from "../FileModal/FileModal.module.css";
-import { Card } from "react-bootstrap";
+import DefaultFileUploadCover from "../DefaultFileUploadCover.jsx";
 import deleteIcon from "../../assets/delete-button.svg";
 import fileIcon from "../../assets/file.svg";
 import addCoverIcon from "../../assets/add-cover.svg";
@@ -38,7 +37,7 @@ export default function TopicFileUploader({ files, setFiles }) {
               </div>
               <button
                 type="button"
-                className={styles.removeButton}
+                className="remove-button"
                 onClick={() => handleRemoveFile(index)}
               >
                 <img src={deleteIcon} alt="Delete" />
@@ -46,24 +45,25 @@ export default function TopicFileUploader({ files, setFiles }) {
             </li>
           ))
         ) : (
-          <div className="upload-files-cover" onClick={handleImageClick}>
-            <span>Завантажити файли</span>
-            <img src={addCoverIcon} style={{ height: "27px" }} />
-          </div>
+          <DefaultFileUploadCover
+            title={"Завантажити файли"}
+            handleImageClick={handleImageClick}
+            style={{ border: "none" }}
+          />
         )}
       </ul>
-      <div className={styles.actions}>
+      <div className="actions">
         <input
           type="file"
           ref={fileInputRef}
           onChange={handleFileChange}
-          className={styles.fileInput}
+          style={{ display: "none" }}
           multiple
         />
-        <div className={styles.actionButtons}>
+        <div className="action-buttons">
           <button
             type="button"
-            className={`${styles.addButton} ${styles.addButtonSend}`}
+            className="add-button"
             onClick={handleImageClick}
           >
             Додати

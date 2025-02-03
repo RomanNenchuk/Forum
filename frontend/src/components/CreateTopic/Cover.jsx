@@ -1,4 +1,5 @@
 import React from "react";
+import DefaultFileUploadCover from "../DefaultFileUploadCover";
 import { FaUserCircle, FaTimes } from "react-icons/fa";
 import addCoverIcon from "../../assets/add-cover.svg";
 
@@ -37,9 +38,9 @@ const Cover = ({
   };
 
   return (
-    <div style={{ position: "relative", display: "inline-block" }}>
+    <div>
       {coverPreview ? (
-        <>
+        <div style={{ position: "relative", display: "inline-block" }}>
           <img
             src={coverPreview}
             style={baseStyle}
@@ -50,13 +51,16 @@ const Cover = ({
           {coverPreview && (
             <FaTimes style={crossStyle} onClick={handleRemove} />
           )}
-        </>
+        </div>
       ) : (
-        <img
-          src={addCoverIcon}
-          style={{ height: "100px" }}
-          className={className}
-          onClick={handleImageClick}
+        <DefaultFileUploadCover
+          title={"Бажаєте додати заставку?"}
+          style={{
+            border: "1px solid #bdbdbd",
+            padding: "15px",
+            borderRadius: "10px",
+          }}
+          handleImageClick={handleImageClick}
         />
       )}
     </div>
