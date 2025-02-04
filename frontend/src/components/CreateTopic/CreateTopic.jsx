@@ -39,7 +39,7 @@ export default function CreateTopic() {
       formData.append("title", title);
       formData.append("author", currentUser.uid);
       if (selectedTagList.length)
-        selectedTagList.forEach(tag => formData.append("tags", tag));
+        formData.append("tags", JSON.stringify(selectedTagList));
       if (description) formData.append("description", description);
       if (cover) formData.append("cover", cover);
       if (descriptionFiles.length)

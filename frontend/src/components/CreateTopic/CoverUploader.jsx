@@ -22,15 +22,28 @@ export default function CoverUploader({
     ];
 
     if (selectedFile && allowedTypes.includes(selectedFile.type)) {
-      let url = URL.createObjectURL(selectedFile);
-      if (selectedFile.type === "video/mp4") {
-        url = await generateVideoThumbnail(url);
+      // звільняю пам'ять від попереднього URL
+      if (coverPreview?.url) URL.revokeObjectURL(coverPreview.url);
+
+      let url;
+      try {
+        if (selectedFile.type === "video/mp4") {
+          url = await generateVideoThumbnail(selectedFile);
+        } else {
+          url = URL.createObjectURL(selectedFile);
+        }
+
+        setCover(selectedFile);
+        setCoverPreview({
+          type: selectedFile.type,
+          url,
+        });
+
+        e.target.value = "";
+      } catch (error) {
+        setError("Не вдалося згенерувати прев’ю для відео.");
+        console.error(error);
       }
-      setCover(selectedFile);
-      setCoverPreview({
-        type: selectedFile.type,
-        url,
-      });
     } else {
       setError(
         "Будь ласка, виберіть файл у форматі JPG, JPEG, PNG, GIF або MP4"
@@ -41,14 +54,18 @@ export default function CoverUploader({
 
   const handleImageClick = () => coverInputRef.current.click();
 
+  const handleRemove = () => {
+    if (coverPreview?.url) URL.revokeObjectURL(coverPreview.url);
+    setCoverPreview("");
+    setCover("");
+  };
+
   return (
     <div className="text-center my-5">
       <Cover
         coverPreview={coverPreview}
         handleImageClick={handleImageClick}
-        handleRemove={() => {
-          setCoverPreview("");
-        }}
+        handleRemove={handleRemove}
       />
       <input
         type="file"

@@ -35,7 +35,10 @@ export default function FileSendModal({
   };
 
   const handleRemoveFile = index => {
-    setFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
+    setFiles(prevFiles => {
+      if (prevFiles.length === 1) onClose();
+      return prevFiles.filter((_, i) => i !== index);
+    });
   };
 
   return (

@@ -27,6 +27,7 @@ export default function FileEditModal({
 
   const handleRemoveFile = index => {
     setFiles(prevFiles => {
+      if (prevFiles.length === 1) onClose();
       const fileToRemove = prevFiles[index];
       if (fileToRemove.isFromDatabase) {
         setFilesToDelete(prev => [...prev, fileToRemove]);

@@ -1,6 +1,7 @@
-export const generateVideoThumbnail = videoUrl => {
+export const generateVideoThumbnail = videoFile => {
   return new Promise((resolve, reject) => {
     const video = document.createElement("video");
+    const videoUrl = URL.createObjectURL(videoFile);
     video.src = videoUrl;
     video.crossOrigin = "anonymous";
     video.currentTime = 0.5;
@@ -15,14 +16,24 @@ export const generateVideoThumbnail = videoUrl => {
 
       video.onseeked = () => {
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const thumbnailUrl = canvas.toDataURL("image/png");
-        resolve(thumbnailUrl);
+
+        // Отримуємо Blob із canvas (PNG)
+        canvas.toBlob(blob => {
+          // Створюємо URL для цього Blob
+          const thumbnailUrl = URL.createObjectURL(blob);
+
+          // Звільняємо пам'ять від ObjectURL відео
+          URL.revokeObjectURL(videoUrl);
+
+          resolve(thumbnailUrl);
+        }, "image/png");
       };
 
       video.currentTime = 0.5;
     };
 
     video.onerror = error => {
+      URL.revokeObjectURL(videoUrl);
       reject(error);
     };
   });

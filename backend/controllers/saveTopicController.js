@@ -33,7 +33,6 @@ export const saveTopic = async (req, res) => {
     const {
       title,
       author,
-      tags = [],
       description,
       rating = 0,
       status = "active",
@@ -54,11 +53,29 @@ export const saveTopic = async (req, res) => {
     if (files.length)
       uploadedFiles = (await uploadToCloudinary(files))?.map(file => file.url);
 
-    // збереження у БД
-    let processedTags = Array.isArray(tags)
-      ? tags.map(tag => tag.trim()).filter(tag => tag.length > 0)
-      : ["u_tag"];
+    // отримання тегів з тіла запиту
+    let rawTags = req.body.tags;
 
+    let tagsList = [];
+    if (typeof rawTags === "string") {
+      try {
+        tagsList = JSON.parse(rawTags);
+        if (!Array.isArray(tagsList)) {
+          tagsList = [rawTags]; // якщо це не JSON-масив, то це просто один тег у вигляді рядка
+        }
+      } catch (error) {
+        tagsList = [rawTags]; // якщо не вдалося розпарсити, значить, це одиночний рядок
+      }
+    } else if (Array.isArray(rawTags)) {
+      tagsList = rawTags;
+    }
+
+    // очищення тегів від зайвих пробілів та фільтрація порожніх
+    const processedTags = tagsList
+      .map(tag => tag.trim())
+      .filter(tag => tag.length > 0);
+
+    // збереження у БД
     await client.query("BEGIN");
 
     // Додаємо теги, якщо їх ще немає

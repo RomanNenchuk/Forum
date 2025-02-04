@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Container, Carousel } from "react-bootstrap";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useUserInfo } from "../../contexts/UserInfoContext";
@@ -7,16 +6,15 @@ import handleUpload from "../../utils/uploadFiles.jsx";
 import LoadingSpinner from "../Spinner";
 import TopicList from "../TopicList/TopicList";
 import TopicInput from "./TopicInput";
+import AttachedFiles from "../AttachedFiles/AttachedFiles.jsx";
 import TopicComments from "./TopicComments";
 import FileSendModal from "../FileModal/FileSendModal.jsx";
 import FileEditModal from "../FileModal/FileEditModal.jsx";
 import { useScrollLock } from "../../hooks/useScrollLock.jsx";
 import TopicContextMenu from "./TopicContextMenu";
-import { IoArrowBack } from "react-icons/io5";
 import arrowBackIcon from "../../assets/arrow-back.svg";
 import axios from "axios";
 import "./Topic.css";
-import AttachedFiles from "../AttachedFiles/AttachedFiles.jsx";
 
 export const commentsOnOnePageCount = 10;
 
@@ -350,12 +348,7 @@ export default function Topic() {
             <div className="extra-info">
               <div style={{ padding: "2vh 2vw" }}>
                 <span className="extra-info-header">Додаткова інформація</span>
-                <span
-                  className="extra-info-p"
-                  onClick={() => {
-                    console.log(currentUser);
-                  }}
-                >
+                <p className="extra-info-p">
                   {extendInfo === 2 ? (
                     topic?.description
                   ) : extendInfo === 1 ? (
@@ -379,7 +372,7 @@ export default function Topic() {
                       </span>
                     </>
                   )}
-                </span>
+                </p>
                 {extendInfo && topic.attachments.length > 0 ? (
                   <AttachedFiles urls={topic.attachments} />
                 ) : null}
