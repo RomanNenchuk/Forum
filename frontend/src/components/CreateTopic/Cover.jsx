@@ -1,7 +1,7 @@
 import React from "react";
 import DefaultFileUploadCover from "../DefaultFileUploadCover";
-import { FaUserCircle, FaTimes } from "react-icons/fa";
-import addCoverIcon from "../../assets/add-cover.svg";
+import { FaTimes } from "react-icons/fa";
+import playIcon from "../../assets/play-button.svg";
 
 const Cover = ({
   coverPreview,
@@ -42,12 +42,16 @@ const Cover = ({
       {coverPreview ? (
         <div style={{ position: "relative", display: "inline-block" }}>
           <img
-            src={coverPreview}
+            src={coverPreview.url}
             style={baseStyle}
             alt="Cover"
             className={`${className}`}
             onClick={handleImageClick}
           />
+          {coverPreview.type === "video/mp4" ? (
+            <img src={playIcon} alt="play" className="play-button" />
+          ) : null}
+
           {coverPreview && (
             <FaTimes style={crossStyle} onClick={handleRemove} />
           )}

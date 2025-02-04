@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import LazyVideo from "./LazyVideo.jsx";
 import MediaModal from "../MediaModal/MediaModal.jsx";
 import fileIcon from "../../assets/file.svg";
 import "./AttachedFiles.css";
@@ -15,6 +16,8 @@ export default function AttachedFiles({ urls, onImageLoad }) {
         <div className="media-grid">
           {urls?.map((url, index) => {
             const isImage = url.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i);
+            const isVideo = url.match(/\.(mp4|webm|ogg)$/i);
+
             return isImage ? (
               <img
                 key={index}
@@ -30,6 +33,8 @@ export default function AttachedFiles({ urls, onImageLoad }) {
                   });
                 }}
               />
+            ) : isVideo ? (
+              <LazyVideo key={index} videoId={index} src={url} />
             ) : (
               <a
                 key={index}
@@ -37,7 +42,7 @@ export default function AttachedFiles({ urls, onImageLoad }) {
                 target="blank"
                 style={{ width: "100%" }}
               >
-                <div key={index} className="file-item">
+                <div className="file-item">
                   <div className="file-header">
                     <img
                       src={fileIcon}

@@ -8,7 +8,13 @@ export const uploadFiles = multer({
   limits: { fileSize: 10 * 1024 * 1024 }, // Ліміт для всіх файлів
   fileFilter: (req, file, cb) => {
     if (file.fieldname === "cover") {
-      const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
+      const allowedTypes = [
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/gif",
+        "video/mp4",
+      ];
       return allowedTypes.includes(file.mimetype)
         ? cb(null, true)
         : cb(new Error("Непідтримуваний формат обкладинки"), false);

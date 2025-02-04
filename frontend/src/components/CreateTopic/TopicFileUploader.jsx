@@ -13,13 +13,10 @@ export default function TopicFileUploader({ files, setFiles, setWarning }) {
 
   useEffect(() => {
     setWarning("");
-    console.log("files changed");
-    if (files.length > 10) {
-      console.log("warning");
+    if (files.length > 10)
       setWarning(
         "Можна додати до 10 файлів. Решта вкладень не буде врахована."
       );
-    }
   }, [files]);
 
   const handleRemoveFile = index => {

@@ -271,3 +271,12 @@
   background-color: white;
   border: 1px solid #659287;
 }
+
+.play-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #f6d88f;
+  border-radius: 15px;
+}

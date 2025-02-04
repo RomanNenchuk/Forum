@@ -212,6 +212,8 @@ ul.chat-messages {
   background-color: gray;
   /* все летить, якщо використовувати відсотки */
   /* max-width: 50%; */
+  word-wrap: break-word;
+  white-space: pre-wrap;
   max-width: 35vw;
   margin: 20px;
   border-radius: 20px;

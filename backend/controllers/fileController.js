@@ -123,7 +123,9 @@ export const uploadToCloudinary = async files => {
     }
     return results;
   } catch (error) {
-    console.error(error);
+    console.log("AAAAAAAAAAA");
+    console.error("Failed to upload", error);
+    console.log("AAAAAAAAAAA");
     throw error;
   }
 };

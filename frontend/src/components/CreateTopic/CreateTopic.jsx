@@ -53,7 +53,7 @@ export default function CreateTopic() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (response.status !== 201) throw new Error("Failed to create topic");
-      setSuccess("Topic created successfully!");
+      setSuccess("Тему успішно створено!");
       setTimeout(() => navigate("/"), 1000);
     } catch (err) {
       setError(err.message);

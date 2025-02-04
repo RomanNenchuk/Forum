@@ -236,6 +236,8 @@ ul {
 .topic-title {
   margin-bottom: "1vh";
   overflow-wrap: "break-word";
+  word-wrap: break-word;
+  white-space: pre-wrap;
 }
 
 .cover-container {

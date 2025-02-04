@@ -1,5 +1,6 @@
 import React, { useRef } from "react";
 import Cover from "./Cover.jsx";
+import { generateVideoThumbnail } from "../../utils/videoThumbnail.jsx";
 
 export default function CoverUploader({
   coverPreview,
@@ -9,23 +10,36 @@ export default function CoverUploader({
 }) {
   const coverInputRef = useRef(null);
 
-  function handleImageChange(e) {
+  async function handleImageChange(e) {
     setError("");
     const selectedFile = e.target.files[0];
-    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif"];
+    const allowedTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/gif",
+      "video/mp4",
+    ];
 
     if (selectedFile && allowedTypes.includes(selectedFile.type)) {
+      let url = URL.createObjectURL(selectedFile);
+      if (selectedFile.type === "video/mp4") {
+        url = await generateVideoThumbnail(url);
+      }
       setCover(selectedFile);
-      setCoverPreview(URL.createObjectURL(selectedFile));
+      setCoverPreview({
+        type: selectedFile.type,
+        url,
+      });
     } else {
-      setError("Будь ласка, виберіть файл у форматі JPG, JPEG, PNG або GIF");
+      setError(
+        "Будь ласка, виберіть файл у форматі JPG, JPEG, PNG, GIF або MP4"
+      );
       e.target.value = "";
     }
   }
 
-  function handleImageClick() {
-    coverInputRef.current.click();
-  }
+  const handleImageClick = () => coverInputRef.current.click();
 
   return (
     <div className="text-center my-5">
@@ -41,7 +55,7 @@ export default function CoverUploader({
         onChange={handleImageChange}
         ref={coverInputRef}
         style={{ display: "none" }}
-        accept=".jpg, .jpeg, .png, .gif"
+        accept=".jpg, .jpeg, .png, .gif, .mp4"
       />
     </div>
   );

@@ -16,6 +16,7 @@ import { IoArrowBack } from "react-icons/io5";
 import arrowBackIcon from "../../assets/arrow-back.svg";
 import axios from "axios";
 import "./Topic.css";
+import AttachedFiles from "../AttachedFiles/AttachedFiles.jsx";
 
 export const commentsOnOnePageCount = 10;
 
@@ -27,7 +28,7 @@ export default function Topic() {
   const [commentLoading, setCommentLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
-  const [extendfInfo, setExtendInfo] = useState();
+  const [extendInfo, setExtendInfo] = useState();
 
   const [text, setText] = useState("");
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
@@ -68,7 +69,7 @@ export default function Topic() {
     setCommentLoading(true);
     fetchTopic();
     fetchTopicComments();
-  }, [id]);
+  }, [id, currentUser]);
   // обробник кліку на сторінці
   useEffect(() => {
     function handler(e) {
@@ -107,19 +108,6 @@ export default function Topic() {
 
   async function fetchTopicComments() {
     try {
-      /* має бути таким же, як і comm з sendComment
-        id
-        text
-        timestamp
-        author_id
-        topic_id
-        attachments
-        reply
-        author_username
-        avatar
-        reply_text
-        reply_timestamp
-       */
       const response = await axios.get(
         `http://localhost:5000/topics/${id}/comments${
           currentUser ? "?user_id=" + currentUser.uid : ""
@@ -153,7 +141,6 @@ export default function Topic() {
   async function sendComment() {
     if (files.length === 0 && text.trim() !== "") {
       const comm = {
-        // має бути таким же, як і result.data з fetchTopicComents
         id: -1,
         text: text.trim(),
         timestamp: new Date().toISOString(),
@@ -361,7 +348,7 @@ export default function Topic() {
               <TopicList topicInfoList={[topic]} topicListRef={topicItemRef} />
             </div>
             <div className="extra-info">
-              <div style={{ padding: "2vh" }}>
+              <div style={{ padding: "2vh 2vw" }}>
                 <span className="extra-info-header">Додаткова інформація</span>
                 <span
                   className="extra-info-p"
@@ -369,9 +356,9 @@ export default function Topic() {
                     console.log(currentUser);
                   }}
                 >
-                  {extendfInfo === 2 ? (
+                  {extendInfo === 2 ? (
                     topic?.description
-                  ) : extendfInfo === 1 ? (
+                  ) : extendInfo === 1 ? (
                     <>
                       {topic?.description}
                       <span
@@ -393,26 +380,8 @@ export default function Topic() {
                     </>
                   )}
                 </span>
-                {extendfInfo && topic.attachments.length > 0 ? (
-                  <Container fluid>
-                    <Carousel
-                      style={{ padding: "2vh" }}
-                      className="carousel slide carousel-fade"
-                    >
-                      {topic.attachments.map((attachment, index) => (
-                        <Carousel.Item key={index}>
-                          <img
-                            className="d-block w-100"
-                            src={attachment}
-                            alt={`Slide ${index + 1}`}
-                            onClick={() =>
-                              console.log(`Clicked on slide ${index + 1}`)
-                            }
-                          />
-                        </Carousel.Item>
-                      ))}
-                    </Carousel>
-                  </Container>
+                {extendInfo && topic.attachments.length > 0 ? (
+                  <AttachedFiles urls={topic.attachments} />
                 ) : null}
               </div>
             </div>
