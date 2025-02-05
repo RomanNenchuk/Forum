@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext.jsx";
+import { useWidth } from "../../contexts/ScreenWidthContext.jsx";
 import reactionListSetter from "../../utils/reactionListSetter.jsx";
 import InteractWindow from "./InteractWindow.jsx";
 import { VscSettings } from "react-icons/vsc";
@@ -26,6 +27,7 @@ export default function TopicArea({
   const location = useLocation();
   const navigate = useNavigate();
   const { currentUser, token } = useAuth();
+  const { width } = useWidth();
 
   useEffect(() => {
     setActiveReactions(reactionListSetter(initialReactions, userReaction));
@@ -112,33 +114,41 @@ export default function TopicArea({
       <div>
         <Link to={`/topics/${topic.id}`} style={{ textDecoration: "none" }}>
           <div className="topic-content">
-            <div style = {{display: "flex", flexDirection: "row", alignItems: "center"}}>
-            <ProfileHeader
-              id={topic.author}
-              avatar={topic.author_avatar}
-              size="6vh"
-              sizeFont="3vh"
-              avThickness="0.4vh"
-              profileName={topic.author_full_name}
-            />
-            {topic.subscribed === "none" ? "" : <img style = {{height: "5vh", width: "auto", marginLeft: "2%"}} 
-            src = {topic.subscribed ? subscribe : subscribed} 
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              if(!currentUser) navigate("/login"),exit()
-              else setTimeout(() => {
-                topic.subscribed ? delSubscribe() : addSubscribe();
-              }, 200);
-            }}/>}
+            <div style = {{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between",alignItems:"flex-start"}}>
+            <div style = {{display: "flex", flexDirection: "row", alignItems: "center", width: "50%", justifyContent: "flex-start"}}>
+              <ProfileHeader
+                id={topic.author}
+                avatar={topic.author_avatar}
+                size= {width > 768? "6vh" : "4vh"}
+                sizeFont={width > 768? "3vh" : "1rem"}
+                avThickness="0.4vmin"
+                profileName={topic.author_full_name}
+              />
+            
+              {topic.subscribed === "none" ? "" : <img style={{ ...(width > 768 ? { height: "5vh" } : { height: "4vh" }),
+              width: "auto",
+              marginLeft: "2%"}} 
+
+              src = {topic.subscribed ? subscribe : subscribed} 
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if(!currentUser) navigate("/login"),exit()
+                else setTimeout(() => {
+                  topic.subscribed ? delSubscribe() : addSubscribe();
+                }, 200);
+              }}/>}
+            </div>
+            {width < 768 ? <div style = {{textAlign: "right", fontSize: "1.8vh", color: "gray"}}>
+            {topic.tag_list.map((el, index)=>{return index !== topic.tag_list.length - 1 ? `#${el} `: `#${el}`})}</div> : ""}
             </div>
             <div className="topic-title">
               <span style={{ marginBottom: "1vh", overflowWrap: "break-word" }}>
                 {topic.title}
               </span>
             </div>
-            <div style = {{textAlign: "right", fontSize: "2.5vh", color: "gray"}}>
-              {topic.tag_list.map((el, index)=>{return index !== topic.tag_list.length - 1 ? `#${el} `: `#${el}`})}</div>
+            {width > 768 ? <div style = {{textAlign: "right", fontSize: "2.5vh", color: "gray"}}>
+              {topic.tag_list.map((el, index)=>{return index !== topic.tag_list.length - 1 ? `#${el} `: `#${el}`})}</div> : ""}
           </div>
         </Link>
         <div className="icons-menu">
@@ -160,7 +170,7 @@ export default function TopicArea({
           </div>
           <div className="chat-settings">
             <Link to={`/topics/${topic.id}`} style={{ textDecoration: "none" }}>
-              <IoChatboxEllipsesOutline size="3.5vh" />
+              <IoChatboxEllipsesOutline size={width > 768 ? "3.5vh" : "2.5vh"}/>
             </Link>
             <div className="emo-container">
               😀

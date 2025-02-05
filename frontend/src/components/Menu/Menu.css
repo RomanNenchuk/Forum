@@ -58,6 +58,7 @@ header {
 .header-inr {
   display: flex;
   align-items: center;
+  width: 100vw;
   justify-content: space-between;
   padding: 1vh 2vh;
   background-color: #f6d88f;
@@ -113,10 +114,10 @@ header {
 }
 .hd-search-btn,
 .hd-btn {
-  padding: 0.9vh 1.5vh;
-  margin-left: 1.5vh;
-  font-size: 4vh;
-  height: 8vh;
+  padding: 0.9vmin 1.5vmin;
+  margin-left: 1.5vmin;
+  font-size: 4vmin;
+  height: 8vmin;
   background-color: #659287;
   border: none;
   border-radius: 3vh;
@@ -151,6 +152,12 @@ header {
 
   font-family: "Inter-Bold";
   /* font-size: 32px; */
+}
+
+@media (max-width: 768px) {
+  .hd-logo span{
+    font-size: 4vh;
+  }
 }
 
 /* ~~~~~~~~~~~~~~~~ */

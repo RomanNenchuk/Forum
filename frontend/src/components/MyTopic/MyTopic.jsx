@@ -177,7 +177,7 @@ const MyTopic = () => {
     }, [currentUser]);
 
 
-    return (<div style = {{display: "flex", flexDirection: "column", overflow:"hidden",width: "100%"}}>
+    return (<div style = {{display: "flex", flexDirection: "column",width: "100%"}}>
         <div style = {{marginTop: "14vh", width: "100%"}}>
             <div style = {{marginTop: "3vh",width: "100%"}}>
             <div style = {{display: "flex",width: "100%", flexDirection:'row', justifyContent:"space-around",padding: "2vh"}}>

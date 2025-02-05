@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useTopicSearch } from "../../contexts/TopicSearchContext.jsx";
 import { useLocation } from "react-router-dom";
+import { useWidth } from "../../contexts/ScreenWidthContext.jsx";
 import LoadingSpinner from "../Spinner.jsx";
 import TopicListSettings from "../TopicList/TopicListSettings.jsx";
 import TopicList from "../TopicList/TopicList.jsx";
@@ -11,6 +12,7 @@ import "./Home.css";
 export default function Home() {
   const [tagBarLoading, setTagBarLoading] = useState(true);
   const { currentUser } = useAuth();
+  const { width } = useWidth()
   const topicListRef = useRef(null);
   const location = useLocation();
   const {
@@ -134,10 +136,10 @@ export default function Home() {
           setTopicInfoList={setTopicInfoList}
         />
       </ul>
-      <TagBar
+      {width > 768 ?<TagBar
         tagBarLoading={tagBarLoading}
         setTagBarLoading={setTagBarLoading}
-      />
+      /> : ''}
     </>
   );
 }
