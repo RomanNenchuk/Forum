@@ -6,6 +6,7 @@ import AttachedFiles from "../AttachedFiles/AttachedFiles.jsx";
 import MessageTriangle from "./MessageTriangle.jsx";
 import { timestampToTime } from "../../utils/getCurrentTime.jsx";
 import replyIcon from "../../assets/reply.svg";
+import Linkify from "react-linkify";
 
 export default function ChatMessages({
   handleOnContextMenu,
@@ -114,15 +115,17 @@ export default function ChatMessages({
             urls={msg?.attachments}
             onImageLoad={() => scrollToBottom(chatMessagesRef)}
           />
-          <p
-            style={{
-              margin: "0 6% 2vh 6%",
-              fontSize: "2.5vh",              userSelect: "text",
-              overflowWrap: "break-word"
-            }}
-          >
-            {msg.text}
-          </p>
+          <Linkify>
+            <p
+              style={{
+                margin: "0 6% 2vh 6%",
+                fontSize: "2.5vh",              userSelect: "text",
+                overflowWrap: "break-word"
+              }}
+            >
+              {msg.text}
+            </p>
+          </Linkify>
           <span
             className="message-timestamp"
             style={{ fontWeight: 100 }}

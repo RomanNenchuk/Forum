@@ -8,6 +8,7 @@ import InteractWindow from "../TopicList/InteractWindow.jsx";
 import ProfileHeader from "../ProfileHeader.jsx";
 import axios from "axios";
 import "./Comments.css";
+import Linkify from "react-linkify";
 
 export default function CommentArea({
   comment,
@@ -80,7 +81,11 @@ export default function CommentArea({
         </span>
       </div>
       <AttachedFiles urls={comment?.attachments} />
-      <p className="comment-text">{comment.text}</p>
+      <Linkify>
+        <p className="comment-text">
+          {comment.text}
+        </p>
+      </Linkify>
       <div className="icons-menu">
         <div className="active-reactions">
           {activeReactions.map((reaction, index) => (

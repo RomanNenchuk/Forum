@@ -5,6 +5,8 @@ import AltSpinner from '../AltSpinner/AltSpinner'
 import { useScrollLock } from "../../hooks/useScrollLock.jsx";
 import TopicArea from "../TopicList/TopicArea";
 import TopicActionMenu from "../TopicList/TopicActionMenu";
+import ConfirmationModal from "../ConfirmationModal/ConfirmationModal.jsx";
+import Share from "../Share.jsx";
 import axios from "axios";
 
 
@@ -146,7 +148,7 @@ const MyTopic = () => {
         try {
           setLoading(true);
           const response = await axios.get(
-            `http://localhost:5000/topics?user_id=${currentUser.uid}`
+            `http://localhost:5000/topics/saved?user_id=${currentUser.uid}`
           );
           console.log(response.data);
           setData(response.data);
@@ -176,6 +178,42 @@ const MyTopic = () => {
         
     }, [currentUser]);
 
+
+    // переніс функції для видалення\поширення з topics
+    const [switchText, setSwitchText] = useState("Не зберігати");
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+    const [topicToDeleteId, setTopicToDeleteId] = useState(null);
+
+
+    const handleDeleteClick = id => {
+      setTopicToDeleteId(id);
+      setIsConfirmModalOpen(true);
+    };
+
+    async function switchTopicToUser(user_id, topic_id) {
+      try {
+        const res = await axios.patch(`http://localhost:5000/topics/switch`, { user_id, topic_id, });
+        setData(prev => prev.filter(item => item.id !== topic_id));
+        // console.log(res.data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    const [isShareModalOpen, setShareModalOpen] = useState(false);
+    const [shareId, setShareId] = useState(-1);
+  
+    function handleShareClick() {
+      setShareId(actionMenu.selectedTopic);
+      setShareModalOpen(true);
+    }
+
+    const handleConfirmDelete = () => {
+      if (topicToDeleteId) {
+        deleteTopic(topicToDeleteId);
+        navigate("/mytopics");
+      }
+    };
 
     return (<div style = {{display: "flex", flexDirection: "column", overflow:"hidden",width: "100%"}}>
         <div style = {{marginTop: "14vh", width: "100%"}}>
@@ -229,14 +267,30 @@ const MyTopic = () => {
                       
                     ))}
                     <TopicActionMenu
-                            positionX={actionMenu.position.x}
-                            positionY={actionMenu.position.y}
-                            isToggled={actionMenu.toggled}
-                            actionMenuRef={actionMenuRef}
-                            resetActionMenu={resetActionMenu}
-                            actionMenu={actionMenu}
-                            deleteTopic={deleteTopic}
-                          />
+                      positionX={actionMenu.position.x}
+                      positionY={actionMenu.position.y}
+                      isToggled={actionMenu.toggled}
+                      actionMenuRef={actionMenuRef}
+                      resetActionMenu={resetActionMenu}
+                      actionMenu={actionMenu}
+                      onDeleteClick={handleDeleteClick}
+                      handleTopicToUser={switchTopicToUser}
+                      switchText={switchText}
+                      handleShareClick={handleShareClick}
+                    />
+                    {isConfirmModalOpen ? (
+                      <ConfirmationModal
+                        onClose={() => setIsConfirmModalOpen(false)}
+                        onConfirm={handleConfirmDelete}
+                        message="Видалити цю тему?"
+                      />
+                    ) : null}
+                    {isShareModalOpen ? (
+                      <Share
+                        onCloseModal={() => setShareModalOpen(false)}
+                        url={`${location.origin}/topics/${shareId}`}
+                      />
+                    ): null}
                   </div>
                   
                 ) : (
