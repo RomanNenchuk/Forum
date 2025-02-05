@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useChat } from "../../contexts/ChatContext.jsx";
 import { useAuth } from "../../contexts/AuthContext.jsx";
+import convertLinks from "../../utils/textLinkConverter.jsx";
 import scrollToBottom from "../../utils/scrollToBottom.jsx";
 import AttachedFiles from "../AttachedFiles/AttachedFiles.jsx";
 import MessageTriangle from "./MessageTriangle.jsx";
 import { timestampToTime } from "../../utils/getCurrentTime.jsx";
-import replyIcon from "../../assets/reply.svg";
 
 export default function ChatMessages({
   handleOnContextMenu,
@@ -40,24 +40,8 @@ export default function ChatMessages({
     scrollToBottom(chatMessagesRef);
   }, []);
 
-  const [scaleValue, setScaleValue] = useState(window.innerHeight * 0.0015);
-    const updateScaleValue = () => {
-      setScaleValue(window.innerHeight * 0.0015);
-    };
-  
-    useEffect(() => {
-      window.addEventListener("resize", updateScaleValue);
-      return () => {
-        window.removeEventListener("resize", updateScaleValue);
-      };
-    }, []);
-
   return (
-    <ul
-      ref={chatMessagesRef}
-      className="chat-messages"
-      style={{ listStyleType: "none" }}
-    >
+    <ul ref={chatMessagesRef} className="chat-messages">
       {messages.map((msg, index) => (
         <li
           key={index}
@@ -65,69 +49,53 @@ export default function ChatMessages({
           style={
             msg.sender_id === currentUser.uid
               ? {
-                  textAlign: "right",
                   marginLeft: "auto",
                   backgroundColor: "#a3beb7",
                 }
               : {
-                  textAlign: "left",
                   marginRight: "auto",
-                  backgroundColor: "#c2c1be",
+                  backgroundColor: "#d0d0d0",
                 }
           }
           onContextMenu={e => handleOnContextMenu(e, msg)}
         >
           {msg.reply !== -1 && (
-            <div className="message-reply-wrapper">
-              <p
-                className="message-reply-label"
-                style={
-                  msg.sender_id === currentUser.uid
-                  ? {
-                    display: "flex", flexDirection: "row",
-                    justifyContent: "flex-end",
-                    alignItems: "center",
-                    marginLeft: "auto",
-                    backgroundColor: "#a3beb7",
-                  }
-                : {
-                    display: "flex", flexDirection: "row",
-                    justifyContent: "flex-start",
-                    alignItems: "center",
-                    marginRight: "auto",
-                    backgroundColor: "#c2c1be",
-                  }
-                }
-              >
-                <div style = {{transform: `scale(${scaleValue})`}}><img src={replyIcon} alt="Reply to" /> {"  "}</div>
-                {msg.reply_fullname ? msg.reply_fullname + ": " : ""}
+            <div
+              className="message-reply-label"
+              style={{
+                backgroundColor:
+                  msg.sender_id === currentUser.uid ? "#ffffff66" : "#0000001a",
+              }}
+            >
+              <div className="reply-fullname">
+                {msg.reply_fullname ? msg.reply_fullname : ""}
+              </div>
+              <div className="reply-text">
                 {msg.reply_text ||
                   msg.reply_attachment?.slice(
                     msg.reply_attachment?.indexOf("_") + 1
                   ) ||
                   "*Видалене повідомлення*"}
-              </p>
+              </div>
             </div>
           )}
-          <span className="message-author-name">{msg.fullname}</span>
-          <div className="attached-files-container">
-            <AttachedFiles
-              urls={msg?.attachments}
-              onImageLoad={() => scrollToBottom(chatMessagesRef)}
-            />
-          </div>
-          <p
-            style={{
-              margin: "0 6% 2vh 6%",
-              fontSize: "2.5vh",              userSelect: "text",
-              overflowWrap: "break-word"
-            }}
-          >
-            {msg.text}
-          </p>
+          {msg?.attachments?.length ? (
+            <div className="attached-files-container">
+              <AttachedFiles
+                urls={msg?.attachments}
+                onImageLoad={() => scrollToBottom(chatMessagesRef)}
+              />
+            </div>
+          ) : null}
+
+          {msg.text !== "" ? (
+            <p className="message-text">{convertLinks(msg.text)}</p>
+          ) : null}
           <span
             className="message-timestamp"
-            style={{ fontWeight: 100 }}
+            style={{
+              textAlign: msg.sender_id === currentUser.uid ? "right" : "left",
+            }}
           >
             {timestampToTime(msg.timestamp)}
           </span>

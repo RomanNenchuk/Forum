@@ -8,14 +8,14 @@ export default function MessageTriangle({ isSender }) {
         isSender
           ? {
               bottom: "-25px",
-              right: "-17px",
+              right: "-15px",
               backgroundColor: "#a3beb7",
               transform: "rotate(135deg)",
             }
           : {
               bottom: "-25px",
-              left: "-17px",
-              backgroundColor: "#c2c1be",
+              left: "-15px",
+              backgroundColor: "#d0d0d0",
               transform: "rotate(225deg)",
             }
       }
