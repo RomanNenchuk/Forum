@@ -26,7 +26,7 @@ export default function ChatList() {
     <div className="chat-win-container">
       <div className="chat-list-ct">
         <div className="chat-hd">
-          <p>Приватні чати</p>
+        <p style = {{fontSize: "3vh"}}>Приватні чати</p>
         </div>
         <div className="chat-list">
           {chatList &&
@@ -44,7 +44,7 @@ export default function ChatList() {
                 >
                   <div className="chat-header">
                     <div className="chat-name-ct">
-                      <Avatar size={55} avatar={chat.other_user_avatar} />
+                      <Avatar size='8vh' avatar={chat.other_user_avatar} />
                       <div className="chat-name-text">
                         <p className="chat-name">{chat.other_user_name}</p>
                       </div>

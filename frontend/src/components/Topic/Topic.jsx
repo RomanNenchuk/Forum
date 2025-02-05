@@ -343,7 +343,11 @@ export default function Topic() {
         <div className="in-block-for-flex">
           <div className="block left" ref={topicItemRef}>
             <div className="info-list">
-              <TopicList topicInfoList={[topic]} topicListRef={topicItemRef} />
+              <TopicList
+                topicInfoList={[topic]}
+                topicListRef={topicItemRef}
+                setTopicInfoList={setTopic}
+              />
             </div>
             <div className="extra-info">
               <div style={{ padding: "2vh 2vw" }}>
@@ -373,7 +377,7 @@ export default function Topic() {
                     </>
                   )}
                 </p>
-                {extendInfo && topic.attachments.length > 0 ? (
+                {extendInfo && topic?.attachments?.length > 0 ? (
                   <AttachedFiles urls={topic.attachments} />
                 ) : null}
               </div>

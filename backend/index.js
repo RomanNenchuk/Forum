@@ -7,6 +7,7 @@ import topicRoutes from "./routes/topicRoutes.js";
 import chatsRoutes from "./routes/chatRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import fileUploadRoutes from "./routes/fileUploadRoutes.js";
+import subscriptionRoutes from "./routes/userSubscriptionRoutes.js"
 import tagRoutes from "./routes/tagRoutes.js";
 import commentRoutes from "./routes/commentRoutes.js";
 import { Server } from "socket.io";
@@ -43,6 +44,8 @@ app.use("/chats", middleware.decodeToken, chatsRoutes);
 app.use("/attachments", fileUploadRoutes);
 
 app.use("/tags", tagRoutes);
+
+app.use("/subscriptions", subscriptionRoutes);
 
 const expressServer = app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

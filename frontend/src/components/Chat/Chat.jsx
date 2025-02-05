@@ -112,7 +112,18 @@ export default function Chat() {
   }, []);
 
   useEffect(() => {
+    // Блокування скролу при монтуванні
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      // Розблокування скролу перед розмонтуванням
+      document.body.style.overflow = "auto";
+    };
+  }, []);
+
+  useEffect(() => {
     if (!socket) return;
+   
 
     socket.on("receive-message", msg => {
       console.log(msg);
@@ -440,7 +451,7 @@ export default function Chat() {
           onClick={handleOnActionMenu}
           ref={settingsRef}
         >
-          <img src={chatControllerIcon} alt="Settings" />
+          <img src={chatControllerIcon} style = {{height: '4vh', width: "auto"}} alt="Settings" />
         </div>
       </div>
       <ChatMessages

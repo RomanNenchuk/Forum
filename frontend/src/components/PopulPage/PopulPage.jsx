@@ -8,7 +8,7 @@ import TopicActionMenu from "../TopicList/TopicActionMenu";
 import axios from "axios";
 
 
-const MyTopic = () => {
+const PopulTopic = () => {
     const {currentUser } = useAuth()
     const [ data , setData ] = useState([])
     const [ loading, setLoading ]= useState(false)
@@ -142,30 +142,14 @@ const MyTopic = () => {
             setLoading(false);
         }
     };
-    const fetchSavedData = async () => {
-        try {
-          setLoading(true);
-          const response = await axios.get(
-            `http://localhost:5000/topics?user_id=${currentUser.uid}`
-          );
-          console.log(response.data);
-          setData(response.data);
-        } catch (error) {
-          console.error("Error fetching user topics:", error);
-        } finally {
-          setLoading(false);
-        }
-      };
    
     const toChoose = (choose) => {
-        setLoading(true)
-        if(choose){
-            setFirstStepChoose(1)
-            fetchSavedData()
-        }
-        else{
-            setFirstStepChoose(0)
-            fetchData()
+        {/*setLoading(true)*/}
+        switch(choose){
+            case 0: setFirstStepChoose(0); break
+            case 1: setFirstStepChoose(1); break
+            case 2: setFirstStepChoose(2); break
+            
         }
     }
 
@@ -182,18 +166,13 @@ const MyTopic = () => {
             <div style = {{marginTop: "3vh",width: "100%"}}>
             <div style = {{display: "flex",width: "100%", flexDirection:'row', justifyContent:"space-around",padding: "2vh"}}>
               <div style = {firstStepChoose === 0 ? {boxShadow: "0 0.3vh 0 0 #659287",fontSize: "3vh"} : {fontSize: "3vh"}}
-              onClick = {()=>toChoose(0)}>Мої теми</div>
-              <div style = {firstStepChoose !== 0 ? {boxShadow: "0 0.3vh 0 0 #659287" ,fontSize: "3vh"} : {fontSize: "3vh"}}
-              onClick = {()=>{toChoose(1)}}>Збережені теми</div>
+              onClick = {()=>toChoose(0)}>Сьогодні</div>
+              <div style = {firstStepChoose === 1 ? {boxShadow: "0 0.3vh 0 0 #659287" ,fontSize: "3vh"} : {fontSize: "3vh"}}
+              onClick = {()=>{toChoose(1)}}>Тиждень</div>
+              <div style = {firstStepChoose === 2? {boxShadow: "0 0.3vh 0 0 #659287" ,fontSize: "3vh"} : {fontSize: "3vh"}}
+              onClick = {()=>{toChoose(2)}}>Місяць</div>
             </div>
             <div style = {{marginTop: "3vh",display: "flex",justifyContent: "center", width: "100%"}}>
-           {!firstStepChoose ? <Link
-                to={currentUser ? "/create-topic" : "/login"}
-                state={{redirectPath: "/create-topic",}}
-                style = {{width: "55%"}}
-            >
-                <button style = {{width: "100%", borderRadius: "0px"}} className="add-topic-button">+ Додати тему</button>
-            </Link> : ''}
             </div>
             </div>
             <div style = {{display: "flex",justifyContent: "center"}}>
@@ -209,7 +188,7 @@ const MyTopic = () => {
                       gridTemplateRows: "repeat(auto-fill, 1fr)",
                     }}
                   >
-                    {data.map((el, index) => (
+                    {/*{data.map((el, index) => (
                       <div
                       
                         key={el.id}
@@ -227,7 +206,7 @@ const MyTopic = () => {
                         />
                       </div>
                       
-                    ))}
+                    ))}*/}
                     <TopicActionMenu
                             positionX={actionMenu.position.x}
                             positionY={actionMenu.position.y}
@@ -246,4 +225,4 @@ const MyTopic = () => {
     </div>)
 }
 
-export default MyTopic
+export default PopulTopic

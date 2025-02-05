@@ -21,6 +21,7 @@ import ChatList from "./Chat/ChatList.jsx";
 import Chat from "./Chat/Chat.jsx";
 import Modal from "./Modal.jsx";
 import MyTopic from "./MyTopic/MyTopic.jsx";
+import PopulTopic from "./PopulPage/PopulPage.jsx";
 import ExpandedTags from "./TagBar/ExpandedTags.jsx";
 import { useBackgroundLocation } from "../hooks/useBackgroundLocation.jsx";
 import DefaultChatScreen from "./DefaultChatScreen.jsx";
@@ -60,6 +61,7 @@ function AppRoutes() {
               </TopicListProvider>
             }
           />
+          <Route path="/poptopics" element={<PopulTopic />} />
           <Route path="/mytopics" element={<MyTopic />} />
           {/* <Route path="/profiles/:id" element={<Profile />} /> */}
 
