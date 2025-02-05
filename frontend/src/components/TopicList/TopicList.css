@@ -56,7 +56,7 @@ ul {
   align-items: center;
   background: rgb(220, 220, 220);
   border: 1px solid #5f8575;
-  border-radius: 2vh;
+  border-radius: 2vmin;
   left: 0px;
   bottom: 100%;
   height: auto;
@@ -208,7 +208,7 @@ ul {
   justify-content: center;
   gap: 2.5vh;
   list-style: none;
-  padding: 2.6vh;
+  padding: 2.6vmin;
   font-family: Arial, sans-serif;
   width: 100%;
   margin-bottom: 5vh;
@@ -224,6 +224,7 @@ ul {
   gap: 3.5vh;
   border: 0.6vh solid #fdbe10;
   border-radius: 2.9vh;
+
   padding: 2.5vh;
   cursor: pointer;
 }
@@ -231,6 +232,9 @@ ul {
 .topic-title-container {
   font-size: 3vh;
   color: #333;
+
+  padding: 2.5vmin;
+
 }
 
 .topic-title {
@@ -252,6 +256,7 @@ ul {
   object-fit: cover;
 }
 
+
 .topic-card-footer {
   display: flex;
   justify-content: space-between;
@@ -267,4 +272,44 @@ ul {
   margin-top: 10px;
   text-align: center;
   font-size: 18px;
+}
+
+
+.custom-select {
+  background-color: rgb(244, 236, 224); /* Колір фону */
+  border: none;
+  border-radius: 8px;
+  padding: 3px 6px;
+  text-align: center;
+  font-size: 2.5vh;
+  cursor: pointer;
+}
+
+.custom-select:focus {
+  outline: none;
+  
+}
+
+@media (max-width: 768px) {
+  .topic-card{
+    margin-bottom: 3vh;
+  }
+  .topic-content{
+    gap: 2vh;
+  }
+  .topic-title{
+    font-size: 2vh;
+  }
+  .add-topic-button{
+    font-size: 2vh;
+  }
+  .emo-container{
+    font-size: 2vh;
+  }
+  .reaction-button-count{
+    font-size: 2vh;
+  }
+  .reaction-button{
+    font-size: 2vh;
+  }
 }

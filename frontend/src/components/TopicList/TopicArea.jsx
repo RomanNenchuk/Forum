@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext.jsx";
+
 import AttachedFiles from "../AttachedFiles/AttachedFiles.jsx";
+
+import { useWidth } from "../../contexts/ScreenWidthContext.jsx";
+
 import reactionListSetter from "../../utils/reactionListSetter.jsx";
 import InteractWindow from "./InteractWindow.jsx";
 import { VscSettings } from "react-icons/vsc";
@@ -28,7 +32,10 @@ export default function TopicArea({
   const location = useLocation();
   const navigate = useNavigate();
   const { currentUser, token } = useAuth();
+
   const { queryParams } = useTopicSearch();
+
+  const { width } = useWidth();
 
   useEffect(() => {
     setActiveReactions(reactionListSetter(initialReactions, userReaction));
@@ -114,94 +121,91 @@ export default function TopicArea({
 
   return (
     <li className="topic-card">
-      <div>
-        <div
-          className="topic-content"
-          onClick={() => handleTopicClick(topic.id)}
-        >
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-            }}
-          >
-            <ProfileHeader
-              id={topic.author}
-              avatar={topic.author_avatar}
-              size="6vh"
-              sizeFont="3vh"
-              avThickness="0.4vh"
-              profileName={topic.author_full_name}
+  <div>
+    <div className="topic-content" onClick={() => handleTopicClick(topic.id)}>
+      <div style={{ display: "flex", flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", flexDirection: "row", alignItems: "center", width: "50%", justifyContent: "flex-start" }}>
+          <ProfileHeader
+            id={topic.author}
+            avatar={topic.author_avatar}
+            size={width > 768 ? "6vh" : "4vh"}
+            sizeFont={width > 768 ? "3vh" : "1rem"}
+            avThickness="0.4vmin"
+            profileName={topic.author_full_name}
+          />
+          
+          {topic.subscribed !== "none" && (
+            <img 
+              style={{
+                ...(width > 768 ? { height: "5vh" } : { height: "4vh" }),
+                width: "auto",
+                marginLeft: "2%"
+              }} 
+              src={topic.subscribed ? subscribe : subscribed}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (!currentUser) {
+                  navigate("/login");
+                  exit();
+                } else {
+                  setTimeout(() => {
+                    topic.subscribed ? delSubscribe() : addSubscribe();
+                  }, 200);
+                }
+              }} 
             />
-            {topic.subscribed === "none" ? (
-              ""
-            ) : (
-              <img
-                style={{ height: "5vh", width: "auto", marginLeft: "2%" }}
-                src={topic.subscribed ? subscribe : subscribed}
-                onClick={e => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  if (!currentUser) navigate("/login"), exit();
-                  else
-                    setTimeout(() => {
-                      topic.subscribed ? delSubscribe() : addSubscribe();
-                    }, 200);
-                }}
-              />
-            )}
-          </div>
-          <div className="topic-title-container">
-            <span className="topic-title">{topic.title}</span>
-            <div
-              style={{ textAlign: "right", fontSize: "2.5vh", color: "gray" }}
-            >
-              {topic.tag_list.map((el, index) => {
-                return index !== topic.tag_list.length - 1
-                  ? `#${el} `
-                  : `#${el}`;
-              })}
-            </div>
-          </div>
-          {topic.cover ? <AttachedFiles urls={[topic.cover]} /> : null}
+          )}
         </div>
-        <div className="icons-menu">
-          <div className="active-reactions">
-            {activeReactions.map((reaction, index) => (
-              <button
-                key={index}
-                className={`reaction-button ${
-                  reaction.active ? "my-reaction" : ""
-                }`}
-                onClick={() => handleClick(reaction)}
-              >
-                <span>{reaction.icon}</span>{" "}
-                <span className="reaction-button-count">
-                  {reaction.count ? reaction.count : ""}
-                </span>
-              </button>
-            ))}
+        {width < 768 && (
+          <div style={{ textAlign: "right", fontSize: "1.8vh", color: "gray" }}>
+            {topic.tag_list.map((el, index) => (index !== topic.tag_list.length - 1 ? `#${el} ` : `#${el}`))}
           </div>
-          <div className="chat-settings">
-            <Link to={`/topics/${topic.id}`} style={{ textDecoration: "none" }}>
-              <IoChatboxEllipsesOutline size="3.5vh" />
-            </Link>
-            <div className="emo-container">
-              😀
-              <InteractWindow
-                reactionList={reactionList}
-                onClick={handleClick}
-              />
-            </div>
-            <VscSettings
-              size="3.5vh"
-              style={{ cursor: "pointer" }}
-              onClick={e => handleOnActionMenu(e, topic)}
-            />
-          </div>
-        </div>
+        )}
       </div>
-    </li>
+
+      <div className="topic-title">
+        <span style={{ marginBottom: "1vh", overflowWrap: "break-word" }}>
+          {topic.title}
+        </span>
+      </div>
+
+      {width > 768 && (
+        <div style={{ textAlign: "right", fontSize: "2.5vh", color: "gray" }}>
+          {topic.tag_list.map((el, index) => (index !== topic.tag_list.length - 1 ? `#${el} ` : `#${el}`))}
+        </div>
+      )}
+
+      {topic.cover && <AttachedFiles urls={[topic.cover]} />}
+    </div>
+
+    <div className="icons-menu">
+      <div className="active-reactions">
+        {activeReactions.map((reaction, index) => (
+          <button
+            key={index}
+            className={`reaction-button ${reaction.active ? "my-reaction" : ""}`}
+            onClick={() => handleClick(reaction)}
+          >
+            <span>{reaction.icon}</span>
+            <span className="reaction-button-count">{reaction.count ? reaction.count : ""}</span>
+          </button>
+        ))}
+      </div>
+
+      <div className="chat-settings">
+        <Link to={`/topics/${topic.id}`} style={{ textDecoration: "none" }}>
+          <IoChatboxEllipsesOutline size={width > 768 ? "3.5vh" : "2.5vh"} />
+        </Link>
+        <div className="emo-container">
+          😀
+          <InteractWindow reactionList={reactionList} onClick={handleClick} />
+        </div>
+        <VscSettings size="3.5vh" style={{ cursor: "pointer" }} onClick={(e) => handleOnActionMenu(e, topic)} />
+      </div>
+    </div>
+  </div>
+</li>
+
   );
 }

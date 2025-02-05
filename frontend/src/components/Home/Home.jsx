@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useTopicSearch } from "../../contexts/TopicSearchContext.jsx";
+
+import { useWidth } from "../../contexts/ScreenWidthContext.jsx";
 import LoadingSpinner from "../Spinner.jsx";
 import TopicListSettings from "../TopicList/TopicListSettings.jsx";
 import TopicList from "../TopicList/TopicList.jsx";
@@ -9,6 +11,9 @@ import { useTopicList } from "../../contexts/TopicListContext.jsx";
 
 export default function Home() {
   const [tagBarLoading, setTagBarLoading] = useState(true);
+
+  const { width } = useWidth()
+
   const topicListRef = useRef(null);
   const { queryParams, setQueryParams, urlSearchParams, setUrlSearchParams } =
     useTopicSearch();
@@ -79,10 +84,10 @@ export default function Home() {
         />
         <TopicList topicInfoList={topicInfoList} />
       </ul>
-      <TagBar
+      {width > 768 ?<TagBar
         tagBarLoading={tagBarLoading}
         setTagBarLoading={setTagBarLoading}
-      />
+      /> : ''}
     </>
   );
 }
