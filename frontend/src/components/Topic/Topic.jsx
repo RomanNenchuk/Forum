@@ -1,18 +1,17 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Container, Carousel } from "react-bootstrap";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useUserInfo } from "../../contexts/UserInfoContext";
 import handleUpload from "../../utils/uploadFiles.jsx";
 import LoadingSpinner from "../Spinner";
 import TopicList from "../TopicList/TopicList";
 import TopicInput from "./TopicInput";
+import AttachedFiles from "../AttachedFiles/AttachedFiles.jsx";
 import TopicComments from "./TopicComments";
 import FileSendModal from "../FileModal/FileSendModal.jsx";
 import FileEditModal from "../FileModal/FileEditModal.jsx";
 import { useScrollLock } from "../../hooks/useScrollLock.jsx";
 import TopicContextMenu from "./TopicContextMenu";
-import { IoArrowBack } from "react-icons/io5";
 import arrowBackIcon from "../../assets/arrow-back.svg";
 import axios from "axios";
 import "./Topic.css";
@@ -26,7 +25,8 @@ export default function Topic() {
   const [loading, setLoading] = useState(true);
   const [commentLoading, setCommentLoading] = useState(true);
   const navigate = useNavigate();
-  const [extendfInfo, setExtendInfo] = useState();
+  const location = useLocation();
+  const [extendInfo, setExtendInfo] = useState();
 
   const [text, setText] = useState("");
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
@@ -67,7 +67,7 @@ export default function Topic() {
     setCommentLoading(true);
     fetchTopic();
     fetchTopicComments();
-  }, [id]);
+  }, [id, currentUser]);
   // обробник кліку на сторінці
   useEffect(() => {
     function handler(e) {
@@ -93,7 +93,7 @@ export default function Topic() {
       buf.author_full_name = buf.authorfullname;
       delete buf.avatar;
       delete buf.authorfullname;
-      setTopic([buf]);
+      setTopic(buf);
       setExtendInfo(
         !buf?.description || buf?.description?.length < 150 ? 2 : 0
       );
@@ -106,19 +106,6 @@ export default function Topic() {
 
   async function fetchTopicComments() {
     try {
-      /* має бути таким же, як і comm з sendComment
-        id
-        text
-        timestamp
-        author_id
-        topic_id
-        attachments
-        reply
-        author_username
-        avatar
-        reply_text
-        reply_timestamp
-       */
       const response = await axios.get(
         `http://localhost:5000/topics/${id}/comments${
           currentUser ? "?user_id=" + currentUser.uid : ""
@@ -152,7 +139,6 @@ export default function Topic() {
   async function sendComment() {
     if (files.length === 0 && text.trim() !== "") {
       const comm = {
-        // має бути таким же, як і result.data з fetchTopicComents
         id: -1,
         text: text.trim(),
         timestamp: new Date().toISOString(),
@@ -353,26 +339,25 @@ export default function Topic() {
         />
         <span>Дискусія</span>
       </div>
-      <div className="topic[0]-and-comments">
+      <div className="topic-and-comments">
         <div className="in-block-for-flex">
           <div className="block left" ref={topicItemRef}>
             <div className="info-list">
-              <TopicList topicInfoList={topic} topicListRef={topicItemRef} setTopicInfoList={setTopic} />
+              <TopicList
+                topicInfoList={[topic]}
+                topicListRef={topicItemRef}
+                setTopicInfoList={setTopic}
+              />
             </div>
             <div className="extra-info">
-              <div style={{ padding: "2vh" }}>
+              <div style={{ padding: "2vh 2vw" }}>
                 <span className="extra-info-header">Додаткова інформація</span>
-                <span
-                  className="extra-info-p"
-                  onClick={() => {
-                    console.log(currentUser);
-                  }}
-                >
-                  {extendfInfo === 2 ? (
-                    topic[0]?.description
-                  ) : extendfInfo === 1 ? (
+                <p className="extra-info-p">
+                  {extendInfo === 2 ? (
+                    topic?.description
+                  ) : extendInfo === 1 ? (
                     <>
-                      {topic[0]?.description}
+                      {topic?.description}
                       <span
                         className="extention-info"
                         onClick={() => setExtendInfo(0)}
@@ -382,7 +367,7 @@ export default function Topic() {
                     </>
                   ) : (
                     <>
-                      {topic[0]?.description?.slice(0, 152)}
+                      {topic?.description?.slice(0, 152)}
                       <span
                         className="extention-info"
                         onClick={() => setExtendInfo(1)}
@@ -391,27 +376,9 @@ export default function Topic() {
                       </span>
                     </>
                   )}
-                </span>
-                {extendfInfo && topic[0].attachments.length > 0 ? (
-                  <Container fluid>
-                    <Carousel
-                      style={{ padding: "2vh" }}
-                      className="carousel slide carousel-fade"
-                    >
-                      {topic[0].attachments.map((attachment, index) => (
-                        <Carousel.Item key={index}>
-                          <img
-                            className="d-block w-100"
-                            src={attachment}
-                            alt={`Slide ${index + 1}`}
-                            onClick={() =>
-                              console.log(`Clicked on slide ${index + 1}`)
-                            }
-                          />
-                        </Carousel.Item>
-                      ))}
-                    </Carousel>
-                  </Container>
+                </p>
+                {extendInfo && topic?.attachments?.length > 0 ? (
+                  <AttachedFiles urls={topic.attachments} />
                 ) : null}
               </div>
             </div>
@@ -425,7 +392,7 @@ export default function Topic() {
               ) : (
                 <TopicComments
                   handleOnContextMenu={handleOnContextMenu}
-                  topicAuthorId={topic[0]?.uid}
+                  topicAuthorId={topic?.uid}
                   comments={comments}
                 />
               )}

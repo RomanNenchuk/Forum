@@ -62,11 +62,9 @@ export default function TopicComments({
           />
         ))
       ) : (
-        <Card>
-          <Card.Body>
-            Ви можете стати першим, хто дасть відповідь на це повідомлення!
-          </Card.Body>
-        </Card>
+        <h3 className="default-comment-notification">
+          Ви можете стати першим, хто прокоментує цю тему!
+        </h3>
       )}
     </ul>
   );

@@ -111,10 +111,12 @@ export default function ChatMessages({
             </div>
           )}
           <span className="message-author-name">{msg.fullname}</span>
-          <AttachedFiles
-            urls={msg?.attachments}
-            onImageLoad={() => scrollToBottom(chatMessagesRef)}
-          />
+          <div className="attached-files-container">
+            <AttachedFiles
+              urls={msg?.attachments}
+              onImageLoad={() => scrollToBottom(chatMessagesRef)}
+            />
+          </div>
           <Linkify>
             <p
               style={{

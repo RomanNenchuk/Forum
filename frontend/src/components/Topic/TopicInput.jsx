@@ -56,7 +56,7 @@ export default function TopicInput({
         placeholder="Напишіть коментар..."
         autoComplete="off"
       />
-      <EmojiPickerButton setText={setText} />
+      <EmojiPickerButton setText={setText} style={{ left: "-40px" }} />
       {(editId === -1 || isEditModalOpen || isSendModalOpen) && (
         <div onClick={sendComment}>
           <img src={sendMessageIcon} alt="Send" />

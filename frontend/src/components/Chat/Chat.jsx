@@ -16,14 +16,13 @@ import ChatActionMenu from "./ChatActionMenu.jsx";
 import ChatMessages from "./ChatMessages.jsx";
 import LoadingSpinner from "../Spinner.jsx";
 import chatControllerIcon from "../../assets/chat-controller.svg";
-import "react-bootstrap";
 
 export default function Chat() {
   const [text, setText] = useState("");
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
   const [files, setFiles] = useState([]);
-  const [filesToDelete, setFilesToDelete] = useState([]); // Список файлів на видалення
+  const [filesToDelete, setFilesToDelete] = useState([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
   const [userSentMessage, setUserSentMessage] = useState(false);
@@ -154,12 +153,36 @@ export default function Chat() {
     };
   }, [socket, currentUser, receiverId]);
 
-  const handleCloseModal = () => {
-    setIsEditModalOpen(false);
+  function resetReply() {
+    setReply({
+      id: -1,
+      author: null,
+      text: "",
+      attachment: "",
+    });
+  }
+
+  const handleSendReset = () => {
     setIsSendModalOpen(false);
+    setFiles([]);
+    resetReply();
+  };
+
+  const handleEditReset = () => {
+    setIsEditModalOpen(false);
     setEditId(-1);
+    setFiles([]);
+    setFilesToDelete([]);
+    resetReply();
     setText("");
   };
+
+  function handleCancelClick() {
+    setEditId(-1);
+    setText("");
+    setFiles([]);
+    resetEdit();
+  }
 
   function resetContextMenu() {
     setIsContextMenuOpen(false);
@@ -259,8 +282,6 @@ export default function Chat() {
         const chunk = fileChunks[i];
         const attachments = await handleUpload(chunk, currentUser.uid);
 
-        console.log(attachments);
-
         const msg = {
           id: -1,
           attachments,
@@ -289,12 +310,7 @@ export default function Chat() {
 
     setUserSentMessage(true);
     sortChatList(getChatId(currentUser.uid, receiverId));
-    setReply({
-      id: -1,
-      author: null,
-      text: "",
-      attachment: "",
-    });
+    resetReply();
   };
 
   function deleteMessage(msg_id) {
@@ -382,13 +398,14 @@ export default function Chat() {
     setIsEditModalOpen(false);
     setFiles([]);
     setFilesToDelete([]);
+    resetReply();
     resetEdit();
   }
   const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if(socket && location.state?.text){
+    if (socket && location.state?.text) {
       const msg = {
         id: -1,
         attachments: [],
@@ -405,11 +422,11 @@ export default function Chat() {
         msg.id = res.id;
         setMessages(prev => [...prev, msg]);
       });
-      navigate(".", { 
-        replace: true, 
-        state: { 
-          otherUserName: location.state?.otherUserName
-        } 
+      navigate(".", {
+        replace: true,
+        state: {
+          otherUserName: location.state?.otherUserName,
+        },
       });
     }
   }, [socket]);
@@ -417,7 +434,6 @@ export default function Chat() {
   if (loading) return <LoadingSpinner />;
 
   const otherUserName = location.state?.otherUserName || "Користувач";
-  
 
   return (
     <div className="chat-container">
@@ -481,16 +497,16 @@ export default function Chat() {
         sendMessage={sendMessage}
         editMessage={editMessage}
         editId={editId}
-        onCancel={handleCloseModal}
+        onCancel={handleCancelClick}
         reply={reply}
-        setReply={setReply}
+        resetReply={resetReply}
       />
 
       {isEditModalOpen && (
         <FileEditModal
           files={files}
           setFiles={setFiles}
-          onClose={handleCloseModal}
+          onClose={handleEditReset}
           text={text}
           setText={setText}
           setFilesToDelete={setFilesToDelete}
@@ -502,7 +518,7 @@ export default function Chat() {
         <FileSendModal
           files={files}
           setFiles={setFiles}
-          onClose={handleCloseModal}
+          onClose={handleSendReset}
           text={text}
           setText={setText}
           onSubmit={sendMessage}

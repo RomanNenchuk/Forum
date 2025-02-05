@@ -64,6 +64,7 @@ export const getTopicsPreview = async (req, res) => {
         email, 
         author, 
         COALESCE(SUM(emoji.score), 0) AS rating,
+        cover,
         topics.date,
         COALESCE(ARRAY_AGG(DISTINCT tags.tag_name) FILTER (WHERE tags.tag_name IS NOT NULL), '{}') AS tag_list
       FROM topics
@@ -85,6 +86,7 @@ export const getTopicsPreview = async (req, res) => {
         title, 
         email, 
         author, 
+        cover,
         topics.date
       ORDER BY ${orderBy}
       LIMIT $1 OFFSET $2;
@@ -130,14 +132,13 @@ export const getTopicsPreview = async (req, res) => {
     let userSubscriptions = [];
 
     if (user_id) {
-      
-        const resSubs = await pool.query(
-          `SELECT subscription_id FROM user_subscriptions WHERE user_id = $1`,
-          [user_id]
-        );
-        userSubscriptions = resSubs.rows; // Оновлюємо змінну тут
+      const resSubs = await pool.query(
+        `SELECT subscription_id FROM user_subscriptions WHERE user_id = $1`,
+        [user_id]
+      );
+      userSubscriptions = resSubs.rows; // Оновлюємо змінну тут
     }
-    
+
     // Формування фінального результату
     const topicsWithReactions = topics.map(topic => {
       const topicReactions = reactions
@@ -152,12 +153,12 @@ export const getTopicsPreview = async (req, res) => {
         reaction => reaction.topic_id === topic.id
       );
 
-      if(userSubscriptions.find((subs)=> subs.subscription_id == topic.author)) topic.subscribed = true
+      if (userSubscriptions.find(subs => subs.subscription_id == topic.author))
+        topic.subscribed = true;
       else {
-        if (topic.author == user_id) topic.subscribed = "none"
-        else topic.subscribed = false;}
-
-
+        if (topic.author == user_id) topic.subscribed = "none";
+        else topic.subscribed = false;
+      }
 
       return {
         ...topic,
@@ -235,7 +236,6 @@ export const getUserTopic = async (req, res) => {
     );
     userReactions = userReactionsResult.rows;
 
-
     const topicsWithReactions = topics.map(topic => {
       const topicReactions = reactions
         .filter(reaction => reaction.topic_id === topic.id)
@@ -248,7 +248,6 @@ export const getUserTopic = async (req, res) => {
       const userReaction = userReactions.find(
         reaction => reaction.topic_id === topic.id
       );
-
 
       return {
         ...topic,
@@ -281,7 +280,8 @@ export const getTopic = async (req, res) => {
         title, 
         author, 
         description, 
-        attachments, 
+        attachments,
+        cover,
         TO_CHAR(topics.date, 'DD.MM.YYYY') AS formatted_date
       FROM topics 
       left join topic_tags on topics.id = topic_tags.topic_id
@@ -346,16 +346,15 @@ export const getTopic = async (req, res) => {
     let userSubscriptions = [];
 
     if (user_id) {
-      
-        const resSubs = await pool.query(
-          `SELECT subscription_id FROM user_subscriptions WHERE user_id = $1`,
-          [user_id]
-        );
-        userSubscriptions = resSubs.rows; 
+      const resSubs = await pool.query(
+        `SELECT subscription_id FROM user_subscriptions WHERE user_id = $1`,
+        [user_id]
+      );
+      userSubscriptions = resSubs.rows;
     }
 
     //5. отримання спииску прикріплених до теми тегів
-    let tags_list = []
+    let tags_list = [];
 
     const resTags = await pool.query(
       `SELECT 
@@ -364,10 +363,11 @@ export const getTopic = async (req, res) => {
        LEFT JOIN topic_tags ON topics.id = topic_tags.topic_id
        LEFT JOIN tags ON topic_tags.tag_id = tags.tag_id
        WHERE topics.id = $1
-      `,[id]
-    )
+      `,
+      [id]
+    );
 
-    tags_list = resTags.rows[0].tag_list
+    tags_list = resTags.rows[0].tag_list;
 
     // 6. результати
     res.status(200).json({
@@ -375,128 +375,19 @@ export const getTopic = async (req, res) => {
       reactions,
       user_reaction: userReaction,
       tag_list: tags_list,
-      subscribed: userSubscriptions.find((subs)=> subs.subscription_id == topic.author) ? 
-      topic.subscribed = true : topic.author == user_id ?  topic.subscribed = 'none' : topic.subscribed = false
-      
+      subscribed: userSubscriptions.find(
+        subs => subs.subscription_id == topic.author
+      )
+        ? (topic.subscribed = true)
+        : topic.author == user_id
+        ? (topic.subscribed = "none")
+        : (topic.subscribed = false),
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
-export const saveTopic = async (req, res) => {
-  const {
-    title,
-    author,
-    tags = [],
-    description,
-    rating = 0,
-    status = "active",
-    attachments = [],
-  } = req.body;
-
-  const client = await pool.connect();
-
-  try {
-    let processedTags = tags?.filter(tag => tag);
-    if (!processedTags.length) processedTags.push("u_tag");
-
-    // Починаємо транзакцію
-    await client.query("BEGIN");
-
-    // 1. Додати теги, яких ще немає в таблиці tags
-    const tagInsertQuery = `
-      WITH tags_array AS (
-        SELECT UNNEST($1::TEXT[]) AS tag_name
-      )
-      INSERT INTO tags (tag_name)
-      SELECT tag_name
-      FROM tags_array
-      ON CONFLICT (tag_name) DO NOTHING;
-    `;
-    await client.query(tagInsertQuery, [processedTags]);
-
-    // 2. Створити новий запис в таблиці topics
-    const topicInsertQuery = `
-      INSERT INTO topics (
-        title, author, description, rating, status, attachments
-      ) VALUES ($1, $2, $3, $4, $5, $6)
-      RETURNING id;
-    `;
-    const topicResult = await client.query(topicInsertQuery, [
-      title,
-      author,
-      description || null,
-      rating,
-      status,
-      attachments,
-    ]);
-    const topicId = topicResult.rows[0].id;
-
-    // 3. Отримати ID всіх тегів, які передані
-    const getTagsIdQuery = `
-      SELECT tag_id FROM tags WHERE tag_name = ANY($1::TEXT[]);
-    `;
-    const tagsResult = await client.query(getTagsIdQuery, [processedTags]);
-    const tagIds = tagsResult.rows.map(row => row.tag_id);
-
-    // 4. Додати зв'язки між темою і тегами в таблицю topic_tags
-    const topicTagsInsertQuery = `
-      INSERT INTO topic_tags (topic_id, tag_id)
-      VALUES ($1, UNNEST($2::INTEGER[]))
-      ON CONFLICT DO NOTHING;
-    `;
-    await client.query(topicTagsInsertQuery, [topicId, tagIds]);
-
-    // Завершення транзакції
-    await client.query("COMMIT");
-
-    res.status(201).json({ message: "Topic created successfully" });
-  } catch (error) {
-    // У разі помилки відміняємо транзакцію
-    await client.query("ROLLBACK");
-    res.status(500).json({ error: "Internal server error" });
-    console.error(error);
-  } finally {
-    client.release(); // Звільняємо клієнт
-  }
-};
-
-// export const getTopicComments = async (req, res) => {
-//   const id = req.params.id;
-//   try {
-//     const query = `
-//     SELECT
-//       c.id,
-//       c.text,
-//       c.timestamp,
-//       c.author_id,
-//       c.topic_id,
-//       c.attachments,
-//       c.reply,
-//       u.fullname AS author_fullname,
-//       u.avatar,
-//       o.text AS reply_text,
-//       o.timestamp AS reply_timestamp
-//     FROM
-//       comments c
-//     LEFT JOIN
-//       users u ON c.author_id = u.uid
-//     LEFT JOIN
-//       comments o ON c.reply = o.id
-//     WHERE
-//       c.topic_id = $1
-//     ORDER BY
-//       c.id ASC;
-//     `;
-//     const result = (await pool.query(query, [id])).rows;
-//     res.status(200).json(result ?? []);
-//   } catch (error) {
-//     console.error("getTopicComments:", error);
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// };
 
 export const postNewComment = async (req, res) => {
   const comm = req.body;
@@ -568,58 +459,62 @@ export const editComments = async (req, res) => {
 export const deleteTopic = async (req, res) => {
   const client = await pool.connect();
   const id = req.params.id;
+
   try {
-    // починаю транзакцію
     await client.query("BEGIN");
 
-    const GET_TOPIC_COMMENTS_QUERY = `SELECT id FROM comments WHERE topic_id = $1 `;
-    const DELETE_COMMENT_QUERY = `DELETE FROM comments WHERE id = $1 RETURNING attachments`;
-    const DELETE_TOPIC_QUERY = `DELETE FROM topics WHERE id = $1`;
+    const DELETE_COMMENTS_QUERY = `
+      DELETE FROM comments WHERE topic_id = $1 RETURNING attachments
+    `;
+    const commentsResponse = await client.query(DELETE_COMMENTS_QUERY, [id]);
 
-    // отримую id коментів, що належать цій темі
-    const comments_to_delete = await client.query(GET_TOPIC_COMMENTS_QUERY, [
-      id,
-    ]);
+    const DELETE_TOPIC_QUERY = `
+      DELETE FROM topics WHERE id = $1 RETURNING attachments, cover
+    `;
+    const topicResponse = await client.query(DELETE_TOPIC_QUERY, [id]);
 
-    // видаляю кожен комент з бази даних
-    for (let { id: id_to_delete } of comments_to_delete.rows) {
-      const response = await client.query(DELETE_COMMENT_QUERY, [id_to_delete]);
-      if (response.rows.length)
-        deleteAttachments(response.rows[0].attachments).catch(error =>
-          console.error(error)
-        );
+    let filesToDelete = [];
+
+    // вкладення від коментарів
+    commentsResponse.rows.forEach(({ attachments }) => {
+      if (attachments) filesToDelete.push(...attachments);
+    });
+
+    // вкладення від теми
+    if (topicResponse.rows.length) {
+      const { attachments, cover } = topicResponse.rows[0];
+      if (attachments) filesToDelete.push(...attachments);
+      if (cover) filesToDelete.push(cover);
     }
 
-    // видаляю тему з бази даних
-    await client.query(DELETE_TOPIC_QUERY, [id]);
+    if (filesToDelete.length)
+      deleteAttachments(filesToDelete).catch(error =>
+        console.error("Error deleting attachments:", error)
+      );
 
-    // завершую транзакцію
     await client.query("COMMIT");
-
     res.status(200).json({ done: true });
   } catch (error) {
-    // у разі помилки відміняю транзакцію
     await client.query("ROLLBACK");
     res.status(500).json({ error: "Internal server error" });
-    console.error("Error with deleteTopic: ", error);
+    console.error("Error with deleteTopic:", error);
   } finally {
     client.release();
   }
 };
 
-
 export const switchTopicToUser = async (req, res) => {
-  const {user_id, topic_id} = req.body;
+  const { user_id, topic_id } = req.body;
   try {
     const CHECK_QUERY = `
       SELECT * FROM saved_topics WHERE user_id = $1 AND topic_id = $2;
-    `
+    `;
     const SAVE_QUERY = `
       INSERT INTO saved_topics (user_id, topic_id) VALUES ($1, $2);
     `;
     const DELETE_QUERY = `
       DELETE FROM saved_topics WHERE user_id = $1 AND topic_id = $2;
-    `
+    `;
     const exist = await pool.query(CHECK_QUERY, [user_id, topic_id]);
     if (!exist.rows.length) {
       await pool.query(SAVE_QUERY, [user_id, topic_id]);
@@ -628,29 +523,29 @@ export const switchTopicToUser = async (req, res) => {
       await pool.query(DELETE_QUERY, [user_id, topic_id]);
       res.status(200).json({ satus: "deleted" });
     }
-  } catch(error) {
+  } catch (error) {
     console.error("Error in saveTopicToUser: ", error);
     res.status(500).json({ status: "failed" });
   }
-}
+};
 
 export const getIsTopicSaved = async (req, res) => {
   try {
     const { user_id, topic_id } = req.query;
     const QUERY = `
     SELECT * FROM saved_topics WHERE user_id = $1 AND topic_id = $2;
-    `
+    `;
     const result = await pool.query(QUERY, [user_id, topic_id]);
-    if(result.rows.length) {
+    if (result.rows.length) {
       res.status(200).json({ saved: true });
     } else {
       res.status(200).json({ saved: false });
     }
-  } catch(error) {
+  } catch (error) {
     console.log(error);
     res.status(500).json({ saved: false });
   }
-}
+};
 
 export const getSavedTopics = async (req, res) => {
   const { page = 1, limit = 10, user_id } = req.query;
@@ -748,4 +643,4 @@ export const getSavedTopics = async (req, res) => {
     res.status(500).json("Internal server error");
     console.error(error);
   }
-}
+};

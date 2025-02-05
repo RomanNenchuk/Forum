@@ -1,6 +1,5 @@
-import React, { useContext, useState, createContext } from "react";
-import { useSearchParams } from "react-router-dom";
-import { useAuth } from "./AuthContext";
+import React, { useContext, useState, useEffect, createContext } from "react";
+import { useSearchParams, useLocation } from "react-router-dom";
 import axios from "axios";
 
 const TopicSearchContext = createContext();
@@ -9,21 +8,60 @@ export function useTopicSearch() {
   return useContext(TopicSearchContext);
 }
 
-export function TopicSearchProvider({ children }) {
-  const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(true);
+export function TopicSearchProvider({ children, backgroundLocation }) {
   const [urlSearchParams, setUrlSearchParams] = useSearchParams();
   const [searchInput, setSearchInput] = useState(
     urlSearchParams.get("tags") || ""
   );
-  const [topicInfoList, setTopicInfoList] = useState([]);
+  const [popularTagList, setPopularTagList] = useState([]);
   const [queryParams, setQueryParams] = useState({
     page: 1,
     sortOrder: urlSearchParams.get("sort") || "desc",
     tags: urlSearchParams.get("tags") || "",
     authors: urlSearchParams.get("authors") || "",
   });
-  const { currentUser } = useAuth();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (backgroundLocation?.state?.reloadBackground === false) return;
+
+    let searchInputTags = urlSearchParams.get("tags");
+    if (searchInputTags)
+      searchInputTags =
+        "# " + urlSearchParams.get("tags").split(",").join(", # ");
+
+    let searchInputAuthors = urlSearchParams.get("authors");
+    if (searchInputAuthors)
+      searchInputAuthors = "@ " + searchInputAuthors.split(",").join(", @ ");
+
+    if (searchInputTags || searchInputAuthors)
+      setSearchInput(
+        (searchInputAuthors || "") +
+          (searchInputAuthors && searchInputTags ? ", " : "") +
+          (searchInputTags || "")
+      );
+
+    setQueryParams({
+      page: 1,
+      sortOrder: urlSearchParams.get("sort") || "desc",
+      tags: urlSearchParams.get("tags") || "",
+      authors: urlSearchParams.get("authors") || "",
+    });
+  }, [urlSearchParams]);
+
+  useEffect(() => {
+    const fetchTags = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:5000/tags?page=1&limit=15"
+        );
+        setPopularTagList(res.data);
+      } catch (error) {
+        console.error("Error fetching tags:", error);
+      }
+    };
+    fetchTags();
+  }, []);
 
   function getSearchInputData() {
     let searchData = searchInput
@@ -53,56 +91,16 @@ export function TopicSearchProvider({ children }) {
     return result;
   }
 
-  function debounce(func, delay) {
-    let timeout;
-
-    return function (...args) {
-      const context = this;
-
-      clearTimeout(timeout);
-
-      timeout = setTimeout(() => {
-        func.apply(context, args);
-      }, delay);
-    };
-  }
-
-  async function fetchTopics() {
-    try {
-      const response = await axios.get(
-        `http://localhost:5000/topics?page=${queryParams.page}&sort=${
-          queryParams.sortOrder
-        }${currentUser ? "&user_id=" + currentUser.uid : ""}${
-          queryParams.tags !== "" ? "&tags=" + queryParams.tags : ""
-        }${queryParams.authors !== "" ? "&authors=" + queryParams.authors : ""}`
-      );
-      const topics = response.data || [];
-      setTopicInfoList(prev =>
-        queryParams.page === 1 ? topics : [...prev, ...topics]
-      );
-      setHasMore(topics.length > 0);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
   const value = {
     searchInput,
     setSearchInput,
     queryParams,
     setQueryParams,
-    hasMore,
-    loading,
-    setLoading,
     urlSearchParams,
     setUrlSearchParams,
-    topicInfoList,
-    setTopicInfoList,
+    popularTagList,
+    setPopularTagList,
     getSearchInputData,
-    fetchTopics,
-    debounce,
   };
 
   return (

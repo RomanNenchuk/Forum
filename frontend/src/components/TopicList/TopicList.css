@@ -225,11 +225,31 @@ ul {
   border: 0.6vh solid #fdbe10;
   border-radius: 2.9vh;
   padding: 2.5vh;
+  cursor: pointer;
+}
+
+.topic-title-container {
+  font-size: 3vh;
+  color: #333;
 }
 
 .topic-title {
-  font-size: 3vh;
-  color: #333;
+  margin-bottom: "1vh";
+  overflow-wrap: "break-word";
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.cover-container {
+  object-fit: contain;
+}
+
+.cover {
+  width: 100%;
+  border-radius: 2.5vh;
+  box-shadow: 2px 2px 5px #00000033;
+  max-height: 40vh;
+  object-fit: cover;
 }
 
 .topic-card-footer {

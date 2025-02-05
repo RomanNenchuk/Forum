@@ -5,16 +5,22 @@
   align-items: center;
   gap: 10px;
   max-width: 100%;
-  padding: 0 20px;
   margin-bottom: 20px;
 }
 
-.media-image {
+.media-image,
+.media-video {
   width: 45%;
+  max-height: 45vh;
   height: auto;
   flex-grow: 1;
-  border-radius: 20px;
+  aspect-ratio: 1/1;
+  border-radius: 10px;
   object-fit: cover;
+}
+
+.media-video {
+  width: 100%;
 }
 
 .media-url {

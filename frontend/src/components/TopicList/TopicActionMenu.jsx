@@ -31,15 +31,16 @@ export default function TopicActionMenu({
     {
       text: switchText,
       icon: null,
-      onClick: 
-        actionMenu.selectedTopicItem?.author !== currentUser?.uid ? 
-        () => handleTopicToUser(currentUser.uid, actionMenu.selectedTopic) : null,
+      onClick:
+        actionMenu.selectedTopicItem?.author !== currentUser?.uid
+          ? () => handleTopicToUser(currentUser.uid, actionMenu.selectedTopic)
+          : null,
     },
     {
       text: "Переслати",
       icon: null,
       onClick: () => handleShareClick(),
-    }
+    },
   ].filter(button => button.onClick);
   return (
     <ActionMenu

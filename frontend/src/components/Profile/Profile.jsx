@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Card, Alert, Button } from "react-bootstrap";
-import { useAuth } from "../contexts/AuthContext";
-import { useUserInfo } from "../contexts/UserInfoContext";
+import { useAuth } from "../../contexts/AuthContext.jsx";
+import { useUserInfo } from "../../contexts/UserInfoContext.jsx";
 import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
-import ModalHeader from "./ModalHeader/ModalHeader.jsx";
-import Avatar from "./Avatar.jsx";
-import ActionButton from "./ActionButton/ActionButton.jsx";
-import messageIcon from "../assets/message.svg";
-import followIcon from "../assets/follow.svg";
-import unfollowIcon from "../assets/unfollow.svg";
+import ModalHeader from "../ModalHeader/ModalHeader.jsx";
+import Avatar from "../Avatar.jsx";
+import ActionButton from "../ActionButton/ActionButton.jsx";
+import messageIcon from "../../assets/message.svg";
+import followIcon from "../../assets/follow.svg";
+import unfollowIcon from "../../assets/unfollow.svg";
 import "./Profile.css";
-import ModalLoading from "./ModalLoading.jsx";
-import axios from "axios";
+import ModalLoading from "../ModalLoading.jsx";
 
 export default function Profile({ onClose }) {
   const { id } = useParams();
@@ -36,22 +35,7 @@ export default function Profile({ onClose }) {
       }
     })();
   }, [id]);
-  async function onSubscribing() {
-    try {
-      const result = axios.post(`http://localhost:5000/subscriptions/${id}`, {user1_id : currentUser.uid});
-    }
-    catch (error) {
-      console.error(error);
-    }
-  }
-  async function onUnsubscribing(){
-    try {
-      const result = axios.delete(`http://localhost:5000/subscriptions/${id}`, {data : {user1_id : currentUser.uid},});
-    }
-    catch (error) {
-      console.error(error);
-    }
-  }
+
   async function handleLogOut() {
     setError("");
     try {
@@ -89,8 +73,8 @@ export default function Profile({ onClose }) {
                 className="message-icon"
               />
             </Link>
-            <img src={followIcon} alt="Слідкувати" onClick={onSubscribing}/>
-            <img src={unfollowIcon} alt="Відписатись" onClick={onUnsubscribing}/>
+            <img src={followIcon} alt="Слідкувати" />
+            <img src={unfollowIcon} alt="Не слідкувати" />
           </>
         )}
         <div className="profile-info">

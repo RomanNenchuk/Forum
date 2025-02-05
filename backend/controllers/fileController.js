@@ -92,45 +92,53 @@ export const deleteAvatar = async (req, res) => {
 // налаштування multer для вкладень
 const uploadAttachment = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 5 * 1024 * 1024 }, // Максимум 5 МБ
+  limits: { fileSize: 50 * 1024 * 1024 }, // Максимум 50 МБ
 });
+
+export const uploadToCloudinary = async files => {
+  try {
+    const results = [];
+    for (let file of files) {
+      const fileExtension = file.originalname.split(".").pop();
+      const mimeType = file.mimetype;
+
+      const resourceType = mimeType.startsWith("image/") ? "image" : "raw";
+
+      const result = await cloudinary.uploader.upload(
+        `data:${mimeType};base64,${file.buffer.toString("base64")}`,
+        {
+          resource_type: resourceType,
+          folder: "attachments",
+          public_id: `${Date.now()}_${file.originalname.split(".")[0]}`,
+          format: fileExtension,
+        }
+      );
+
+      results.push({
+        originalName: file.originalname,
+        url: result.secure_url,
+        public_id: result.public_id,
+        format: result.format,
+      });
+    }
+    return results;
+  } catch (error) {
+    console.log("AAAAAAAAAAA");
+    console.error("Failed to upload", error);
+    console.log("AAAAAAAAAAA");
+    throw error;
+  }
+};
 
 export const saveAttachments = (req, res) => {
   uploadAttachment.array("files", 10)(req, res, async err => {
-    if (err) {
-      return res.status(400).json({ error: err.message });
-    }
+    if (err) return res.status(400).json({ error: err.message });
 
-    if (!req.files || req.files.length === 0) {
+    if (!req.files || req.files.length === 0)
       return res.status(400).json({ error: "No files uploaded" });
-    }
 
     try {
-      const results = [];
-      for (let file of req.files) {
-        const fileExtension = file.originalname.split(".").pop();
-        const mimeType = file.mimetype;
-
-        const resourceType = mimeType.startsWith("image/") ? "image" : "raw";
-
-        const result = await cloudinary.uploader.upload(
-          `data:${mimeType};base64,${file.buffer.toString("base64")}`,
-          {
-            resource_type: resourceType,
-            folder: "attachments",
-            public_id: `${Date.now()}_${file.originalname.split(".")[0]}`,
-            format: fileExtension,
-          }
-        );
-
-        results.push({
-          originalName: file.originalname,
-          url: result.secure_url,
-          public_id: result.public_id,
-          format: result.format,
-        });
-      }
-
+      const results = await uploadToCloudinary(req.files);
       return res.status(200).json({
         message: "Files uploaded successfully",
         files: results,

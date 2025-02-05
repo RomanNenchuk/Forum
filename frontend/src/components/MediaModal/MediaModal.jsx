@@ -18,6 +18,13 @@ export default function MediaModal({ url, onClose }) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
   const handleWheel = e => {
     setScale(prevScale =>
       Math.max(0.5, Math.min(3, prevScale + e.deltaY * -0.001))
@@ -43,8 +50,13 @@ export default function MediaModal({ url, onClose }) {
     }
   };
 
+  function handleClose(e) {
+    e.stopPropagation();
+    onClose();
+  }
+
   return ReactDOM.createPortal(
-    <div className="photo-modal-overlay" onClick={onClose}>
+    <div className="photo-modal-overlay" onClick={handleClose}>
       <div className="photo-modal-header">
         <button className="download-button" onClick={handleDownload}>
           <img
@@ -53,7 +65,7 @@ export default function MediaModal({ url, onClose }) {
             style={{ filter: "invert(1)" }}
           />
         </button>
-        <button className="close-button" onClick={onClose}>
+        <button className="close-button" onClick={handleClose}>
           <img src={closeIcon} alt="Close" style={{ filter: "invert(1)" }} />
         </button>
       </div>

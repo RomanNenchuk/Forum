@@ -267,10 +267,15 @@ ul.chat-messages {
   background-color: gray;
   /* все летить, якщо використовувати відсотки */
   /* max-width: 50%; */
+  word-wrap: break-word;
+  white-space: pre-wrap;
   max-width: 35vw;
   margin: 3vh 3%;
   border-radius: 3vh;
   z-index: 0;
+}
+.attached-files-container {
+  padding: 0 20px;
 }
 .mes-triangle {
   content: "";

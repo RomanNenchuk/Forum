@@ -1,32 +1,19 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useTopicSearch } from "../../contexts/TopicSearchContext.jsx";
-import { useLocation } from "react-router-dom";
 import LoadingSpinner from "../Spinner.jsx";
 import TopicListSettings from "../TopicList/TopicListSettings.jsx";
 import TopicList from "../TopicList/TopicList.jsx";
 import TagBar from "../TagBar/TagBar.jsx";
 import "./Home.css";
+import { useTopicList } from "../../contexts/TopicListContext.jsx";
 
 export default function Home() {
   const [tagBarLoading, setTagBarLoading] = useState(true);
-  const { currentUser } = useAuth();
   const topicListRef = useRef(null);
-  const location = useLocation();
-  const {
-    queryParams,
-    setQueryParams,
-    hasMore,
-    loading,
-    setLoading,
-    urlSearchParams,
-    setUrlSearchParams,
-    topicInfoList,
-    setTopicInfoList,
-    fetchTopics,
-    setSearchInput,
-    debounce,
-  } = useTopicSearch();
+  const { queryParams, setQueryParams, urlSearchParams, setUrlSearchParams } =
+    useTopicSearch();
+
+  const { hasMore, loading, topicInfoList, debounce } = useTopicList();
 
   const handleChange = e => {
     const newSortOrder = e.target.value;
@@ -48,49 +35,6 @@ export default function Home() {
   }
 
   useEffect(() => {
-    const fetchData = debounce(async () => {
-      await fetchTopics();
-    }, 200);
-    setLoading(true);
-    fetchData();
-  }, [queryParams]);
-
-  useEffect(() => {
-    if (location?.state?.reloadBackground === false) return;
-
-    let searchInputTags = urlSearchParams.get("tags");
-    if (searchInputTags)
-      searchInputTags =
-        "# " + urlSearchParams.get("tags").split(",").join(", # ");
-
-    let searchInputAuthors = urlSearchParams.get("authors");
-    if (searchInputAuthors)
-      searchInputAuthors = "@ " + searchInputAuthors.split(",").join(", @ ");
-
-    if (searchInputTags || searchInputAuthors)
-      setSearchInput(
-        (searchInputAuthors || "") +
-          (searchInputAuthors && searchInputTags ? ", " : "") +
-          (searchInputTags || "")
-      );
-
-    setQueryParams({
-      page: 1,
-      sortOrder: urlSearchParams.get("sort") || "desc",
-      tags: urlSearchParams.get("tags") || "",
-      authors: urlSearchParams.get("authors") || "",
-    });
-  }, [urlSearchParams]);
-
-  useEffect(() => {
-    setTopicInfoList([]);
-    setQueryParams(prev => ({
-      ...prev,
-      page: 1,
-    }));
-  }, [currentUser]);
-
-  useEffect(() => {
     const handleScroll = () => {
       const targetElement = document.querySelector(".forum-container");
       const elementHeight = targetElement ? targetElement.offsetHeight : 0;
@@ -106,18 +50,22 @@ export default function Home() {
       }
     };
 
-    function debounce(func, wait) {
-      let timeout;
-      return function (...args) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func(...args), wait);
-      };
-    }
-
     const debouncedHandleScroll = debounce(handleScroll, 200);
     window.addEventListener("scroll", debouncedHandleScroll);
     return () => window.removeEventListener("scroll", debouncedHandleScroll);
   }, [hasMore, loading]);
+
+  useEffect(() => {
+    const savedPosition = sessionStorage.getItem("scrollPosition");
+    if (savedPosition) {
+      window.scrollTo({
+        top: parseInt(savedPosition, 10),
+        left: 0,
+        behavior: "instant",
+      });
+      sessionStorage.removeItem("scrollPosition");
+    }
+  }, []);
 
   if (loading && tagBarLoading && topicInfoList.length === 0)
     return <LoadingSpinner />;
@@ -129,10 +77,7 @@ export default function Home() {
           sortOrder={queryParams.sortOrder}
           handleChange={handleChange}
         />
-        <TopicList
-          topicInfoList={topicInfoList}
-          setTopicInfoList={setTopicInfoList}
-        />
+        <TopicList topicInfoList={topicInfoList} />
       </ul>
       <TagBar
         tagBarLoading={tagBarLoading}

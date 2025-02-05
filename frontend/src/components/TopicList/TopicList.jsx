@@ -8,6 +8,7 @@ import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./TopicList.css";
 import axios from "axios";
+import { useTopicList } from "../../contexts/TopicListContext.jsx";
 
 const reactionList = [
   { icon: "😁", name: "beaming_face_with_smiling_eyes" },
@@ -34,11 +35,8 @@ const reactionList = [
   { icon: "💩", name: "pile_of_poo" },
 ];
 
-export default function TopicList({
-  topicInfoList,
-  setTopicInfoList,
-  topicListRef,
-}) {
+export default function TopicList({ topicInfoList }) {
+  const { setTopicInfoList, loading } = useTopicList();
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [topicToDeleteId, setTopicToDeleteId] = useState(null);
@@ -52,11 +50,10 @@ export default function TopicList({
     toggled: false,
   });
   const [switchText, setSwitchText] = useState("");
-  const {currentUser} = useAuth();  
+  const { currentUser } = useAuth();
   const navigate = useNavigate();
 
   const actionMenuRef = useRef(null);
-  useScrollLock(isActionMenuOpen, topicListRef);
 
   function handleOnActionMenu(e, topic) {
     e.preventDefault();
@@ -137,11 +134,12 @@ export default function TopicList({
     }
   };
 
-
   async function switchTopicToUser(user_id, topic_id) {
     try {
-      const res = await axios.patch(`http://localhost:5000/topics/switch`, { user_id, topic_id, });
-      // console.log(res.data);
+      const res = await axios.patch(`http://localhost:5000/topics/switch`, {
+        user_id,
+        topic_id,
+      });
     } catch (error) {
       console.error(error);
     }
@@ -149,10 +147,12 @@ export default function TopicList({
 
   async function isTopicSaved(user_id, topic_id) {
     try {
-      const res = await axios.get(`http://localhost:5000/topics/save?user_id=${user_id}&topic_id=${topic_id}`);
+      const res = await axios.get(
+        `http://localhost:5000/topics/save?user_id=${user_id}&topic_id=${topic_id}`
+      );
       // console.log(res.data);
       setSwitchText(res.data.saved ? "Не зберігати" : "Зберегти тему");
-    } catch(error) {
+    } catch (error) {
       console.error("Ne worka(");
     }
   }
@@ -167,9 +167,9 @@ export default function TopicList({
 
   return (
     <ul className="topic-list">
-      {topicInfoList.length === 0 ? (
+      {topicInfoList.length === 0 && !loading ? (
         <div className="topics-not-found">
-          За Вашим запитом нічого не знайдено {"("}
+          За Вашим запитом нічого не знайдено {":("}
         </div>
       ) : (
         topicInfoList.map((topic, index) => (
@@ -208,7 +208,7 @@ export default function TopicList({
           onCloseModal={() => setShareModalOpen(false)}
           url={`${location.origin}/topics/${shareId}`}
         />
-      ): null}
+      ) : null}
     </ul>
   );
 }

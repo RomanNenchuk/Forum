@@ -18,7 +18,7 @@ export default function ChatInput({
   editMessage,
   editId,
   reply,
-  setReply,
+  resetReply,
   onCancel,
 }) {
   const inputRef = useRef();
@@ -79,18 +79,7 @@ export default function ChatInput({
                 "*Видалене повідомлення*"}
             </span>
           </div>
-          <img
-            src={cancelIcon}
-            alt="Cancel"
-            onClick={() =>
-              setReply({
-                id: -1,
-                author: null,
-                text: "",
-                attachment: "",
-              })
-            }
-          />
+          <img src={cancelIcon} alt="Cancel" onClick={resetReply} />
         </div>
       )}
 

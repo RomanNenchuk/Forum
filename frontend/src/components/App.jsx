@@ -1,13 +1,13 @@
 import React from "react";
 import Signup from "./Signup/Signup.jsx";
 import Login from "./Login/Login.jsx";
-import Profile from "./Profile";
-import Share from "./Share.jsx";
+import Profile from "./Profile/Profile.jsx";
 import { AuthProvider } from "../contexts/AuthContext";
 import { UserInfoProvider } from "../contexts/UserInfoContext";
 import { ChatProvider } from "../contexts/ChatContext";
 import { SocketProvider } from "../contexts/SocketProviderContext";
 import { TopicSearchProvider } from "../contexts/TopicSearchContext.jsx";
+import { TopicListProvider } from "../contexts/TopicListContext.jsx";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import PrivateRoute from "./PrivateRoute";
 import NotFound from "./NotFound";
@@ -16,7 +16,7 @@ import UpdateProfile from "./UpdateProfile/UpdateProfile.jsx";
 import Menu from "./Menu/Menu.jsx";
 import Home from "./Home/Home.jsx";
 import Topic from "./Topic/Topic.jsx";
-import CreateTopic from "./CreateTopic.jsx";
+import CreateTopic from "./CreateTopic/CreateTopic.jsx";
 import ChatList from "./Chat/ChatList.jsx";
 import Chat from "./Chat/Chat.jsx";
 import Modal from "./Modal.jsx";
@@ -31,9 +31,7 @@ function App() {
     <Router>
       <AuthProvider>
         <UserInfoProvider>
-          <TopicSearchProvider>
-            <AppRoutes />
-          </TopicSearchProvider>
+          <AppRoutes />
         </UserInfoProvider>
       </AuthProvider>
     </Router>
@@ -44,15 +42,29 @@ function AppRoutes() {
   const { backgroundLocation, showBackground } = useBackgroundLocation();
 
   return (
-    <>
+    <TopicSearchProvider backgroundLocation={backgroundLocation}>
       <Routes location={backgroundLocation}>
         <Route element={<Menu />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/topics/:id" element={<Topic />} />
+          <Route
+            path="/"
+            element={
+              <TopicListProvider>
+                <Home />
+              </TopicListProvider>
+            }
+          />
+          <Route
+            path="/topics/:id"
+            element={
+              <TopicListProvider>
+                <Topic />
+              </TopicListProvider>
+            }
+          />
           <Route path="/poptopics" element={<PopulTopic />} />
           <Route path="/mytopics" element={<MyTopic />} />
           {/* <Route path="/profiles/:id" element={<Profile />} /> */}
-          
+
           <Route element={<PrivateRoute />}>
             {/* <Route path="/update-profile" element={<UpdateProfile />} /> */}
             <Route path="/create-topic" element={<CreateTopic />} />
@@ -131,7 +143,7 @@ function AppRoutes() {
           </Route>
         </Routes>
       )}
-    </>
+    </TopicSearchProvider>
   );
 }
 
