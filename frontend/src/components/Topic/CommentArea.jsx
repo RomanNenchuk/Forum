@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import reactionListSetter from "../../utils/reactionListSetter.jsx";
+import convertLinks from "../../utils/textLinkConverter.jsx";
 import AttachedFiles from "../AttachedFiles/AttachedFiles.jsx";
 import { formatRelativeTime } from "../../utils/getCurrentTime.jsx";
 import InteractWindow from "../TopicList/InteractWindow.jsx";
@@ -80,7 +81,7 @@ export default function CommentArea({
         </span>
       </div>
       <AttachedFiles urls={comment?.attachments} />
-      <p className="comment-text">{comment.text}</p>
+      <p className="comment-text">{convertLinks(comment.text)}</p>
       <div className="icons-menu">
         <div className="active-reactions">
           {activeReactions.map((reaction, index) => (

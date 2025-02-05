@@ -195,13 +195,11 @@ ul.chat-messages {
   user-select: text;
 }
 .message-reply-label {
-  box-sizing: border-box;
   width: 100%;
   padding: 5px;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  /* font-size: 2vh; */
   border-radius: 5px;
   display: flex;
   flex-direction: column;

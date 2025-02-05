@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import { useChat } from "../../contexts/ChatContext.jsx";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import convertLinks from "../../utils/textLinkConverter.jsx";
@@ -42,66 +42,70 @@ export default function ChatMessages({
 
   return (
     <ul ref={chatMessagesRef} className="chat-messages">
-      {messages.map((msg, index) => (
-        <li
-          key={index}
-          className="uTou-message"
-          style={
-            msg.sender_id === currentUser.uid
-              ? {
-                  marginLeft: "auto",
-                  backgroundColor: "#a3beb7",
-                }
-              : {
-                  marginRight: "auto",
-                  backgroundColor: "#d0d0d0",
-                }
-          }
-          onContextMenu={e => handleOnContextMenu(e, msg)}
-        >
-          {msg.reply !== -1 && (
-            <div
-              className="message-reply-label"
+      {messages.map((msg, index) => {
+        return (
+          <li
+            key={index}
+            className="uTou-message"
+            style={
+              msg.sender_id === currentUser.uid
+                ? {
+                    marginLeft: "auto",
+                    backgroundColor: "#a3beb7",
+                  }
+                : {
+                    marginRight: "auto",
+                    backgroundColor: "#d0d0d0",
+                  }
+            }
+            onContextMenu={e => handleOnContextMenu(e, msg)}
+          >
+            {msg.reply !== -1 && (
+              <div
+                className="message-reply-label"
+                style={{
+                  backgroundColor:
+                    msg.sender_id === currentUser.uid
+                      ? "#ffffff66"
+                      : "#0000001a",
+                }}
+              >
+                <div className="reply-fullname">
+                  {msg.reply_fullname ? msg.reply_fullname : ""}
+                </div>
+                <div className="reply-text">
+                  {msg.reply_text ||
+                    msg.reply_attachment?.slice(
+                      msg.reply_attachment?.indexOf("_") + 1
+                    ) ||
+                    "*Видалене повідомлення*"}
+                </div>
+              </div>
+            )}
+            {msg?.attachments?.length ? (
+              <div className="attached-files-container">
+                <AttachedFiles
+                  urls={msg?.attachments}
+                  onImageLoad={() => scrollToBottom(chatMessagesRef)}
+                />
+              </div>
+            ) : null}
+
+            {msg.text !== "" ? (
+              <p className="message-text">{convertLinks(msg.text)}</p>
+            ) : null}
+            <span
+              className="message-timestamp"
               style={{
-                backgroundColor:
-                  msg.sender_id === currentUser.uid ? "#ffffff66" : "#0000001a",
+                textAlign: msg.sender_id === currentUser.uid ? "right" : "left",
               }}
             >
-              <div className="reply-fullname">
-                {msg.reply_fullname ? msg.reply_fullname : ""}
-              </div>
-              <div className="reply-text">
-                {msg.reply_text ||
-                  msg.reply_attachment?.slice(
-                    msg.reply_attachment?.indexOf("_") + 1
-                  ) ||
-                  "*Видалене повідомлення*"}
-              </div>
-            </div>
-          )}
-          {msg?.attachments?.length ? (
-            <div className="attached-files-container">
-              <AttachedFiles
-                urls={msg?.attachments}
-                onImageLoad={() => scrollToBottom(chatMessagesRef)}
-              />
-            </div>
-          ) : null}
-
-          {msg.text !== "" ? (
-            <p className="message-text">{convertLinks(msg.text)}</p>
-          ) : null}
-          <span
-            className="message-timestamp"
-            style={{
-              textAlign: msg.sender_id === currentUser.uid ? "right" : "left",
-            }}
-          >
-            {timestampToTime(msg.timestamp)}
-          </span>
-          <MessageTriangle isSender={msg.sender_id === currentUser.uid} />
-        </li>
-      ))}
+              {timestampToTime(msg.timestamp)}
+            </span>
+            <MessageTriangle isSender={msg.sender_id === currentUser.uid} />
+          </li>
+        );
+      })}
     </ul>
   );
 }
