@@ -11,7 +11,6 @@ import "./TopicList.css";
 import subscribe from "./../../assets/subscribe.svg";
 import subscribed from "./../../assets/subscribed.svg";
 import axios from "axios";
-import { useTopicSearch } from "../../contexts/TopicSearchContext.jsx";
 
 export default function TopicArea({
   topic,
@@ -28,7 +27,6 @@ export default function TopicArea({
   const location = useLocation();
   const navigate = useNavigate();
   const { currentUser, token } = useAuth();
-  const { queryParams } = useTopicSearch();
 
   useEffect(() => {
     setActiveReactions(reactionListSetter(initialReactions, userReaction));
@@ -112,6 +110,22 @@ export default function TopicArea({
     navigate(`/topics/${topicId}`);
   };
 
+  const handleSubscribeClick = e => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!currentUser) {
+      return navigate("/login", {
+        state: {
+          backgroundLocation: location,
+          redirectPath: location,
+        },
+      });
+    } else
+      setTimeout(() => {
+        topic.subscribed ? delSubscribe() : addSubscribe();
+      }, 200);
+  };
+
   return (
     <li className="topic-card">
       <div>
@@ -140,15 +154,7 @@ export default function TopicArea({
               <img
                 style={{ height: "5vh", width: "auto", marginLeft: "2%" }}
                 src={topic.subscribed ? subscribe : subscribed}
-                onClick={e => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  if (!currentUser) navigate("/login"), exit();
-                  else
-                    setTimeout(() => {
-                      topic.subscribed ? delSubscribe() : addSubscribe();
-                    }, 200);
-                }}
+                onClick={e => handleSubscribeClick(e)}
               />
             )}
           </div>

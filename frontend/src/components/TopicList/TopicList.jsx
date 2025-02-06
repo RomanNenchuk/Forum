@@ -2,8 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import TopicArea from "./TopicArea.jsx";
 import TopicActionMenu from "./TopicActionMenu.jsx";
 import ConfirmationModal from "../ConfirmationModal/ConfirmationModal.jsx";
-import Share from "../Share.jsx";
-import { useScrollLock } from "../../hooks/useScrollLock.jsx";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./TopicList.css";
@@ -35,7 +33,7 @@ const reactionList = [
   { icon: "💩", name: "pile_of_poo" },
 ];
 
-export default function TopicList({ topicInfoList }) {
+export default function TopicList({ topicInfoList, scrollContainerRef }) {
   const { setTopicInfoList, loading } = useTopicList();
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -83,17 +81,19 @@ export default function TopicList({ topicInfoList }) {
 
   useEffect(() => {
     function handler(e) {
-      if (actionMenuRef.current) {
-        if (!actionMenuRef.current.contains(e.target)) {
-          resetActionMenu();
-        }
+      if (actionMenuRef.current && !actionMenuRef.current.contains(e.target)) {
+        resetActionMenu();
       }
     }
+
+    const scrollElement = scrollContainerRef?.current || document;
+
     document.addEventListener("mousedown", handler);
-    document.addEventListener("scroll", handler);
+    scrollElement.addEventListener("scroll", handler);
+
     return () => {
       document.removeEventListener("mousedown", handler);
-      document.removeEventListener("scroll", handler);
+      scrollElement.removeEventListener("scroll", handler);
     };
   }, []);
 
@@ -158,14 +158,6 @@ export default function TopicList({ topicInfoList }) {
     }
   }
 
-  const [isShareModalOpen, setShareModalOpen] = useState(false);
-  const [shareId, setShareId] = useState(-1);
-
-  function handleShareClick() {
-    setShareId(actionMenu.selectedTopic);
-    setShareModalOpen(true);
-  }
-
   return (
     <ul className="topic-list">
       {topicInfoList.length === 0 && !loading ? (
@@ -201,12 +193,6 @@ export default function TopicList({ topicInfoList }) {
           onClose={() => setIsConfirmModalOpen(false)}
           onConfirm={handleConfirmDelete}
           message="Видалити цю тему?"
-        />
-      ) : null}
-      {isShareModalOpen ? (
-        <Share
-          onCloseModal={() => setShareModalOpen(false)}
-          url={`${location.origin}/topics/${shareId}`}
         />
       ) : null}
     </ul>

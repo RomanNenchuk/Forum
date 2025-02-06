@@ -55,7 +55,7 @@ export default function Topic() {
 
   const contextMenuRef = useRef(null);
   const topicCommentsRef = useRef(null);
-  const topicItemRef = useRef(null);
+  const extendedInformationRef = useRef(null);
   const { currentUser } = useAuth();
   const { fullName, avatar } = useUserInfo();
 
@@ -341,12 +341,11 @@ export default function Topic() {
       </div>
       <div className="topic-and-comments">
         <div className="in-block-for-flex">
-          <div className="block left" ref={topicItemRef}>
+          <div className="block left" ref={extendedInformationRef}>
             <div className="info-list">
               <TopicList
                 topicInfoList={[topic]}
-                topicListRef={topicItemRef}
-                setTopicInfoList={setTopic}
+                scrollContainerRef={extendedInformationRef}
               />
             </div>
             <div className="extra-info">

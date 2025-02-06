@@ -548,13 +548,99 @@ export const getIsTopicSaved = async (req, res) => {
 };
 
 export const getSavedTopics = async (req, res) => {
+  const { page = 1, limit = 10, user_id } = req.query;
+  const offset = (page - 1) * limit;
   try {
-    const { user_id } = req.query;
-    const QUERY = ``;
-    const result = await pool.query(QUERY, []);
-    res.status(200).json(result.rows);
+    const topicsId = await pool.query(`
+      SELECT topic_id FROM saved_topics WHERE user_id = $1
+      `, [user_id]);
+    let topicsIdArray = [];
+    for(let el of topicsId.rows) {
+      topicsIdArray.push(el.topic_id);
+    }
+    const topicsResult = await pool.query(
+      `
+      SELECT 
+        topics.id, 
+        fullname AS author_full_name, 
+        username, 
+        avatar AS author_avatar, 
+        title, 
+        email, 
+        author, 
+        COALESCE(SUM(emoji.score), 0) AS rating,
+        topics.date,
+        COALESCE(ARRAY_AGG(DISTINCT tags.tag_name) FILTER (WHERE tags.tag_name IS NOT NULL), '{}') AS tag_list
+      FROM topics
+      
+      INNER JOIN users ON users.uid = topics.author
+      LEFT JOIN topic_tags on topics.id = topic_tags.topic_id
+      LEFT JOIN tags on topic_tags.tag_id = tags.tag_id
+      LEFT JOIN topic_reactions
+        ON topics.id = topic_reactions.topic_id
+      LEFT JOIN emoji
+        ON emoji.id = topic_reactions.emoji_id
+      WHERE topics.id = ANY($1)
+      GROUP BY topics.id, fullname, username, avatar, title, email, author, topics.date
+      LIMIT $2 OFFSET $3
+      `,
+      [topicsIdArray, limit, offset]
+    );
+    const topics = topicsResult.rows;
+    const reactionsResult = await pool.query(
+      `
+      SELECT 
+        topic_id,
+        emoji.name,
+        emoji.icon,
+        COUNT(*) AS count
+      FROM topic_reactions
+      INNER JOIN emoji ON topic_reactions.emoji_id = emoji.id
+      
+      GROUP BY topic_id, emoji.name, emoji.icon;
+      `
+    );
+    const reactions = reactionsResult.rows;
+
+    let userReactions = [];
+    const userReactionsResult = await pool.query(
+      `
+        SELECT 
+          topic_id, 
+          emoji.name AS name
+        FROM topic_reactions
+        LEFT JOIN emoji ON topic_reactions.emoji_id = emoji.id
+        WHERE user_id = $1;
+        `,
+      [user_id]
+    );
+    userReactions = userReactionsResult.rows;
+
+
+    const topicsWithReactions = topics.map(topic => {
+      const topicReactions = reactions
+        .filter(reaction => reaction.topic_id === topic.id)
+        .map(reaction => ({
+          icon: reaction.icon,
+          name: reaction.name,
+          count: parseInt(reaction.count, 10),
+        }));
+
+      const userReaction = userReactions.find(
+        reaction => reaction.topic_id === topic.id
+      );
+
+
+      return {
+        ...topic,
+        reactions: topicReactions,
+        user_reaction: userReaction || null,
+      };
+    });
+
+    res.status(200).json(topicsWithReactions);
   } catch (error) {
-    console.log(error);
-    res.status(500).json({});
+    res.status(500).json("Internal server error");
+    console.error(error);
   }
 };
