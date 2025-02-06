@@ -13,18 +13,17 @@ import subscribed from "./../../assets/subscribed.svg";
 import axios from "axios";
 
 export default function TopicArea({
-  topic,
+  topicItem,
   reactionList,
   initialReactions,
   userReaction,
   setTopics,
   handleOnActionMenu,
 }) {
-  const [activeReactions, setActiveReactions] = useState(() => {
-    const fullreactions = reactionListSetter(initialReactions, userReaction);
-    console.log(initialReactions, userReaction, fullreactions);
-    return fullreactions;
-  });
+  const [topic, setTopic] = useState(topicItem);
+  const [activeReactions, setActiveReactions] = useState(
+    reactionListSetter(initialReactions, userReaction)
+  );
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -73,11 +72,10 @@ export default function TopicArea({
       if (res.data.done) {
         setTopics(prevState =>
           prevState.map(el =>
-            el.author === topic.author
-              ? { ...el, subscribed: !el.subscribed }
-              : el
+            el.author === topic.author ? { ...el, subscribed: true } : el
           )
         );
+        setTopic(prev => ({ ...prev, subscribed: true }));
       }
     } catch (err) {
       console.error(err);
@@ -96,11 +94,10 @@ export default function TopicArea({
       if (res.data.done) {
         setTopics(prevState =>
           prevState.map(el =>
-            el.author === topic.author
-              ? { ...el, subscribed: !el.subscribed }
-              : el
+            el.author === topic.author ? { ...el, subscribed: false } : el
           )
         );
+        setTopic(prev => ({ ...prev, subscribed: false }));
       }
     } catch (err) {
       console.error(err);

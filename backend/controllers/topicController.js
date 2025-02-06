@@ -174,95 +174,6 @@ export const getTopicsPreview = async (req, res) => {
   }
 };
 
-export const getUserTopic = async (req, res) => {
-  const { user_id } = req.query;
-  try {
-    const topicsResult = await pool.query(
-      `
-      SELECT 
-      topics.id, 
-      fullname AS author_full_name, 
-      username, 
-      avatar AS author_avatar, 
-      title, 
-      email, 
-      author, 
-      COALESCE(SUM(emoji.score), 0) AS rating,
-      cover,
-      topics.date,
-      COALESCE(ARRAY_AGG(DISTINCT tags.tag_name) FILTER (WHERE tags.tag_name IS NOT NULL), '{}') AS tag_list
-      FROM topics
-      
-      INNER JOIN users ON users.uid = topics.author
-      left join topic_tags on topics.id = topic_tags.topic_id
-      left join tags on topic_tags.tag_id = tags.tag_id
-      LEFT JOIN topic_reactions
-        ON topics.id = topic_reactions.topic_id
-      LEFT JOIN emoji
-        ON emoji.id = topic_reactions.emoji_id
-      WHERE users.uid = $1
-      GROUP BY topics.id, fullname, username, avatar, title, email, author, topics.date
-      ORDER BY topics.date DESC;
-      `,
-      [user_id]
-    );
-    const topics = topicsResult.rows;
-    const reactionsResult = await pool.query(
-      `
-      SELECT 
-        topic_id,
-        emoji.name,
-        emoji.icon,
-        COUNT(*) AS count
-      FROM topic_reactions
-      INNER JOIN emoji ON topic_reactions.emoji_id = emoji.id
-      
-      GROUP BY topic_id, emoji.name, emoji.icon;
-      `
-    );
-    const reactions = reactionsResult.rows;
-
-    let userReactions = [];
-    const userReactionsResult = await pool.query(
-      `
-        SELECT 
-          topic_id, 
-          emoji.name AS name
-        FROM topic_reactions
-        LEFT JOIN emoji ON topic_reactions.emoji_id = emoji.id
-        WHERE user_id = $1;
-        `,
-      [user_id]
-    );
-    userReactions = userReactionsResult.rows;
-
-    const topicsWithReactions = topics.map(topic => {
-      const topicReactions = reactions
-        .filter(reaction => reaction.topic_id === topic.id)
-        .map(reaction => ({
-          icon: reaction.icon,
-          name: reaction.name,
-          count: parseInt(reaction.count, 10),
-        }));
-
-      const userReaction = userReactions.find(
-        reaction => reaction.topic_id === topic.id
-      );
-
-      return {
-        ...topic,
-        reactions: topicReactions,
-        user_reaction: userReaction || null,
-      };
-    });
-
-    res.status(200).json(topicsWithReactions);
-  } catch (error) {
-    res.status(500).json("Internal server error");
-    console.error(error);
-  }
-};
-
 export const getTopic = async (req, res) => {
   try {
     const { id } = req.params;
@@ -350,7 +261,7 @@ export const getTopic = async (req, res) => {
         `SELECT subscription_id FROM user_subscriptions WHERE user_id = $1`,
         [user_id]
       );
-      userSubscriptions = resSubs.rows;
+      userSubscriptions = resSubs.rows; // Оновлюємо змінну тут
     }
 
     //5. отримання спииску прикріплених до теми тегів
@@ -369,23 +280,112 @@ export const getTopic = async (req, res) => {
 
     tags_list = resTags.rows[0].tag_list;
 
+    if (userSubscriptions.find(subs => subs.subscription_id == topic.author))
+      topic.subscribed = true;
+    else {
+      if (topic.author == user_id) topic.subscribed = "none";
+      else topic.subscribed = false;
+    }
+
     // 6. результати
     res.status(200).json({
       ...topic,
       reactions,
       user_reaction: userReaction,
       tag_list: tags_list,
-      subscribed: userSubscriptions.find(
-        subs => subs.subscription_id == topic.author
-      )
-        ? (topic.subscribed = true)
-        : topic.author == user_id
-        ? (topic.subscribed = "none")
-        : (topic.subscribed = false),
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const getUserTopic = async (req, res) => {
+  const { user_id } = req.query;
+  try {
+    const topicsResult = await pool.query(
+      `
+      SELECT 
+      topics.id, 
+      fullname AS author_full_name, 
+      username, 
+      avatar AS author_avatar, 
+      title, 
+      email, 
+      author, 
+      COALESCE(SUM(emoji.score), 0) AS rating,
+      cover,
+      topics.date,
+      COALESCE(ARRAY_AGG(DISTINCT tags.tag_name) FILTER (WHERE tags.tag_name IS NOT NULL), '{}') AS tag_list
+      FROM topics
+      
+      INNER JOIN users ON users.uid = topics.author
+      left join topic_tags on topics.id = topic_tags.topic_id
+      left join tags on topic_tags.tag_id = tags.tag_id
+      LEFT JOIN topic_reactions
+        ON topics.id = topic_reactions.topic_id
+      LEFT JOIN emoji
+        ON emoji.id = topic_reactions.emoji_id
+      WHERE users.uid = $1
+      GROUP BY topics.id, fullname, username, avatar, title, email, author, topics.date
+      ORDER BY topics.date DESC;
+      `,
+      [user_id]
+    );
+    const topics = topicsResult.rows;
+    const reactionsResult = await pool.query(
+      `
+      SELECT 
+        topic_id,
+        emoji.name,
+        emoji.icon,
+        COUNT(*) AS count
+      FROM topic_reactions
+      INNER JOIN emoji ON topic_reactions.emoji_id = emoji.id
+      
+      GROUP BY topic_id, emoji.name, emoji.icon;
+      `
+    );
+    const reactions = reactionsResult.rows;
+
+    let userReactions = [];
+    const userReactionsResult = await pool.query(
+      `
+        SELECT 
+          topic_id, 
+          emoji.name AS name
+        FROM topic_reactions
+        LEFT JOIN emoji ON topic_reactions.emoji_id = emoji.id
+        WHERE user_id = $1;
+        `,
+      [user_id]
+    );
+    userReactions = userReactionsResult.rows;
+
+    const topicsWithReactions = topics.map(topic => {
+      const topicReactions = reactions
+        .filter(reaction => reaction.topic_id === topic.id)
+        .map(reaction => ({
+          icon: reaction.icon,
+          name: reaction.name,
+          count: parseInt(reaction.count, 10),
+        }));
+
+      const userReaction = userReactions.find(
+        reaction => reaction.topic_id === topic.id
+      );
+
+      return {
+        ...topic,
+        reactions: topicReactions,
+        user_reaction: userReaction || null,
+      };
+    });
+
+    res.status(200).json(topicsWithReactions);
+  } catch (error) {
+    res.status(500).json("Internal server error");
+    console.error(error);
   }
 };
 

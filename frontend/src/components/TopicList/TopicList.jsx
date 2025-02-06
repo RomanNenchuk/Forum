@@ -167,7 +167,7 @@ export default function TopicList({ topicInfoList, scrollContainerRef }) {
         topicInfoList.map((topic, index) => (
           <TopicArea
             key={index}
-            topic={topic}
+            topicItem={topic}
             reactionList={reactionList}
             initialReactions={topic.reactions}
             userReaction={topic.user_reaction?.name}

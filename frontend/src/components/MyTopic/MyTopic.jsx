@@ -255,7 +255,7 @@ const MyTopic = () => {
                     className={`topic-item column-${(index % 2) + 1}`}
                   >
                     <TopicArea
-                      topic={topic}
+                      topicItem={topic}
                       reactionList={reactionList}
                       initialReactions={topic.reactions}
                       userReaction={topic.user_reaction?.name}
