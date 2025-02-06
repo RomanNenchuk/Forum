@@ -39,7 +39,6 @@ export default function TagBar() {
                 className="tag"
                 key={index}
                 onClick={() => handleTagClick(tag.tag_name)}
-                style={{ cursor: "pointer" }}
               >
                 # {tag.tag_name}
               </h5>

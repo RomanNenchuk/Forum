@@ -548,8 +548,7 @@ export const getIsTopicSaved = async (req, res) => {
 };
 
 export const getSavedTopics = async (req, res) => {
-  const { page = 1, limit = 10, user_id } = req.query;
-  const offset = (page - 1) * limit;
+  const { user_id } = req.query;
   try {
     const topicsId = await pool.query(
       `
@@ -573,6 +572,7 @@ export const getSavedTopics = async (req, res) => {
         author, 
         COALESCE(SUM(emoji.score), 0) AS rating,
         topics.date,
+        cover,
         COALESCE(ARRAY_AGG(DISTINCT tags.tag_name) FILTER (WHERE tags.tag_name IS NOT NULL), '{}') AS tag_list
       FROM topics
       
@@ -585,9 +585,8 @@ export const getSavedTopics = async (req, res) => {
         ON emoji.id = topic_reactions.emoji_id
       WHERE topics.id = ANY($1)
       GROUP BY topics.id, fullname, username, avatar, title, email, author, topics.date
-      LIMIT $2 OFFSET $3
       `,
-      [topicsIdArray, limit, offset]
+      [topicsIdArray]
     );
     const topics = topicsResult.rows;
     const reactionsResult = await pool.query(

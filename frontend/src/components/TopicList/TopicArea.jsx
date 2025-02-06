@@ -20,9 +20,11 @@ export default function TopicArea({
   setTopics,
   handleOnActionMenu,
 }) {
-  const [activeReactions, setActiveReactions] = useState(
-    reactionListSetter(initialReactions, userReaction)
-  );
+  const [activeReactions, setActiveReactions] = useState(() => {
+    const fullreactions = reactionListSetter(initialReactions, userReaction);
+    console.log(initialReactions, userReaction, fullreactions);
+    return fullreactions;
+  });
 
   const location = useLocation();
   const navigate = useNavigate();

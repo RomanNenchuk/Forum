@@ -129,10 +129,9 @@ const MyTopic = () => {
       const response = await axios.get(
         `http://localhost:5000/topics/mytopics?user_id=${currentUser.uid}`
       );
-      setTopicInfoList(response.data);
-      setTopicInfoList(prevState =>
-        prevState.map(el => ({
-          ...el,
+      setTopicInfoList(
+        response.data.map(topic => ({
+          ...topic,
           subscribed: "none",
         }))
       );
@@ -142,6 +141,7 @@ const MyTopic = () => {
       setLoading(false);
     }
   };
+
   const fetchSavedData = async () => {
     try {
       setLoading(true);
@@ -258,7 +258,7 @@ const MyTopic = () => {
                       topic={topic}
                       reactionList={reactionList}
                       initialReactions={topic.reactions}
-                      userReaction={topic.user_reaction}
+                      userReaction={topic.user_reaction?.name}
                       setTopics={setTopicInfoList}
                       handleOnActionMenu={handleOnActionMenu}
                     />
