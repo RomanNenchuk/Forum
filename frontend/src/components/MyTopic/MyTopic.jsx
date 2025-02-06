@@ -6,14 +6,16 @@ import { useScrollLock } from "../../hooks/useScrollLock.jsx";
 import TopicArea from "../TopicList/TopicArea";
 import TopicActionMenu from "../TopicList/TopicActionMenu";
 import ConfirmationModal from "../ConfirmationModal/ConfirmationModal.jsx";
+import "./MyTopic.css";
 import axios from "axios";
 
 const MyTopic = () => {
   const { currentUser } = useAuth();
-  const [data, setData] = useState([]);
+  const [topicInfoList, setTopicInfoList] = useState([]);
   const [loading, setLoading] = useState(false);
   const topicListRef = useRef();
   const [firstStepChoose, setFirstStepChoose] = useState(0);
+  const [isTopicSaved, setIsTopicSaved] = useState(false);
 
   const reactionList = [
     { icon: "😁", name: "beaming_face_with_smiling_eyes" },
@@ -56,6 +58,7 @@ const MyTopic = () => {
 
   function handleOnActionMenu(e, topic) {
     e.preventDefault();
+    checkIfTopicIsSaved(currentUser?.uid, topic.id);
     const actionMenuAttr = actionMenuRef.current.getBoundingClientRect();
     const isRight = e.clientX > window?.innerWidth / 2;
     const isBottom = e.clientY > window?.innerHeight / 2;
@@ -108,15 +111,15 @@ const MyTopic = () => {
   }
 
   async function deleteTopic(id) {
-    if (confirm("Ви впевнені, що хочете видалити тему?")) {
-      console.log("On delete topic " + id);
-      try {
-        const res = await axios.delete(`http://localhost:5000/topics/${id}`);
-        if (res.data.done)
-          setTopicInfoList(prev => prev.filter(item => item.id != id));
-      } catch (error) {
-        console.error(error);
-      }
+    try {
+      const res = await axios.delete(`http://localhost:5000/topics/${id}`);
+      if (res.data.done)
+        setTopicInfoList(prev => prev.filter(item => item.id != id));
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsConfirmModalOpen(false);
+      setTopicToDeleteId(null);
     }
   }
 
@@ -126,8 +129,8 @@ const MyTopic = () => {
       const response = await axios.get(
         `http://localhost:5000/topics/mytopics?user_id=${currentUser.uid}`
       );
-      setData(response.data);
-      setData(prevState =>
+      setTopicInfoList(response.data);
+      setTopicInfoList(prevState =>
         prevState.map(el => ({
           ...el,
           subscribed: "none",
@@ -146,7 +149,7 @@ const MyTopic = () => {
         `http://localhost:5000/topics/saved?user_id=${currentUser.uid}`
       );
       console.log(response.data);
-      setData(response.data);
+      setTopicInfoList(response.data);
     } catch (error) {
       console.error("Error fetching user topics:", error);
     } finally {
@@ -170,7 +173,6 @@ const MyTopic = () => {
   }, [currentUser]);
 
   // переніс функції для видалення\поширення з topics
-  const [switchText, setSwitchText] = useState("Не зберігати");
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [topicToDeleteId, setTopicToDeleteId] = useState(null);
 
@@ -185,15 +187,22 @@ const MyTopic = () => {
         user_id,
         topic_id,
       });
-      setData(prev => prev.filter(item => item.id !== topic_id));
-      // console.log(res.data);
+      setTopicInfoList(prev => prev.filter(item => item.id !== topic_id));
     } catch (error) {
       console.error(error);
     }
   }
 
-  const [isShareModalOpen, setShareModalOpen] = useState(false);
-  const [shareId, setShareId] = useState(-1);
+  async function checkIfTopicIsSaved(user_id, topic_id) {
+    try {
+      const res = await axios.get(
+        `http://localhost:5000/topics/save?user_id=${user_id}&topic_id=${topic_id}`
+      );
+      setIsTopicSaved(res.data.saved);
+    } catch (error) {
+      console.error("Ne worka(");
+    }
+  }
 
   function handleShareClick() {
     setShareId(actionMenu.selectedTopic);
@@ -201,131 +210,80 @@ const MyTopic = () => {
   }
 
   const handleConfirmDelete = () => {
-    if (topicToDeleteId) {
-      deleteTopic(topicToDeleteId);
-      navigate("/mytopics");
-    }
+    if (topicToDeleteId) deleteTopic(topicToDeleteId);
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        overflow: "hidden",
-        width: "100%",
-      }}
-    >
-      <div style={{ marginTop: "14vh", width: "100%" }}>
-        <div style={{ marginTop: "3vh", width: "100%" }}>
-          <div
-            style={{
-              display: "flex",
-              width: "100%",
-              flexDirection: "row",
-              justifyContent: "space-around",
-              padding: "2vh",
-            }}
-          >
+    <div className="topics-container">
+      <div className="topics-content">
+        <div className="topics-header">
+          <div className="topics-tabs">
             <div
-              style={
-                firstStepChoose === 0
-                  ? { boxShadow: "0 0.3vh 0 0 #659287", fontSize: "3vh" }
-                  : { fontSize: "3vh" }
-              }
+              className={`tab ${firstStepChoose === 0 ? "active-tab" : ""}`}
               onClick={() => toChoose(0)}
             >
               Мої теми
             </div>
             <div
-              style={
-                firstStepChoose !== 0
-                  ? { boxShadow: "0 0.3vh 0 0 #659287", fontSize: "3vh" }
-                  : { fontSize: "3vh" }
-              }
-              onClick={() => {
-                toChoose(1);
-              }}
+              className={`tab ${firstStepChoose !== 0 ? "active-tab" : ""}`}
+              onClick={() => toChoose(1)}
             >
               Збережені теми
             </div>
           </div>
-          <div
-            style={{
-              marginTop: "3vh",
-              display: "flex",
-              justifyContent: "center",
-              width: "100%",
-            }}
-          >
+          <div className="add-topic-container">
             {!firstStepChoose ? (
               <Link
                 to={currentUser ? "/create-topic" : "/login"}
                 state={{ redirectPath: "/create-topic" }}
-                style={{ width: "55%" }}
+                className="add-topic-link"
               >
-                <button
-                  style={{ width: "100%", borderRadius: "0px" }}
-                  className="add-topic-button"
-                >
-                  + Додати тему
-                </button>
+                <button className="add-topic-button">+ Додати тему</button>
               </Link>
-            ) : (
-              ""
-            )}
+            ) : null}
           </div>
         </div>
-        <div style={{ display: "flex", justifyContent: "center" }}>
+        <div className="topics-grid-container">
           {!loading ? (
-            <div
-              style={{
-                display: "grid",
-                gap: "5vh",
-                gridTemplateColumns: "repeat(2, 1fr)",
-                width: "90%",
-                justifyContent: "center",
-                marginTop: "4vh",
-                gridTemplateRows: "repeat(auto-fill, 1fr)",
-              }}
-            >
-              {data.map((el, index) => (
-                <div
-                  key={el.id}
-                  style={{
-                    gridColumn: `${index - Math.floor(index / 2) * 2 + 1}`,
-                  }}
-                >
-                  <TopicArea
-                    topic={el}
-                    reactionList={reactionList}
-                    initialReactions={el.reactions}
-                    userReaction={el.user_reaction}
-                    setTopics={setData}
-                    handleOnActionMenu={handleOnActionMenu}
-                  />
-                </div>
-              ))}
-              <TopicActionMenu
-                positionX={actionMenu.position.x}
-                positionY={actionMenu.position.y}
-                isToggled={actionMenu.toggled}
-                actionMenuRef={actionMenuRef}
-                resetActionMenu={resetActionMenu}
-                actionMenu={actionMenu}
-                onDeleteClick={handleDeleteClick}
-                handleTopicToUser={switchTopicToUser}
-                switchText={switchText}
-                handleShareClick={handleShareClick}
-              />
-              {isConfirmModalOpen ? (
-                <ConfirmationModal
-                  onClose={() => setIsConfirmModalOpen(false)}
-                  onConfirm={handleConfirmDelete}
-                  message="Видалити цю тему?"
+            topicInfoList.length === 0 ? (
+              <div className="topics-not-found">Тем не знайдено {":("}</div>
+            ) : (
+              <div className="topics-grid">
+                {topicInfoList.map((topic, index) => (
+                  <div
+                    key={topic.id}
+                    className={`topic-item column-${(index % 2) + 1}`}
+                  >
+                    <TopicArea
+                      topic={topic}
+                      reactionList={reactionList}
+                      initialReactions={topic.reactions}
+                      userReaction={topic.user_reaction}
+                      setTopics={setTopicInfoList}
+                      handleOnActionMenu={handleOnActionMenu}
+                    />
+                  </div>
+                ))}
+                <TopicActionMenu
+                  positionX={actionMenu.position.x}
+                  positionY={actionMenu.position.y}
+                  isToggled={actionMenu.toggled}
+                  actionMenuRef={actionMenuRef}
+                  resetActionMenu={resetActionMenu}
+                  actionMenu={actionMenu}
+                  onDeleteClick={handleDeleteClick}
+                  handleTopicToUser={switchTopicToUser}
+                  isTopicSaved={isTopicSaved}
                 />
-              ) : null}
-            </div>
+                {isConfirmModalOpen && (
+                  <ConfirmationModal
+                    onClose={() => setIsConfirmModalOpen(false)}
+                    onConfirm={handleConfirmDelete}
+                    message="Видалити цю тему?"
+                  />
+                )}
+              </div>
+            )
           ) : (
             <AltSpinner />
           )}

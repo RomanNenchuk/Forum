@@ -151,7 +151,6 @@ export default function TopicList({ topicInfoList, scrollContainerRef }) {
       const res = await axios.get(
         `http://localhost:5000/topics/save?user_id=${user_id}&topic_id=${topic_id}`
       );
-      setSwitchText(res.data.saved ? "Не зберігати" : "Зберегти тему");
       setIsTopicSaved(res.data.saved);
     } catch (error) {
       console.error("Ne worka(");

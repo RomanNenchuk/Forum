@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { useTopicSearch } from "../../contexts/TopicSearchContext.jsx";
 import { Link, useLocation } from "react-router-dom";
 import ToastPortal from "../Toast/Toast.jsx";
@@ -6,20 +6,21 @@ import "./TagBar.css";
 
 export default function TagBar() {
   const [toast, setToast] = useState(null);
+  const toastTimeout = useRef(null);
   const { popularTagList } = useTopicSearch();
   const location = useLocation();
 
   const showToast = (message, type, item = "") => {
-    if (toast) clearTimeout(toast.timeoutId);
+    if (toastTimeout.current) {
+      clearTimeout(toastTimeout.current);
+    }
 
-    const newToast = {
-      message,
-      type,
-      item,
-      timeoutId: setTimeout(() => setToast(null), 3000),
-    };
+    setToast({ message, type, item });
 
-    setToast(newToast);
+    toastTimeout.current = setTimeout(() => {
+      setToast(null);
+      toastTimeout.current = null;
+    }, 3000);
   };
 
   const handleTagClick = tagName => {

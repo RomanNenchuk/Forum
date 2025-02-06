@@ -4,7 +4,7 @@ import styles from "./Toast.module.css";
 
 export const Toast = ({ message, type, item, onClose }) => {
   return (
-    <div className={styles.toast}>
+    <div className={styles.toast} onAnimationEnd={onClose}>
       <span className={styles.itemName}>{item}</span> {message}
     </div>
   );

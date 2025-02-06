@@ -55,15 +55,18 @@ export default function SideBar({ isExpanded, setExpand }) {
             {isExpanded && <span>Чати</span>}
           </Link>
         </div>
-        <div className={`mn-menu-el ${isActive("/events") ? "active" : ""}`}>
-          <Link id="mn-menu-events" to="/poptopics">
-            <img src={eventsIcon} alt="Events" />
+        <div className={`mn-menu-el ${isActive("/poptopics") ? "active" : ""}`}>
+          <Link id="mn-menu-popular" to="/poptopics">
+            <img src={eventsIcon} alt="Popular" />
             {isExpanded && <span>Популярне</span>}
           </Link>
         </div>
-        <div className={`mn-menu-el ${isActive("/topics") ? "active" : ""}`}>
-          <Link id="mn-menu-events" to={currentUser ? `/mytopics` : "/login"}>
-            <img src={themeIcon} alt="Events" />
+        <div className={`mn-menu-el ${isActive("/mytopics") ? "active" : ""}`}>
+          <Link
+            id="mn-menu-my-topics"
+            to={currentUser ? `/mytopics` : "/login"}
+          >
+            <img src={themeIcon} alt="My topics" />
             {isExpanded && <span>Теми</span>}
           </Link>
         </div>

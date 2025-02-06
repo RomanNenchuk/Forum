@@ -175,22 +175,22 @@ export const getTopicsPreview = async (req, res) => {
 };
 
 export const getUserTopic = async (req, res) => {
-  const { page = 1, limit = 10, user_id } = req.query;
-  const offset = (page - 1) * limit;
+  const { user_id } = req.query;
   try {
     const topicsResult = await pool.query(
       `
       SELECT 
-        topics.id, 
-        fullname AS author_full_name, 
-        username, 
-        avatar AS author_avatar, 
-        title, 
-        email, 
-        author, 
-        COALESCE(SUM(emoji.score), 0) AS rating,
-        topics.date,
-        COALESCE(ARRAY_AGG(DISTINCT tags.tag_name) FILTER (WHERE tags.tag_name IS NOT NULL), '{}') AS tag_list
+      topics.id, 
+      fullname AS author_full_name, 
+      username, 
+      avatar AS author_avatar, 
+      title, 
+      email, 
+      author, 
+      COALESCE(SUM(emoji.score), 0) AS rating,
+      cover,
+      topics.date,
+      COALESCE(ARRAY_AGG(DISTINCT tags.tag_name) FILTER (WHERE tags.tag_name IS NOT NULL), '{}') AS tag_list
       FROM topics
       
       INNER JOIN users ON users.uid = topics.author
@@ -202,9 +202,9 @@ export const getUserTopic = async (req, res) => {
         ON emoji.id = topic_reactions.emoji_id
       WHERE users.uid = $1
       GROUP BY topics.id, fullname, username, avatar, title, email, author, topics.date
-      LIMIT $2 OFFSET $3
+      ORDER BY topics.date DESC;
       `,
-      [user_id, limit, offset]
+      [user_id]
     );
     const topics = topicsResult.rows;
     const reactionsResult = await pool.query(
@@ -551,11 +551,14 @@ export const getSavedTopics = async (req, res) => {
   const { page = 1, limit = 10, user_id } = req.query;
   const offset = (page - 1) * limit;
   try {
-    const topicsId = await pool.query(`
+    const topicsId = await pool.query(
+      `
       SELECT topic_id FROM saved_topics WHERE user_id = $1
-      `, [user_id]);
+      `,
+      [user_id]
+    );
     let topicsIdArray = [];
-    for(let el of topicsId.rows) {
+    for (let el of topicsId.rows) {
       topicsIdArray.push(el.topic_id);
     }
     const topicsResult = await pool.query(
@@ -616,7 +619,6 @@ export const getSavedTopics = async (req, res) => {
     );
     userReactions = userReactionsResult.rows;
 
-
     const topicsWithReactions = topics.map(topic => {
       const topicReactions = reactions
         .filter(reaction => reaction.topic_id === topic.id)
@@ -629,7 +631,6 @@ export const getSavedTopics = async (req, res) => {
       const userReaction = userReactions.find(
         reaction => reaction.topic_id === topic.id
       );
-
 
       return {
         ...topic,
