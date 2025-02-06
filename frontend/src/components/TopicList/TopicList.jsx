@@ -50,6 +50,7 @@ export default function TopicList({ topicInfoList }) {
     toggled: false,
   });
   const [switchText, setSwitchText] = useState("");
+  const [isTopicSaved, setIsTopicSaved] = useState(false);
   const { currentUser } = useAuth();
   const navigate = useNavigate();
 
@@ -57,7 +58,7 @@ export default function TopicList({ topicInfoList }) {
 
   function handleOnActionMenu(e, topic) {
     e.preventDefault();
-    isTopicSaved(currentUser?.uid, topic.id);
+    checkIfTopicIsSaved(currentUser?.uid, topic.id);
     const actionMenuAttr = actionMenuRef.current.getBoundingClientRect();
     const isRight = e.clientX > window?.innerWidth / 2;
     const isBottom = e.clientY > window?.innerHeight / 2;
@@ -145,13 +146,13 @@ export default function TopicList({ topicInfoList }) {
     }
   }
 
-  async function isTopicSaved(user_id, topic_id) {
+  async function checkIfTopicIsSaved(user_id, topic_id) {
     try {
       const res = await axios.get(
         `http://localhost:5000/topics/save?user_id=${user_id}&topic_id=${topic_id}`
       );
-      // console.log(res.data);
       setSwitchText(res.data.saved ? "Не зберігати" : "Зберегти тему");
+      setIsTopicSaved(res.data.saved);
     } catch (error) {
       console.error("Ne worka(");
     }
@@ -193,8 +194,7 @@ export default function TopicList({ topicInfoList }) {
         actionMenu={actionMenu}
         onDeleteClick={handleDeleteClick}
         handleTopicToUser={switchTopicToUser}
-        switchText={switchText}
-        handleShareClick={handleShareClick}
+        isTopicSaved={isTopicSaved}
       />
       {isConfirmModalOpen ? (
         <ConfirmationModal

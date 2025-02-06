@@ -13,7 +13,6 @@ export default function TagBar() {
     if (toast) clearTimeout(toast.timeoutId);
 
     const newToast = {
-      id: Date.now(),
       message,
       type,
       item,
@@ -57,7 +56,6 @@ export default function TagBar() {
       </div>
       {toast && (
         <ToastPortal
-          key={toast.id}
           message={toast.message}
           type={toast.type}
           item={toast.item}
