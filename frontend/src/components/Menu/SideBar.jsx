@@ -56,7 +56,14 @@ export default function SideBar({ isExpanded, setExpand }) {
           </Link>
         </div>
         <div className={`mn-menu-el ${isActive("/poptopics") ? "active" : ""}`}>
-          <Link id="mn-menu-popular" to="/poptopics">
+          <Link
+            id="mn-menu-popular"
+            to="/poptopics"
+            state={{
+              backgroundLocation: location,
+              redirectPath: `/poptopics`,
+            }}
+          >
             <img src={eventsIcon} alt="Popular" />
             {isExpanded && <span>Популярне</span>}
           </Link>
@@ -65,6 +72,10 @@ export default function SideBar({ isExpanded, setExpand }) {
           <Link
             id="mn-menu-my-topics"
             to={currentUser ? `/mytopics` : "/login"}
+            state={{
+              backgroundLocation: location,
+              redirectPath: `/mytopics`,
+            }}
           >
             <img src={themeIcon} alt="My topics" />
             {isExpanded && <span>Теми</span>}
