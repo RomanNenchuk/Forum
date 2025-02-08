@@ -57,7 +57,7 @@ export default function Topic() {
   const topicCommentsRef = useRef(null);
   const extendedInformationRef = useRef(null);
   const { currentUser } = useAuth();
-  const { fullName, avatar } = useUserInfo();
+  const { user } = useUserInfo();
 
   useScrollLock(isContextMenuOpen, topicCommentsRef);
 
@@ -146,7 +146,7 @@ export default function Topic() {
         topic_id: id,
         attachments: [],
         reply: reply?.id || -1,
-        author_fullname: fullName,
+        author_fullname: user.fullName,
         avatar: avatar,
         reply_text: null,
         reply_timestamp: reply?.timestamp || null,
@@ -183,7 +183,7 @@ export default function Topic() {
           topic_id: id,
           attachments,
           reply: reply?.id || -1,
-          author_fullname: fullName,
+          author_fullname: user.fullName,
           avatar: avatar,
           reply_text: null,
           reply_timestamp: reply?.timestamp || null,

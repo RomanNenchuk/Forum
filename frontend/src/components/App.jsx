@@ -118,9 +118,11 @@ function AppRoutes() {
           <Route
             path="/profiles/:id"
             element={
-              <Modal>
-                <Profile />
-              </Modal>
+              <TopicListProvider>
+                <Modal>
+                  <Profile />
+                </Modal>
+              </TopicListProvider>
             }
           />
           <Route

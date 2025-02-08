@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
@@ -13,7 +13,9 @@ import teamIcon from "../../assets/team.svg";
 import themeIcon from "../../assets/side-theme.svg";
 import "./Menu.css";
 
-export default function SideBar({ isExpanded, setExpand }) {
+export default function SideBar() {
+  const [isExpanded, setExpand] = useState(true);
+
   const SQUEEZE_SIDE_BAR_PATHS = ["/chats", "/topics"];
   const location = useLocation();
   const { currentUser } = useAuth();
@@ -44,7 +46,7 @@ export default function SideBar({ isExpanded, setExpand }) {
         </div>
         <div className={`mn-menu-el ${isActive("/chats") ? "active" : ""}`}>
           <Link
-            to={currentUser ? `/chats` : "/login"}
+            to={currentUser ? `/chats` : `/login${location.search}`}
             id="mn-menu-chats"
             state={{
               backgroundLocation: location,
@@ -56,14 +58,7 @@ export default function SideBar({ isExpanded, setExpand }) {
           </Link>
         </div>
         <div className={`mn-menu-el ${isActive("/poptopics") ? "active" : ""}`}>
-          <Link
-            id="mn-menu-popular"
-            to="/poptopics"
-            state={{
-              backgroundLocation: location,
-              redirectPath: `/poptopics`,
-            }}
-          >
+          <Link id="mn-menu-popular" to="/poptopics">
             <img src={eventsIcon} alt="Popular" />
             {isExpanded && <span>Популярне</span>}
           </Link>
@@ -71,7 +66,7 @@ export default function SideBar({ isExpanded, setExpand }) {
         <div className={`mn-menu-el ${isActive("/mytopics") ? "active" : ""}`}>
           <Link
             id="mn-menu-my-topics"
-            to={currentUser ? `/mytopics` : "/login"}
+            to={currentUser ? `/mytopics` : `/login${location.search}`}
             state={{
               backgroundLocation: location,
               redirectPath: `/mytopics`,

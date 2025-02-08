@@ -62,7 +62,7 @@ export default function Chat() {
   const [loading, setLoading] = useState(false);
   const socket = useSocket();
   const { currentUser } = useAuth();
-  const { fullName } = useUserInfo();
+  const { user } = useUserInfo();
 
   const [contextMenu, setContextMenu] = useState({
     selectedMessage: -1,
@@ -123,7 +123,6 @@ export default function Chat() {
 
   useEffect(() => {
     if (!socket) return;
-   
 
     socket.on("receive-message", msg => {
       console.log(msg);
@@ -256,7 +255,7 @@ export default function Chat() {
       const msg = {
         id: -1,
         attachments: [],
-        fullname: fullName,
+        fullname: user.fullName,
         sender_id: currentUser.uid,
         text: text.trim(),
         timestamp: new Date().toISOString(),
@@ -285,7 +284,7 @@ export default function Chat() {
         const msg = {
           id: -1,
           attachments,
-          fullname: fullName,
+          fullname: user.fullName,
           sender_id: currentUser.uid,
           text: i === fileChunks.length - 1 ? text : "", // додаю текст до останнього повідомлення
           timestamp: new Date().toISOString(),
@@ -409,7 +408,7 @@ export default function Chat() {
       const msg = {
         id: -1,
         attachments: [],
-        fullname: fullName,
+        fullname: user.fullName,
         sender_id: currentUser.uid,
         text: location.state?.text.trim(),
         timestamp: new Date().toISOString(),
@@ -451,7 +450,11 @@ export default function Chat() {
           onClick={handleOnActionMenu}
           ref={settingsRef}
         >
-          <img src={chatControllerIcon} style = {{height: '4vh', width: "auto"}} alt="Settings" />
+          <img
+            src={chatControllerIcon}
+            style={{ height: "4vh", width: "auto" }}
+            alt="Settings"
+          />
         </div>
       </div>
       <ChatMessages

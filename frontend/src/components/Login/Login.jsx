@@ -115,7 +115,7 @@ export default function Login({ onClose }) {
 
           <NavLink
             linkText={"Забули пароль?"}
-            linkTo={"/forgot-password"}
+            linkTo={`/forgot-password${location.search}`}
             backgroundPath={backgroundPath}
             redirectPath={redirectPath}
             className="mt-5"
@@ -126,7 +126,7 @@ export default function Login({ onClose }) {
             linkText={"Реєстрація"}
             backgroundPath={backgroundPath}
             redirectPath={redirectPath}
-            linkTo={"/signup"}
+            linkTo={`/signup${location.search}`}
           />
 
           <ActionButton label={"Увійти"} loading={loading} className="my-5" />

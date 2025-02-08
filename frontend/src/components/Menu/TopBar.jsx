@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useUserInfo } from "../../contexts/UserInfoContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTopicSearch } from "../../contexts/TopicSearchContext.jsx";
 import ProfileHeader from "../ProfileHeader";
@@ -6,17 +8,22 @@ import logo from "../../assets/logo.svg";
 import seachIcon from "../../assets/search.svg";
 import "./Menu.css";
 
-export default function TopBar({ currentUser, avatar, fullName }) {
+export default function TopBar() {
+  const { currentUser } = useAuth();
   const location = useLocation();
   const {
     searchInput,
     setSearchInput,
-    setQueryParams,
     urlSearchParams,
     setUrlSearchParams,
     getSearchInputData,
   } = useTopicSearch();
   const navigate = useNavigate();
+  const { user } = useUserInfo();
+
+  useEffect(() => {
+    console.log(user);
+  }, [user]);
 
   function handleSearch(e) {
     e.preventDefault();
@@ -44,12 +51,6 @@ export default function TopBar({ currentUser, avatar, fullName }) {
           onClick={() => {
             setUrlSearchParams({});
             setSearchInput("");
-            setQueryParams({
-              page: 1,
-              sortOrder: "desc",
-              tags: "",
-              authors: "",
-            });
           }}
         >
           <div className="hd-logo">
@@ -78,8 +79,8 @@ export default function TopBar({ currentUser, avatar, fullName }) {
           {currentUser ? (
             <ProfileHeader
               id={currentUser.uid}
-              avatar={avatar}
-              profileName={`Вітаємо, ${fullName}!`}
+              avatar={user?.avatar}
+              profileName={`Вітаємо, ${user?.fullName}!`}
               size="9vh"
               sizeFont="3vh"
               avThickness="0.4vh"
@@ -90,7 +91,7 @@ export default function TopBar({ currentUser, avatar, fullName }) {
             />
           ) : (
             <Link
-              to="/login"
+              to={`/login${location.search}`}
               state={{
                 backgroundLocation: {
                   pathname: location.pathname,

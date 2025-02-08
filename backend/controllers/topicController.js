@@ -55,39 +55,41 @@ export const getTopicsPreview = async (req, res) => {
     // Основний запит для тем
     const topicsResult = await pool.query(
       `
+    WITH tags_cte AS (
+        SELECT 
+            topic_tags.topic_id,
+            ARRAY_AGG(DISTINCT tags.tag_name) AS tag_list
+        FROM topic_tags
+        LEFT JOIN tags ON topic_tags.tag_id = tags.tag_id
+        GROUP BY topic_tags.topic_id
+      ),
+      rating_cte AS (
+          SELECT 
+              topic_reactions.topic_id,
+              COALESCE(SUM(emoji.score), 0) AS rating
+          FROM topic_reactions
+          LEFT JOIN emoji ON emoji.id = topic_reactions.emoji_id
+          GROUP BY topic_reactions.topic_id
+      )
       SELECT 
-        topics.id, 
-        fullname AS author_full_name, 
-        username, 
-        avatar AS author_avatar, 
-        title, 
-        email, 
-        author, 
-        COALESCE(SUM(emoji.score), 0) AS rating,
-        cover,
-        topics.date,
-        COALESCE(ARRAY_AGG(DISTINCT tags.tag_name) FILTER (WHERE tags.tag_name IS NOT NULL), '{}') AS tag_list
+          topics.id, 
+          users.fullname AS author_full_name, 
+          users.username, 
+          users.avatar AS author_avatar, 
+          topics.title, 
+          users.email, 
+          topics.author, 
+          COALESCE(rating_cte.rating, 0) AS rating,
+          topics.cover,
+          topics.date,
+          COALESCE(tags_cte.tag_list, '{}') AS tag_list
       FROM topics
       INNER JOIN users ON users.uid = topics.author
-      left join topic_tags on topics.id = topic_tags.topic_id
-      left join tags on topic_tags.tag_id = tags.tag_id
-      LEFT JOIN topic_reactions
-        ON topics.id = topic_reactions.topic_id
-      LEFT JOIN emoji
-        ON emoji.id = topic_reactions.emoji_id
+      LEFT JOIN tags_cte ON topics.id = tags_cte.topic_id
+      LEFT JOIN rating_cte ON topics.id = rating_cte.topic_id
       WHERE 1=1
       ${tagsFilterQuery}
       ${authorsFilterQuery}
-      GROUP BY 
-        topics.id, 
-        fullname, 
-        username, 
-        avatar, 
-        title, 
-        email, 
-        author, 
-        cover,
-        topics.date
       ORDER BY ${orderBy}
       LIMIT $1 OFFSET $2;
       `,
@@ -168,132 +170,6 @@ export const getTopicsPreview = async (req, res) => {
     });
 
     res.status(200).json(topicsWithReactions);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-};
-
-export const getTopic = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { user_id } = req.query;
-
-    // 1. базова інформація про тему
-    const topicResult = await pool.query(
-      `
-      SELECT 
-        topics.id,
-        uid, 
-        fullname AS authorFullName, 
-        username, 
-        avatar, 
-        title, 
-        author, 
-        description, 
-        attachments,
-        cover,
-        TO_CHAR(topics.date, 'DD.MM.YYYY') AS formatted_date
-      FROM topics 
-      left join topic_tags on topics.id = topic_tags.topic_id
-      left join tags on topic_tags.tag_id = tags.tag_id
-      INNER JOIN users 
-        ON topics.author = users.uid  
-      WHERE topics.id = $1
-      
-      `,
-      [id]
-    );
-
-    if (topicResult.rows.length === 0) {
-      return res.status(404).json({ message: "Topic not found" });
-    }
-
-    const topic = topicResult.rows[0];
-
-    // 2. всі реакції до теми
-    const reactionsResult = await pool.query(
-      `
-      SELECT 
-        emoji.name AS name, 
-        emoji.icon AS icon, 
-        COUNT(*) AS count
-      FROM topic_reactions
-      INNER JOIN emoji ON topic_reactions.emoji_id = emoji.id
-      WHERE topic_reactions.topic_id = $1
-      GROUP BY emoji.name, emoji.icon
-      `,
-      [id]
-    );
-
-    const reactions = reactionsResult.rows.map(reaction => ({
-      name: reaction.name,
-      icon: reaction.icon,
-      count: parseInt(reaction.count, 10),
-    }));
-
-    // 3. реакція конкретного користувача (якщо user_id передано)
-    let userReaction = null;
-    if (user_id) {
-      const userReactionResult = await pool.query(
-        `
-        SELECT 
-          emoji.name AS name, 
-          emoji.icon AS icon
-        FROM topic_reactions
-        INNER JOIN emoji ON topic_reactions.emoji_id = emoji.id
-        WHERE topic_reactions.topic_id = $1 AND topic_reactions.user_id = $2
-        LIMIT 1
-        `,
-        [id, user_id]
-      );
-
-      if (userReactionResult.rows.length > 0) {
-        userReaction = userReactionResult.rows[0];
-      }
-    }
-
-    //4. отримання інфи про підписки юзера на автора
-    let userSubscriptions = [];
-
-    if (user_id) {
-      const resSubs = await pool.query(
-        `SELECT subscription_id FROM user_subscriptions WHERE user_id = $1`,
-        [user_id]
-      );
-      userSubscriptions = resSubs.rows; // Оновлюємо змінну тут
-    }
-
-    //5. отримання спииску прикріплених до теми тегів
-    let tags_list = [];
-
-    const resTags = await pool.query(
-      `SELECT 
-       COALESCE(ARRAY_AGG(DISTINCT tags.tag_name) FILTER (WHERE tags.tag_name IS NOT NULL), '{}') AS tag_list
-       FROM topics
-       LEFT JOIN topic_tags ON topics.id = topic_tags.topic_id
-       LEFT JOIN tags ON topic_tags.tag_id = tags.tag_id
-       WHERE topics.id = $1
-      `,
-      [id]
-    );
-
-    tags_list = resTags.rows[0].tag_list;
-
-    if (userSubscriptions.find(subs => subs.subscription_id == topic.author))
-      topic.subscribed = true;
-    else {
-      if (topic.author == user_id) topic.subscribed = "none";
-      else topic.subscribed = false;
-    }
-
-    // 6. результати
-    res.status(200).json({
-      ...topic,
-      reactions,
-      user_reaction: userReaction,
-      tag_list: tags_list,
-    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -386,6 +262,132 @@ export const getUserTopic = async (req, res) => {
   } catch (error) {
     res.status(500).json("Internal server error");
     console.error(error);
+  }
+};
+
+export const getTopic = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { user_id } = req.query;
+
+    // 1. базова інформація про тему
+    const topicResult = await pool.query(
+      `
+      SELECT 
+        topics.id,
+        uid, 
+        fullname AS authorFullName, 
+        username, 
+        avatar, 
+        title, 
+        author, 
+        description, 
+        attachments,
+        cover,
+        TO_CHAR(topics.date, 'DD.MM.YYYY') AS formatted_date
+      FROM topics 
+      left join topic_tags on topics.id = topic_tags.topic_id
+      left join tags on topic_tags.tag_id = tags.tag_id
+      INNER JOIN users 
+        ON topics.author = users.uid  
+      WHERE topics.id = $1
+      
+      `,
+      [id]
+    );
+
+    if (topicResult.rows.length === 0) {
+      return res.status(404).json({ message: "Topic not found" });
+    }
+
+    const topic = topicResult.rows[0];
+
+    // 2. всі реакції до теми
+    const reactionsResult = await pool.query(
+      `
+      SELECT 
+        emoji.name AS name, 
+        emoji.icon AS icon, 
+        COUNT(*) AS count
+      FROM topic_reactions
+      INNER JOIN emoji ON topic_reactions.emoji_id = emoji.id
+      WHERE topic_reactions.topic_id = $1
+      GROUP BY emoji.name, emoji.icon
+      `,
+      [id]
+    );
+
+    const reactions = reactionsResult.rows.map(reaction => ({
+      name: reaction.name,
+      icon: reaction.icon,
+      count: parseInt(reaction.count, 10),
+    }));
+
+    // 3. реакція конкретного користувача (якщо user_id передано)
+    let userReaction = null;
+    if (user_id) {
+      const userReactionResult = await pool.query(
+        `
+        SELECT 
+          emoji.name AS name, 
+          emoji.icon AS icon
+        FROM topic_reactions
+        INNER JOIN emoji ON topic_reactions.emoji_id = emoji.id
+        WHERE topic_reactions.topic_id = $1 AND topic_reactions.user_id = $2
+        LIMIT 1
+        `,
+        [id, user_id]
+      );
+
+      if (userReactionResult.rows.length > 0) {
+        userReaction = userReactionResult.rows[0];
+      }
+    }
+
+    //4. отримання інфи про підписки юзера на автора
+    let userSubscriptions = [];
+
+    if (user_id) {
+      const resSubs = await pool.query(
+        `SELECT subscription_id FROM user_subscriptions WHERE user_id = $1`,
+        [user_id]
+      );
+      userSubscriptions = resSubs.rows;
+    }
+
+    //5. отримання спииску прикріплених до теми тегів
+    let tags_list = [];
+
+    const resTags = await pool.query(
+      `SELECT 
+       COALESCE(ARRAY_AGG(DISTINCT tags.tag_name) FILTER (WHERE tags.tag_name IS NOT NULL), '{}') AS tag_list
+       FROM topics
+       LEFT JOIN topic_tags ON topics.id = topic_tags.topic_id
+       LEFT JOIN tags ON topic_tags.tag_id = tags.tag_id
+       WHERE topics.id = $1
+      `,
+      [id]
+    );
+
+    tags_list = resTags.rows[0].tag_list;
+
+    // 6. результати
+    res.status(200).json({
+      ...topic,
+      reactions,
+      user_reaction: userReaction,
+      tag_list: tags_list,
+      subscribed: userSubscriptions.find(
+        subs => subs.subscription_id == topic.author
+      )
+        ? (topic.subscribed = true)
+        : topic.author == user_id
+        ? (topic.subscribed = "none")
+        : (topic.subscribed = false),
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
@@ -618,6 +620,16 @@ export const getSavedTopics = async (req, res) => {
     );
     userReactions = userReactionsResult.rows;
 
+    let userSubscriptions = [];
+    if (user_id) {
+      const resSubs = await pool.query(
+        `SELECT subscription_id FROM user_subscriptions WHERE user_id = $1`,
+        [user_id]
+      );
+      userSubscriptions = resSubs.rows; // Оновлюємо змінну тут
+    }
+
+    // Формування фінального результату
     const topicsWithReactions = topics.map(topic => {
       const topicReactions = reactions
         .filter(reaction => reaction.topic_id === topic.id)
@@ -630,6 +642,13 @@ export const getSavedTopics = async (req, res) => {
       const userReaction = userReactions.find(
         reaction => reaction.topic_id === topic.id
       );
+
+      if (userSubscriptions.find(subs => subs.subscription_id == topic.author))
+        topic.subscribed = true;
+      else {
+        if (topic.author == user_id) topic.subscribed = "none";
+        else topic.subscribed = false;
+      }
 
       return {
         ...topic,

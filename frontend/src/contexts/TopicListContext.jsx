@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+} from "react";
 import axios from "axios";
 import { useAuth } from "./AuthContext";
 import { useTopicSearch } from "./TopicSearchContext";
@@ -15,14 +22,6 @@ export function TopicListProvider({ children }) {
   const [loading, setLoading] = useState(false);
   const { currentUser } = useAuth();
   const { queryParams, setQueryParams } = useTopicSearch();
-
-  useEffect(() => {
-    const fetchData = debounce(async () => {
-      await fetchTopics();
-    }, 200);
-    setLoading(true);
-    fetchData();
-  }, [queryParams]);
 
   useEffect(() => {
     setQueryParams(prev => ({
@@ -46,7 +45,7 @@ export function TopicListProvider({ children }) {
     return debounced;
   }
 
-  async function fetchTopics() {
+  const fetchTopics = useCallback(async () => {
     setLoading(true);
     try {
       const response = await axios.get(
@@ -55,6 +54,7 @@ export function TopicListProvider({ children }) {
           `${queryParams.tags ? "&tags=" + queryParams.tags : ""}` +
           `${queryParams.authors ? "&authors=" + queryParams.authors : ""}`
       );
+
       const topics = response.data || [];
       setTopicInfoList(prev =>
         queryParams.page === 1 ? topics : [...prev, ...topics]
@@ -65,14 +65,23 @@ export function TopicListProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  }
+  }, [queryParams, currentUser]);
+
+  const debouncedFetchTopics = useMemo(
+    () => debounce(fetchTopics, 200),
+    [fetchTopics]
+  );
+
+  useEffect(() => {
+    setLoading(true);
+    debouncedFetchTopics();
+  }, [queryParams, debouncedFetchTopics]);
 
   const value = {
     topicInfoList,
     setTopicInfoList,
     hasMore,
     loading,
-    fetchTopics,
     debounce,
   };
 

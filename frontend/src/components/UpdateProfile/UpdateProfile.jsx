@@ -22,15 +22,7 @@ export default function UpdateProfile({ onClose }) {
     updateUserEmail,
     verifyPassword,
   } = useAuth();
-  const {
-    userName,
-    fullName,
-    setUserName,
-    avatar,
-    setAvatar,
-    saveAvatar,
-    deleteAvatar,
-  } = useUserInfo();
+  const { user, setUser, saveAvatar, deleteAvatar } = useUserInfo();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState(null);
@@ -47,22 +39,34 @@ export default function UpdateProfile({ onClose }) {
   const backgroundLocation = location.state?.backgroundLocation || "/";
 
   useEffect(() => {
-    setPreview(avatar);
-  }, [avatar]);
+    setPreview(user.avatar);
+  }, [user.avatar]);
 
   const isGoogleSignIn = currentUser.providerData.some(
     provider => provider.providerId === "google.com"
   );
 
   async function updateUserOnServer(token, userId, userData) {
-    const response = await axios.put(
-      `http://localhost:5000/users/${userId}`,
-      userData,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-    return response.data;
+    try {
+      const response = await axios.put(
+        `http://localhost:5000/users/${userId}`,
+        userData,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      console.log(response.data);
+      const { fullname, username, avatar, email } = response.data.user;
+      return {
+        fullName: fullname,
+        userName: username,
+        avatar,
+        email,
+      };
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   }
 
   async function handleSubmit(e) {
@@ -87,8 +91,8 @@ export default function UpdateProfile({ onClose }) {
       // emailChanged буде false, якщо користувач входив за google
       const emailChanged =
         !isGoogleSignIn && emailRef?.current?.value !== currentUser.email;
-      const userNameChanged = userNameRef.current.value !== userName;
-      const fullNameChanged = fullNameRef.current.value !== fullName;
+      const userNameChanged = userNameRef.current.value !== user.userName;
+      const fullNameChanged = fullNameRef.current.value !== user.fullName;
 
       if (emailChanged || userNameChanged) {
         const { emailExists, usernameExists } = await usernameOrEmailTaken(
@@ -131,16 +135,19 @@ export default function UpdateProfile({ onClose }) {
       }
 
       if (preview && image) await saveAvatar(image, currentUser.uid, newToken);
-      if (!preview && avatar) await deleteAvatar(currentUser.uid, newToken);
+      if (!preview && user.avatar)
+        await deleteAvatar(currentUser.uid, newToken);
 
       if (Object.keys(userData).length > 0) {
-        const response = await updateUserOnServer(
+        const updatedUserInfo = await updateUserOnServer(
           newToken,
           currentUser.uid,
           userData
         );
-        setUserName(response.userName);
-        setAvatar(response.avatar);
+        setUser(prev => ({
+          ...prev,
+          ...updatedUserInfo,
+        }));
       }
 
       navigateToProfile();
@@ -179,8 +186,8 @@ export default function UpdateProfile({ onClose }) {
         <UpdateProfileForm
           isGoogleSignIn={isGoogleSignIn}
           currentUser={currentUser}
-          fullName={fullName}
-          userName={userName}
+          fullName={user.fullName}
+          userName={user.userName}
           fullNameRef={fullNameRef}
           userNameRef={userNameRef}
           emailRef={emailRef}

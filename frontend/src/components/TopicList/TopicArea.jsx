@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import AttachedFiles from "../AttachedFiles/AttachedFiles.jsx";
 import reactionListSetter from "../../utils/reactionListSetter.jsx";
@@ -13,18 +13,16 @@ import subscribed from "./../../assets/subscribed.svg";
 import axios from "axios";
 
 export default function TopicArea({
-  topicItem,
+  topic,
   reactionList,
   initialReactions,
   userReaction,
   setTopics,
   handleOnActionMenu,
 }) {
-  const [topic, setTopic] = useState(topicItem);
   const [activeReactions, setActiveReactions] = useState(
     reactionListSetter(initialReactions, userReaction)
   );
-
   const location = useLocation();
   const navigate = useNavigate();
   const { currentUser, token } = useAuth();
@@ -35,7 +33,7 @@ export default function TopicArea({
 
   async function handleClick(emoji) {
     if (!currentUser)
-      return navigate("/login", {
+      return navigate(`/login${location.search}`, {
         state: {
           backgroundLocation: location,
           redirectPath: location,
@@ -64,18 +62,20 @@ export default function TopicArea({
 
   async function addSubscribe() {
     try {
-      const res = await axios.post(
-        `http://localhost:5000/subscriptions/${topic.author}`,
-        { user1_id: currentUser.uid }
-      );
+      const res = await axios.post("http://localhost:5000/subscriptions", {
+        user1_id: currentUser.uid,
+        user2_id: topic.author,
+      });
+      console.log(res);
 
       if (res.data.done) {
         setTopics(prevState =>
           prevState.map(el =>
-            el.author === topic.author ? { ...el, subscribed: true } : el
+            el.author === topic.author
+              ? { ...el, subscribed: !el.subscribed }
+              : el
           )
         );
-        setTopic(prev => ({ ...prev, subscribed: true }));
       }
     } catch (err) {
       console.error(err);
@@ -84,20 +84,18 @@ export default function TopicArea({
 
   async function delSubscribe() {
     try {
-      const res = await axios.delete(
-        `http://localhost:5000/subscriptions/${topic.author}`,
-        {
-          data: { user1_id: currentUser.uid }, // Передаємо тіло правильно
-        }
-      );
+      const res = await axios.delete("http://localhost:5000/subscriptions", {
+        data: { user1_id: currentUser.uid, user2_id: topic.author },
+      });
 
       if (res.data.done) {
         setTopics(prevState =>
           prevState.map(el =>
-            el.author === topic.author ? { ...el, subscribed: false } : el
+            el.author === topic.author
+              ? { ...el, subscribed: !el.subscribed }
+              : el
           )
         );
-        setTopic(prev => ({ ...prev, subscribed: false }));
       }
     } catch (err) {
       console.error(err);
@@ -106,14 +104,17 @@ export default function TopicArea({
 
   const handleTopicClick = topicId => {
     sessionStorage.setItem("scrollPosition", window.scrollY);
-    navigate(`/topics/${topicId}`);
+    navigate({
+      pathname: `/topics/${topicId}`,
+      search: location.search,
+    });
   };
 
   const handleSubscribeClick = e => {
     e.preventDefault();
     e.stopPropagation();
     if (!currentUser) {
-      return navigate("/login", {
+      return navigate(`/login${location.search}`, {
         state: {
           backgroundLocation: location,
           redirectPath: location,
@@ -188,10 +189,13 @@ export default function TopicArea({
               </button>
             ))}
           </div>
+
           <div className="chat-settings">
-            <Link to={`/topics/${topic.id}`} style={{ textDecoration: "none" }}>
-              <IoChatboxEllipsesOutline size="3.5vh" />
-            </Link>
+            <IoChatboxEllipsesOutline
+              size="3.5vh"
+              style={{ cursor: "pointer" }}
+              onClick={() => handleTopicClick(topic.id)}
+            />
             <div className="emo-container">
               😀
               <InteractWindow

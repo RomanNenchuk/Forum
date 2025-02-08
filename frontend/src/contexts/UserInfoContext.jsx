@@ -1,4 +1,4 @@
-import React, { useContext, useState, createContext } from "react";
+import React, { useContext, useState, createContext, useEffect } from "react";
 import { useAuth } from "./AuthContext";
 import axios from "axios";
 
@@ -9,35 +9,53 @@ export function useUserInfo() {
 }
 
 export function UserInfoProvider({ children }) {
-  const [userName, setUserName] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [avatar, setAvatar] = useState(null);
-  const [createdAt, setCreatedAt] = useState("");
-  const { currentUser, token } = useAuth();
+  const [user, setUser] = useState(null);
+  const { currentUser } = useAuth();
+
+  useEffect(() => {
+    if (!currentUser) return;
+
+    (async () => {
+      try {
+        const { fullName, userName, avatar, createdAt, email } =
+          await getUserInfo(currentUser.uid);
+
+        setUser({
+          fullName,
+          userName,
+          avatar,
+          createdAt,
+          email,
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    })();
+  }, [currentUser]);
 
   async function getUserInfo(id) {
     try {
-      const response = await axios.get(`http://localhost:5000/users/${id}`);
+      const response = await axios.get(`http://localhost:5000/users/${id}`, {
+        params:
+          currentUser?.uid !== id ? { currentUserId: currentUser.uid } : {},
+      });
 
       const { fullname, username, avatar, formatted_date, email } =
-        response.data;
+        response.data.userInfo;
 
-      if (id !== currentUser?.uid) {
-        return {
-          userName: username,
-          fullName: fullname,
-          avatar,
-          createdAt: formatted_date,
-          email,
-        };
-      }
+      const result = {
+        userName: username,
+        fullName: fullname,
+        avatar,
+        createdAt: formatted_date,
+        email,
+      };
+      if (currentUser?.uid !== id)
+        result.isSubscribedTo = response.data.isSubscribedTo;
 
-      setUserName(n => username);
-      setFullName(n => fullname);
-      setAvatar(a => avatar);
-      setCreatedAt(c => formatted_date);
+      return result;
     } catch (error) {
-      console.log("Даних про користувача не знайдено " + error);
+      console.error("Даних про користувача не знайдено ", error);
     }
   }
 
@@ -74,7 +92,10 @@ export function UserInfoProvider({ children }) {
           },
         }
       );
-      setAvatar(response.data.fileUrl);
+      setUser(prev => ({
+        ...prev,
+        avatar: response.data.fileUrl,
+      }));
     } catch (error) {
       console.error(error);
       throw error;
@@ -91,22 +112,14 @@ export function UserInfoProvider({ children }) {
           },
         }
       );
-
-      console.log(response);
     } catch (error) {
       console.error(error);
     }
   }
 
   const value = {
-    userName,
-    setUserName,
-    fullName,
-    setFullName,
-    avatar,
-    setAvatar,
-    createdAt,
-    setCreatedAt,
+    user,
+    setUser,
     getUserInfo,
     saveUserInDB,
     saveAvatar,
