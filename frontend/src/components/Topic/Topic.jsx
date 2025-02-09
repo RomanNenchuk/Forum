@@ -324,6 +324,11 @@ export default function Topic() {
     });
   }
 
+  function handleArrowBackClick() {
+    console.log(location.state);
+    navigate(location.state?.returnPath || "/");
+  }
+
   if (loading) return <LoadingSpinner />;
 
   return (
@@ -333,9 +338,7 @@ export default function Topic() {
           src={arrowBackIcon}
           alt="Back"
           style={{ cursor: "pointer" }}
-          onClick={() => {
-            navigate(-1);
-          }}
+          onClick={handleArrowBackClick}
         />
         <span>Дискусія</span>
       </div>

@@ -37,7 +37,9 @@ export function UserInfoProvider({ children }) {
     try {
       const response = await axios.get(`http://localhost:5000/users/${id}`, {
         params:
-          currentUser?.uid !== id ? { currentUserId: currentUser.uid } : {},
+          currentUser && currentUser.uid !== id
+            ? { currentUserId: currentUser.uid }
+            : {},
       });
 
       const { fullname, username, avatar, formatted_date, email } =

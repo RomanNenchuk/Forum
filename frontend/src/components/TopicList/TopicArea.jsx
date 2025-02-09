@@ -107,7 +107,9 @@ export default function TopicArea({
 
   const handleTopicClick = topicId => {
     sessionStorage.setItem("scrollPosition", window.scrollY);
-    navigate(`/topics/${topicId}${location.search}`);
+    navigate(`/topics/${topicId}${location.search}`, {
+      state: { returnPath: location },
+    });
   };
 
   const handleSubscribeClick = e => {
