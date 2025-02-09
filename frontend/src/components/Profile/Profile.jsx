@@ -12,12 +12,14 @@ import unfollowIcon from "../../assets/unfollow.svg";
 import "./Profile.css";
 import ModalLoading from "../ModalLoading.jsx";
 import axios from "axios";
+// import { setLogFunction } from "@google-cloud/firestore";
 
 export default function Profile({ onClose }) {
   const { id } = useParams();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [author, setAuthor] = useState(null);
+  const [followState,setFollowState] = useState(null);
   const { currentUser, logout } = useAuth();
   const { userName, fullName, avatar, createdAt, getUserInfo } = useUserInfo();
   const navigate = useNavigate();
@@ -30,6 +32,8 @@ export default function Profile({ onClose }) {
       try {
         setLoading(true);
         const userInfo = await getUserInfo(id);
+        const getSubscriptionInfo = await axios.get(`http://localhost:5000/subscriptions/info?userId=${currentUser.uid}&anotherId=${id}`);
+        setFollowState(getSubscriptionInfo.data.follow);
         setAuthor(userInfo);
       } finally {
         setLoading(false);
@@ -49,6 +53,7 @@ export default function Profile({ onClose }) {
   async function onSubscribing() {
     try {
       const result = axios.post(`http://localhost:5000/subscriptions/${id}`, {user1_id : currentUser.uid});
+      setFollowState(true);
     }
     catch (error) {
       console.error(error);
@@ -57,6 +62,7 @@ export default function Profile({ onClose }) {
   async function onUnsubscribing(){
     try {
       const result = axios.delete(`http://localhost:5000/subscriptions/${id}`, {data : {user1_id : currentUser.uid},});
+      setFollowState(false);
     }
     catch (error) {
       console.error(error);
@@ -89,8 +95,8 @@ export default function Profile({ onClose }) {
                 className="message-icon"
               />
             </Link>
-            <img src={followIcon} alt="Слідкувати" onClick={onSubscribing} />
-            <img src={unfollowIcon} alt="Не слідкувати" onClick={onUnsubscribing} />
+            {!followState && <img src={followIcon} alt="Слідкувати" onClick={onSubscribing} />}
+            {followState && <img src={unfollowIcon} alt="Не слідкувати" onClick={onUnsubscribing} />}
           </>
         )}
         <div className="profile-info">

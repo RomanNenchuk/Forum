@@ -29,7 +29,7 @@ export const getTagList = async (req, res) => {
 export const refreshPopuarTagsView = async () => {
   try {
     await pool.query("REFRESH MATERIALIZED VIEW popular_tags");
-    console.log("Materialized view refreshed");
+    console.log("Materialized view 'popular_tags' refreshed");
   } catch (err) {
     console.error("Error refreshing materialized view:", err);
   }

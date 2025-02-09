@@ -30,7 +30,6 @@ export const deleteSubscription = async (req, res) => {
     const {user1_id} = req.body;
     const user2_id = req.params.user2_id;
     if(user1_id == user2_id) return res.status(400).json({ done: false })
-    console.log("deleting");
     const query2 = 
     `
     DELETE FROM user_subscriptions WHERE user_id = $1 AND subscription_id = $2;
@@ -50,3 +49,17 @@ export const deleteSubscription = async (req, res) => {
         res.status(500).json({message : "Internal Server Error"});
     }
 }
+
+export const getSubscriptionInfo = async (req, res) => {
+    try {
+      const {userId, anotherId} = req.query;
+      const result = await pool.query(`
+        SELECT * FROM user_subscriptions WHERE user_id = $1 AND subscription_id = $2;
+        `, [userId, anotherId]);
+      res.status(200).json({ follow: Boolean(result.rows.length) });
+      
+    } catch(error) {
+      console.log("Error with getFollowInfo:", error);
+      res.state(404).json({ follow: false });
+    }
+  }
