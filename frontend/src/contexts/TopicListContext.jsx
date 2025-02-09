@@ -113,7 +113,6 @@ export function TopicListProvider({ children }) {
       const response = await axios.get(
         `http://localhost:5000/topics/mytopics?user_id=${currentUser.uid}`
       );
-      console.log(response.data);
       setMyTopicList(
         response.data.map(topic => ({
           ...topic,

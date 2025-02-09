@@ -4,11 +4,6 @@
   text-align: left;
 }
 
-.message-icon {
-  width: 32px;
-  height: 32px;
-}
-
 /* Інформація профілю */
 .profile-info p {
   font-size: 16px;
@@ -17,6 +12,32 @@
 
 .profile-info strong {
   color: #333;
+}
+.interaction-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 50px;
+}
+
+.interaction-button {
+  color: white;
+  padding: 6px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #659287;
+  border: none;
+  border-radius: 5px;
+  border: 1px solid transparent;
+  margin: 20px 0;
+  font-size: 20px;
+  width: 100%;
+  text-align: center;
+}
+
+.interaction-button:hover {
+  color: #659287;
+  background-color: white;
+  border: 1px solid #659287;
 }
 
 /* Кнопка виходу */

@@ -31,7 +31,6 @@ export default function Profile({ onClose }) {
         setLoading(true);
         if (id === currentUser?.uid) return setUserProfile(user);
         const userInfo = await getUserInfo(id);
-        console.log(userInfo);
         setUserProfile(userInfo);
       } finally {
         setLoading(false);
@@ -85,6 +84,16 @@ export default function Profile({ onClose }) {
     }
   }
 
+  function handleChatClick() {
+    navigate(currentUser ? `/chats/${id}` : `/login${location.search}`, {
+      state: {
+        otherUserName: userProfile.fullName,
+        backgroundLocation,
+        redirectPath: `/chats/${id}`,
+      },
+    });
+  }
+
   return (
     <ModalLoading modalLoading={loading}>
       <ModalHeader
@@ -98,40 +107,24 @@ export default function Profile({ onClose }) {
             <div className="avatar-container text-center mb-4">
               <Avatar
                 avatar={userProfile.avatar}
-                style={{ border: "4px solid #ffd700", marginBottom: "30px" }}
+                style={{ border: "4px solid #ffd700" }}
               />
             </div>
             {id !== currentUser?.uid && (
-              <>
-                <Link
-                  to={currentUser ? `/chats/${id}` : `/login${location.search}`}
-                  state={{
-                    otherUserName: userProfile.fullName,
-                    backgroundLocation,
-                    redirectPath: `/chats/${id}`,
-                  }}
-                  className="message-icon-link"
-                >
-                  <img
-                    src={messageIcon}
-                    alt="Надіслати повідомлення"
-                    className="message-icon"
-                  />
-                </Link>
+              <div className="interaction-container">
+                <h3 className="interaction-button" onClick={handleChatClick}>
+                  Повідомлення
+                </h3>
                 {userProfile.isSubscribedTo ? (
-                  <img
-                    src={unfollowIcon}
-                    alt="Не слідкувати"
-                    onClick={onUnsubscribe}
-                  />
+                  <h3 className="interaction-button" onClick={onUnsubscribe}>
+                    Не слідкувати
+                  </h3>
                 ) : (
-                  <img
-                    src={followIcon}
-                    alt="Слідкувати"
-                    onClick={onSubscribe}
-                  />
+                  <h3 className="interaction-button" onClick={onSubscribe}>
+                    Слідкувати
+                  </h3>
                 )}
-              </>
+              </div>
             )}
             <div className="profile-info">
               <p>
