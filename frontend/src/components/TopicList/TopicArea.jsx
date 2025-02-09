@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import AttachedFiles from "../AttachedFiles/AttachedFiles.jsx";
 import reactionListSetter from "../../utils/reactionListSetter.jsx";
@@ -13,19 +13,25 @@ import subscribed from "./../../assets/subscribed.svg";
 import axios from "axios";
 
 export default function TopicArea({
-  topic,
+  topicItem,
   reactionList,
   initialReactions,
   userReaction,
   setTopics,
   handleOnActionMenu,
 }) {
+  const [topic, setTopic] = useState(topicItem);
   const [activeReactions, setActiveReactions] = useState(
     reactionListSetter(initialReactions, userReaction)
   );
+
   const location = useLocation();
   const navigate = useNavigate();
   const { currentUser, token } = useAuth();
+
+  useEffect(() => {
+    setTopic(topicItem);
+  }, [topicItem]);
 
   useEffect(() => {
     setActiveReactions(reactionListSetter(initialReactions, userReaction));
@@ -33,7 +39,7 @@ export default function TopicArea({
 
   async function handleClick(emoji) {
     if (!currentUser)
-      return navigate(`/login${location.search}`, {
+      return navigate("/login", {
         state: {
           backgroundLocation: location,
           redirectPath: location,
@@ -66,16 +72,14 @@ export default function TopicArea({
         user1_id: currentUser.uid,
         user2_id: topic.author,
       });
-      console.log(res);
 
       if (res.data.done) {
         setTopics(prevState =>
           prevState.map(el =>
-            el.author === topic.author
-              ? { ...el, subscribed: !el.subscribed }
-              : el
+            el.author === topic.author ? { ...el, subscribed: true } : el
           )
         );
+        setTopic(prev => ({ ...prev, subscribed: true }));
       }
     } catch (err) {
       console.error(err);
@@ -91,11 +95,10 @@ export default function TopicArea({
       if (res.data.done) {
         setTopics(prevState =>
           prevState.map(el =>
-            el.author === topic.author
-              ? { ...el, subscribed: !el.subscribed }
-              : el
+            el.author === topic.author ? { ...el, subscribed: false } : el
           )
         );
+        setTopic(prev => ({ ...prev, subscribed: false }));
       }
     } catch (err) {
       console.error(err);
@@ -104,10 +107,7 @@ export default function TopicArea({
 
   const handleTopicClick = topicId => {
     sessionStorage.setItem("scrollPosition", window.scrollY);
-    navigate({
-      pathname: `/topics/${topicId}`,
-      search: location.search,
-    });
+    navigate(`/topics/${topicId}${location.search}`);
   };
 
   const handleSubscribeClick = e => {
@@ -189,13 +189,10 @@ export default function TopicArea({
               </button>
             ))}
           </div>
-
           <div className="chat-settings">
-            <IoChatboxEllipsesOutline
-              size="3.5vh"
-              style={{ cursor: "pointer" }}
-              onClick={() => handleTopicClick(topic.id)}
-            />
+            <Link to={`/topics/${topic.id}`} style={{ textDecoration: "none" }}>
+              <IoChatboxEllipsesOutline size="3.5vh" />
+            </Link>
             <div className="emo-container">
               😀
               <InteractWindow

@@ -21,10 +21,6 @@ export default function TopBar() {
   const navigate = useNavigate();
   const { user } = useUserInfo();
 
-  useEffect(() => {
-    console.log(user);
-  }, [user]);
-
   function handleSearch(e) {
     e.preventDefault();
     const result = getSearchInputData();

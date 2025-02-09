@@ -18,6 +18,7 @@ export function useTopicList() {
 
 export function TopicListProvider({ children }) {
   const [topicInfoList, setTopicInfoList] = useState([]);
+  const [myTopicList, setMyTopicList] = useState([]);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const { currentUser } = useAuth();
@@ -45,8 +46,13 @@ export function TopicListProvider({ children }) {
     return debounced;
   }
 
+  useEffect(() => {
+    console.log("queryparams changed");
+  }, [queryParams]);
+
   const fetchTopics = useCallback(async () => {
     setLoading(true);
+    console.log("fetchTopics");
     try {
       const response = await axios.get(
         `http://localhost:5000/topics?page=${queryParams.page}&sort=${queryParams.sortOrder}` +

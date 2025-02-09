@@ -53,7 +53,7 @@ export default function ForgotPassword({ onClose }) {
             <NavLink
               label={"Маєте акаунт?"}
               linkText={"Увійти"}
-              linkTo={"/login"}
+              linkTo={`/login${location.search}`}
               backgroundPath={backgroundPath}
               redirectPath={redirectPath}
               className="mt-5"
@@ -64,7 +64,7 @@ export default function ForgotPassword({ onClose }) {
               linkText={"Реєстрація"}
               backgroundPath={backgroundPath}
               redirectPath={redirectPath}
-              linkTo={"/signup"}
+              linkTo={`/signup${location.search}`}
             />
 
             <ActionButton

@@ -21,7 +21,7 @@ export default function ProfileHeader({
   function handleClick(e) {
     e.preventDefault();
     e.stopPropagation();
-    navigate(`/profiles/${id}`, {
+    navigate(`/profiles/${id}${location.search}`, {
       state: { backgroundLocation: location },
     });
   }

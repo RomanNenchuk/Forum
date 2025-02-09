@@ -47,7 +47,6 @@ export default function TopicList({ topicInfoList, scrollContainerRef }) {
     },
     toggled: false,
   });
-  const [switchText, setSwitchText] = useState("");
   const [isTopicSaved, setIsTopicSaved] = useState(false);
   const { currentUser } = useAuth();
   const navigate = useNavigate();
@@ -167,7 +166,7 @@ export default function TopicList({ topicInfoList, scrollContainerRef }) {
         topicInfoList.map((topic, index) => (
           <TopicArea
             key={index}
-            topic={topic}
+            topicItem={topic}
             reactionList={reactionList}
             initialReactions={topic.reactions}
             userReaction={topic.user_reaction?.name}

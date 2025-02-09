@@ -1,6 +1,7 @@
 import React from "react";
 import { Form, Card, Alert } from "react-bootstrap";
 import ModalHeader from "../ModalHeader/ModalHeader.jsx";
+import { useLocation } from "react-router-dom";
 import FormInput from "../FormInput.jsx";
 import Divider from "../Divider.jsx";
 import GoogleAuthButton from "../GoogleAuthButton.jsx";
@@ -27,6 +28,7 @@ export default function FirstStepForm({
   usernameRef,
   style,
 }) {
+  const location = useLocation();
   async function handleSubmit(e) {
     e.preventDefault();
     const form = e.target;
@@ -90,7 +92,7 @@ export default function FirstStepForm({
           <NavLink
             label={"Маєте акаунт?"}
             linkText={"Вхід у систему"}
-            linkTo={"/login"}
+            linkTo={`/login${location.search}`}
             backgroundPath={backgroundPath}
             redirectPath={redirectPath}
             className="mt-4"

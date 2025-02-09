@@ -31,7 +31,11 @@ function App() {
     <Router>
       <AuthProvider>
         <UserInfoProvider>
-          <AppRoutes />
+          <TopicSearchProvider>
+            <TopicListProvider>
+              <AppRoutes />
+            </TopicListProvider>
+          </TopicSearchProvider>
         </UserInfoProvider>
       </AuthProvider>
     </Router>
@@ -42,31 +46,15 @@ function AppRoutes() {
   const { backgroundLocation, showBackground } = useBackgroundLocation();
 
   return (
-    <TopicSearchProvider backgroundLocation={backgroundLocation}>
+    <>
       <Routes location={backgroundLocation}>
         <Route element={<Menu />}>
-          <Route
-            path="/"
-            element={
-              <TopicListProvider>
-                <Home />
-              </TopicListProvider>
-            }
-          />
-          <Route
-            path="/topics/:id"
-            element={
-              <TopicListProvider>
-                <Topic />
-              </TopicListProvider>
-            }
-          />
+          <Route path="/" element={<Home />} />
+          <Route path="/topics/:id" element={<Topic />} />
           <Route path="/poptopics" element={<PopulTopic />} />
           <Route path="/mytopics" element={<MyTopic />} />
-          {/* <Route path="/profiles/:id" element={<Profile />} /> */}
 
           <Route element={<PrivateRoute />}>
-            {/* <Route path="/update-profile" element={<UpdateProfile />} /> */}
             <Route path="/create-topic" element={<CreateTopic />} />
             <Route
               path="/chats/*"
@@ -118,11 +106,9 @@ function AppRoutes() {
           <Route
             path="/profiles/:id"
             element={
-              <TopicListProvider>
-                <Modal>
-                  <Profile />
-                </Modal>
-              </TopicListProvider>
+              <Modal>
+                <Profile />
+              </Modal>
             }
           />
           <Route
@@ -145,7 +131,7 @@ function AppRoutes() {
           </Route>
         </Routes>
       )}
-    </TopicSearchProvider>
+    </>
   );
 }
 
