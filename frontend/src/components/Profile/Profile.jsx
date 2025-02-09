@@ -11,6 +11,7 @@ import followIcon from "../../assets/follow.svg";
 import unfollowIcon from "../../assets/unfollow.svg";
 import "./Profile.css";
 import ModalLoading from "../ModalLoading.jsx";
+import axios from "axios";
 
 export default function Profile({ onClose }) {
   const { id } = useParams();
@@ -45,7 +46,22 @@ export default function Profile({ onClose }) {
       setError("Failed to log out");
     }
   }
-
+  async function onSubscribing() {
+    try {
+      const result = axios.post(`http://localhost:5000/subscriptions/${id}`, {user1_id : currentUser.uid});
+    }
+    catch (error) {
+      console.error(error);
+    }
+  }
+  async function onUnsubscribing(){
+    try {
+      const result = axios.delete(`http://localhost:5000/subscriptions/${id}`, {data : {user1_id : currentUser.uid},});
+    }
+    catch (error) {
+      console.error(error);
+    }
+  }
   return (
     <ModalLoading modalLoading={loading}>
       <ModalHeader title={author?.fullName || fullName} onClose={onClose} />
@@ -73,8 +89,8 @@ export default function Profile({ onClose }) {
                 className="message-icon"
               />
             </Link>
-            <img src={followIcon} alt="Слідкувати" />
-            <img src={unfollowIcon} alt="Не слідкувати" />
+            <img src={followIcon} alt="Слідкувати" onClick={onSubscribing} />
+            <img src={unfollowIcon} alt="Не слідкувати" onClick={onUnsubscribing} />
           </>
         )}
         <div className="profile-info">
