@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import { useTopicList } from "../../contexts/TopicListContext.jsx";
 import AltSpinner from "../AltSpinner/AltSpinner";
 import { useScrollLock } from "../../hooks/useScrollLock.jsx";
 import TopicArea from "../TopicList/TopicArea";
@@ -11,10 +12,10 @@ import axios from "axios";
 
 const MyTopic = () => {
   const { currentUser } = useAuth();
+  const { myTopicList, savedTopicList, loading } = useTopicList();
   const [topicInfoList, setTopicInfoList] = useState([]);
-  const [loading, setLoading] = useState(false);
   const topicListRef = useRef();
-  const [firstStepChoose, setFirstStepChoose] = useState(0);
+  const [showMyTopics, setShowMyTopics] = useState(true);
   const [isTopicSaved, setIsTopicSaved] = useState(false);
 
   const reactionList = [
@@ -97,6 +98,14 @@ const MyTopic = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (showMyTopics && myTopicList) {
+      setTopicInfoList(myTopicList);
+    } else if (!showMyTopics && savedTopicList) {
+      setTopicInfoList(savedTopicList);
+    }
+  }, [myTopicList, savedTopicList]);
+
   function resetActionMenu() {
     setIsActionMenuOpen(false);
     setActionMenu({
@@ -123,53 +132,29 @@ const MyTopic = () => {
     }
   }
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get(
-        `http://localhost:5000/topics/mytopics?user_id=${currentUser.uid}`
-      );
-      setTopicInfoList(
-        response.data.map(topic => ({
-          ...topic,
-          subscribed: "none",
-        }))
-      );
-    } catch (error) {
-      console.error("Error fetching user topics:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchSavedData = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get(
-        `http://localhost:5000/topics/saved?user_id=${currentUser.uid}`
-      );
-      setTopicInfoList(response.data);
-    } catch (error) {
-      console.error("Error fetching user topics:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const toChoose = choose => {
-    setLoading(true);
-    if (choose) {
-      setFirstStepChoose(1);
-      fetchSavedData();
+  const chooseMyTopics = choice => {
+    if (choice) {
+      setShowMyTopics(true);
+      setTopicInfoList(myTopicList);
     } else {
-      setFirstStepChoose(0);
-      fetchData();
+      setShowMyTopics(false);
+      setTopicInfoList(savedTopicList);
     }
   };
 
   useEffect(() => {
-    fetchData();
-  }, [currentUser]);
+    const savedPosition = sessionStorage.getItem("scrollPosition");
+    if (savedPosition) {
+      setTimeout(() => {
+        window.scrollTo({
+          top: parseInt(savedPosition, 10),
+          left: 0,
+          behavior: "instant",
+        });
+        sessionStorage.removeItem("scrollPosition");
+      }, 200);
+    }
+  }, []);
 
   // переніс функції для видалення\поширення з topics
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -203,11 +188,6 @@ const MyTopic = () => {
     }
   }
 
-  function handleShareClick() {
-    setShareId(actionMenu.selectedTopic);
-    setShareModalOpen(true);
-  }
-
   const handleConfirmDelete = () => {
     if (topicToDeleteId) deleteTopic(topicToDeleteId);
   };
@@ -218,20 +198,20 @@ const MyTopic = () => {
         <div className="topics-header">
           <div className="topics-tabs">
             <div
-              className={`tab ${firstStepChoose === 0 ? "active-tab" : ""}`}
-              onClick={() => toChoose(0)}
+              className={`tab ${showMyTopics ? "active-tab" : ""}`}
+              onClick={() => chooseMyTopics(true)}
             >
               Мої теми
             </div>
             <div
-              className={`tab ${firstStepChoose !== 0 ? "active-tab" : ""}`}
-              onClick={() => toChoose(1)}
+              className={`tab ${!showMyTopics ? "active-tab" : ""}`}
+              onClick={() => chooseMyTopics(false)}
             >
               Збережені теми
             </div>
           </div>
           <div className="add-topic-container">
-            {!firstStepChoose ? (
+            {showMyTopics ? (
               <Link
                 to={currentUser ? "/create-topic" : "/login"}
                 state={{ redirectPath: "/create-topic" }}

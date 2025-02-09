@@ -19,6 +19,8 @@ export function useTopicList() {
 export function TopicListProvider({ children }) {
   const [topicInfoList, setTopicInfoList] = useState([]);
   const [myTopicList, setMyTopicList] = useState([]);
+  const [savedTopicList, setSavedTopicList] = useState([]);
+  const [popularTopicList, setPopularTopicList] = useState();
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const { currentUser } = useAuth();
@@ -45,14 +47,9 @@ export function TopicListProvider({ children }) {
     };
     return debounced;
   }
-
-  useEffect(() => {
-    console.log("queryparams changed");
-  }, [queryParams]);
-
+  // логіка для отримання тем на головній сторінці
   const fetchTopics = useCallback(async () => {
     setLoading(true);
-    console.log("fetchTopics");
     try {
       const response = await axios.get(
         `http://localhost:5000/topics?page=${queryParams.page}&sort=${queryParams.sortOrder}` +
@@ -83,9 +80,71 @@ export function TopicListProvider({ children }) {
     debouncedFetchTopics();
   }, [queryParams, debouncedFetchTopics]);
 
+  // логіка для отримання збережених тем
+  const fetchSavedTopics = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(
+        `http://localhost:5000/topics/saved?user_id=${currentUser.uid}`
+      );
+      setSavedTopicList(response.data);
+    } catch (error) {
+      console.error("Error fetching user topics:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [currentUser]);
+
+  const debouncedFetchSavedTopics = useMemo(
+    () => debounce(fetchSavedTopics, 200),
+    [fetchSavedTopics]
+  );
+
+  useEffect(() => {
+    if (!currentUser) return;
+    setLoading(true);
+    debouncedFetchSavedTopics();
+  }, []);
+
+  // логіка для отримання моїх тем
+  const fetchMyTopics = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(
+        `http://localhost:5000/topics/mytopics?user_id=${currentUser.uid}`
+      );
+      console.log(response.data);
+      setMyTopicList(
+        response.data.map(topic => ({
+          ...topic,
+          subscribed: "none",
+        }))
+      );
+    } catch (error) {
+      console.error("Error fetching user topics:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [currentUser]);
+
+  const debouncedFetchMyTopics = useMemo(
+    () => debounce(fetchMyTopics, 200),
+    [fetchMyTopics]
+  );
+
+  useEffect(() => {
+    if (!currentUser) return;
+    setLoading(true);
+    debouncedFetchMyTopics();
+  }, [currentUser]);
+
   const value = {
     topicInfoList,
     setTopicInfoList,
+    myTopicList,
+    setMyTopicList,
+    savedTopicList,
+    setSavedTopicList,
     hasMore,
     loading,
     debounce,

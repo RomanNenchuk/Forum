@@ -1,4 +1,5 @@
 import React from "react";
+import { Outlet } from "react-router-dom";
 import Signup from "./Signup/Signup.jsx";
 import Login from "./Login/Login.jsx";
 import Profile from "./Profile/Profile.jsx";
@@ -32,9 +33,7 @@ function App() {
       <AuthProvider>
         <UserInfoProvider>
           <TopicSearchProvider>
-            <TopicListProvider>
-              <AppRoutes />
-            </TopicListProvider>
+            <AppRoutes />
           </TopicSearchProvider>
         </UserInfoProvider>
       </AuthProvider>
@@ -49,10 +48,18 @@ function AppRoutes() {
     <>
       <Routes location={backgroundLocation}>
         <Route element={<Menu />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/topics/:id" element={<Topic />} />
-          <Route path="/poptopics" element={<PopulTopic />} />
-          <Route path="/mytopics" element={<MyTopic />} />
+          <Route
+            element={
+              <TopicListProvider>
+                <Outlet />
+              </TopicListProvider>
+            }
+          >
+            <Route path="/" element={<Home />} />
+            <Route path="/topics/:id" element={<Topic />} />
+            <Route path="/poptopics" element={<PopulTopic />} />
+            <Route path="/mytopics" element={<MyTopic />} />
+          </Route>
 
           <Route element={<PrivateRoute />}>
             <Route path="/create-topic" element={<CreateTopic />} />
