@@ -104,7 +104,7 @@ export function TopicListProvider({ children }) {
     if (!currentUser) return;
     setLoading(true);
     debouncedFetchSavedTopics();
-  }, []);
+  }, [currentUser]);
 
   // логіка для отримання моїх тем
   const fetchMyTopics = useCallback(async () => {

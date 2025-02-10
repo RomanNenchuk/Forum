@@ -3,6 +3,7 @@ import ContextMenu from "../PopupMenus/ContextMenu.jsx";
 import deleteIcon from "../../assets/delete-context-menu.svg";
 import editIcon from "../../assets/edit-file.svg";
 import replyIcon from "../../assets/reply-context-menu.svg";
+import { useAuth } from "../../contexts/AuthContext.jsx";
 
 export default function TopicContextMenu({
   positionX,
@@ -10,7 +11,6 @@ export default function TopicContextMenu({
   isToggled,
   contextMenuRef,
   resetContextMenu,
-  currentUser,
   contextMenu,
   deleteComment,
   setEditId,
@@ -19,6 +19,7 @@ export default function TopicContextMenu({
   setFiles,
   setIsEditModalOpen,
 }) {
+  const { currentUser } = useAuth;
   const buttons = [
     {
       text: "Видалити",

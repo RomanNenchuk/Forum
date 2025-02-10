@@ -147,7 +147,7 @@ export default function Topic() {
         attachments: [],
         reply: reply?.id || -1,
         author_fullname: user.fullName,
-        avatar: avatar,
+        avatar: user.avatar,
         reply_text: null,
         reply_timestamp: reply?.timestamp || null,
       };
@@ -426,7 +426,6 @@ export default function Topic() {
             isToggled={contextMenu.toggled}
             contextMenuRef={contextMenuRef}
             resetContextMenu={resetContextMenu}
-            currentUser={currentUser}
             contextMenu={contextMenu}
             deleteComment={deleteComment}
             setEditId={setEditId}
