@@ -47,6 +47,14 @@ export default function Profile({ onClose }) {
   }
 
   async function onSubscribe() {
+    if (!currentUser) {
+      navigate(`/login${location.search}`, {
+        state: {
+          backgroundLocation,
+          redirectPath: `/profiles/${id}`,
+        },
+      });
+    }
     try {
       const result = await axios.post(`http://localhost:5000/subscriptions`, {
         user1_id: currentUser.uid,
