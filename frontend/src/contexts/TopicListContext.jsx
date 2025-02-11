@@ -19,8 +19,11 @@ export function useTopicList() {
 export function TopicListProvider({ children }) {
   const [topicInfoList, setTopicInfoList] = useState([]);
   const [myTopicList, setMyTopicList] = useState([]);
+  const [myTopicPage, setMyTopicPage] = useState(0);
   const [savedTopicList, setSavedTopicList] = useState([]);
-  const [popularTopicList, setPopularTopicList] = useState();
+  const [savedTopicPage, setSavedTopicPage] = useState(0);
+  const [popularTopicList, setPopularTopicList] = useState([]);
+  const [popularTopicPage, setPopularTopicPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const { currentUser } = useAuth();
@@ -137,6 +140,22 @@ export function TopicListProvider({ children }) {
     debouncedFetchMyTopics();
   }, [currentUser]);
 
+  async function switchTopicSaved(user_id, topic) {
+    try {
+      const res = await axios.patch(`http://localhost:5000/topics/switch`, {
+        user_id,
+        topic_id: topic?.id,
+      });
+      if (res.data.status === "saved")
+        setSavedTopicList(prev => [topic, ...prev]);
+      else if (res.data.status === "deleted")
+        setSavedTopicList(prev => prev.filter(item => item.id !== topic?.id));
+      console.log(savedTopicList);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   const value = {
     topicInfoList,
     setTopicInfoList,
@@ -144,6 +163,7 @@ export function TopicListProvider({ children }) {
     setMyTopicList,
     savedTopicList,
     setSavedTopicList,
+    switchTopicSaved,
     hasMore,
     loading,
     debounce,

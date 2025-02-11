@@ -523,7 +523,7 @@ export const switchTopicToUser = async (req, res) => {
       res.status(201).json({ status: "saved" });
     } else {
       await pool.query(DELETE_QUERY, [user_id, topic_id]);
-      res.status(200).json({ satus: "deleted" });
+      res.status(200).json({ status: "deleted" });
     }
   } catch (error) {
     console.error("Error in saveTopicToUser: ", error);

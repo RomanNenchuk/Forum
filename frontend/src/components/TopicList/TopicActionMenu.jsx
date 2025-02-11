@@ -51,7 +51,8 @@ export default function TopicActionMenu({
       icon: isTopicSaved ? saveMinusIcon : savePlusIcon,
       onClick:
         currentUser && actionMenu.selectedTopicItem?.author !== currentUser.uid
-          ? () => handleTopicToUser(currentUser.uid, actionMenu.selectedTopic)
+          ? () =>
+              handleTopicToUser(currentUser.uid, actionMenu.selectedTopicItem)
           : null,
     },
     {

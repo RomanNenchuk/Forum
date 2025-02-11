@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import CreateTopicButton from "./CreateTopicButton";
 import "./TopicList.css";
 
 export default function TopicListSettings({ sortOrder, handleChange }) {
@@ -9,15 +10,7 @@ export default function TopicListSettings({ sortOrder, handleChange }) {
 
   return (
     <div className="top-button">
-      <Link
-        to={currentUser ? "/create-topic" : "/login"}
-        state={{
-          backgroundLocation: location,
-          redirectPath: "/create-topic",
-        }}
-      >
-        <button className="add-topic-button">+ Додати тему</button>
-      </Link>
+      <CreateTopicButton />
       <select
         className="dropdown-button"
         value={sortOrder}

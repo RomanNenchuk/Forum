@@ -3,6 +3,7 @@
   flex-direction: column;
   overflow: hidden;
   width: 100%;
+  align-items: center;
 }
 
 .topics-content {
@@ -11,21 +12,27 @@
 }
 
 .topics-header {
-  margin-top: 3vh;
+  margin: 6vh 0;
   width: 100%;
 }
 
-.topics-tabs {
+.topics-navigation-container {
   display: flex;
-  width: 100%;
-  flex-direction: row;
+  width: 60%;
+  flex-direction: column;
   justify-content: space-around;
-  padding: 2vh;
+  margin: 0 auto;
+  gap: 5vh;
+}
+.topic-tabs {
+  display: flex;
+  justify-content: space-between;
 }
 
 .tab {
   font-size: 3vh;
   cursor: pointer;
+  user-select: none;
 }
 
 .active-tab {
@@ -33,7 +40,6 @@
 }
 
 .add-topic-container {
-  margin-top: 3vh;
   display: flex;
   justify-content: center;
   width: 100%;
@@ -44,33 +50,5 @@
 }
 
 .add-topic-button {
-  width: 100%;
   border-radius: 0px;
-}
-
-.topics-grid-container {
-  display: flex;
-  justify-content: center;
-}
-
-.topics-grid {
-  display: grid;
-  gap: 5vh;
-  grid-template-columns: repeat(2, 1fr);
-  width: 90%;
-  justify-content: center;
-  margin-top: 4vh;
-  grid-template-rows: repeat(auto-fill, 1fr);
-}
-
-.topic-item {
-  grid-column: auto;
-}
-
-.column-1 {
-  grid-column: 1;
-}
-
-.column-2 {
-  grid-column: 2;
 }

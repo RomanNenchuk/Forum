@@ -3,7 +3,7 @@ import TopicArea from "./TopicArea.jsx";
 import TopicActionMenu from "./TopicActionMenu.jsx";
 import ConfirmationModal from "../ConfirmationModal/ConfirmationModal.jsx";
 import { useAuth } from "../../contexts/AuthContext.jsx";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./TopicList.css";
 import axios from "axios";
 import { useTopicList } from "../../contexts/TopicListContext.jsx";
@@ -33,8 +33,12 @@ const reactionList = [
   { icon: "💩", name: "pile_of_poo" },
 ];
 
-export default function TopicList({ topicInfoList, scrollContainerRef }) {
-  const { setTopicInfoList, loading } = useTopicList();
+export default function TopicList({
+  topicInfoList,
+  className,
+  scrollContainerRef,
+}) {
+  const { setTopicInfoList, switchTopicSaved, loading } = useTopicList();
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [topicToDeleteId, setTopicToDeleteId] = useState(null);
@@ -134,17 +138,6 @@ export default function TopicList({ topicInfoList, scrollContainerRef }) {
     }
   };
 
-  async function switchTopicToUser(user_id, topic_id) {
-    try {
-      const res = await axios.patch(`http://localhost:5000/topics/switch`, {
-        user_id,
-        topic_id,
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
   async function checkIfTopicIsSaved(user_id, topic_id) {
     try {
       const res = await axios.get(
@@ -157,7 +150,7 @@ export default function TopicList({ topicInfoList, scrollContainerRef }) {
   }
 
   return (
-    <ul className="topic-list">
+    <ul className={`topic-list ${className}`}>
       {topicInfoList.length === 0 && !loading ? (
         <div className="topics-not-found">
           За Вашим запитом нічого не знайдено {":("}
@@ -183,7 +176,7 @@ export default function TopicList({ topicInfoList, scrollContainerRef }) {
         resetActionMenu={resetActionMenu}
         actionMenu={actionMenu}
         onDeleteClick={handleDeleteClick}
-        handleTopicToUser={switchTopicToUser}
+        handleTopicToUser={switchTopicSaved}
         isTopicSaved={isTopicSaved}
       />
       {isConfirmModalOpen ? (
