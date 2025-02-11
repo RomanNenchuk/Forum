@@ -143,7 +143,7 @@
   background: #a8d3c3a8;
 }
 .reply-label {
-  background: rgba(0, 0, 0, 0.8);
+  /* background: rgba(0, 0, 0, 0.8); */
   height: 100%;
   position: absolute;
   top: -100%;

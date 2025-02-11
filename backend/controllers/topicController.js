@@ -177,7 +177,8 @@ export const getTopicsPreview = async (req, res) => {
 };
 
 export const getUserTopic = async (req, res) => {
-  const { user_id } = req.query;
+  const { user_id, page = 1, limit = 4 } = req.query;
+  const offset = (page - 1) * limit;
   try {
     const topicsResult = await pool.query(
       `
@@ -194,7 +195,6 @@ export const getUserTopic = async (req, res) => {
       topics.date,
       COALESCE(ARRAY_AGG(DISTINCT tags.tag_name) FILTER (WHERE tags.tag_name IS NOT NULL), '{}') AS tag_list
       FROM topics
-      
       INNER JOIN users ON users.uid = topics.author
       left join topic_tags on topics.id = topic_tags.topic_id
       left join tags on topic_tags.tag_id = tags.tag_id
@@ -204,9 +204,10 @@ export const getUserTopic = async (req, res) => {
         ON emoji.id = topic_reactions.emoji_id
       WHERE users.uid = $1
       GROUP BY topics.id, fullname, username, avatar, title, email, author, topics.date
-      ORDER BY topics.date DESC;
+      ORDER BY topics.date DESC
+      LIMIT $2 OFFSET $3;
       `,
-      [user_id]
+      [user_id, limit, offset]
     );
     const topics = topicsResult.rows;
     const reactionsResult = await pool.query(

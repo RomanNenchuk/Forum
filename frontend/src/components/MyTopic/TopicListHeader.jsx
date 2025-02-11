@@ -1,8 +1,11 @@
 import React from "react";
 import CreateTopicButton from "../TopicList/CreateTopicButton.jsx";
+import { useTopicList } from "../../contexts/TopicListContext.jsx";
 import "./MyTopic.css";
 
-export default function TopicListHeader({ showMyTopics, chooseMyTopics }) {
+export default function TopicListHeader({ chooseMyTopics }) {
+  const { showMyTopics } = useTopicList();
+
   return (
     <div className="topics-header">
       <div className="topics-navigation-container">

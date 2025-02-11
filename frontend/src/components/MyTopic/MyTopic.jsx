@@ -6,9 +6,22 @@ import TopicListHeader from "./TopicListHeader.jsx";
 import "./MyTopic.css";
 
 export default function MyTopic() {
-  const { myTopicList, savedTopicList, loading } = useTopicList();
+  const {
+    myTopicList,
+    savedTopicList,
+    loading,
+    hasMoreMyTopics,
+    hasMoreSavedTopics,
+    myTopicPage,
+    setMyTopicPage,
+    savedTopicPage,
+    setSavedTopicPage,
+    showMyTopics,
+    setShowMyTopics,
+    debounce,
+  } = useTopicList();
+
   const [topicInfoList, setTopicInfoList] = useState([]);
-  const [showMyTopics, setShowMyTopics] = useState(true);
 
   useEffect(() => {
     if (showMyTopics && myTopicList) {
@@ -18,7 +31,17 @@ export default function MyTopic() {
     }
   }, [myTopicList, savedTopicList]);
 
+  function loadMoreTopics() {
+    if (showMyTopics && hasMoreMyTopics) {
+      console.log(myTopicPage);
+      setMyTopicPage(prev => prev + 1);
+    } else if (!showMyTopics && hasMoreSavedTopics) {
+      setSavedTopicPage(prev => prev + 1);
+    }
+  }
+
   const chooseMyTopics = choice => {
+    setShowMyTopics(choice);
     if (choice) {
       setShowMyTopics(true);
       setTopicInfoList(myTopicList);
@@ -27,6 +50,29 @@ export default function MyTopic() {
       setTopicInfoList(savedTopicList);
     }
   };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const targetElement = document.querySelector(".topics-content");
+      const elementHeight = targetElement ? targetElement.offsetHeight : 0; //  висота контейнера з темами
+      const totalHeight =
+        window.innerHeight + document.documentElement.scrollTop; // поточна висота видимої частини + скільки прокручено
+      const documentHeight = Math.max(
+        document.documentElement.offsetHeight,
+        elementHeight
+      ); // загальна висота сторінки
+
+      console.log(elementHeight, totalHeight, documentHeight);
+
+      if (totalHeight >= documentHeight - 200 && !loading) {
+        loadMoreTopics();
+      }
+    };
+
+    const debouncedHandleScroll = debounce(handleScroll, 200);
+    window.addEventListener("scroll", debouncedHandleScroll);
+    return () => window.removeEventListener("scroll", debouncedHandleScroll);
+  }, [hasMoreMyTopics, hasMoreSavedTopics, loading]);
 
   useEffect(() => {
     const savedPosition = sessionStorage.getItem("scrollPosition");
