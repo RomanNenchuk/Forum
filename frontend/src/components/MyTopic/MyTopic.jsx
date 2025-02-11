@@ -12,9 +12,7 @@ export default function MyTopic() {
     loading,
     hasMoreMyTopics,
     hasMoreSavedTopics,
-    myTopicPage,
     setMyTopicPage,
-    savedTopicPage,
     setSavedTopicPage,
     showMyTopics,
     setShowMyTopics,
@@ -32,16 +30,16 @@ export default function MyTopic() {
   }, [myTopicList, savedTopicList]);
 
   function loadMoreTopics() {
+    console.log("loadMoreTopics", showMyTopics);
     if (showMyTopics && hasMoreMyTopics) {
-      console.log(myTopicPage);
       setMyTopicPage(prev => prev + 1);
     } else if (!showMyTopics && hasMoreSavedTopics) {
+      console.log("AAAAAAAAAAAAAAAAA");
       setSavedTopicPage(prev => prev + 1);
     }
   }
 
   const chooseMyTopics = choice => {
-    setShowMyTopics(choice);
     if (choice) {
       setShowMyTopics(true);
       setTopicInfoList(myTopicList);
@@ -55,14 +53,15 @@ export default function MyTopic() {
     const handleScroll = () => {
       const targetElement = document.querySelector(".topics-content");
       const elementHeight = targetElement ? targetElement.offsetHeight : 0; //  висота контейнера з темами
+      // поточна висота видимої частини + скільки прокручено
       const totalHeight =
-        window.innerHeight + document.documentElement.scrollTop; // поточна висота видимої частини + скільки прокручено
+        window.innerHeight + document.documentElement.scrollTop;
       const documentHeight = Math.max(
         document.documentElement.offsetHeight,
         elementHeight
       ); // загальна висота сторінки
 
-      console.log(elementHeight, totalHeight, documentHeight);
+      console.log(totalHeight, documentHeight);
 
       if (totalHeight >= documentHeight - 200 && !loading) {
         loadMoreTopics();
@@ -72,7 +71,7 @@ export default function MyTopic() {
     const debouncedHandleScroll = debounce(handleScroll, 200);
     window.addEventListener("scroll", debouncedHandleScroll);
     return () => window.removeEventListener("scroll", debouncedHandleScroll);
-  }, [hasMoreMyTopics, hasMoreSavedTopics, loading]);
+  }, [hasMoreMyTopics, hasMoreSavedTopics, showMyTopics, loading]);
 
   useEffect(() => {
     const savedPosition = sessionStorage.getItem("scrollPosition");
@@ -81,10 +80,10 @@ export default function MyTopic() {
         window.scrollTo({
           top: parseInt(savedPosition, 10),
           left: 0,
-          behavior: "instant",
+          behavior: "smooth",
         });
         sessionStorage.removeItem("scrollPosition");
-      }, 200);
+      }, 30);
     }
   }, []);
 

@@ -177,7 +177,7 @@ export const getTopicsPreview = async (req, res) => {
 };
 
 export const getUserTopic = async (req, res) => {
-  const { user_id, page = 1, limit = 4 } = req.query;
+  const { user_id, page = 1, limit = 20 } = req.query;
   const offset = (page - 1) * limit;
   try {
     const topicsResult = await pool.query(
@@ -551,7 +551,9 @@ export const getIsTopicSaved = async (req, res) => {
 };
 
 export const getSavedTopics = async (req, res) => {
-  const { user_id } = req.query;
+  const { user_id, page = 1, limit = 20 } = req.query;
+  const offset = (page - 1) * limit;
+
   try {
     const topicsId = await pool.query(
       `
@@ -578,7 +580,6 @@ export const getSavedTopics = async (req, res) => {
         cover,
         COALESCE(ARRAY_AGG(DISTINCT tags.tag_name) FILTER (WHERE tags.tag_name IS NOT NULL), '{}') AS tag_list
       FROM topics
-      
       INNER JOIN users ON users.uid = topics.author
       LEFT JOIN topic_tags on topics.id = topic_tags.topic_id
       LEFT JOIN tags on topic_tags.tag_id = tags.tag_id
@@ -588,8 +589,9 @@ export const getSavedTopics = async (req, res) => {
         ON emoji.id = topic_reactions.emoji_id
       WHERE topics.id = ANY($1)
       GROUP BY topics.id, fullname, username, avatar, title, email, author, topics.date
+      LIMIT $2 OFFSET $3
       `,
-      [topicsIdArray]
+      [topicsIdArray, limit, offset]
     );
     const topics = topicsResult.rows;
     const reactionsResult = await pool.query(
@@ -601,7 +603,6 @@ export const getSavedTopics = async (req, res) => {
         COUNT(*) AS count
       FROM topic_reactions
       INNER JOIN emoji ON topic_reactions.emoji_id = emoji.id
-      
       GROUP BY topic_id, emoji.name, emoji.icon;
       `
     );

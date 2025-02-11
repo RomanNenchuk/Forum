@@ -23,6 +23,7 @@ export function TopicListProvider({ children }) {
   const [hasMoreMyTopics, setHasMoreMyTopics] = useState(true);
   const [savedTopicList, setSavedTopicList] = useState([]);
   const [savedTopicPage, setSavedTopicPage] = useState(1);
+  const [hasMoreSavedTopics, setHasMoreSavedTopics] = useState(true);
   const [popularTopicList, setPopularTopicList] = useState([]);
   const [popularTopicPage, setPopularTopicPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -88,12 +89,14 @@ export function TopicListProvider({ children }) {
   // логіка для отримання збережених тем
   const fetchSavedTopics = useCallback(async () => {
     try {
-      console.log(savedTopicPage);
-      setLoading(true);
       const response = await axios.get(
         `http://localhost:5000/topics/saved?user_id=${currentUser.uid}&page=${savedTopicPage}`
       );
-      setSavedTopicList(response.data);
+      const topics = response.data || [];
+      setSavedTopicList(prev =>
+        savedTopicPage === 1 ? topics : [...prev, ...topics]
+      );
+      setHasMoreSavedTopics(topics.length > 0);
     } catch (error) {
       console.error("Error fetching user topics:", error);
     } finally {
@@ -108,16 +111,12 @@ export function TopicListProvider({ children }) {
 
   useEffect(() => {
     if (!currentUser) return;
-    setLoading(true);
     debouncedFetchSavedTopics();
-  }, [currentUser]);
+  }, [currentUser, savedTopicPage]);
 
   // логіка для отримання моїх тем
   const fetchMyTopics = useCallback(async () => {
-    console.log("myTopicPage changed");
     try {
-      console.log(myTopicPage);
-      // setLoading(true);
       const response = await axios.get(
         `http://localhost:5000/topics/mytopics?user_id=${currentUser.uid}&page=${myTopicPage}`
       );
@@ -144,7 +143,6 @@ export function TopicListProvider({ children }) {
 
   useEffect(() => {
     if (!currentUser) return;
-    // setLoading(true);
     debouncedFetchMyTopics();
   }, [currentUser, myTopicPage]);
 
@@ -180,6 +178,7 @@ export function TopicListProvider({ children }) {
     setShowMyTopics,
     hasMore,
     hasMoreMyTopics,
+    hasMoreSavedTopics,
     loading,
     debounce,
   };
