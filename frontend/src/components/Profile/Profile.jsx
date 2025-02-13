@@ -3,15 +3,17 @@ import { Card, Alert, Button } from "react-bootstrap";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useUserInfo } from "../../contexts/UserInfoContext.jsx";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import ModalHeader from "../ModalHeader/ModalHeader.jsx";
+import InteractionBlock from "./InteractionBlock.jsx";
 import Avatar from "../Avatar.jsx";
 import ActionButton from "../ActionButton/ActionButton.jsx";
 import ModalLoading from "../ModalLoading.jsx";
 import InfoBlock from "./InfoBlock.jsx";
 import "./Profile.css";
-import axios from "axios";
 
 export default function Profile({ onClose }) {
+  const { t } = useTranslation();
   const { id } = useParams();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -42,68 +44,23 @@ export default function Profile({ onClose }) {
       await logout();
       navigate("/");
     } catch (error) {
-      setError("Failed to log out");
+      setError(t("profile.failedToLogOut"));
     }
   }
 
-  async function onSubscribe() {
-    if (!currentUser) {
-      navigate(`/login${location.search}`, {
-        state: {
-          backgroundLocation,
-          redirectPath: `/profiles/${id}`,
-        },
-      });
-    }
-    try {
-      const result = await axios.post(`http://localhost:5000/subscriptions`, {
-        user1_id: currentUser.uid,
-        user2_id: id,
-      });
-      console.log(result);
-      if (result.data.done) {
-        setUserProfile(prev => ({
-          ...prev,
-          isSubscribedTo: true,
-        }));
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }
-  async function onUnsubscribe() {
-    try {
-      const result = await axios.delete(`http://localhost:5000/subscriptions`, {
-        data: {
-          user1_id: currentUser.uid,
-          user2_id: id,
-        },
-      });
-      if (result.data.done) {
-        setUserProfile(prev => ({
-          ...prev,
-          isSubscribedTo: false,
-        }));
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  function handleChatClick() {
-    navigate(currentUser ? `/chats/${id}` : `/login${location.search}`, {
+  function handleUpdateProfileClick() {
+    navigate("/update-profile", {
       state: {
-        otherUserName: userProfile.fullName,
         backgroundLocation,
-        redirectPath: `/chats/${id}`,
       },
+      replace: true,
     });
   }
 
   return (
     <ModalLoading modalLoading={loading}>
       <ModalHeader
-        title={userProfile?.fullName || "Невідомо"}
+        title={userProfile?.fullName || "Unkown"}
         onClose={onClose}
       />
       <Card.Body className="profile-modal-card-body">
@@ -117,41 +74,27 @@ export default function Profile({ onClose }) {
               />
             </div>
             {id !== currentUser?.uid && (
-              <div className="interaction-container">
-                <h3 className="interaction-button" onClick={handleChatClick}>
-                  Повідомлення
-                </h3>
-                {userProfile.isSubscribedTo ? (
-                  <h3 className="interaction-button" onClick={onUnsubscribe}>
-                    Не слідкувати
-                  </h3>
-                ) : (
-                  <h3 className="interaction-button" onClick={onSubscribe}>
-                    Слідкувати
-                  </h3>
-                )}
-              </div>
+              <InteractionBlock
+                userProfile={userProfile}
+                setUserProfile={setUserProfile}
+              />
             )}
             <div className="profile-info">
               <InfoBlock
                 title={`@${userProfile.userName}`}
-                caption={"Ім'я користувача"}
+                caption={t("profile.username")}
               />
-              <InfoBlock title={`${userProfile.email}`} caption={"Ел. пошта"} />
+              <InfoBlock
+                title={`${userProfile.email}`}
+                caption={t("profile.email")}
+              />
             </div>
             {id === currentUser?.uid && (
               <>
                 <ActionButton
-                  label={"Оновити профіль"}
+                  label={t("profile.updateProfile")}
                   className="mt-5 mb-2"
-                  onClick={() =>
-                    navigate("/update-profile", {
-                      state: {
-                        backgroundLocation,
-                      },
-                      replace: true,
-                    })
-                  }
+                  onClick={handleUpdateProfileClick}
                 />
                 <div className="text-center">
                   <Button
@@ -159,14 +102,14 @@ export default function Profile({ onClose }) {
                     onClick={handleLogOut}
                     style={{ color: "#659287" }}
                   >
-                    Вийти
+                    {t("profile.logout")}
                   </Button>
                 </div>
               </>
             )}
           </>
         ) : (
-          <div>Інформації про користувача не знайдено</div>
+          <div>{t("profile.noUserInfo")}</div>
         )}
       </Card.Body>
     </ModalLoading>

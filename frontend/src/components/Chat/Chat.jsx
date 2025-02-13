@@ -432,7 +432,7 @@ export default function Chat() {
 
   if (loading) return <LoadingSpinner />;
 
-  const otherUserName = location.state?.otherUserName || "Користувач";
+  const otherUserName = location.state?.otherUserName || "User";
 
   return (
     <div className="chat-container">

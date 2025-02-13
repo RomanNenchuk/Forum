@@ -177,7 +177,12 @@ header {
   padding-top: 3vh;
 }
 
-.mn-menu-el a {
+.change-language {
+  cursor: pointer;
+}
+
+.mn-menu-el a,
+.change-language {
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -187,14 +192,16 @@ header {
   transition: all 0.3s ease-in-out;
 }
 
-.mn-menu-el a span {
+.mn-menu-el a span,
+.change-language span {
   font-size: 3.5vh;
   font-family: "Inter-SemiBold";
   color: #000000;
   padding: none;
   margin: none;
 }
-.mn-menu-el a:hover {
+.mn-menu-el a:hover,
+.change-language:hover {
   background-color: #d9d9d98c;
 }
 

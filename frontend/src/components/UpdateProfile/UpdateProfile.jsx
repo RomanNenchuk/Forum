@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Card, Alert } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useUserInfo } from "../../contexts/UserInfoContext.jsx";
@@ -15,6 +16,7 @@ import ModalHeader from "../ModalHeader/ModalHeader.jsx";
 import axios from "axios";
 
 export default function UpdateProfile({ onClose }) {
+  const { t } = useTranslation();
   const {
     currentUser,
     token,
@@ -85,7 +87,7 @@ export default function UpdateProfile({ onClose }) {
         if (!checkPasswordsValidity(setError, passwordRef, newPasswordRef))
           return;
         const verified = await verifyPassword(passwordRef.current.value);
-        if (!verified) throw new Error("Неправильний пароль");
+        if (!verified) throw new Error(t("profile.incorrectPassword"));
       }
 
       // emailChanged буде false, якщо користувач входив за google
@@ -101,17 +103,13 @@ export default function UpdateProfile({ onClose }) {
         );
 
         if (emailChanged && emailExists)
-          return setInputInvalid(
-            emailRef,
-            setError,
-            "Ця ел. пошта вже використовується"
-          );
+          return setInputInvalid(emailRef, setError, t("profile.emailInUse"));
 
         if (userNameChanged && usernameExists)
           return setInputInvalid(
             userNameRef,
             setError,
-            "Це ім'я користувача вже зайняте"
+            t("profile.usernameInUse")
           );
 
         if (emailChanged) {
@@ -169,7 +167,7 @@ export default function UpdateProfile({ onClose }) {
   return (
     <Card>
       <ModalHeader
-        title="Оновити профіль"
+        title={t("profile.updateProfile")}
         onClose={onClose}
         onBack={navigateToProfile}
       />

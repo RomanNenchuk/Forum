@@ -57,7 +57,7 @@ export function UserInfoProvider({ children }) {
 
       return result;
     } catch (error) {
-      console.error("Даних про користувача не знайдено ", error);
+      console.error("No user data found", error);
     }
   }
 
@@ -68,7 +68,7 @@ export function UserInfoProvider({ children }) {
         userData,
         {
           headers: {
-            Authorization: `Bearer ${token}`, // Передаємо токен
+            Authorization: `Bearer ${token}`,
           },
         }
       );

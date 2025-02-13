@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import ContextMenu from "../PopupMenus/ContextMenu.jsx";
 import deleteIcon from "../../assets/delete-context-menu.svg";
 import editIcon from "../../assets/edit-file.svg";
@@ -20,9 +21,10 @@ export default function TopicContextMenu({
   setIsEditModalOpen,
 }) {
   const { currentUser } = useAuth;
+  const { t } = useTranslation();
   const buttons = [
     {
-      text: "Видалити",
+      text: t("delete"),
       icon: deleteIcon,
       onClick:
         contextMenu.selectedCommentItem?.author_id === currentUser?.uid
@@ -32,7 +34,7 @@ export default function TopicContextMenu({
           : null,
     },
     {
-      text: "Редагувати",
+      text: t("edit"),
       icon: editIcon,
       onClick:
         contextMenu.selectedCommentItem?.author_id == currentUser?.uid
@@ -58,7 +60,7 @@ export default function TopicContextMenu({
           : null,
     },
     {
-      text: "Відповісти",
+      text: t("reply"),
       icon: replyIcon,
       onClick:
         contextMenu.selectedCommentItem?.reply === -1

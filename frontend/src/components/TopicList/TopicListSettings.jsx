@@ -1,13 +1,10 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
+import { useTranslation } from "react-i18next";
 import CreateTopicButton from "./CreateTopicButton";
 import "./TopicList.css";
 
 export default function TopicListSettings({ sortOrder, handleChange }) {
-  const { currentUser } = useAuth();
-  const location = useLocation();
-
+  const { t } = useTranslation();
   return (
     <div className="top-button">
       <CreateTopicButton />
@@ -16,9 +13,9 @@ export default function TopicListSettings({ sortOrder, handleChange }) {
         value={sortOrder}
         onChange={handleChange}
       >
-        <option value="desc">Новіші</option>
-        <option value="asc">Давніші</option>
-        <option value="rating">Популярні</option>
+        <option value="desc">{t("topic.newest")}</option>
+        <option value="asc">{t("topic.oldest")}</option>
+        <option value="rating">{t("topic.topRated")}</option>
       </select>
     </div>
   );

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useChat } from "../../contexts/ChatContext.jsx";
+import { useTranslation } from "react-i18next";
 import ActionMenu from "../PopupMenus/ActionMenu.jsx";
 import ConfirmationModal from "../ConfirmationModal/ConfirmationModal.jsx";
 import deleteIcon from "../../assets/delete-context-menu.svg";
@@ -14,6 +15,7 @@ export default function TopicActionMenu({
   actionMenuRef,
   resetActionMenu,
 }) {
+  const { t } = useTranslation();
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
     message: "",
@@ -25,12 +27,12 @@ export default function TopicActionMenu({
 
   const buttons = [
     {
-      text: "Видалити",
+      text: t("delete"),
       icon: deleteIcon,
       onClick: () => {
         setConfirmModal({
           isOpen: true,
-          message: "Видалити цей чат?",
+          message: t("chat.deleteChatQuery"),
           onConfirm: () => {
             deleteChat(receiverId, currentUser.uid);
             resetConfirmModal();
@@ -39,12 +41,12 @@ export default function TopicActionMenu({
       },
     },
     {
-      text: "Очистити",
+      text: t("clear"),
       icon: cleanIcon,
       onClick: () => {
         setConfirmModal({
           isOpen: true,
-          message: "Очистити цей чат?",
+          message: t("chat.clearChatQuery"),
           onConfirm: () => {
             clearChat(receiverId, currentUser.uid);
             resetConfirmModal();

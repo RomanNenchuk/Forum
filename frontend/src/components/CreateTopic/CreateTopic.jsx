@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
 import { Form, Alert } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
 import CoverUploader from "./CoverUploader.jsx";
 import TopicFileUploader from "./TopicFileUploader.jsx";
 import ActionButton from "../ActionButton/ActionButton.jsx";
@@ -14,6 +15,7 @@ import "./CreateTopic.css";
 import axios from "axios";
 
 export default function CreateTopic() {
+  const { t } = useTranslation();
   const { currentUser, token } = useAuth();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -53,7 +55,7 @@ export default function CreateTopic() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (response.status !== 201) throw new Error("Failed to create topic");
-      setSuccess("Тему успішно створено!");
+      setSuccess(t("createTopic.successTopic"));
       setTimeout(() => navigate("/"), 1000);
     } catch (err) {
       setError(err.message);
@@ -78,7 +80,7 @@ export default function CreateTopic() {
             ) : (
               ""
             )}
-            <h3 className="title">Створення теми</h3>
+            <h3 className="title">{t("createTopic.createTopicCaption")}</h3>
           </div>
           {error && <Alert variant="danger">{error}</Alert>}
           {success && <Alert variant="success">{success}</Alert>}
@@ -132,11 +134,11 @@ function FirstStep({
   setIsFirstStep,
   setError,
 }) {
+  const { t } = useTranslation();
   function handleContinueClick(e) {
     e.preventDefault();
     setError("");
-    if (title.length < 15)
-      return setError("Недостатня кількість символів у заголовку");
+    if (title.length < 15) return setError(t("createTopic.errorTitle"));
     setIsFirstStep(false);
   }
   return (
@@ -148,7 +150,7 @@ function FirstStep({
           }`}
           onClick={() => setIsFirstTopicType(true)}
         >
-          Текст
+          {t("createTopic.textType")}
         </div>
         <div
           className={`topic-type-option ${
@@ -156,7 +158,7 @@ function FirstStep({
           }`}
           onClick={() => setIsFirstTopicType(false)}
         >
-          Фото&Відео
+          {t("createTopic.mediaType")}
         </div>
       </div>
       <TitleInput title={title} setTitle={setTitle} limit={255} />
@@ -175,7 +177,7 @@ function FirstStep({
       <ActionButton
         className="my-4"
         onClick={handleContinueClick}
-        label="Продовжити"
+        label={t("continue")}
         type="button"
       />
     </>
@@ -190,6 +192,7 @@ function SecondStep({
   setWarning,
   loading,
 }) {
+  const { t } = useTranslation();
   return (
     <>
       <DescriptionInput
@@ -202,7 +205,7 @@ function SecondStep({
         setWarning={setWarning}
       />
       <ActionButton
-        label={loading ? "Створення..." : "Створити тему"}
+        label={loading ? t("createTopic.creating") : t("createTopic.create")}
         loading={loading}
         type="submit"
       />

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext.jsx";
+import { useTranslation } from "react-i18next";
 import ActionMenu from "../PopupMenus/ActionMenu.jsx";
 import ToastPortal from "../Toast/Toast.jsx";
 import deleteIcon from "../../assets/delete-context-menu.svg";
@@ -18,6 +19,7 @@ export default function TopicActionMenu({
   handleTopicToUser,
   isTopicSaved,
 }) {
+  const { t } = useTranslation();
   const { currentUser } = useAuth();
   const [toast, setToast] = useState(null);
 
@@ -29,7 +31,7 @@ export default function TopicActionMenu({
     if (toast) clearTimeout(toast.timeoutId);
 
     setToast({
-      message: "Скопійовано до буфера обміну",
+      message: t("topic.copiedToClipboard"),
       type: "success",
       timeoutId: setTimeout(() => setToast(null), 3000),
     });
@@ -37,7 +39,7 @@ export default function TopicActionMenu({
 
   const buttons = [
     {
-      text: "Видалити",
+      text: t("delete"),
       icon: deleteIcon,
       onClick:
         actionMenu.selectedTopicItem?.author === currentUser?.uid
@@ -47,7 +49,7 @@ export default function TopicActionMenu({
           : null,
     },
     {
-      text: isTopicSaved ? "Не зберігати" : "Зберегти тему",
+      text: isTopicSaved ? t("topic.unsaveTopic") : t("topic.saveTopic"),
       icon: isTopicSaved ? saveMinusIcon : savePlusIcon,
       onClick:
         currentUser && actionMenu.selectedTopicItem?.author !== currentUser.uid
@@ -56,7 +58,7 @@ export default function TopicActionMenu({
           : null,
     },
     {
-      text: "Скопіювати URL",
+      text: t("topic.copyUrl"),
       icon: copyIcon,
       onClick: () => handleCopyClick(actionMenu.selectedTopicItem.id),
     },

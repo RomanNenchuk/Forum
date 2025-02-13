@@ -46,7 +46,7 @@ export default function MediaModal({ url, onClose }) {
       link.remove();
       window.URL.revokeObjectURL(mediaUrl);
     } catch (error) {
-      console.error("Не вдалося завантажити зображення:", error);
+      console.error("Failed to load the picture:", error);
     }
   };
 

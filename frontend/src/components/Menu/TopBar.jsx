@@ -1,6 +1,7 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useUserInfo } from "../../contexts/UserInfoContext";
 import { useAuth } from "../../contexts/AuthContext";
+import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTopicSearch } from "../../contexts/TopicSearchContext.jsx";
 import ProfileHeader from "../ProfileHeader";
@@ -9,6 +10,7 @@ import seachIcon from "../../assets/search.svg";
 import "./Menu.css";
 
 export default function TopBar() {
+  const { t } = useTranslation();
   const { currentUser } = useAuth();
   const location = useLocation();
   const {
@@ -64,10 +66,10 @@ export default function TopBar() {
               type="text"
               value={searchInput}
               onChange={e => setSearchInput(e.target.value)}
-              placeholder="Я шукаю..."
+              placeholder={t("menu.searchPlaceholder")}
             />
             <button className="hd-search-btn" type="submit">
-              <span>Знайти</span>
+              <span>{t("menu.searchButton")}</span>
             </button>
           </form>
         </div>
@@ -76,7 +78,7 @@ export default function TopBar() {
             <ProfileHeader
               id={currentUser.uid}
               avatar={user?.avatar}
-              profileName={`Вітаємо, ${user?.fullName}!`}
+              profileName={`${t("menu.welcomeMessage")} ${user?.fullName}!`}
               size="9vh"
               sizeFont="3vh"
               avThickness="0.4vh"
@@ -97,11 +99,11 @@ export default function TopBar() {
               }}
             >
               <button className="hd-btn">
-                Вхід
+                {t("menu.logIn")}
                 <div className="hd-btn-sep">
                   <span> | </span>
                 </div>
-                Реєстрація
+                {t("menu.signUp")}
               </button>
             </Link>
           )}

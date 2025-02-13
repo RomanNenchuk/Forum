@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import FileUploader from "../FileUploader.jsx";
 import { useChat } from "../../contexts/ChatContext.jsx";
+import { useTranslation } from "react-i18next";
 import sendMessageIcon from "../../assets/send-message.svg";
 import { MdEdit } from "react-icons/md";
 import cancelIcon from "../../assets/cancel.svg";
@@ -23,18 +24,19 @@ export default function ChatInput({
 }) {
   const inputRef = useRef();
   const { messages } = useChat();
+  const { t } = useTranslation();
 
   const [scaleValue, setScaleValue] = useState(window.innerHeight * 0.0015);
-    const updateScaleValue = () => {
-      setScaleValue(window.innerHeight * 0.0015);
+  const updateScaleValue = () => {
+    setScaleValue(window.innerHeight * 0.0015);
+  };
+
+  useEffect(() => {
+    window.addEventListener("resize", updateScaleValue);
+    return () => {
+      window.removeEventListener("resize", updateScaleValue);
     };
-  
-    useEffect(() => {
-      window.addEventListener("resize", updateScaleValue);
-      return () => {
-        window.removeEventListener("resize", updateScaleValue);
-      };
-    }, []);
+  }, []);
 
   useEffect(() => {
     inputRef.current.focus();
@@ -70,28 +72,30 @@ export default function ChatInput({
         <div className="reply-label">
           <div className="reply-label-info">
             <span className="reply-label-author">
-              {reply.author || "Невідомий автор"}
+              {reply.author || t("unknown")}
             </span>
             <span>
               :{" "}
               {reply.text ||
                 reply.attachment.slice(reply.attachment.indexOf("_") + 1) ||
-                "*Видалене повідомлення*"}
+                t("chat.deletedMessageLabel")}
             </span>
           </div>
-          <img src={cancelIcon} alt="Cancel" onClick={resetReply} />
+          <img src={cancelIcon} alt={t("cancel")} onClick={resetReply} />
         </div>
       )}
 
       {editId === -1 && !hasAttachments() ? (
-        <div style = {{transform: `scale(${scaleValue})`}}><FileUploader
-          setFiles={setFiles}
-          editId={editId}
-          setIsEditModalOpen={setIsEditModalOpen}
-          setIsSendModalOpen={setIsSendModalOpen}
-          text={text}
-          setText={text}
-        /></div>
+        <div style={{ transform: `scale(${scaleValue})` }}>
+          <FileUploader
+            setFiles={setFiles}
+            editId={editId}
+            setIsEditModalOpen={setIsEditModalOpen}
+            setIsSendModalOpen={setIsSendModalOpen}
+            text={text}
+            setText={text}
+          />
+        </div>
       ) : null}
 
       <input
@@ -102,18 +106,24 @@ export default function ChatInput({
         onKeyDown={onKeyDown}
         autoComplete="off"
         ref={inputRef}
-        placeholder="Напишіть повідомлення..."
+        placeholder={t("chat.writeMessageLabel")}
       />
-      <div style = {{transform: `scale(${scaleValue})`}}><EmojiPickerButton setText={setText} /></div>
+      <div style={{ transform: `scale(${scaleValue})` }}>
+        <EmojiPickerButton setText={setText} />
+      </div>
       {(editId === -1 || isEditModalOpen || isSendModalOpen) && (
         <div className="send-msg-btn" onClick={sendMessage}>
-          <div style = {{transform: `scale(${scaleValue})`}}><img src={sendMessageIcon} alt="Send" /></div>
+          <div style={{ transform: `scale(${scaleValue})` }}>
+            <img src={sendMessageIcon} alt={t("send")} />
+          </div>
         </div>
       )}
       {editId !== -1 && !isEditModalOpen && !isSendModalOpen && (
         <>
           <MdEdit size="3vh" onClick={editMessage} />
-          <div style = {{transform: `scale(${scaleValue})`}}><img src={cancelIcon} alt="Cancel" onClick={onCancel} /></div>
+          <div style={{ transform: `scale(${scaleValue})` }}>
+            <img src={cancelIcon} alt={t("cancel")} onClick={onCancel} />
+          </div>
         </>
       )}
     </div>

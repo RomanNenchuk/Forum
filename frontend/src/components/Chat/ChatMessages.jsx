@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useChat } from "../../contexts/ChatContext.jsx";
 import { useAuth } from "../../contexts/AuthContext.jsx";
+import { useTranslation } from "react-i18next";
 import convertLinks from "../../utils/textLinkConverter.jsx";
 import scrollToBottom from "../../utils/scrollToBottom.jsx";
 import AttachedFiles from "../AttachedFiles/AttachedFiles.jsx";
@@ -13,6 +14,7 @@ export default function ChatMessages({
   setUserSentMessage,
   chatMessagesRef,
 }) {
+  const { t } = useTranslation();
   const { messages } = useChat();
   const { currentUser } = useAuth();
 
@@ -78,7 +80,7 @@ export default function ChatMessages({
                     msg.reply_attachment?.slice(
                       msg.reply_attachment?.indexOf("_") + 1
                     ) ||
-                    "*Видалене повідомлення*"}
+                    t("chat.deletedMessageLabel")}
                 </div>
               </div>
             )}

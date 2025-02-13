@@ -8,12 +8,14 @@ import React, {
 import { Card } from "react-bootstrap";
 import debounce from "../../utils/debounce.jsx";
 import { useNavigate } from "react-router-dom";
-import ActionButton from "../ActionButton/ActionButton.jsx";
+import { useTranslation } from "react-i18next";
 import { useTopicSearch } from "../../contexts/TopicSearchContext.jsx";
 import { RxCross2 } from "react-icons/rx";
 import { IoCloseCircleOutline } from "react-icons/io5";
+import ActionButton from "../ActionButton/ActionButton.jsx";
 import searchIcon from "../../assets/search.svg";
 import LoadingSpinner from "../AltSpinner/AltSpinner.jsx";
+import TagList from "./TagList.jsx";
 import axios from "axios";
 import "../CreateTopic/CreateTopic.css";
 
@@ -25,6 +27,7 @@ export default function ExpandedTags({ onClose }) {
   const [hasMore, setHasMore] = useState(true);
   const { urlSearchParams } = useTopicSearch();
   const tagListRef = useRef(null);
+  const { t } = useTranslation();
   const searchRef = useRef();
   const LIMIT = 25;
   const navigate = useNavigate();
@@ -69,11 +72,6 @@ export default function ExpandedTags({ onClose }) {
     setPage(1);
     setHasMore(true);
     debouncedFetchTags(searchRef.current.value, 1);
-  }
-
-  function selectTag(selected) {
-    if (selectedTags.length >= 5) return;
-    setSelectedTags(prevData => [...new Set(prevData).add(selected)]);
   }
 
   function deleteTag(deleted) {
@@ -134,13 +132,12 @@ export default function ExpandedTags({ onClose }) {
       <div
         className="close-button-container"
         onClick={() => {
-          console.log("Close");
           onClose();
         }}
       >
         <IoCloseCircleOutline size={30} />
       </div>
-      <div className="modal-header">Усі теги</div>
+      <div className="modal-header">{t("tag.allTags")}</div>
 
       <Card.Body style={{ padding: "0 50px" }}>
         <div className="seach-bar-container">
@@ -151,7 +148,7 @@ export default function ExpandedTags({ onClose }) {
           <input
             className="for_font tag-search-input"
             type="text"
-            placeholder="Знайти тег"
+            placeholder={t("tag.searchTag")}
             ref={searchRef}
             onChange={handleChange}
           />
@@ -177,28 +174,16 @@ export default function ExpandedTags({ onClose }) {
             {loading ? (
               <LoadingSpinner />
             ) : (
-              <>
-                {tags.length === 0 ? (
-                  <div className="tags-not-found">Тегів не знайдено</div>
-                ) : (
-                  tags.map((tag, index) => (
-                    <h5
-                      className="tag"
-                      key={index}
-                      onClick={() => {
-                        selectTag(tag);
-                      }}
-                    >
-                      # {tag.tag_name}
-                    </h5>
-                  ))
-                )}
-              </>
+              <TagList
+                tags={tags}
+                selectedTags={selectedTags}
+                setSelectedTags={setSelectedTags}
+              />
             )}
           </>
         </div>
         <div style={{ margin: "20px 0 30px 0" }}>
-          <ActionButton label="Пошук за тегами" onClick={handleClick} />
+          <ActionButton label={t("tag.searchByTags")} onClick={handleClick} />
         </div>
       </Card.Body>
     </Card>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import TopicArea from "./TopicArea.jsx";
+import { useTranslation } from "react-i18next";
 import TopicActionMenu from "./TopicActionMenu.jsx";
 import ConfirmationModal from "../ConfirmationModal/ConfirmationModal.jsx";
 import { useAuth } from "../../contexts/AuthContext.jsx";
@@ -38,8 +39,8 @@ export default function TopicList({
   className,
   scrollContainerRef,
 }) {
+  const { t } = useTranslation();
   const { setTopicInfoList, switchTopicSaved, loading } = useTopicList();
-  const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [topicToDeleteId, setTopicToDeleteId] = useState(null);
   const [actionMenu, setActionMenu] = useState({
@@ -69,7 +70,6 @@ export default function TopicList({
 
     if (isRight) x -= actionMenuAttr.width;
     if (isBottom) y -= 57;
-    setIsActionMenuOpen(true);
 
     setActionMenu({
       selectedTopic: topic.id,
@@ -101,7 +101,6 @@ export default function TopicList({
   }, []);
 
   function resetActionMenu() {
-    setIsActionMenuOpen(false);
     setActionMenu({
       selectedTopic: -1,
       selectedTopicItem: null,
@@ -145,16 +144,14 @@ export default function TopicList({
       );
       setIsTopicSaved(res.data.saved);
     } catch (error) {
-      console.error("Ne worka(");
+      console.error(error);
     }
   }
 
   return (
     <ul className={`topic-list ${className}`}>
       {topicInfoList.length === 0 && !loading ? (
-        <div className="topics-not-found">
-          За Вашим запитом нічого не знайдено {":("}
-        </div>
+        <div className="topics-not-found">{t("topic.topicNotFound")}</div>
       ) : (
         topicInfoList.map((topic, index) => (
           <TopicArea
@@ -183,7 +180,7 @@ export default function TopicList({
         <ConfirmationModal
           onClose={() => setIsConfirmModalOpen(false)}
           onConfirm={handleConfirmDelete}
-          message="Видалити цю тему?"
+          message={t("topic.deleteTopicQuery")}
         />
       ) : null}
     </ul>

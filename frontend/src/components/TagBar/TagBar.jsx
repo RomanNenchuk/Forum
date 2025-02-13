@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { useTopicSearch } from "../../contexts/TopicSearchContext.jsx";
 import { Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import ToastPortal from "../Toast/Toast.jsx";
 import "./TagBar.css";
 
@@ -8,6 +9,7 @@ export default function TagBar() {
   const [toast, setToast] = useState(null);
   const toastTimeout = useRef(null);
   const { popularTagList } = useTopicSearch();
+  const { t } = useTranslation();
   const location = useLocation();
 
   const showToast = (message, type, item = "") => {
@@ -25,13 +27,13 @@ export default function TagBar() {
 
   const handleTagClick = tagName => {
     navigator.clipboard.writeText(`# ${tagName}`);
-    showToast("скопійовано", "success", `# ${tagName}`);
+    showToast(t("tag.copied"), "success", `# ${tagName}`);
   };
 
   return (
     <>
       <div className="tag-list">
-        <h5 className="tag-list-title">Популярні теги</h5>
+        <h5 className="tag-list-title">{t("tag.popularTags")}</h5>
         {
           <>
             {popularTagList.map((tag, index) => (
@@ -49,7 +51,7 @@ export default function TagBar() {
                 backgroundLocation: location,
               }}
             >
-              Показати більше
+              {t("tag.showMore")}
             </Link>
           </>
         }

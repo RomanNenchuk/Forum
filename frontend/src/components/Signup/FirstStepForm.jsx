@@ -2,6 +2,7 @@ import React from "react";
 import { Form, Card, Alert } from "react-bootstrap";
 import ModalHeader from "../ModalHeader/ModalHeader.jsx";
 import { useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import FormInput from "../FormInput.jsx";
 import Divider from "../Divider.jsx";
 import GoogleAuthButton from "../GoogleAuthButton.jsx";
@@ -28,6 +29,7 @@ export default function FirstStepForm({
   usernameRef,
   style,
 }) {
+  const { t } = useTranslation();
   const location = useLocation();
   async function handleSubmit(e) {
     e.preventDefault();
@@ -42,18 +44,10 @@ export default function FirstStepForm({
         usernameRef.current.value
       );
       if (emailExists)
-        return setInputInvalid(
-          emailRef,
-          setError,
-          "Ця ел. пошта вже використовується"
-        );
+        return setInputInvalid(emailRef, setError, t("auth.emailTaken"));
 
       if (usernameExists)
-        return setInputInvalid(
-          usernameRef,
-          setError,
-          "Це ім'я користувача вже зайняте"
-        );
+        return setInputInvalid(usernameRef, setError, t("auth.usernameTaken"));
       setNextForm(true);
     } else {
       form.reportValidity();
@@ -62,43 +56,43 @@ export default function FirstStepForm({
 
   return (
     <div style={style}>
-      <ModalHeader title={"Реєстрація"} onClose={onClose} />
+      <ModalHeader title={t("auth.signUp")} onClose={onClose} />
       <Card.Body>
         {error && <Alert variant="danger">{error}</Alert>}
         <GoogleAuthButton onClick={handleSignUpWithGoogle} className="my-3" />
-        <Divider text={"або"} />
+        <Divider text={t("auth.or")} />
         <Form onSubmit={handleSubmit}>
           <FormInput
             id="email"
             type="email"
-            placeholder="Ел. пошта"
+            placeholder={t("auth.email")}
             ref={emailRef}
             required
           />
           <FormInput
             id="username"
             type="text"
-            placeholder="Ім'я користувача"
+            placeholder={t("auth.username")}
             ref={usernameRef}
             required
           />
           <FormInput
             id="password"
             type="password"
-            placeholder="Пароль"
+            placeholder={t("auth.password")}
             ref={passwordRef}
             required
           />
           <NavLink
-            label={"Маєте акаунт?"}
-            linkText={"Вхід у систему"}
+            label={t("auth.haveAccount")}
+            linkText={t("auth.logIn")}
             linkTo={`/login${location.search}`}
             backgroundPath={backgroundPath}
             redirectPath={redirectPath}
             className="mt-4"
           />
           <ActionButton
-            label={"Продовжити"}
+            label={t("continue")}
             loading={loading}
             className="my-5"
           />

@@ -1,7 +1,9 @@
 import { Button } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
 import gooleLogo from "../assets/google-logo.svg";
 
 export default function GoogleAuthButton({ onClick, className = "" }) {
+  const { t } = useTranslation();
   return (
     <Button
       onClick={onClick}
@@ -28,7 +30,7 @@ export default function GoogleAuthButton({ onClick, className = "" }) {
         <img src={gooleLogo} alt="Google" />
       </div>
       <span className="for-text" style={{ textAlign: "center", flex: 1 }}>
-        Продовжити з Google
+        {t("auth.continueWithGoogle")}
       </span>
     </Button>
   );

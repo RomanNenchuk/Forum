@@ -1,11 +1,12 @@
 import React, { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import DefaultFileUploadCover from "../DefaultFileUploadCover.jsx";
 import deleteIcon from "../../assets/delete-button.svg";
 import fileIcon from "../../assets/file.svg";
 
 export default function TopicFileUploader({ files, setFiles, setWarning }) {
+  const { t } = useTranslation();
   const fileInputRef = useRef();
-
   const handleFileChange = e => {
     setWarning("");
     setFiles(prev => [...prev, ...Array.from(e.target.files)]);
@@ -13,10 +14,7 @@ export default function TopicFileUploader({ files, setFiles, setWarning }) {
 
   useEffect(() => {
     setWarning("");
-    if (files.length > 10)
-      setWarning(
-        "Можна додати до 10 файлів. Решта вкладень не буде врахована."
-      );
+    if (files.length > 10) setWarning(t("upload.maxFilesWarning"));
   }, [files]);
 
   const handleRemoveFile = index => {
@@ -46,7 +44,7 @@ export default function TopicFileUploader({ files, setFiles, setWarning }) {
           ))
         ) : (
           <DefaultFileUploadCover
-            title={"Завантажити файли"}
+            title={t("upload.uploadFiles")}
             handleImageClick={handleImageClick}
             style={{ border: "none" }}
           />
@@ -66,7 +64,7 @@ export default function TopicFileUploader({ files, setFiles, setWarning }) {
             className="add-button"
             onClick={handleImageClick}
           >
-            Додати
+            {t("add")}
           </button>
         </div>
       </div>

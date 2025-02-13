@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import ModalHeader from "../ModalHeader/ModalHeader.jsx";
 import FormInput from "../FormInput.jsx";
+import { useTranslation } from "react-i18next";
 import ActionButton from "../ActionButton/ActionButton.jsx";
 import NavLink from "../NavLink.jsx";
 import { useLocation } from "react-router-dom";
@@ -8,6 +9,7 @@ import { Form, Card, Alert } from "react-bootstrap";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 
 export default function ForgotPassword({ onClose }) {
+  const { t } = useTranslation();
   const emailRef = useRef();
   const { resetPassword } = useAuth();
   const [error, setError] = useState("");
@@ -24,11 +26,9 @@ export default function ForgotPassword({ onClose }) {
       setError("");
       setLoading(true);
       await resetPassword(emailRef.current.value);
-      setMessage(
-        "Перевірте свою поштову скриньку, щоб отримати подальші інструкції"
-      );
+      setMessage(t("auth.checkEmailForInstructions"));
     } catch (error) {
-      setError("Failed to reset password");
+      setError(t("auth.resetError"));
     }
     setLoading(false);
   }
@@ -36,7 +36,7 @@ export default function ForgotPassword({ onClose }) {
   return (
     <>
       <Card>
-        <ModalHeader title={"Скидання паролю"} onClose={onClose} />
+        <ModalHeader title={t("auth.resetPassword")} onClose={onClose} />
         <Card.Body>
           {error && <Alert variant="danger">{error}</Alert>}
           {message && <Alert variant="success">{message}</Alert>}
@@ -45,14 +45,14 @@ export default function ForgotPassword({ onClose }) {
             <FormInput
               id={"email"}
               type={"email"}
-              placeholder={"Ел. пошта"}
+              placeholder={t("auth.email")}
               ref={emailRef}
               required
             />
 
             <NavLink
-              label={"Маєте акаунт?"}
-              linkText={"Увійти"}
+              label={t("auth.haveAnAccount")}
+              linkText={t("auth.logIn")}
               linkTo={`/login${location.search}`}
               backgroundPath={backgroundPath}
               redirectPath={redirectPath}
@@ -60,15 +60,15 @@ export default function ForgotPassword({ onClose }) {
             />
 
             <NavLink
-              label={"Вперше на UFORUM?"}
-              linkText={"Реєстрація"}
+              label={t("auth.newToUforum")}
+              linkText={t("auth.signUp")}
               backgroundPath={backgroundPath}
               redirectPath={redirectPath}
               linkTo={`/signup${location.search}`}
             />
 
             <ActionButton
-              label={"Скинути"}
+              label={t("auth.reset")}
               loading={loading}
               className="my-5"
             />

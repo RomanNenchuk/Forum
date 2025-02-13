@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import Modal from "../Modal.jsx";
 import ModalHeader from "../ModalHeader/ModalHeader.jsx";
+import { useTranslation } from "react-i18next";
 import styles from "./FileModal.module.css";
 import { Card } from "react-bootstrap";
 import deleteIcon from "../../assets/delete-button.svg";
@@ -14,6 +15,7 @@ export default function FileSendModal({
   setText,
   onSubmit,
 }) {
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef();
 
@@ -44,7 +46,10 @@ export default function FileSendModal({
   return (
     <Modal onCloseModal={onClose}>
       <Card className={styles.modalCard}>
-        <ModalHeader title={"Вибрані файли"} onClose={onClose} />
+        <ModalHeader
+          title={t("upload.selectedFilesCaption")}
+          onClose={onClose}
+        />
         <Card.Body className={styles.cardBody}>
           <ul className={styles.fileList}>
             {files.map((file, index) => (
@@ -74,7 +79,7 @@ export default function FileSendModal({
               className={`${styles.textInput} ${styles.fileModalTextarea}`}
               value={text}
               onChange={e => setText(e.target.value)}
-              placeholder="Напишіть повідомлення..."
+              placeholder={t("chat.writeMessageLabel")}
               rows={2}
             />
             <div className={styles.actionButtons}>
@@ -82,21 +87,21 @@ export default function FileSendModal({
                 className={`${styles.addButton} ${styles.addButtonSend}`}
                 onClick={() => fileInputRef.current.click()}
               >
-                Додати
+                {t("add")}
               </button>
               <div className={styles.actionButtonsGroup}>
                 <button
                   className={`${styles.cancelButton} ${styles.cancelButtonSend}`}
                   onClick={onClose}
                 >
-                  Скасувати
+                  {t("cancel")}
                 </button>
                 <button
                   onClick={handleSubmit}
                   className={`${styles.submitButton} ${styles.submitButtonSend}`}
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Надсилання..." : "Надіслати"}
+                  {isSubmitting ? t("sending") : t("send")}
                 </button>
               </div>
             </div>

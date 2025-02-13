@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 export function getFormattedTime() {
   const now = new Date();
   const hours = String(now.getHours()).padStart(2, "0");
@@ -21,6 +22,7 @@ export function timestampToTime(timestamp) {
 }
 
 export function formatRelativeTime(pgTimestamp) {
+  const { t } = useTranslation();
   const date = new Date(pgTimestamp); // час, взятий з коментаря
   const now = new Date(); // час зараз
 
@@ -34,22 +36,24 @@ export function formatRelativeTime(pgTimestamp) {
   const diffInYears = Math.floor(diffInDays / 365.25);
 
   if (diffInDays === 0) {
-    return "Сьогодні";
+    return t("time.today");
   } else if (diffInDays === 1) {
-    return "Вчора";
+    return t("time.yesterday");
   } else if (diffInDays < 5) {
-    return `${diffInDays} дні тому`;
+    return t("time.days_ago_few", { count: diffInDays });
   } else if (diffInDays < 7) {
-    return `${diffInDays} днів тому`;
+    return t("time.days_ago_many", { count: diffInDays });
   } else if (diffInDays < 30) {
-    return `${diffInWeeks} ${diffInWeeks === 1 ? "тиждень" : "тижні"} тому`;
+    return t(diffInWeeks === 1 ? "time.weeks_ago" : "time.weeks_ago_plural", {
+      count: diffInWeeks,
+    });
   } else if (diffInMonths < 5) {
-    return `${diffInMonths} ${diffInMonths === 1 ? "місяць" : "місяці"} тому`;
+    return t("time.months_ago", { count: diffInMonths });
   } else if (diffInMonths < 12) {
-    return `${diffInMonths} місяців тому`;
-  } else if (diffInYears < 5) {
-    return `${diffInYears} ${diffInYears === 1 ? "рік" : "роки"} тому`;
+    return t("time.months_ago_plural", { count: diffInMonths });
   } else {
-    return `${diffInYears} років тому`;
+    return t(diffInYears === 1 ? "time.years_ago" : "time.years_ago_plural", {
+      count: diffInYears,
+    });
   }
 }

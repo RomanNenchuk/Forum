@@ -1,6 +1,7 @@
 import React from "react";
 import DefaultFileUploadCover from "../DefaultFileUploadCover";
 import { FaTimes } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 import playIcon from "../../assets/play-button.svg";
 
 const Cover = ({
@@ -36,7 +37,7 @@ const Cover = ({
     border: "2px solid #000",
     padding: "2px",
   };
-
+  const { t } = useTranslation();
   return (
     <div>
       {coverPreview ? (
@@ -58,7 +59,7 @@ const Cover = ({
         </div>
       ) : (
         <DefaultFileUploadCover
-          title={"Бажаєте додати заставку?"}
+          title={t("upload.addCover")}
           style={{
             border: "1px solid #bdbdbd",
             padding: "15px",

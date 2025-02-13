@@ -2,6 +2,7 @@ import React from "react";
 import { Link, Outlet, useParams } from "react-router-dom";
 import Avatar from "../Avatar.jsx";
 import { useAuth } from "../../contexts/AuthContext.jsx";
+import { useTranslation } from "react-i18next";
 import { useChat } from "../../contexts/ChatContext";
 import "./Chat.css";
 import DefaultChatScreen from "../DefaultChatScreen.jsx";
@@ -10,6 +11,7 @@ export default function ChatList() {
   const { currentUser } = useAuth();
   const { chatList, setChatList } = useChat();
   const { receiverId } = useParams();
+  const { t } = useTranslation();
 
   const handleChatClick = index => {
     const updatedChatList = chatList.map((chat, i) => ({
@@ -25,7 +27,7 @@ export default function ChatList() {
     <div className="chat-win-container">
       <div className="chat-list-ct">
         <div className="chat-hd">
-          <p style={{ fontSize: "3vh" }}>Приватні чати</p>
+          <p style={{ fontSize: "3vh" }}>{t("chat.myChatsCaption")}</p>
         </div>
         <div className="chat-list">
           {chatList &&

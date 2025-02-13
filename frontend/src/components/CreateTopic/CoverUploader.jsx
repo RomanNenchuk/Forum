@@ -41,13 +41,11 @@ export default function CoverUploader({
 
         e.target.value = "";
       } catch (error) {
-        setError("Не вдалося згенерувати прев’ю для відео.");
+        setError(t("upload.errorPreview"));
         console.error(error);
       }
     } else {
-      setError(
-        "Будь ласка, виберіть файл у форматі JPG, JPEG, PNG, GIF або MP4"
-      );
+      setError(t("upload.errorFormat"));
       e.target.value = "";
     }
   }

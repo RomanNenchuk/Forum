@@ -11,6 +11,7 @@ import TopicComments from "./TopicComments";
 import FileSendModal from "../FileModal/FileSendModal.jsx";
 import FileEditModal from "../FileModal/FileEditModal.jsx";
 import { useScrollLock } from "../../hooks/useScrollLock.jsx";
+import { useTranslation } from "react-i18next";
 import TopicContextMenu from "./TopicContextMenu";
 import arrowBackIcon from "../../assets/arrow-back.svg";
 import axios from "axios";
@@ -20,6 +21,7 @@ export const commentsOnOnePageCount = 10;
 
 export default function Topic() {
   const { id } = useParams();
+  const { t } = useTranslation();
   const [topic, setTopic] = useState(null);
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -175,7 +177,6 @@ export default function Topic() {
         const attachments = await handleUpload(chunk);
 
         const comm = {
-          // має бути таким же, як і result.data з fetchTopicComents
           id: -1,
           text: text.trim(),
           timestamp: new Date().toISOString(),
@@ -340,7 +341,7 @@ export default function Topic() {
           style={{ cursor: "pointer" }}
           onClick={handleArrowBackClick}
         />
-        <span>Дискусія</span>
+        <span>{t("topic.discussion")}</span>
       </div>
       <div className="topic-and-comments">
         <div className="in-block-for-flex">
@@ -353,7 +354,9 @@ export default function Topic() {
             </div>
             <div className="extra-info">
               <div style={{ padding: "2vh 2vw" }}>
-                <span className="extra-info-header">Додаткова інформація</span>
+                <span className="extra-info-header">
+                  {t("topic.additionalInformation")}
+                </span>
                 <p className="extra-info-p">
                   {extendInfo === 2 ? (
                     topic?.description
@@ -364,7 +367,7 @@ export default function Topic() {
                         className="extention-info"
                         onClick={() => setExtendInfo(0)}
                       >
-                        Показати менше
+                        {t("topic.showLess")}
                       </span>
                     </>
                   ) : (
@@ -374,7 +377,7 @@ export default function Topic() {
                         className="extention-info"
                         onClick={() => setExtendInfo(1)}
                       >
-                        Показати більше...
+                        {t("topic.showMore")}
                       </span>
                     </>
                   )}
@@ -388,7 +391,7 @@ export default function Topic() {
           <div className="palka"></div>
           <div className="block right">
             <div className="comment-list-group" ref={topicCommentsRef}>
-              <div className="comment-area">Коментарі</div>
+              <div className="comment-area">{t("topic.comments")}</div>
               {commentLoading ? (
                 <LoadingSpinner />
               ) : (

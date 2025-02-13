@@ -1,11 +1,12 @@
 import React from "react";
 import CreateTopicButton from "../TopicList/CreateTopicButton.jsx";
 import { useTopicList } from "../../contexts/TopicListContext.jsx";
+import { useTranslation } from "react-i18next";
 import "./MyTopic.css";
 
 export default function TopicListHeader({ chooseMyTopics }) {
   const { showMyTopics } = useTopicList();
-
+  const { t } = useTranslation();
   return (
     <div className="topics-header">
       <div className="topics-navigation-container">
@@ -14,13 +15,13 @@ export default function TopicListHeader({ chooseMyTopics }) {
             className={`tab ${showMyTopics ? "active-tab" : ""}`}
             onClick={() => chooseMyTopics(true)}
           >
-            Мої теми
+            {t("topic.myTopicsCaption")}
           </div>
           <div
             className={`tab ${!showMyTopics ? "active-tab" : ""}`}
             onClick={() => chooseMyTopics(false)}
           >
-            Збережені теми
+            {t("topic.savedTopicsCaption")}
           </div>
         </div>
         <div className="add-topic-container">

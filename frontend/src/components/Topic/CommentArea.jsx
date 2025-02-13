@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext.jsx";
+import { useTranslation } from "react-i18next";
 import reactionListSetter from "../../utils/reactionListSetter.jsx";
 import convertLinks from "../../utils/textLinkConverter.jsx";
 import AttachedFiles from "../AttachedFiles/AttachedFiles.jsx";
@@ -19,10 +20,10 @@ export default function CommentArea({
   initialReactions = [],
   userReaction = [],
 }) {
+  const { t } = useTranslation();
   const [activeReactions, setActiveReactions] = useState(
     reactionListSetter(initialReactions, userReaction)
   );
-
   const { currentUser, token } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -69,7 +70,9 @@ export default function CommentArea({
           avatar={comment.avatar}
           profileName={
             comment.author_fullname +
-            (topicAuthorId === comment.author_id ? " (Автор)" : "")
+            (topicAuthorId === comment.author_id
+              ? ` (${t("topic.author")})`
+              : "")
           }
           textStyle={{ color: "#000" }}
           sizeFont="16px"

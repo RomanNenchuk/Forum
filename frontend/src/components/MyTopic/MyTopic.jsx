@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useTopicList } from "../../contexts/TopicListContext.jsx";
+import { useTranslation } from "react-i18next";
 import AltSpinner from "../AltSpinner/AltSpinner";
 import TopicList from "../TopicList/TopicList.jsx";
 import TopicListHeader from "./TopicListHeader.jsx";
@@ -18,7 +19,7 @@ export default function MyTopic() {
     setShowMyTopics,
     debounce,
   } = useTopicList();
-
+  const { t } = useTranslation();
   const [topicInfoList, setTopicInfoList] = useState([]);
 
   useEffect(() => {
@@ -30,11 +31,9 @@ export default function MyTopic() {
   }, [myTopicList, savedTopicList]);
 
   function loadMoreTopics() {
-    console.log("loadMoreTopics", showMyTopics);
     if (showMyTopics && hasMoreMyTopics) {
       setMyTopicPage(prev => prev + 1);
     } else if (!showMyTopics && hasMoreSavedTopics) {
-      console.log("AAAAAAAAAAAAAAAAA");
       setSavedTopicPage(prev => prev + 1);
     }
   }
@@ -97,7 +96,9 @@ export default function MyTopic() {
         <div className="topics-container">
           {!loading ? (
             topicInfoList.length === 0 ? (
-              <div className="topics-not-found">Тем не знайдено {":("}</div>
+              <div className="topics-not-found">
+                {t("topic.topicsNotFound")}
+              </div>
             ) : (
               <TopicList
                 topicInfoList={topicInfoList}

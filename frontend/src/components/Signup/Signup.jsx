@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { Card } from "react-bootstrap";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import FirstStepForm from "./FirstStepForm.jsx";
 import SecondStepForm from "./SecondStepForm.jsx";
 import { useAuth } from "../../contexts/AuthContext.jsx";
@@ -8,6 +9,7 @@ import { useUserInfo } from "../../contexts/UserInfoContext.jsx";
 // import "./Auth.css";
 
 export default function Signup({ onClose }) {
+  const { t } = useTranslation();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [nextForm, setNextForm] = useState(false);
@@ -42,17 +44,17 @@ export default function Signup({ onClose }) {
         const isRegistered = await checkUserRegistration(user.uid);
         if (!isRegistered) {
           await saveUserInDB(token, {
-            fullName: user.displayName || "Unknown",
+            fullName: user.displayName || t("auth.unknown"),
             email: user.email,
             profilePicture: null,
           });
         }
         navigate(redirectPath, { replace: true });
       } else {
-        throw new Error("No user found");
+        throw new Error(t("auth.noUserFound"));
       }
     } catch (error) {
-      setError("Помилка при створенні акаунту");
+      setError(t("auth.errorSignup"));
     } finally {
       setLoading(false);
     }
@@ -84,7 +86,7 @@ export default function Signup({ onClose }) {
       navigate(redirectPath, { replace: true });
     } catch (error) {
       console.log(error);
-      setError("Помилка при створенні акаунту");
+      setError(t("auth.errorSignup"));
     } finally {
       setLoading(false);
     }
