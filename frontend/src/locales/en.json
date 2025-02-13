@@ -119,7 +119,8 @@
     "newest": "Newest",
     "oldest": "Oldest",
     "topRated": "Top rated",
-    "author": "Author"
+    "author": "Author",
+    "subs": "Subscriptions"
   },
   "profile": {
     "unknown": "Unknown",
