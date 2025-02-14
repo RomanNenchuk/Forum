@@ -74,11 +74,13 @@ export default function TopBar() {
           </form>
         </div>
         <div className="hd-col">
-          {currentUser ? (
+          {currentUser && user ? (
             <ProfileHeader
               id={currentUser.uid}
               avatar={user?.avatar}
-              profileName={`${t("menu.welcomeMessage")} ${user?.fullName}!`}
+              profileName={`${t("menu.welcomeMessage")} ${
+                user?.fullName || "user"
+              }!`}
               size="9vh"
               sizeFont="3vh"
               avThickness="0.4vh"
