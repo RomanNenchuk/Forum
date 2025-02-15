@@ -2,6 +2,7 @@ import React from "react";
 import { Form } from "react-bootstrap";
 import FormInput from "../FormInput.jsx";
 import ActionButton from "../ActionButton/ActionButton.jsx";
+import { useTranslation } from "react-i18next";
 
 export default function UpdateProfileForm({
   isGoogleSignIn,
@@ -16,12 +17,13 @@ export default function UpdateProfileForm({
   onSubmit,
   loading,
 }) {
+  const { t } = useTranslation();
   return (
     <Form onSubmit={onSubmit}>
       <FormInput
         id="fullName"
         type="text"
-        placeholder="Повне ім'я"
+        placeholder={t("profile.fullName")}
         ref={fullNameRef}
         defaultValue={fullName}
         required
@@ -29,7 +31,7 @@ export default function UpdateProfileForm({
       <FormInput
         id="userName"
         type="text"
-        placeholder="Ім'я користувача"
+        placeholder={t("profile.username")}
         ref={userNameRef}
         defaultValue={userName}
         required
@@ -39,7 +41,7 @@ export default function UpdateProfileForm({
           <FormInput
             id="email"
             type="email"
-            placeholder="Ел. пошта"
+            placeholder={t("profile.email")}
             ref={emailRef}
             defaultValue={currentUser.email}
             required
@@ -47,19 +49,19 @@ export default function UpdateProfileForm({
           <FormInput
             id="reauth-password"
             type="password"
-            placeholder="Пароль"
+            placeholder={t("profile.password")}
             ref={passwordRef}
             required
           />
           <FormInput
             id="password"
             type="password"
-            placeholder="Новий пароль"
+            placeholder={t("profile.newPassword")}
             ref={newPasswordRef}
           />
         </>
       )}
-      <ActionButton label="Оновити" loading={loading} className="my-4" />
+      <ActionButton label={t("update")} loading={loading} className="my-4" />
     </Form>
   );
 }

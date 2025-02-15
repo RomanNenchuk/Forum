@@ -4,7 +4,7 @@ import SqSpinner from "./AltSpinner/AltSpinner";
 
 export default function LoadingSpinner() {
   return (
-    <Container className="d-flex align-items-center justify-content-center">
+    <Container className="d-flex align-items-center justify-content-center h-100">
       <SqSpinner />
     </Container>
   );

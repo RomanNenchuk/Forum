@@ -1,22 +1,41 @@
 /* Контейнер для тіла картки */
 .profile-modal-card-body {
-  padding: 40px;
+  padding: 25px 40px;
   text-align: left;
 }
 
-.message-icon {
-  width: 32px;
-  height: 32px;
-}
-
 /* Інформація профілю */
-.profile-info p {
-  font-size: 16px;
-  margin-bottom: 10px;
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1vh;
 }
 
-.profile-info strong {
-  color: #333;
+.interaction-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 50px;
+}
+
+.interaction-button {
+  color: white;
+  padding: 6px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #659287;
+  border: none;
+  border-radius: 5px;
+  border: 1px solid transparent;
+  margin: 20px 0;
+  font-size: 20px;
+  width: 100%;
+  text-align: center;
+}
+
+.interaction-button:hover {
+  color: #659287;
+  background-color: white;
+  border: 1px solid #659287;
 }
 
 /* Кнопка виходу */
@@ -27,4 +46,25 @@
 
 .logout-button:hover {
   text-decoration: underline;
+}
+
+.info-block {
+  padding: 1vh 1vw;
+  border: 1px solid #ccc;
+  border-radius: 15px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.info-title {
+  font-size: 16px;
+  color: #000;
+  text-overflow: ellipsis;
+}
+
+.info-caption {
+  font-size: 14px;
+  color: #666;
 }

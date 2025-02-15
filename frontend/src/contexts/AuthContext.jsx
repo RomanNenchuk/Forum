@@ -11,6 +11,7 @@ import {
   onAuthStateChanged,
 } from "firebase/auth"; // Імпортуємо необхідні функції
 import { auth, googleAuthProvider } from "../config/firebase-config.js"; // Імпортуємо вже ініціалізований екземпляр auth
+import { useTranslation } from "react-i18next";
 import axios from "axios";
 
 const AuthContext = createContext();
@@ -23,6 +24,7 @@ export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState();
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState("");
+  const { t } = useTranslation();
 
   // Оновлений метод signup, використовуємо createUserWithEmailAndPassword
   async function signup(email, password) {
@@ -59,7 +61,7 @@ export function AuthProvider({ children }) {
       return updateEmail(currentUser, newEmail);
     } catch (error) {
       console.error(error);
-      throw Error("Не вдалося оновити ел. пошту");
+      throw Error(t("auth.updateEmailFailed"));
     }
   }
 
@@ -119,7 +121,7 @@ export function AuthProvider({ children }) {
       return true;
     } catch (error) {
       if (error.response.status === 404)
-        console.log("Користувач ще не зареєстрований!");
+        console.error("User is not registered", error);
       else console.error(error);
 
       return false;
@@ -137,7 +139,7 @@ export function AuthProvider({ children }) {
           setToken(newToken); // Збереження токена
           setCurrentUser(user); // Оновлення поточного користувача
         } catch (error) {
-          console.error("Помилка отримання токена:", error);
+          console.error("Error fetching token:", error);
         }
       } else {
         setCurrentUser(null);

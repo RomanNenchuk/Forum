@@ -11,7 +11,7 @@ export default function PrivateRoute() {
     <Outlet />
   ) : (
     <Navigate
-      to="/login"
+      to={`/login${location.search}`}
       state={{
         backgroundLocation: previousPath,
         redirectPath: location.pathname,

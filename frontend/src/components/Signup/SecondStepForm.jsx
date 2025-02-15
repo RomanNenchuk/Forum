@@ -1,5 +1,6 @@
 import React from "react";
 import { Form, Card, Alert } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
 import ModalHeader from "../ModalHeader/ModalHeader.jsx";
 import FormInput from "../FormInput.jsx";
 import AvatarUploader from "../AvatarUploader.jsx";
@@ -20,10 +21,11 @@ export default function SecondStepForm({
   loading,
   style,
 }) {
+  const { t } = useTranslation();
   return (
     <div style={style}>
       <ModalHeader
-        title={"Реєстрація"}
+        title={t("auth.signUp")}
         renderArrowBack={true}
         onBack={() => setNextForm(false)}
         onClose={onClose}
@@ -44,12 +46,12 @@ export default function SecondStepForm({
           <FormInput
             id={"fullName"}
             type={"text"}
-            placeholder={"Повне ім'я"}
+            placeholder={t("auth.fullName")}
             ref={fullNameRef}
             required
           />
 
-          <Form.Group id="major">
+          {/* <Form.Group id="major">
             <select
               id="major"
               style={{ width: "100%" }}
@@ -66,9 +68,9 @@ export default function SecondStepForm({
               <option value="goldfish">Goldfish</option>
               <option value="Chervanchuk">Chervanchuk</option>
             </select>
-          </Form.Group>
+          </Form.Group> */}
           <ActionButton
-            label={"Зареєструватися"}
+            label={t("auth.register")}
             loading={loading}
             className="my-5"
           />

@@ -1,7 +1,9 @@
 import React, { useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Form } from "react-bootstrap";
 
 export default function DescriptionInput({ description, setDescription }) {
+  const { t } = useTranslation();
   const descriptionRef = useRef(null);
 
   function handleChange(e) {
@@ -20,7 +22,7 @@ export default function DescriptionInput({ description, setDescription }) {
         cols={150}
         value={description}
         onChange={handleChange}
-        placeholder="Введіть додаткову інформацію..."
+        placeholder={t("createTopic.descriptionInputPlaceholder")}
       />
     </Form.Group>
   );

@@ -1,16 +1,17 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Link, Outlet, useParams } from "react-router-dom";
-import { useSocket } from "../../contexts/SocketProviderContext.jsx";
-import { useAuth } from "../../contexts/AuthContext";
 import Avatar from "../Avatar.jsx";
+import { useAuth } from "../../contexts/AuthContext.jsx";
+import { useTranslation } from "react-i18next";
 import { useChat } from "../../contexts/ChatContext";
 import "./Chat.css";
+import DefaultChatScreen from "../DefaultChatScreen.jsx";
 
 export default function ChatList() {
+  const { currentUser } = useAuth();
   const { chatList, setChatList } = useChat();
   const { receiverId } = useParams();
-  const { currentUser } = useAuth();
-  const socket = useSocket();
+  const { t } = useTranslation();
 
   const handleChatClick = index => {
     const updatedChatList = chatList.map((chat, i) => ({
@@ -26,7 +27,7 @@ export default function ChatList() {
     <div className="chat-win-container">
       <div className="chat-list-ct">
         <div className="chat-hd">
-        <p style = {{fontSize: "3vh"}}>Приватні чати</p>
+          <p style={{ fontSize: "3vh" }}>{t("chat.myChatsCaption")}</p>
         </div>
         <div className="chat-list">
           {chatList &&
@@ -44,7 +45,7 @@ export default function ChatList() {
                 >
                   <div className="chat-header">
                     <div className="chat-name-ct">
-                      <Avatar size='8vh' avatar={chat.other_user_avatar} />
+                      <Avatar size="8vh" avatar={chat.other_user_avatar} />
                       <div className="chat-name-text">
                         <p className="chat-name">{chat.other_user_name}</p>
                       </div>
@@ -65,7 +66,7 @@ export default function ChatList() {
       </div>
 
       <div className="chat-window">
-        <Outlet />
+        {receiverId !== currentUser?.uid ? <Outlet /> : <DefaultChatScreen />}
       </div>
     </div>
   );

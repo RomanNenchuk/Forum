@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import LoadingSpinner from "./Spinner.jsx";
+import { useTranslation } from "react-i18next";
 import { useChat } from "../contexts/ChatContext";
 
 export default function DefaultChatScreen() {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const { fetchChatList } = useChat();
   useEffect(() => {
@@ -18,7 +20,7 @@ export default function DefaultChatScreen() {
   if (loading) return <LoadingSpinner />;
   return (
     <div className="h-100 d-flex justify-content-center align-items-center">
-      <h3>Виберіть чат для спілкування</h3>
+      <h3>{t("chat.defaultChatScreenMessage")}</h3>
     </div>
   );
 }

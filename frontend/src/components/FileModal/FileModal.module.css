@@ -121,6 +121,7 @@
   font-size: 18px;
   border: 1px solid transparent;
   margin: 20px 0;
+  /* width: %; */
 }
 .cancelButtonSend,
 .submitButtonSend,

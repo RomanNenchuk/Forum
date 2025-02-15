@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Card } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
 import CommentArea from "./CommentArea";
 import "./Comments.css";
 
@@ -33,9 +33,9 @@ export default function TopicComments({
   comments,
   topicAuthorId,
 }) {
+  const { t } = useTranslation();
   const sortedComments = useMemo(() => {
     const temp = [...comments].sort((a, b) => {
-      // default sort
       let ta = a.reply === -1 ? a.timestamp : a.reply_timestamp,
         tb = b.reply === -1 ? b.timestamp : b.reply_timestamp;
       if (ta === tb) {
@@ -63,7 +63,7 @@ export default function TopicComments({
         ))
       ) : (
         <h3 className="default-comment-notification">
-          Ви можете стати першим, хто прокоментує цю тему!
+          {t("topic.firstCommentNotification")}
         </h3>
       )}
     </ul>

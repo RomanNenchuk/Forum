@@ -14,13 +14,13 @@ ul {
   margin-bottom: 4vh;
 }
 .add-topic-button {
-  background-color: #5f8575; /* Колір кнопки */
+  background-color: #5f8575;
   color: white;
   border: none;
   padding: 1vh 2.3vh;
   font-size: 3vh;
   font-family: Arial, sans-serif;
-  border-radius: 0.6vh; /* Закруглені краї */
+  border-radius: 0.6vh;
   cursor: pointer;
 }
 .dropdown-button {
@@ -216,6 +216,7 @@ ul {
   border-radius: 2.5vh;
   background-color: white;
   box-shadow: 0.5vh 0.5vh 0.8vh 0.55vh #00000040;
+  height: fit-content;
 }
 
 .topic-content {
@@ -275,6 +276,7 @@ ul {
 }
 
 
+
 .custom-select {
   background-color: rgb(244, 236, 224); /* Колір фону */
   border: none;
@@ -325,3 +327,34 @@ ul {
     font-size: 1rem;
   }
 }
+
+.topics-grid {
+  display: grid;
+  gap: 5vh;
+  grid-template-columns: repeat(2, 1fr);
+  width: 90%;
+  justify-content: center;
+  margin-top: 4vh;
+  grid-template-rows: repeat(auto-fill, 1fr);
+}
+
+.subs{
+  padding: 0 5px;
+  border-radius: 20px;
+  
+  margin-left: 2%;
+  font-size: 0.8rem;
+}
+.subscribe{
+  color: black;
+  background-color: #ffffff00;
+  border: 1px solid black;
+  
+}
+
+.subscribed{
+  color: white;
+  background-color: #5f8575;
+  border: 1px solid #5f8575;
+}
+

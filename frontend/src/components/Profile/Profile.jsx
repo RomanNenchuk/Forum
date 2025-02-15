@@ -2,23 +2,24 @@ import React, { useState, useEffect } from "react";
 import { Card, Alert, Button } from "react-bootstrap";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useUserInfo } from "../../contexts/UserInfoContext.jsx";
-import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import ModalHeader from "../ModalHeader/ModalHeader.jsx";
+import InteractionBlock from "./InteractionBlock.jsx";
 import Avatar from "../Avatar.jsx";
 import ActionButton from "../ActionButton/ActionButton.jsx";
-import messageIcon from "../../assets/message.svg";
-import followIcon from "../../assets/follow.svg";
-import unfollowIcon from "../../assets/unfollow.svg";
-import "./Profile.css";
 import ModalLoading from "../ModalLoading.jsx";
+import InfoBlock from "./InfoBlock.jsx";
+import "./Profile.css";
 
 export default function Profile({ onClose }) {
+  const { t } = useTranslation();
   const { id } = useParams();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
-  const [author, setAuthor] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
   const { currentUser, logout } = useAuth();
-  const { userName, fullName, avatar, createdAt, getUserInfo } = useUserInfo();
+  const { user, getUserInfo } = useUserInfo();
   const navigate = useNavigate();
   const location = useLocation();
   const backgroundLocation = location.state?.backgroundLocation || "/";
@@ -28,13 +29,14 @@ export default function Profile({ onClose }) {
     (async () => {
       try {
         setLoading(true);
+        if (id === currentUser?.uid) return setUserProfile(user);
         const userInfo = await getUserInfo(id);
-        setAuthor(userInfo);
+        setUserProfile(userInfo);
       } finally {
         setLoading(false);
       }
     })();
-  }, [id]);
+  }, [id, user]);
 
   async function handleLogOut() {
     setError("");
@@ -42,77 +44,72 @@ export default function Profile({ onClose }) {
       await logout();
       navigate("/");
     } catch (error) {
-      setError("Failed to log out");
+      setError(t("profile.failedToLogOut"));
     }
+  }
+
+  function handleUpdateProfileClick() {
+    navigate("/update-profile", {
+      state: {
+        backgroundLocation,
+      },
+      replace: true,
+    });
   }
 
   return (
     <ModalLoading modalLoading={loading}>
-      <ModalHeader title={author?.fullName || fullName} onClose={onClose} />
+      <ModalHeader
+        title={userProfile?.fullName || "Unkown"}
+        onClose={onClose}
+      />
       <Card.Body className="profile-modal-card-body">
         {error && <Alert variant="danger">{error}</Alert>}
-        <div className="avatar-container text-center mb-4">
-          <Avatar
-            avatar={author ? author.avatar : avatar}
-            style={{ border: "4px solid #ffd700", marginBottom: "30px" }}
-          />
-        </div>
-        {author && (
+        {userProfile ? (
           <>
-            <Link
-              to={currentUser ? `/chats/${id}` : "/login"}
-              state={{
-                backgroundLocation,
-                redirectPath: `/chats/${id}`,
-              }}
-              className="message-icon-link"
-            >
-              <img
-                src={messageIcon}
-                alt="Надіслати повідомлення"
-                className="message-icon"
+            <div className="avatar-container text-center mb-4">
+              <Avatar
+                avatar={userProfile.avatar}
+                style={{ border: "4px solid #ffd700" }}
               />
-            </Link>
-            <img src={followIcon} alt="Слідкувати" />
-            <img src={unfollowIcon} alt="Не слідкувати" />
-          </>
-        )}
-        <div className="profile-info">
-          <p>
-            <strong>Ім'я користувача:</strong> {author?.userName || userName}
-          </p>
-          <p>
-            <strong>Ел. пошта:</strong> {author?.email || currentUser?.email}
-          </p>
-          <p>
-            <strong>Створено:</strong> {author?.createdAt || createdAt}
-          </p>
-        </div>
-        {!author && (
-          <>
-            <ActionButton
-              label={"Оновити профіль"}
-              className="mt-5 mb-2"
-              onClick={() =>
-                navigate("/update-profile", {
-                  state: {
-                    backgroundLocation,
-                    // redirectPath: `/update-profile`,
-                  },
-                  replace: true,
-                })
-              }
-            />
-            <div className="text-center">
-              <Button
-                variant="link"
-                onClick={handleLogOut}
-                style={{ color: "#659287" }}
-              >
-                Вийти
-              </Button>
             </div>
+            {id !== currentUser?.uid && (
+              <InteractionBlock
+                userProfile={userProfile}
+                setUserProfile={setUserProfile}
+              />
+            )}
+            <div className="profile-info">
+              <InfoBlock
+                title={`@${userProfile.userName}`}
+                caption={t("profile.username")}
+              />
+              <InfoBlock
+                title={`${userProfile.email}`}
+                caption={t("profile.email")}
+              />
+            </div>
+            {id === currentUser?.uid && (
+              <>
+                <ActionButton
+                  label={t("profile.updateProfile")}
+                  className="mt-5 mb-2"
+                  onClick={handleUpdateProfileClick}
+                />
+                <div className="text-center">
+                  <Button
+                    variant="link"
+                    onClick={handleLogOut}
+                    style={{ color: "#659287" }}
+                  >
+                    {t("profile.logout")}
+                  </Button>
+                </div>
+              </>
+            )}
           </>
+        ) : (
+          <div>{t("profile.noUserInfo")}</div>
         )}
       </Card.Body>
     </ModalLoading>

@@ -1,30 +1,18 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Form } from "react-bootstrap";
-
 import "./CreateTopic.css";
 
+
 const TitleInput = ({ title, setTitle, limit, value, showCounter }) => {
+  const { t } = useTranslation();
+
   const countRef = useRef();
   const titleRef = useRef(null);
   const [counter, setCounter] = useState(0);
-  const [rows, setRows] = useState(1); // Початкова кількість рядків
-
-  function wrapInput(ref) {
-    ref.current.style.height = "auto";
-    ref.current.style.height = `${ref.current.scrollHeight}px`;
-  }
 
   function handleChange(e) {
-    const textarea = e.target;
-    const currentRows = textarea.value.split("\n").length;
-
-    if (currentRows <= 3) {
-      setRows(currentRows);
-      wrapInput(titleRef);
-    } else {
-      textarea.value = textarea.value.split("\n").slice(0, 3).join("\n");
-    }
-    setTitle(textarea.value);
+    setTitle(e.target.value);
   }
 
   function handleKeyDown(e) {
@@ -47,7 +35,7 @@ const TitleInput = ({ title, setTitle, limit, value, showCounter }) => {
         defaultValue={value}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
-        placeholder="Введіть назву теми"
+        placeholder={t("createTopic.titleInputPlaceholder")}
         required
       />
       {showCounter ? <span ref={countRef} className="right-counter">

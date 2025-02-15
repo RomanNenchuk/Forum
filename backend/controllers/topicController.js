@@ -11,135 +11,120 @@ export const getTopicsPreview = async (req, res) => {
     desc: "topics.date DESC",
     rating: "rating DESC",
   };
-  const orderBy = sortCriteria[sort] || "topics.date DESC";
+
+  let orderBy = sortCriteria[sort] || "topics.date DESC";
+  let subsFilterQuery = "";
+  let queryParams = [limit, offset];
+
+  if (sort === "subs" && user_id) {
+    subsFilterQuery = `
+      AND topics.author IN (
+        SELECT subscription_id FROM user_subscriptions WHERE user_id = $3
+      )
+    `;
+    queryParams.push(user_id);
+  }
+
+  let tagsFilterQuery = "";
+  const tagList =
+    tags
+      ?.split(",")
+      .map(tag => tag.trim())
+      .filter(Boolean) || [];
+  if (tagList.length > 0) {
+    const placeholders = tagList
+      .map((_, index) => `$${queryParams.length + index + 1}`)
+      .join(", ");
+    tagsFilterQuery = `
+      AND topics.id IN (
+        SELECT topic_id FROM topic_tags
+        INNER JOIN tags ON tags.tag_id = topic_tags.tag_id
+        WHERE tags.tag_name IN (${placeholders})
+        GROUP BY topic_id HAVING COUNT(DISTINCT tags.tag_name) = ${tagList.length}
+      )
+    `;
+    queryParams.push(...tagList);
+  }
+
+  let authorsFilterQuery = "";
+  const authorList =
+    authors
+      ?.split(",")
+      .map(author => author.trim())
+      .filter(Boolean) || [];
+  if (authorList.length > 0) {
+    const placeholders = authorList
+      .map((_, index) => `$${queryParams.length + index + 1}`)
+      .join(", ");
+    authorsFilterQuery = `AND users.username IN (${placeholders})`;
+    queryParams.push(...authorList);
+  }
 
   try {
-    let tagsFilterQuery = "";
-    const tagList =
-      tags
-        ?.split(",")
-        ?.map(tag => tag.trim())
-        ?.filter(Boolean) || [];
-    if (tagList.length > 0) {
-      const placeholders = tagList
-        .map((_, index) => `$${index + 3}`)
-        .join(", ");
-      tagsFilterQuery = `
-        AND topics.id IN (
-          SELECT topic_id
-          FROM topic_tags
-          INNER JOIN tags ON tags.tag_id = topic_tags.tag_id
-          WHERE tags.tag_name IN (${placeholders})
-          GROUP BY topic_id
-          HAVING COUNT(DISTINCT tags.tag_name) = ${tagList.length}
-        )
-      `;
-    }
-
-    let authorsFilterQuery = "";
-    const authorList =
-      authors
-        ?.split(",")
-        ?.map(author => author.trim())
-        ?.filter(Boolean) || [];
-    if (authorList.length > 0) {
-      const startingIndex = tagList ? tagList.length + 3 : 3;
-      const placeholders = authorList
-        .map((_, index) => `$${index + startingIndex}`)
-        .join(",");
-      authorsFilterQuery = `
-          AND users.username IN (${placeholders})
-      `;
-    }
-
-    // Основний запит для тем
     const topicsResult = await pool.query(
       `
-      SELECT 
-        topics.id, 
-        fullname AS author_full_name, 
-        username, 
-        avatar AS author_avatar, 
-        title, 
-        email, 
-        author, 
-        COALESCE(SUM(emoji.score), 0) AS rating,
-        cover,
-        topics.date,
-        COALESCE(ARRAY_AGG(DISTINCT tags.tag_name) FILTER (WHERE tags.tag_name IS NOT NULL), '{}') AS tag_list
+      WITH tags_cte AS (
+          SELECT topic_tags.topic_id, ARRAY_AGG(DISTINCT tags.tag_name) AS tag_list
+          FROM topic_tags
+          LEFT JOIN tags ON topic_tags.tag_id = tags.tag_id
+          GROUP BY topic_tags.topic_id
+      ),
+      rating_cte AS (
+          SELECT topic_reactions.topic_id, COALESCE(SUM(emoji.score), 0) AS rating
+          FROM topic_reactions
+          LEFT JOIN emoji ON emoji.id = topic_reactions.emoji_id
+          GROUP BY topic_reactions.topic_id
+      )
+      SELECT topics.id, users.fullname AS author_full_name, users.username, 
+             users.avatar AS author_avatar, topics.title, users.email, topics.author, 
+             COALESCE(rating_cte.rating, 0) AS rating, topics.cover, topics.date,
+             COALESCE(tags_cte.tag_list, '{}') AS tag_list
       FROM topics
       INNER JOIN users ON users.uid = topics.author
-      left join topic_tags on topics.id = topic_tags.topic_id
-      left join tags on topic_tags.tag_id = tags.tag_id
-      LEFT JOIN topic_reactions
-        ON topics.id = topic_reactions.topic_id
-      LEFT JOIN emoji
-        ON emoji.id = topic_reactions.emoji_id
+      LEFT JOIN tags_cte ON topics.id = tags_cte.topic_id
+      LEFT JOIN rating_cte ON topics.id = rating_cte.topic_id
       WHERE 1=1
+      ${subsFilterQuery}
       ${tagsFilterQuery}
       ${authorsFilterQuery}
-      GROUP BY 
-        topics.id, 
-        fullname, 
-        username, 
-        avatar, 
-        title, 
-        email, 
-        author, 
-        cover,
-        topics.date
       ORDER BY ${orderBy}
       LIMIT $1 OFFSET $2;
       `,
-      [limit, offset, ...tagList, ...authorList]
+      queryParams
     );
 
     const topics = topicsResult.rows;
 
-    // Запит для всіх реакцій
     const reactionsResult = await pool.query(
-      `
-      SELECT 
-        topic_id,
-        emoji.name,
-        emoji.icon,
-        COUNT(*) AS count
-      FROM topic_reactions
-      INNER JOIN emoji ON topic_reactions.emoji_id = emoji.id
-      GROUP BY topic_id, emoji.name, emoji.icon;
-      `
+      `SELECT topic_id, emoji.name, emoji.icon, COUNT(*) AS count
+       FROM topic_reactions
+       INNER JOIN emoji ON topic_reactions.emoji_id = emoji.id
+       GROUP BY topic_id, emoji.name, emoji.icon;`
     );
 
     const reactions = reactionsResult.rows;
 
-    // Запит для реакцій конкретного користувача (якщо user_id передано)
     let userReactions = [];
     if (user_id) {
       const userReactionsResult = await pool.query(
-        `
-        SELECT 
-          topic_id, 
-          emoji.name AS name
-        FROM topic_reactions
-        LEFT JOIN emoji ON topic_reactions.emoji_id = emoji.id
-        WHERE user_id = $1;
-        `,
+        `SELECT topic_id, emoji.name AS name
+         FROM topic_reactions
+         LEFT JOIN emoji ON topic_reactions.emoji_id = emoji.id
+         WHERE user_id = $1;`,
         [user_id]
       );
       userReactions = userReactionsResult.rows;
     }
 
     let userSubscriptions = [];
-
     if (user_id) {
       const resSubs = await pool.query(
         `SELECT subscription_id FROM user_subscriptions WHERE user_id = $1`,
         [user_id]
       );
-      userSubscriptions = resSubs.rows; // Оновлюємо змінну тут
+      userSubscriptions = resSubs.rows.map(row => row.subscription_id);
     }
 
-    // Формування фінального результату
     const topicsWithReactions = topics.map(topic => {
       const topicReactions = reactions
         .filter(reaction => reaction.topic_id === topic.id)
@@ -153,12 +138,11 @@ export const getTopicsPreview = async (req, res) => {
         reaction => reaction.topic_id === topic.id
       );
 
-      if (userSubscriptions.find(subs => subs.subscription_id == topic.author))
-        topic.subscribed = true;
-      else {
-        if (topic.author == user_id) topic.subscribed = "none";
-        else topic.subscribed = false;
-      }
+      topic.subscribed = userSubscriptions.includes(topic.author)
+        ? true
+        : topic.author === user_id
+        ? "none"
+        : false;
 
       return {
         ...topic,
@@ -175,24 +159,24 @@ export const getTopicsPreview = async (req, res) => {
 };
 
 export const getUserTopic = async (req, res) => {
-  const { page = 1, limit = 10, user_id } = req.query;
+  const { user_id, page = 1, limit = 20 } = req.query;
   const offset = (page - 1) * limit;
   try {
     const topicsResult = await pool.query(
       `
       SELECT 
-        topics.id, 
-        fullname AS author_full_name, 
-        username, 
-        avatar AS author_avatar, 
-        title, 
-        email, 
-        author, 
-        COALESCE(SUM(emoji.score), 0) AS rating,
-        topics.date,
-        COALESCE(ARRAY_AGG(DISTINCT tags.tag_name) FILTER (WHERE tags.tag_name IS NOT NULL), '{}') AS tag_list
+      topics.id, 
+      fullname AS author_full_name, 
+      username, 
+      avatar AS author_avatar, 
+      title, 
+      email, 
+      author, 
+      COALESCE(SUM(emoji.score), 0) AS rating,
+      cover,
+      topics.date,
+      COALESCE(ARRAY_AGG(DISTINCT tags.tag_name) FILTER (WHERE tags.tag_name IS NOT NULL), '{}') AS tag_list
       FROM topics
-      
       INNER JOIN users ON users.uid = topics.author
       left join topic_tags on topics.id = topic_tags.topic_id
       left join tags on topic_tags.tag_id = tags.tag_id
@@ -202,7 +186,8 @@ export const getUserTopic = async (req, res) => {
         ON emoji.id = topic_reactions.emoji_id
       WHERE users.uid = $1
       GROUP BY topics.id, fullname, username, avatar, title, email, author, topics.date
-      LIMIT $2 OFFSET $3
+      ORDER BY topics.date DESC
+      LIMIT $2 OFFSET $3;
       `,
       [user_id, limit, offset]
     );
@@ -521,7 +506,7 @@ export const switchTopicToUser = async (req, res) => {
       res.status(201).json({ status: "saved" });
     } else {
       await pool.query(DELETE_QUERY, [user_id, topic_id]);
-      res.status(200).json({ satus: "deleted" });
+      res.status(200).json({ status: "deleted" });
     }
   } catch (error) {
     console.error("Error in saveTopicToUser: ", error);
@@ -548,14 +533,18 @@ export const getIsTopicSaved = async (req, res) => {
 };
 
 export const getSavedTopics = async (req, res) => {
-  const { page = 1, limit = 10, user_id } = req.query;
+  const { user_id, page = 1, limit = 20 } = req.query;
   const offset = (page - 1) * limit;
+
   try {
-    const topicsId = await pool.query(`
+    const topicsId = await pool.query(
+      `
       SELECT topic_id FROM saved_topics WHERE user_id = $1
-      `, [user_id]);
+      `,
+      [user_id]
+    );
     let topicsIdArray = [];
-    for(let el of topicsId.rows) {
+    for (let el of topicsId.rows) {
       topicsIdArray.push(el.topic_id);
     }
     const topicsResult = await pool.query(
@@ -570,9 +559,9 @@ export const getSavedTopics = async (req, res) => {
         author, 
         COALESCE(SUM(emoji.score), 0) AS rating,
         topics.date,
+        cover,
         COALESCE(ARRAY_AGG(DISTINCT tags.tag_name) FILTER (WHERE tags.tag_name IS NOT NULL), '{}') AS tag_list
       FROM topics
-      
       INNER JOIN users ON users.uid = topics.author
       LEFT JOIN topic_tags on topics.id = topic_tags.topic_id
       LEFT JOIN tags on topic_tags.tag_id = tags.tag_id
@@ -596,7 +585,6 @@ export const getSavedTopics = async (req, res) => {
         COUNT(*) AS count
       FROM topic_reactions
       INNER JOIN emoji ON topic_reactions.emoji_id = emoji.id
-      
       GROUP BY topic_id, emoji.name, emoji.icon;
       `
     );
@@ -616,7 +604,16 @@ export const getSavedTopics = async (req, res) => {
     );
     userReactions = userReactionsResult.rows;
 
+    let userSubscriptions = [];
+    if (user_id) {
+      const resSubs = await pool.query(
+        `SELECT subscription_id FROM user_subscriptions WHERE user_id = $1`,
+        [user_id]
+      );
+      userSubscriptions = resSubs.rows; // Оновлюємо змінну тут
+    }
 
+    // Формування фінального результату
     const topicsWithReactions = topics.map(topic => {
       const topicReactions = reactions
         .filter(reaction => reaction.topic_id === topic.id)
@@ -630,6 +627,12 @@ export const getSavedTopics = async (req, res) => {
         reaction => reaction.topic_id === topic.id
       );
 
+      if (userSubscriptions.find(subs => subs.subscription_id == topic.author))
+        topic.subscribed = true;
+      else {
+        if (topic.author == user_id) topic.subscribed = "none";
+        else topic.subscribed = false;
+      }
 
       return {
         ...topic,

@@ -1,37 +1,39 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { useTopicSearch } from "../../contexts/TopicSearchContext.jsx";
 import { Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import ToastPortal from "../Toast/Toast.jsx";
 import "./TagBar.css";
 
 export default function TagBar() {
   const [toast, setToast] = useState(null);
+  const toastTimeout = useRef(null);
   const { popularTagList } = useTopicSearch();
+  const { t } = useTranslation();
   const location = useLocation();
 
   const showToast = (message, type, item = "") => {
-    if (toast) clearTimeout(toast.timeoutId);
+    if (toastTimeout.current) {
+      clearTimeout(toastTimeout.current);
+    }
 
-    const newToast = {
-      id: Date.now(),
-      message,
-      type,
-      item,
-      timeoutId: setTimeout(() => setToast(null), 3000),
-    };
+    setToast({ message, type, item });
 
-    setToast(newToast);
+    toastTimeout.current = setTimeout(() => {
+      setToast(null);
+      toastTimeout.current = null;
+    }, 3000);
   };
 
   const handleTagClick = tagName => {
     navigator.clipboard.writeText(`# ${tagName}`);
-    showToast("скопійовано", "success", `# ${tagName}`);
+    showToast(t("tag.copied"), "success", `# ${tagName}`);
   };
 
   return (
     <>
       <div className="tag-list">
-        <h5 className="tag-list-title">Популярні теги</h5>
+        <h5 className="tag-list-title">{t("tag.popularTags")}</h5>
         {
           <>
             {popularTagList.map((tag, index) => (
@@ -39,7 +41,6 @@ export default function TagBar() {
                 className="tag"
                 key={index}
                 onClick={() => handleTagClick(tag.tag_name)}
-                style={{ cursor: "pointer" }}
               >
                 # {tag.tag_name}
               </h5>
@@ -50,14 +51,13 @@ export default function TagBar() {
                 backgroundLocation: location,
               }}
             >
-              Показати більше
+              {t("tag.showMore")}
             </Link>
           </>
         }
       </div>
       {toast && (
         <ToastPortal
-          key={toast.id}
           message={toast.message}
           type={toast.type}
           item={toast.item}

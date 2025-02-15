@@ -6,12 +6,14 @@ import React, {
   useMemo,
 } from "react";
 import { Form } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
 import debounce from "../../utils/debounce.jsx";
 import { RxCross2 } from "react-icons/rx";
 import "./CreateTopic.css";
 import axios from "axios";
 
 const SearchInput = ({ selectedTagList, setSelectedTagList }) => {
+  const { t } = useTranslation();
   const tagsRef = useRef();
   const [isDropdownListOpen, setIsDropdownListOpen] = useState(false);
   const [tagList, setTagList] = useState([]);
@@ -97,7 +99,9 @@ const SearchInput = ({ selectedTagList, setSelectedTagList }) => {
               if (selectedTagList.length < 5) setIsDropdownListOpen(true);
             }}
             placeholder={
-              selectedTagList.length < 5 ? "Оберіть теги" : "Заповнено"
+              selectedTagList.length < 5
+                ? t("createTopic.selectTagsPlaceholder")
+                : t("createTopic.tagsLimitReached")
             }
             className="tag-input"
             readOnly={selectedTagList.length > 4}
@@ -113,7 +117,7 @@ const SearchInput = ({ selectedTagList, setSelectedTagList }) => {
               selectTag(tagsRef.current.value);
             }}
           >
-            Додати
+            {t("add")}
           </div>
         </div>
         <div style={{position: "relative", width:"100%"}}>

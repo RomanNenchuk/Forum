@@ -40,7 +40,6 @@ export function TopicSearchProvider({ children, backgroundLocation }) {
           (searchInputAuthors && searchInputTags ? ", " : "") +
           (searchInputTags || "")
       );
-
     setQueryParams({
       page: 1,
       sortOrder: urlSearchParams.get("sort") || "desc",

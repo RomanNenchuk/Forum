@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext.jsx";
+import { useTranslation } from "react-i18next";
 import reactionListSetter from "../../utils/reactionListSetter.jsx";
+import convertLinks from "../../utils/textLinkConverter.jsx";
 import AttachedFiles from "../AttachedFiles/AttachedFiles.jsx";
 import { formatRelativeTime } from "../../utils/getCurrentTime.jsx";
 import InteractWindow from "../TopicList/InteractWindow.jsx";
 import ProfileHeader from "../ProfileHeader.jsx";
 import axios from "axios";
 import "./Comments.css";
-import Linkify from "react-linkify";
 
 export default function CommentArea({
   comment,
@@ -19,10 +20,10 @@ export default function CommentArea({
   initialReactions = [],
   userReaction = [],
 }) {
+  const { t } = useTranslation();
   const [activeReactions, setActiveReactions] = useState(
     reactionListSetter(initialReactions, userReaction)
   );
-
   const { currentUser, token } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -69,7 +70,9 @@ export default function CommentArea({
           avatar={comment.avatar}
           profileName={
             comment.author_fullname +
-            (topicAuthorId === comment.author_id ? " (Автор)" : "")
+            (topicAuthorId === comment.author_id
+              ? ` (${t("topic.author")})`
+              : "")
           }
           textStyle={{ color: "#000" }}
           sizeFont="16px"
@@ -81,11 +84,7 @@ export default function CommentArea({
         </span>
       </div>
       <AttachedFiles urls={comment?.attachments} />
-      <Linkify>
-        <p className="comment-text">
-          {comment.text}
-        </p>
-      </Linkify>
+      <p className="comment-text">{convertLinks(comment.text)}</p>
       <div className="icons-menu">
         <div className="active-reactions">
           {activeReactions.map((reaction, index) => (

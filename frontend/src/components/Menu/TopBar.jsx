@@ -1,4 +1,7 @@
 import React from "react";
+import { useUserInfo } from "../../contexts/UserInfoContext";
+import { useAuth } from "../../contexts/AuthContext";
+import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTopicSearch } from "../../contexts/TopicSearchContext.jsx";
 import { useWidth } from "../../contexts/ScreenWidthContext.jsx";
@@ -11,17 +14,21 @@ import seachIcon from "../../assets/search.svg";
 import "./Menu.css";
 import Avatar from "../Avatar.jsx";
 
-export default function TopBar({ currentUser, avatar, fullName, setExpand }) {
+
+export default function TopBar({setExpand}) {
+  const { t } = useTranslation();
+  const { currentUser } = useAuth();
+
   const location = useLocation();
   const {
     searchInput,
     setSearchInput,
-    setQueryParams,
     urlSearchParams,
     setUrlSearchParams,
     getSearchInputData,
   } = useTopicSearch();
   const navigate = useNavigate();
+  const { user } = useUserInfo();
 
   function handleSearch(e) {
     e.preventDefault();
@@ -60,12 +67,6 @@ export default function TopBar({ currentUser, avatar, fullName, setExpand }) {
           onClick={() => {
             setUrlSearchParams({});
             setSearchInput("");
-            setQueryParams({
-              page: 1,
-              sortOrder: "desc",
-              tags: "",
-              authors: "",
-            });
           }}
         >
           {width < 768 ? (<MdMenu onClick = {()=>{setExpand(0)}} size="5vh"/>) : ""}
@@ -84,10 +85,10 @@ export default function TopBar({ currentUser, avatar, fullName, setExpand }) {
               type="text"
               value={searchInput}
               onChange={e => setSearchInput(e.target.value)}
-              placeholder="Я шукаю..."
+              placeholder={t("menu.searchPlaceholder")}
             />
             <button className="hd-search-btn" type="submit">
-              <span>Знайти</span>
+              <span>{t("menu.searchButton")}</span>
             </button>
           </form>
         </div>
@@ -95,8 +96,8 @@ export default function TopBar({ currentUser, avatar, fullName, setExpand }) {
           {currentUser ? (
             <ProfileHeader
               id={currentUser.uid}
-              avatar={avatar}
-              profileName={`Вітаємо, ${fullName}!`}
+              avatar={user?.avatar}
+              profileName={`${t("menu.welcomeMessage")} ${user?.fullName}!`}
               size="9vh"
               sizeFont="3vh"
               avThickness="0.4vh"
@@ -107,7 +108,7 @@ export default function TopBar({ currentUser, avatar, fullName, setExpand }) {
             />
           ) : (
             <Link
-              to="/login"
+              to={`/login${location.search}`}
               state={{
                 backgroundLocation: {
                   pathname: location.pathname,
@@ -117,11 +118,11 @@ export default function TopBar({ currentUser, avatar, fullName, setExpand }) {
               }}
             >
               <button className="hd-btn">
-                Вхід
+                {t("menu.logIn")}
                 <div className="hd-btn-sep">
                   <span> | </span>
                 </div>
-                Реєстрація
+                {t("menu.signUp")}
               </button>
             </Link>
           )}
@@ -141,7 +142,7 @@ export default function TopBar({ currentUser, avatar, fullName, setExpand }) {
                   Вхід
                 </button>
               </Link>) : (
-                <div style = {{marginRight: "2vh"}}><Avatar avatar={avatar} handleImageClick={handlerClick}  size="5vh" /></div>
+                <div style = {{marginRight: "2vh"}}><Avatar avatar={user.avatar} handleImageClick={handlerClick}  size="5vh" /></div>
               )}
               <IoIosSearch size = "5vh" />
               <PiDotsThreeCircleVerticalFill size = "5vh"/>

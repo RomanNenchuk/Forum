@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import Modal from "../Modal.jsx";
 import ModalHeader from "../ModalHeader/ModalHeader.jsx";
+import { useTranslation } from "react-i18next";
 import styles from "./FileModal.module.css";
 import { Card } from "react-bootstrap";
 import deleteIcon from "../../assets/delete-button.svg";
@@ -19,6 +20,7 @@ export default function FileEditModal({
   const [currentIndex, setCurrentIndex] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef();
+  const { t } = useTranslation();
 
   function handleChangeClick(index) {
     setCurrentIndex(index);
@@ -64,7 +66,7 @@ export default function FileEditModal({
   return (
     <Modal onCloseModal={onClose}>
       <Card className={styles.modalCard}>
-        <ModalHeader title={"Редагувати"} onClose={onClose} />
+        <ModalHeader title={t("edit")} onClose={onClose} />
         <Card.Body className={styles.cardBody}>
           <ul className={styles.fileList}>
             {files.map((file, index) => (
@@ -109,19 +111,19 @@ export default function FileEditModal({
               className={`${styles.textInput} ${styles.fileModalTextarea}`}
               value={text}
               onChange={e => setText(e.target.value)}
-              placeholder="Напишіть повідомлення..."
+              placeholder={t("writeMessageLabel")}
               rows={2}
             />
             <div className={styles.actionButtons}>
               <button className={styles.cancelButton} onClick={onClose}>
-                Скасувати
+                {t("cancel")}
               </button>
               <button
                 className={styles.submitButton}
                 onClick={handleSubmit}
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "Збереження..." : "Зберегти"}
+                {isSubmitting ? t("saving") : t("save")}
               </button>
             </div>
           </div>

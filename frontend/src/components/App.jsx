@@ -1,4 +1,5 @@
 import React from "react";
+import { Outlet } from "react-router-dom";
 import Signup from "./Signup/Signup.jsx";
 import Login from "./Login/Login.jsx";
 import Profile from "./Profile/Profile.jsx";
@@ -34,9 +35,11 @@ function App() {
     <Router>
       <AuthProvider>
         <UserInfoProvider>
-          <ScreenWidthProvider>
-            <AppRoutes />
-          </ScreenWidthProvider>
+          <TopicSearchProvider>
+            <ScreenWidthProvider>
+              <AppRoutes />
+              </ScreenWidthProvider>
+          </TopicSearchProvider>
         </UserInfoProvider>
       </AuthProvider>
     </Router>
@@ -47,33 +50,24 @@ function AppRoutes() {
   const { backgroundLocation, showBackground } = useBackgroundLocation();
 
   return (
-    <TopicSearchProvider backgroundLocation={backgroundLocation}>
+    <>
       <Routes location={backgroundLocation}>
         <Route element={<Menu />}>
           <Route
-            path="/"
             element={
               <TopicListProvider>
-                <Home />
+                <Outlet />
               </TopicListProvider>
             }
-          />
-          <Route
-            path="/topics/:id"
-            element={
-              <TopicListProvider>
-                <Topic />
-              </TopicListProvider>
-            }
-          />
-          <Route path="/poptopics" element={<PopulTopic />} />
-          
-            <Route path="/mytopics" element={<TopicListProvider><MyTopic /> </TopicListProvider>} />
-          
-          {/* <Route path="/profiles/:id" element={<Profile />} /> */}
+
+          >
+            <Route path="/" element={<Home />} />
+            <Route path="/topics/:id" element={<Topic />} />
+            <Route path="/poptopics" element={<PopulTopic />} />
+            <Route path="/mytopics" element={<MyTopic />} />
+          </Route>
 
           <Route element={<PrivateRoute />}>
-            {/* <Route path="/update-profile" element={<UpdateProfile />} /> */}
             <Route path="/create-topic" element={<CreateTopic />} />
             <Route
               path="/chats/*"
@@ -150,7 +144,7 @@ function AppRoutes() {
           </Route>
         </Routes>
       )}
-    </TopicSearchProvider>
+    </>
   );
 }
 

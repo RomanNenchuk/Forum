@@ -13,8 +13,13 @@ import teamIcon from "../../assets/team.svg";
 import themeIcon from "../../assets/side-theme.svg";
 import "./AltSide.css"
 import "./Menu.css"
+import { useUserInfo } from "../../contexts/UserInfoContext";
+import { useAuth } from "../../contexts/AuthContext";
 
-export default function AltSide({ currentUser, avatar, fullname, setExpand }){
+export default function AltSide({ setExpand }){
+
+    const { user } = useUserInfo()
+    const { currentUser } = useAuth()
 
     const location = useLocation();
     const isActive = path => location.pathname.startsWith(path);
@@ -27,8 +32,8 @@ export default function AltSide({ currentUser, avatar, fullname, setExpand }){
 
                 <div style = {{display: "flex", flexDirection: "row", height: "13vh", padding:"4%", backgroundColor: "#ffe6a9"}}>
                     {currentUser ? <div style={{display: "flex", flexDirection: "column",justifyContent: "flex-end",width: "50%",fontSize:"1rem", fontWeight: 600}}>
-                        <Avatar size="5vh" avatar={avatar} />
-                        <span>{fullname}</span>
+                        <Avatar size="5vh" avatar={user.avatar} />
+                        <span>{user.fullName}</span>
                     </div> : 
                     <div style = {{display: 'flex', alignItems: "center",width: "100%"}}>
                         <button style = {{width: "100%", textAlign:"center"}}className="hd-btn">

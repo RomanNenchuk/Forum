@@ -1,5 +1,6 @@
 import React from "react";
 import Avatar from "./Avatar.jsx";
+import { useTranslation } from "react-i18next";
 
 export default function AvatarUploader({
   preview,
@@ -8,6 +9,7 @@ export default function AvatarUploader({
   setImage,
   setError,
 }) {
+  const { t } = useTranslation();
   function handleImageChange(e) {
     setError("");
     const selectedFile = e.target.files[0];
@@ -17,7 +19,7 @@ export default function AvatarUploader({
       setImage(selectedFile);
       setPreview(URL.createObjectURL(selectedFile));
     } else {
-      setError("Будь ласка, виберіть файл у форматі JPG, JPEG, PNG або GIF");
+      setError(t("upload.errorFormatWithoutVideo"));
       e.target.value = "";
     }
   }

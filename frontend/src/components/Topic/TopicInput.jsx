@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
+import { useTranslation } from "react-i18next";
 import FileUploader from "../FileUploader.jsx";
 import sendMessageIcon from "../../assets/send-message.svg";
-import sendSmileIcon from "../../assets/send-smile.svg";
 import EmojiPickerButton from "../EmojiPickerButton/EmojiPickerButton.jsx";
 import { useWidth } from "../../contexts/ScreenWidthContext.jsx";
 import { MdEdit } from "react-icons/md";
@@ -21,7 +21,11 @@ export default function TopicInput({
   reply,
   resetReply,
 }) {
+
   const { width } = useWidth()
+
+  const { t } = useTranslation();
+
   function onChange(e) {
     if (isEditModalOpen || isSendModalOpen) return;
     setText(e.target.value);
@@ -36,13 +40,13 @@ export default function TopicInput({
         <div className="reply-label">
           <div className="reply-label-info">
             <span className="reply-label-author">
-              {reply.author || "Невідомий автор"}
+              {reply.author || "Unknown author"}
             </span>
             <span>
               :{" "}
               {reply.text ||
                 reply.attachment?.slice(reply.attachment.indexOf("_") + 1) ||
-                "*Видалене повідомлення*"}
+                t("topic.deletedCommentLabel")}
             </span>
           </div>
           <img src={cancelIcon} alt="Cancel" onClick={resetReply} />
@@ -59,7 +63,7 @@ export default function TopicInput({
         type="text"
         value={isEditModalOpen || isSendModalOpen ? "" : text}
         onChange={onChange}
-        placeholder="Напишіть коментар..."
+        placeholder={t("topic.writeCommentLabel")}
         autoComplete="off"
       />
       <EmojiPickerButton setText={setText} style={{...style, left: "-40px" }} />

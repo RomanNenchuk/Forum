@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import TopicArea from "./TopicArea.jsx";
+import { useTranslation } from "react-i18next";
 import TopicActionMenu from "./TopicActionMenu.jsx";
 import ConfirmationModal from "../ConfirmationModal/ConfirmationModal.jsx";
-import Share from "../Share.jsx";
-import { useScrollLock } from "../../hooks/useScrollLock.jsx";
 import { useAuth } from "../../contexts/AuthContext.jsx";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./TopicList.css";
 import axios from "axios";
 import { useTopicList } from "../../contexts/TopicListContext.jsx";
@@ -35,9 +34,13 @@ const reactionList = [
   { icon: "💩", name: "pile_of_poo" },
 ];
 
-export default function TopicList({ topicInfoList }) {
-  const { setTopicInfoList, loading } = useTopicList();
-  const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
+export default function TopicList({
+  topicInfoList,
+  className,
+  scrollContainerRef,
+}) {
+  const { t } = useTranslation();
+  const { setTopicInfoList, switchTopicSaved, loading } = useTopicList();
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [topicToDeleteId, setTopicToDeleteId] = useState(null);
   const [actionMenu, setActionMenu] = useState({
@@ -49,7 +52,7 @@ export default function TopicList({ topicInfoList }) {
     },
     toggled: false,
   });
-  const [switchText, setSwitchText] = useState("");
+  const [isTopicSaved, setIsTopicSaved] = useState(false);
   const { currentUser } = useAuth();
   const navigate = useNavigate();
 
@@ -57,7 +60,7 @@ export default function TopicList({ topicInfoList }) {
 
   function handleOnActionMenu(e, topic) {
     e.preventDefault();
-    isTopicSaved(currentUser?.uid, topic.id);
+    checkIfTopicIsSaved(currentUser?.uid, topic.id);
     const actionMenuAttr = actionMenuRef.current.getBoundingClientRect();
     const isRight = e.clientX > window?.innerWidth / 2;
     const isBottom = e.clientY > window?.innerHeight / 2;
@@ -67,7 +70,6 @@ export default function TopicList({ topicInfoList }) {
 
     if (isRight) x -= actionMenuAttr.width;
     if (isBottom) y -= 57;
-    setIsActionMenuOpen(true);
 
     setActionMenu({
       selectedTopic: topic.id,
@@ -82,22 +84,23 @@ export default function TopicList({ topicInfoList }) {
 
   useEffect(() => {
     function handler(e) {
-      if (actionMenuRef.current) {
-        if (!actionMenuRef.current.contains(e.target)) {
-          resetActionMenu();
-        }
+      if (actionMenuRef.current && !actionMenuRef.current.contains(e.target)) {
+        resetActionMenu();
       }
     }
+
+    const scrollElement = scrollContainerRef?.current || document;
+
     document.addEventListener("mousedown", handler);
-    document.addEventListener("scroll", handler);
+    scrollElement.addEventListener("scroll", handler);
+
     return () => {
       document.removeEventListener("mousedown", handler);
-      document.removeEventListener("scroll", handler);
+      scrollElement.removeEventListener("scroll", handler);
     };
   }, []);
 
   function resetActionMenu() {
-    setIsActionMenuOpen(false);
     setActionMenu({
       selectedTopic: -1,
       selectedTopicItem: null,
@@ -134,48 +137,26 @@ export default function TopicList({ topicInfoList }) {
     }
   };
 
-  async function switchTopicToUser(user_id, topic_id) {
+  async function checkIfTopicIsSaved(user_id, topic_id) {
     try {
-      const res = await axios.patch(`http://localhost:5000/topics/switch`, {
-        user_id,
-        topic_id,
-      });
+      const res = await axios.get(
+        `http://localhost:5000/topics/save?user_id=${user_id}&topic_id=${topic_id}`
+      );
+      setIsTopicSaved(res.data.saved);
     } catch (error) {
       console.error(error);
     }
   }
 
-  async function isTopicSaved(user_id, topic_id) {
-    try {
-      const res = await axios.get(
-        `http://localhost:5000/topics/save?user_id=${user_id}&topic_id=${topic_id}`
-      );
-      // console.log(res.data);
-      setSwitchText(res.data.saved ? "Не зберігати" : "Зберегти тему");
-    } catch (error) {
-      console.error("Ne worka(");
-    }
-  }
-
-  const [isShareModalOpen, setShareModalOpen] = useState(false);
-  const [shareId, setShareId] = useState(-1);
-
-  function handleShareClick() {
-    setShareId(actionMenu.selectedTopic);
-    setShareModalOpen(true);
-  }
-
   return (
-    <ul className="topic-list">
+    <ul className={`topic-list ${className}`}>
       {topicInfoList.length === 0 && !loading ? (
-        <div className="topics-not-found">
-          За Вашим запитом нічого не знайдено {":("}
-        </div>
+        <div className="topics-not-found">{t("topic.topicNotFound")}</div>
       ) : (
         topicInfoList.map((topic, index) => (
           <TopicArea
             key={index}
-            topic={topic}
+            topicItem={topic}
             reactionList={reactionList}
             initialReactions={topic.reactions}
             userReaction={topic.user_reaction?.name}
@@ -192,21 +173,14 @@ export default function TopicList({ topicInfoList }) {
         resetActionMenu={resetActionMenu}
         actionMenu={actionMenu}
         onDeleteClick={handleDeleteClick}
-        handleTopicToUser={switchTopicToUser}
-        switchText={switchText}
-        handleShareClick={handleShareClick}
+        handleTopicToUser={switchTopicSaved}
+        isTopicSaved={isTopicSaved}
       />
       {isConfirmModalOpen ? (
         <ConfirmationModal
           onClose={() => setIsConfirmModalOpen(false)}
           onConfirm={handleConfirmDelete}
-          message="Видалити цю тему?"
-        />
-      ) : null}
-      {isShareModalOpen ? (
-        <Share
-          onCloseModal={() => setShareModalOpen(false)}
-          url={`${location.origin}/topics/${shareId}`}
+          message={t("topic.deleteTopicQuery")}
         />
       ) : null}
     </ul>

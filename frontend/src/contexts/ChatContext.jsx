@@ -74,7 +74,7 @@ export function ChatProvider({ children }) {
   }
 
   async function fetchOrCreateChat(receiver_id, sender_id) {
-    if (!socket) {
+    if (!socket || receiver_id === sender_id) {
       return;
     }
     const chat_id = [receiver_id, sender_id]

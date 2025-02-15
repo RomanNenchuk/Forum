@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+} from "react";
 import axios from "axios";
 import { useAuth } from "./AuthContext";
 import { useTopicSearch } from "./TopicSearchContext";
@@ -11,18 +18,19 @@ export function useTopicList() {
 
 export function TopicListProvider({ children }) {
   const [topicInfoList, setTopicInfoList] = useState([]);
+  const [myTopicList, setMyTopicList] = useState([]);
+  const [myTopicPage, setMyTopicPage] = useState(1);
+  const [hasMoreMyTopics, setHasMoreMyTopics] = useState(true);
+  const [savedTopicList, setSavedTopicList] = useState([]);
+  const [savedTopicPage, setSavedTopicPage] = useState(1);
+  const [hasMoreSavedTopics, setHasMoreSavedTopics] = useState(true);
+  const [popularTopicList, setPopularTopicList] = useState([]);
+  const [popularTopicPage, setPopularTopicPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [showMyTopics, setShowMyTopics] = useState(true);
   const { currentUser } = useAuth();
   const { queryParams, setQueryParams } = useTopicSearch();
-
-  useEffect(() => {
-    const fetchData = debounce(async () => {
-      await fetchTopics();
-    }, 200);
-    setLoading(true);
-    fetchData();
-  }, [queryParams]);
 
   useEffect(() => {
     setQueryParams(prev => ({
@@ -45,8 +53,8 @@ export function TopicListProvider({ children }) {
     };
     return debounced;
   }
-
-  async function fetchTopics() {
+  // логіка для отримання тем на головній сторінці
+  const fetchTopics = useCallback(async () => {
     setLoading(true);
     try {
       const response = await axios.get(
@@ -55,6 +63,7 @@ export function TopicListProvider({ children }) {
           `${queryParams.tags ? "&tags=" + queryParams.tags : ""}` +
           `${queryParams.authors ? "&authors=" + queryParams.authors : ""}`
       );
+
       const topics = response.data || [];
       setTopicInfoList(prev =>
         queryParams.page === 1 ? topics : [...prev, ...topics]
@@ -65,14 +74,112 @@ export function TopicListProvider({ children }) {
     } finally {
       setLoading(false);
     }
+  }, [queryParams, currentUser]);
+
+  const debouncedFetchTopics = useMemo(
+    () => debounce(fetchTopics, 200),
+    [fetchTopics]
+  );
+
+  useEffect(() => {
+    setLoading(true);
+    debouncedFetchTopics();
+  }, [queryParams, debouncedFetchTopics]);
+
+  // логіка для отримання збережених тем
+  const fetchSavedTopics = useCallback(async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/topics/saved?user_id=${currentUser.uid}&page=${savedTopicPage}`
+      );
+      const topics = response.data || [];
+      setSavedTopicList(prev =>
+        savedTopicPage === 1 ? topics : [...prev, ...topics]
+      );
+      setHasMoreSavedTopics(topics.length > 0);
+    } catch (error) {
+      console.error("Error fetching user topics:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [currentUser, savedTopicPage]);
+
+  const debouncedFetchSavedTopics = useMemo(
+    () => debounce(fetchSavedTopics, 200),
+    [fetchSavedTopics]
+  );
+
+  useEffect(() => {
+    if (!currentUser) return;
+    debouncedFetchSavedTopics();
+  }, [currentUser, savedTopicPage]);
+
+  // логіка для отримання моїх тем
+  const fetchMyTopics = useCallback(async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/topics/mytopics?user_id=${currentUser.uid}&page=${myTopicPage}`
+      );
+      const topics =
+        response.data?.map(topic => ({
+          ...topic,
+          subscribed: "none",
+        })) || [];
+      setMyTopicList(prev =>
+        myTopicPage === 1 ? topics : [...prev, ...topics]
+      );
+      setHasMoreMyTopics(topics.length > 0);
+    } catch (error) {
+      console.error("Error fetching user topics:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [currentUser, myTopicPage]);
+
+  const debouncedFetchMyTopics = useMemo(
+    () => debounce(fetchMyTopics, 200),
+    [fetchMyTopics]
+  );
+
+  useEffect(() => {
+    if (!currentUser) return;
+    debouncedFetchMyTopics();
+  }, [currentUser, myTopicPage]);
+
+  async function switchTopicSaved(user_id, topic) {
+    try {
+      const res = await axios.patch(`http://localhost:5000/topics/switch`, {
+        user_id,
+        topic_id: topic?.id,
+      });
+      if (res.data.status === "saved")
+        setSavedTopicList(prev => [topic, ...prev]);
+      else if (res.data.status === "deleted")
+        setSavedTopicList(prev => prev.filter(item => item.id !== topic?.id));
+      console.log(savedTopicList);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   const value = {
     topicInfoList,
     setTopicInfoList,
+    myTopicList,
+    setMyTopicList,
+    savedTopicList,
+    setSavedTopicList,
+    switchTopicSaved,
+    myTopicPage,
+    setMyTopicPage,
+    savedTopicPage,
+    setSavedTopicPage,
+    showMyTopics,
+    setShowMyTopics,
     hasMore,
+    hasMoreMyTopics,
+    hasMoreSavedTopics,
     loading,
-    fetchTopics,
     debounce,
   };
 

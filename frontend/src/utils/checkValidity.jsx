@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import axios from "axios";
 
 // функція для перевірки, чи користувач з таким ім'ям та імейлом вже існує
@@ -15,17 +16,18 @@ export async function usernameOrEmailTaken(email, username) {
 }
 
 export function checkPasswordsValidity(setError, passwordRef, newPasswordRef) {
+  const { t } = useTranslation();
   const password = passwordRef.current.value.trim();
   const newPassword = newPasswordRef?.current.value.trim();
 
   if (password.length <= 5) {
     passwordRef.current.classList.add("border", "border-danger");
-    setError("Пароль має містити щонайменше 6 символів");
+    setError(t("auth.passwordMinLength"));
     return false;
   }
   if (newPassword?.length && newPassword?.length <= 5) {
     newPasswordRef.current.classList.add("border", "border-danger");
-    setError("Пароль має містити щонайменше 6 символів");
+    setError(t("auth.passwordMinLength"));
     return false;
   }
   return true;
@@ -43,9 +45,10 @@ export function setAllInputsValid(...inputRefs) {
 }
 
 export function checkPasswordInput(passwordRef) {
+  const { t } = useTranslation();
   if (passwordRef.current.value.length <= 5) {
     passwordRef.current.classList.add("border", "border-danger");
-    setError("Пароль має містити щонайменше 6 символів");
+    setError(t("auth.passwordMinLength"));
     return false;
   }
   return true;

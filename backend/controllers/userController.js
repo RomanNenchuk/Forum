@@ -95,6 +95,7 @@ export const updateUser = async (req, res) => {
 export const getUserInfo = async (req, res) => {
   try {
     const uid = req.params.id;
+    const currentUserId = req.query.currentUserId;
 
     // Знайти користувача за UID
     const result = await pool.query(
@@ -102,11 +103,22 @@ export const getUserInfo = async (req, res) => {
       [uid]
     );
 
+    let isSubscribedTo = false;
+
+    if (currentUserId) {
+      const checkSubscription = await pool.query(
+        "SELECT * FROM user_subscriptions WHERE user_id = $1 AND subscription_id = $2",
+        [currentUserId, uid]
+      );
+
+      isSubscribedTo = !!checkSubscription.rows[0];
+    }
+
     if (result.rows.length === 0)
       return res.status(404).json({ message: "User not found" });
 
     // Відправка даних користувача
-    res.status(200).json(result.rows[0]);
+    res.status(200).json({ userInfo: result.rows[0], isSubscribedTo });
   } catch (error) {
     console.error("Error fetching user info:", error);
     res.status(500).json({ message: "Internal server error" });
