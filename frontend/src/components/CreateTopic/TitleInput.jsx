@@ -3,7 +3,7 @@ import { Form } from "react-bootstrap";
 
 import "./CreateTopic.css";
 
-const TitleInput = ({ title, setTitle, limit, value }) => {
+const TitleInput = ({ title, setTitle, limit, value, showCounter }) => {
   const countRef = useRef();
   const titleRef = useRef(null);
   const [counter, setCounter] = useState(0);
@@ -50,9 +50,9 @@ const TitleInput = ({ title, setTitle, limit, value }) => {
         placeholder="Введіть назву теми"
         required
       />
-      <span ref={countRef} className="right-counter">
-        {counter}/{limit}
-      </span>
+      {showCounter ? <span ref={countRef} className="right-counter">
+        {counter}/{limit} 
+      </span> : ''}
     </Form.Group>
   );
 };

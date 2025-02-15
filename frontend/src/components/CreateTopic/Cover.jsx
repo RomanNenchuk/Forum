@@ -63,6 +63,7 @@ const Cover = ({
             border: "1px solid #bdbdbd",
             padding: "15px",
             borderRadius: "10px",
+            backgroundColor:  " #d9d9d9",
           }}
           handleImageClick={handleImageClick}
         />

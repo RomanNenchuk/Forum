@@ -8,29 +8,25 @@ import homeIcon from "../../assets/home.svg";
 import chatsIcon from "../../assets/chats.svg";
 import eventsIcon from "../../assets/events.svg";
 import helpIcon from "../../assets/help.svg";
-import languageIcon from "../../assets/language.svg";
-import modIcon from "../../assets/theme.svg";
 import aboutIcon from "../../assets/about.svg";
 import teamIcon from "../../assets/team.svg";
 import themeIcon from "../../assets/side-theme.svg";
 import "./AltSide.css"
 import "./Menu.css"
 
-export default function AltSide({currentUser, avatar, fullname, setExpand}){
+export default function AltSide({ currentUser, avatar, fullname, setExpand }){
 
     const location = useLocation();
     const isActive = path => location.pathname.startsWith(path);
 
     
-
-
     return (
         <div style = {{ position: "fixed",top:0, left: 0,width:"100vw", height:"100vh", backgroundColor: "rgba(0, 0, 0, 0.38)", zIndex: 100000}}
-        onClick = {()=>{setExpand(0)}}>
+        onClick = {()=>{ setExpand(1), console.log("no") }}>
         <div style = {{ width:"max-content", backgroundColor: "#fff2d3",border:"2px solid black", zIndex: 100001}}>
 
                 <div style = {{display: "flex", flexDirection: "row", height: "13vh", padding:"4%", backgroundColor: "#ffe6a9"}}>
-                    {currentUser ? <div style={{display: "flex", flexDirection: "column",justifyContent: "flex-end",width: "50%",fontSize:"2.5vh", fontWeight: 600}}>
+                    {currentUser ? <div style={{display: "flex", flexDirection: "column",justifyContent: "flex-end",width: "50%",fontSize:"1rem", fontWeight: 600}}>
                         <Avatar size="5vh" avatar={avatar} />
                         <span>{fullname}</span>
                     </div> : 

@@ -129,7 +129,7 @@ export default function TopicArea({
             id={topic.author}
             avatar={topic.author_avatar}
             size={width > 768 ? "6vh" : "4vh"}
-            sizeFont={width > 768 ? "3vh" : "1rem"}
+            sizeFont={width > 768 ? "3vh" : "1.1rem"}
             avThickness="0.4vmin"
             profileName={topic.author_full_name}
           />
@@ -137,7 +137,7 @@ export default function TopicArea({
           {topic.subscribed !== "none" && (
             <img 
               style={{
-                ...(width > 768 ? { height: "5vh" } : { height: "4vh" }),
+                ...(width > 768 ? { height: "5vh" } : { height: "1.8rem" }),
                 width: "auto",
                 marginLeft: "2%"
               }} 
@@ -158,7 +158,7 @@ export default function TopicArea({
           )}
         </div>
         {width < 768 && (
-          <div style={{ textAlign: "right", fontSize: "1.8vh", color: "gray" }}>
+          <div style={{ textAlign: "right", fontSize: "0.8rem", color: "gray" }}>
             {topic.tag_list.map((el, index) => (index !== topic.tag_list.length - 1 ? `#${el} ` : `#${el}`))}
           </div>
         )}
@@ -195,13 +195,13 @@ export default function TopicArea({
 
       <div className="chat-settings">
         <Link to={`/topics/${topic.id}`} style={{ textDecoration: "none" }}>
-          <IoChatboxEllipsesOutline size={width > 768 ? "3.5vh" : "2.5vh"} />
+          <IoChatboxEllipsesOutline size={width > 768 ? "3.5vh" : "1.2rem"} />
         </Link>
         <div className="emo-container">
           😀
           <InteractWindow reactionList={reactionList} onClick={handleClick} />
         </div>
-        <VscSettings size="3.5vh" style={{ cursor: "pointer" }} onClick={(e) => handleOnActionMenu(e, topic)} />
+        <VscSettings size={width > 768 ? "3.5vh" : "1.2rem"} style={{ cursor: "pointer" }} onClick={(e) => handleOnActionMenu(e, topic)} />
       </div>
     </div>
   </div>

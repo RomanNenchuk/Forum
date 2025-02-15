@@ -4,8 +4,10 @@ import { useAuth } from "../../contexts/AuthContext";
 import AltSpinner from '../AltSpinner/AltSpinner'
 import { useScrollLock } from "../../hooks/useScrollLock.jsx";
 import TopicArea from "../TopicList/TopicArea";
+import TopicList from "../TopicList/TopicList.jsx";
 import TopicActionMenu from "../TopicList/TopicActionMenu";
 import ConfirmationModal from "../ConfirmationModal/ConfirmationModal.jsx";
+import { useWidth } from "../../contexts/ScreenWidthContext.jsx";
 import Share from "../Share.jsx";
 import axios from "axios";
 
@@ -15,6 +17,7 @@ const MyTopic = () => {
     const [ data , setData ] = useState([])
     const [ loading, setLoading ]= useState(false)
     const topicListRef = useRef()
+    const {width} = useWidth()
     const [firstStepChoose, setFirstStepChoose] = useState(0)
     
     
@@ -179,8 +182,6 @@ const MyTopic = () => {
     }, [currentUser]);
 
 
-
-    // переніс функції для видалення\поширення з topics
     const [switchText, setSwitchText] = useState("Не зберігати");
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [topicToDeleteId, setTopicToDeleteId] = useState(null);
@@ -215,9 +216,11 @@ const MyTopic = () => {
         navigate("/mytopics");
       }
     };
+
+
     return (<div style = {{display: "flex", flexDirection: "column",width: "100%"}}>
-        <div style = {{marginTop: "14vh", width: "100%"}}>
-            <div style = {{marginTop: "3vh",width: "100%"}}>
+        <div style = {width > 768 ? {marginTop: "14vh", width: "100%"} : {marginTop: "8vh", width: "100%"}}>
+        {width > 768 ? <><div style = {{marginTop: "3vh",width: "100%"}}>
             <div style = {{display: "flex",width: "100%", flexDirection:'row', justifyContent:"space-around",padding: "2vh"}}>
               <div style = {firstStepChoose === 0 ? {boxShadow: "0 0.3vh 0 0 #659287",fontSize: "3vh"} : {fontSize: "3vh"}}
               onClick = {()=>toChoose(0)}>Мої теми</div>
@@ -295,8 +298,31 @@ const MyTopic = () => {
                   
                 ) : (
                   <AltSpinner />)}
+            </div></> : (
+              <div style = {{display: "flex", flexDirection: "column",  justifyContent: "center"}}>
+                <div style = {{display: "flex",width: "100%", flexDirection:'row', justifyContent:"space-around",padding: "2vh"}}>
+              <div style = {firstStepChoose === 0 ? {boxShadow: "0 0.3vh 0 0 #659287",fontSize: "2vh"} : {fontSize: "2vh"}}
+              onClick = {()=>toChoose(0)}>Мої теми</div>
+              <div style = {firstStepChoose !== 0 ? {boxShadow: "0 0.3vh 0 0 #659287" ,fontSize: "2vh"} : {fontSize: "2vh"}}
+              onClick = {()=>{toChoose(1)}}>Збережені теми</div>
             </div>
-        </div>
+                  <div style={{width: "100%",borderBottom: "1px solid black",paddingBottom: "2%", marginBottom: "4%" }}>
+                    <div style={{display: "flex", justifyContent: "center", width: "100%"}}>
+                      
+                            {!firstStepChoose ? <Link style = {{width: "90%"}}
+                            to={currentUser ? "/create-topic" : "/login"}
+                            state={{
+                              backgroundLocation: location,
+                              redirectPath: "/create-topic",
+                            }}
+                          >
+                            <button className="add-topic-button" style = {{width: "100%"}} >+ Додати тему</button>
+                          </Link> : ''}
+                          </div>
+                        </div>
+            <div style= {{display: "flex",justifyContent: "center",width: "100%"}}><div style={{width: "90%"}}><TopicList topicInfoList={data}  /></div></div>
+            </div>)}
+        </div> 
     </div>)
 }
 

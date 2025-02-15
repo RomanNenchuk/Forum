@@ -45,7 +45,7 @@
 .comment-input-container {
   position: relative;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: 43px;
   width: 100%;
   padding: 17px 22px;
@@ -74,4 +74,16 @@
   padding: 10px;
   border-radius: 20px;
   font-size: 20px;
+}
+@media (max-width: 767px) {
+  .comment-input-container{
+    position: fixed;
+    left: 0;
+    bottom:  0;
+    gap: 5px;
+    font-size: 0.8rem;
+    padding: 4px 8px;
+
+    background-color: #acc3d3;
+  }
 }

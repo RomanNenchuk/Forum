@@ -22,7 +22,7 @@
 
 .title {
   font-family: Inter;
-  font-size: 26px;
+  font-size: 1.4rem;
   font-weight: 500;
   line-height: 31.47px;
 }
@@ -61,6 +61,7 @@
   margin: 15px 0;
   overflow-y: auto;
   border: 1px solid #bdbdbd;
+  background-color: #d9d9d9;
   border-radius: 10px;
   max-height: 30vh;
   padding: 5px;
@@ -127,7 +128,7 @@
   width: 100%;
 }
 .for_font {
-  font-size: 2.5vh;
+  font-size: 1rem;
   height: auto;
   outline: none;
   border: none;
@@ -155,7 +156,7 @@
   border: none;
   resize: none;
   word-wrap: break-word;
-  font-size: 2.5vh;
+  font-size: 1rem;
   overflow: hidden;
 }
 .title-input::placeholder,
@@ -188,11 +189,11 @@
   list-style-type: none;
   border-radius: 0 0 3vh 3vh;
   padding: 0 10px;
-  font-size: 2.5vh;
-  border: 0.1vh solid black;
+  font-size: 1rem;
   z-index: 1;
   overflow-y: auto;
   max-height: 30vh;
+  box-shadow: 0 0 0.5vh 0.1vh rgba(76, 175, 80, 0.5);
 }
 .find-list-item {
   cursor: pointer;
@@ -232,7 +233,8 @@
   background-color: #659287;
   color: white;
   width: 100px;
-  font-size: 20px;
+  font-size: 1rem;
+  z-index: 2;
 }
 .remove-button {
   background: none;
@@ -279,4 +281,23 @@
   transform: translate(-50%, -50%);
   background-color: #f6d88f;
   border-radius: 15px;
+}
+
+@media (max-width: 768px){
+  .create-topic-container{
+    margin-top: calc(13vh + 2rem);
+  }
+  .title-container {
+    margin-bottom: 1vh;
+  }
+  .topic-type{
+    width: 55%;
+    margin-bottom: 4vh;
+  }
+  .title-input,
+  .tag-input,
+  .description-input,
+  .find-list {
+    font-size: 0.8rem;
+  }
 }

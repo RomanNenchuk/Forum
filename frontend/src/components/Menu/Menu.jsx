@@ -17,13 +17,13 @@ export default function Menu() {
   useEffect(() => {
     if (currentUser) getUserInfo(currentUser.uid);
   }, [currentUser]);
-  console.log(width)
+  console.log(isExpanded)
   return (
     <div className="wrapper">
       <TopBar currentUser={currentUser} avatar={avatar} fullName={fullName} setExpand = {setExpand}  />
       <div className="forum-container">
         {width > 768 ? (<SideBar isExpanded={isExpanded} setExpand={setExpand} />) : 
-        isExpanded ? <AltSide avatar={avatar} fullname={fullName} currentUser={currentUser} setExpand={setExpand}/> : ""}
+          !isExpanded ? <AltSide avatar={avatar} fullname={fullName} currentUser={currentUser} setExpand={setExpand} /> : ""}
         <Outlet />
       </div>
     </div>

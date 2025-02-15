@@ -116,10 +116,11 @@ const SearchInput = ({ selectedTagList, setSelectedTagList }) => {
             Додати
           </div>
         </div>
+        <div style={{position: "relative", width:"100%"}}>
         <div
           style={{
             position: "absolute",
-            width: "20%",
+            width: "100%",
             ...(tagList.length === 0 && { display: "none" }),
           }}
         >
@@ -144,6 +145,8 @@ const SearchInput = ({ selectedTagList, setSelectedTagList }) => {
                 ))}
             </ul>
           )}
+        </div>
+
         </div>
       </div>
     </Form.Group>

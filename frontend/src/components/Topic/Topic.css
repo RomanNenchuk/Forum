@@ -15,7 +15,7 @@
   display: flex;
   align-items: center;
   position: sticky;
-  background-color: #acc3d3a8;
+  background-color: #acc3d3;
   margin-top: 14vh;
   padding-left: 77px;
   height: 10vmin;
@@ -148,4 +148,36 @@
 }
 .reply-label-author {
   font-weight: 600;
+}
+
+
+@media (max-width: 767px) {
+  .header{
+    margin-top: 8vh;
+  }
+  .topic-and-comments{
+    overflow: scroll;
+    margin-top: 11vh;
+  }
+  .in-block-for-flex{
+    flex-direction: column;
+    overflow: scroll;
+    height: auto;
+  }
+  .block{
+    width: 100%;
+    height: auto;
+    overflow: auto;
+  }
+  .header{
+    position: fixed;
+    margin-top: 0;
+    top: 8vh;
+  }
+  .extra-info-header{
+    font-size: 1.2rem;
+  }
+  .extra-info-p{
+    font-size: 1rem;
+  }
 }

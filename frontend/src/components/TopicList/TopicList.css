@@ -156,7 +156,7 @@ ul {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: "center";
   margin: 0.8vh;
   gap: 10px;
 }
@@ -298,18 +298,30 @@ ul {
     gap: 2vh;
   }
   .topic-title{
-    font-size: 2vh;
+    font-size: 1rem;
   }
   .add-topic-button{
-    font-size: 2vh;
+    font-size: 0.8rem;
   }
   .emo-container{
-    font-size: 2vh;
+    font-size: 0.8rem;
   }
   .reaction-button-count{
-    font-size: 2vh;
+    font-size: 0.8rem;
   }
   .reaction-button{
-    font-size: 2vh;
+    font-size: 0.8rem;
+  }
+  .custom-select{
+  font-size: 0.8rem;
+  }
+  .emo-container{
+    font-size: 1.3rem;
+  }
+  .reaction-button{
+    font-size: 1rem;
+  }
+  .reaction-button-count{
+    font-size: 1rem;
   }
 }

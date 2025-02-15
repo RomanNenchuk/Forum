@@ -67,7 +67,9 @@ function AppRoutes() {
             }
           />
           <Route path="/poptopics" element={<PopulTopic />} />
-          <Route path="/mytopics" element={<MyTopic />} />
+          
+            <Route path="/mytopics" element={<TopicListProvider><MyTopic /> </TopicListProvider>} />
+          
           {/* <Route path="/profiles/:id" element={<Profile />} /> */}
 
           <Route element={<PrivateRoute />}>

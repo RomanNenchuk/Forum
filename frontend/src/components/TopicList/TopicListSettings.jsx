@@ -30,7 +30,7 @@ export default function TopicListSettings({ sortOrder, handleChange }) {
         <option value="rating">Популярні</option>
       </select>
     </div>) : (<div style = {{display: "flex", flexDirection: "column"}}>
-      <div style={{width: "100%",borderBottom: "1px solid black",paddingBottom: "2%", marginBottom: "4%" }}>
+      <div style={{width: "100%",borderBottom: "1px solid black",paddingBottom: "2%", marginBottom: "2vh" }}>
       <select
         className="custom-select"
         value={sortOrder}
@@ -49,7 +49,7 @@ export default function TopicListSettings({ sortOrder, handleChange }) {
           redirectPath: "/create-topic",
         }}
       >
-        <button className="add-topic-button" style = {{width: "100%", marginBottom: "6%"}} >+ Додати тему</button>
+        <button className="add-topic-button" style = {{width: "100%", marginBottom: "2vh"}} >+ Додати тему</button>
       </Link>
       </div>
     </div>))

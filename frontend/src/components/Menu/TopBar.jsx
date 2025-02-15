@@ -39,11 +39,21 @@ export default function TopBar({ currentUser, avatar, fullName, setExpand }) {
       search: urlSearchParams.toString(),
     });
   }
+
+
+  function handlerClick(e){
+    e.preventDefault();
+    e.stopPropagation();
+    navigate(`profiles/${currentUser.uid}`, {
+      state: { backgroundLocation: location },
+    })
+  }
   const { width } = useWidth()
 
   return (
     <header>
       <div className="header-inr">
+      
         <Link
           to="/"
           className="hd-col home-link"
@@ -58,8 +68,9 @@ export default function TopBar({ currentUser, avatar, fullName, setExpand }) {
             });
           }}
         >
+          {width < 768 ? (<MdMenu onClick = {()=>{setExpand(0)}} size="5vh"/>) : ""}
           <div className="hd-logo">
-            {width > 768 ? (<img src={logo} alt="UFORUM" />) : (<MdMenu onClick = {()=>{setExpand(1), console.log("yes")}} size="5vh"/>)}
+            {width > 768 ? (<img src={logo} alt="UFORUM" />) : ''}
             <span>
               <span>U</span>FORUM
             </span>
@@ -130,7 +141,7 @@ export default function TopBar({ currentUser, avatar, fullName, setExpand }) {
                   Вхід
                 </button>
               </Link>) : (
-                <div style = {{marginRight: "2vh"}}><Avatar avatar={avatar} size="5vh" /></div>
+                <div style = {{marginRight: "2vh"}}><Avatar avatar={avatar} handleImageClick={handlerClick}  size="5vh" /></div>
               )}
               <IoIosSearch size = "5vh" />
               <PiDotsThreeCircleVerticalFill size = "5vh"/>
