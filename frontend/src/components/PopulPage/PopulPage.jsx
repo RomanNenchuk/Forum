@@ -128,8 +128,9 @@ const PopulTopic = () => {
     const fetchData = async () => {
         try {
             setLoading(true);
-            const response = await axios.get(`http://localhost:5000/topics/mytopics?user_id=${currentUser.uid}`);
+            const response = await axios.get(`http://localhost:5000/topics/popularTopics?user_id=${currentUser.uid}&period=day`);
             setData(response.data);
+            console.log(response.data);
             setData((prevState) => 
               prevState.map((el) => ({
                 ...el, 

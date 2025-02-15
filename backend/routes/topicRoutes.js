@@ -12,6 +12,7 @@ import {
   switchTopicToUser,
   getIsTopicSaved,
   getSavedTopics,
+  getPopularTopics,
 } from "../controllers/topicController.js";
 
 import { getTopicComments } from "../controllers/commentController.js";
@@ -37,6 +38,8 @@ router.put("/:id/reactions", middleware.decodeToken, setTopicReaction);
 router.get("/save", getIsTopicSaved);
 
 router.get("/saved", getSavedTopics);
+
+router.get("/popularTopics", getPopularTopics);
 
 router.get("/:id", getTopic);
 
