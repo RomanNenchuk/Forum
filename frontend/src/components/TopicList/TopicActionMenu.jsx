@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useTranslation } from "react-i18next";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { switchSavedTopic } from "../../api/topics.js";
 import ActionMenu from "../PopupMenus/ActionMenu.jsx";
 import ToastPortal from "../Toast/Toast.jsx";
 import deleteIcon from "../../assets/delete-context-menu.svg";
 import copyIcon from "../../assets/copy-icon.svg";
 import savePlusIcon from "../../assets/save-plus.svg";
 import saveMinusIcon from "../../assets/save-minus.svg";
+import axios from "axios";
 
 export default function TopicActionMenu({
   positionX,
@@ -16,12 +19,48 @@ export default function TopicActionMenu({
   resetActionMenu,
   actionMenu,
   onDeleteClick,
-  handleTopicToUser,
   isTopicSaved,
 }) {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const { currentUser } = useAuth();
   const [toast, setToast] = useState(null);
+
+  const switchSavedMutation = useMutation({
+    mutationFn: ({ user_id, topic }) => switchSavedTopic({ user_id, topic }),
+    onSuccess: (_, { topic }) => {
+      queryClient.setQueryData(["savedTopics", currentUser?.uid], oldData => {
+        if (!oldData) return { pages: [], pageParams: [] };
+
+        // пошук, чи тема була збережена
+        const isAlreadySaved = oldData.pages.some(page =>
+          page.topics.some(t => t.id === topic.id)
+        );
+
+        /*
+          useInfiniteQuery очікує структуру:
+
+          {
+            pages: [{ topics: [...] }, { topics: [...] }],
+            pageParams: [...]
+          }        
+        
+        */
+
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page, index) => ({
+            ...page,
+            topics: isAlreadySaved
+              ? page.topics.filter(t => t.id !== topic.id) // видаляю з тієї сторінки, де вона присутня
+              : index === 0
+              ? [topic, ...page.topics] // додаю тільки до першої сторінки
+              : page.topics, // інші сторінки залишаю без змін
+          })),
+        };
+      });
+    },
+  });
 
   const handleCopyClick = topicId => {
     navigator.clipboard.writeText(
@@ -54,7 +93,10 @@ export default function TopicActionMenu({
       onClick:
         currentUser && actionMenu.selectedTopicItem?.author !== currentUser.uid
           ? () =>
-              handleTopicToUser(currentUser.uid, actionMenu.selectedTopicItem)
+              switchSavedMutation.mutate({
+                user_id: currentUser.uid,
+                topic: actionMenu.selectedTopicItem,
+              })
           : null,
     },
     {

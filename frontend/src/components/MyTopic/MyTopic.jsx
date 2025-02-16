@@ -1,113 +1,134 @@
-import React, { useState, useEffect } from "react";
-import { useTopicList } from "../../contexts/TopicListContext.jsx";
+import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "../../contexts/AuthContext.jsx";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import AltSpinner from "../AltSpinner/AltSpinner";
 import TopicList from "../TopicList/TopicList.jsx";
 import TopicListHeader from "./TopicListHeader.jsx";
+import { fetchMyTopics, fetchSavedTopics } from "../../api/topics.js";
 import "./MyTopic.css";
 
 export default function MyTopic() {
-  const {
-    myTopicList,
-    savedTopicList,
-    loading,
-    hasMoreMyTopics,
-    hasMoreSavedTopics,
-    setMyTopicPage,
-    setSavedTopicPage,
-    showMyTopics,
-    setShowMyTopics,
-    debounce,
-  } = useTopicList();
+  const { currentUser } = useAuth();
   const { t } = useTranslation();
-  const [topicInfoList, setTopicInfoList] = useState([]);
+  const observerRef = useRef(null);
+  const [showMyTopics, setShowMyTopics] = useState(
+    sessionStorage.getItem("isMyTopics") === "true"
+  );
+
+  const {
+    data: myTopicsData,
+    fetchNextPage: fetchNextMyTopics,
+    hasNextPage: hasMoreMyTopics,
+    isFetching: isFetchingMyTopics,
+    isFetchingNextPage: isFetchingNextMyTopics,
+  } = useInfiniteQuery({
+    queryKey: ["myTopics", currentUser?.uid],
+    queryFn: ({ pageParam = 1 }) =>
+      fetchMyTopics({ pageParam, userId: currentUser?.uid }),
+    getNextPageParam: lastPage => lastPage.nextPage,
+    enabled: !!currentUser,
+    staleTime: 1000 * 60 * 5,
+    cacheTime: 1000 * 60 * 10,
+  });
+
+  const {
+    data: savedTopicsData,
+    fetchNextPage: fetchNextSavedTopics,
+    hasNextPage: hasMoreSavedTopics,
+    isFetching: isFetchingSavedTopics,
+    isFetchingNextPage: isFetchingNextSavedTopics,
+  } = useInfiniteQuery({
+    queryKey: ["savedTopics", currentUser?.uid],
+    queryFn: ({ pageParam = 1 }) =>
+      fetchSavedTopics({ pageParam, userId: currentUser?.uid }),
+    getNextPageParam: lastPage => lastPage.nextPage,
+    enabled: !!currentUser,
+    staleTime: 1000 * 60 * 5,
+    cacheTime: 1000 * 60 * 10,
+  });
 
   useEffect(() => {
-    if (showMyTopics && myTopicList) {
-      setTopicInfoList(myTopicList);
-    } else if (!showMyTopics && savedTopicList) {
-      setTopicInfoList(savedTopicList);
-    }
-  }, [myTopicList, savedTopicList]);
+    if (!observerRef.current) return;
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting) {
+          if (showMyTopics && hasMoreMyTopics && !isFetchingNextMyTopics) {
+            fetchNextMyTopics();
+          } else if (
+            !showMyTopics &&
+            hasMoreSavedTopics &&
+            !isFetchingNextSavedTopics
+          ) {
+            fetchNextSavedTopics();
+          }
+        }
+      },
+      { threshold: 1.0 }
+    );
 
-  function loadMoreTopics() {
-    if (showMyTopics && hasMoreMyTopics) {
-      setMyTopicPage(prev => prev + 1);
-    } else if (!showMyTopics && hasMoreSavedTopics) {
-      setSavedTopicPage(prev => prev + 1);
-    }
-  }
-
-  const chooseMyTopics = choice => {
-    if (choice) {
-      setShowMyTopics(true);
-      setTopicInfoList(myTopicList);
-    } else {
-      setShowMyTopics(false);
-      setTopicInfoList(savedTopicList);
-    }
-  };
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const targetElement = document.querySelector(".topics-content");
-      const elementHeight = targetElement ? targetElement.offsetHeight : 0; //  висота контейнера з темами
-      // поточна висота видимої частини + скільки прокручено
-      const totalHeight =
-        window.innerHeight + document.documentElement.scrollTop;
-      const documentHeight = Math.max(
-        document.documentElement.offsetHeight,
-        elementHeight
-      ); // загальна висота сторінки
-
-      console.log(totalHeight, documentHeight);
-
-      if (totalHeight >= documentHeight - 200 && !loading) {
-        loadMoreTopics();
-      }
-    };
-
-    const debouncedHandleScroll = debounce(handleScroll, 200);
-    window.addEventListener("scroll", debouncedHandleScroll);
-    return () => window.removeEventListener("scroll", debouncedHandleScroll);
-  }, [hasMoreMyTopics, hasMoreSavedTopics, showMyTopics, loading]);
+    observer.observe(observerRef.current);
+    return () => observer.disconnect();
+  }, [
+    hasMoreMyTopics,
+    isFetchingNextMyTopics,
+    hasMoreSavedTopics,
+    isFetchingNextSavedTopics,
+  ]);
 
   useEffect(() => {
-    const savedPosition = sessionStorage.getItem("scrollPosition");
+    const savedPosition = sessionStorage.getItem("myTopicsScrollPosition");
     if (savedPosition) {
-      setTimeout(() => {
-        window.scrollTo({
-          top: parseInt(savedPosition, 10),
-          left: 0,
-          behavior: "smooth",
-        });
-        sessionStorage.removeItem("scrollPosition");
-      }, 30);
+      window.scrollTo({
+        top: parseInt(savedPosition, 10),
+        left: 0,
+        behavior: "instant",
+      });
+      sessionStorage.removeItem("myTopicsScrollPosition");
     }
   }, []);
+
+  const chooseMyTopics = choice => {
+    sessionStorage.setItem("isMyTopics", choice);
+    setShowMyTopics(choice);
+  };
+
+  // для збереження позиції скролу
+  const handleTopicClick = () => {
+    sessionStorage.setItem("myTopicsScrollPosition", window.scrollY.toString());
+  };
+
+  const topicInfoList = showMyTopics
+    ? myTopicsData?.pages.flatMap(page => page.topics) || []
+    : savedTopicsData?.pages.flatMap(page => page.topics) || [];
 
   return (
     <div className="topics-container">
       <div className="topics-content">
         <TopicListHeader
-          showMyTopics={showMyTopics}
           chooseMyTopics={chooseMyTopics}
+          showMyTopics={showMyTopics}
         />
         <div className="topics-container">
-          {!loading ? (
-            topicInfoList.length === 0 ? (
-              <div className="topics-not-found">
-                {t("topic.topicsNotFound")}
-              </div>
-            ) : (
+          {(showMyTopics ? isFetchingMyTopics : isFetchingSavedTopics) &&
+          !isFetchingNextMyTopics &&
+          !isFetchingNextSavedTopics ? (
+            <AltSpinner />
+          ) : topicInfoList.length === 0 ? (
+            <div className="topics-not-found">{t("topic.topicsNotFound")}</div>
+          ) : (
+            <>
               <TopicList
                 topicInfoList={topicInfoList}
+                onTopicClick={handleTopicClick}
                 className="topics-grid"
               />
-            )
-          ) : (
-            <AltSpinner />
+              {(isFetchingNextMyTopics || isFetchingNextSavedTopics) && (
+                <AltSpinner />
+              )}
+            </>
           )}
+          <div ref={observerRef} className="observer-element" />
         </div>
       </div>
     </div>

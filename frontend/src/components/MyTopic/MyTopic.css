@@ -52,3 +52,7 @@
 .add-topic-button {
   border-radius: 0px;
 }
+
+.observer-element {
+  min-height: 1px;
+}

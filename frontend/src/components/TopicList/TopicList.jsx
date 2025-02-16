@@ -38,6 +38,7 @@ export default function TopicList({
   topicInfoList,
   className,
   scrollContainerRef,
+  onTopicClick,
 }) {
   const { t } = useTranslation();
   const { setTopicInfoList, switchTopicSaved, loading } = useTopicList();
@@ -162,6 +163,7 @@ export default function TopicList({
             userReaction={topic.user_reaction?.name}
             setTopics={setTopicInfoList}
             handleOnActionMenu={handleOnActionMenu}
+            onTopicClick={onTopicClick}
           />
         ))
       )}
@@ -173,7 +175,7 @@ export default function TopicList({
         resetActionMenu={resetActionMenu}
         actionMenu={actionMenu}
         onDeleteClick={handleDeleteClick}
-        handleTopicToUser={switchTopicSaved}
+        switchTopicSaved={switchTopicSaved}
         isTopicSaved={isTopicSaved}
       />
       {isConfirmModalOpen ? (

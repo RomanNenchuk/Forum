@@ -19,6 +19,7 @@ export default function TopicArea({
   userReaction,
   setTopics,
   handleOnActionMenu,
+  onTopicClick,
 }) {
   const [topic, setTopic] = useState(topicItem);
   const [activeReactions, setActiveReactions] = useState(
@@ -106,7 +107,7 @@ export default function TopicArea({
   }
 
   const handleTopicClick = topicId => {
-    sessionStorage.setItem("scrollPosition", window.scrollY);
+    onTopicClick();
     navigate(`/topics/${topicId}${location.search}`, {
       state: { returnPath: location },
     });
