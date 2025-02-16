@@ -130,9 +130,9 @@ export default function TopicArea({ topicItem, reactionList, initialReactions, u
           <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-start" }}>
             <ProfileHeader id={topic.author} avatar={topic.author_avatar} size={width > 768 ? "6vh" : "4vh"} sizeFont={width > 768 ? "3vh" : "1.1rem"} avThickness="0.4vmin" profileName={topic.author_full_name} />
             {topic.subscribed !== "none" && (
-              <button className={`subs ${topic.subscribed ? "subscribe" : "subscribed"}`}
+              <button className={`subs ${topic.subscribed ? "subscribed"  : "subscribe"}`}
                 onClick={handleSubscribeClick}
-              >{topic.subscribed ? "Стежити" : "Відстежується"}</button>
+              >{topic.subscribed ? "Відстежується" : "Стежити"}</button>
             )}
           </div> 
           <div style = {{display: "flex", flexDirection: "row"}}>
@@ -144,11 +144,10 @@ export default function TopicArea({ topicItem, reactionList, initialReactions, u
             {topic.title}</span>
             {width <= 768 && topic.cover && <AttachedFiles urls={[topic.cover]} imgstyle={"alt-media-image"}/>}
           </div>
-          {width > 768 && (
-            <div style={{ textAlign: "right", fontSize: "2.5vh", color: "gray" }}>
-              {topic.tag_list.join(" #")}
+            <div style={{ textAlign: "right", fontSize: width > 768 ? "2.5vh" : "0.8rem", color: "gray" }}>
+              {topic.tag_list.length > 0 && "#" + topic.tag_list.join(" #")}
             </div>
-          )}
+          
           {width >  768 && topic.cover && <AttachedFiles urls={[topic.cover]} />}
         </div>
 

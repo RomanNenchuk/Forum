@@ -27,8 +27,8 @@ export default function AltSide({ setExpand }){
     
     return (
         <div style = {{ position: "fixed",top:0, left: 0,width:"100vw", height:"100vh", backgroundColor: "rgba(0, 0, 0, 0.38)", zIndex: 100000}}
-        onClick = {()=>{ setExpand(1), console.log("no") }}>
-        <div style = {{ width:"max-content", backgroundColor: "#fff2d3",border:"2px solid black", zIndex: 100001}}>
+        onClick = {()=>{ setExpand(1) }}>
+        <div style = {{ width:"max-content", height:"60vh", backgroundColor: "#fff2d3",border:"2px solid black", zIndex: 100001}}>
 
                 <div style = {{display: "flex", flexDirection: "row", height: "13vh", padding:"4%", backgroundColor: "#ffe6a9"}}>
                     {currentUser ? <div style={{display: "flex", flexDirection: "column",justifyContent: "flex-end",width: "50%",fontSize:"1rem", fontWeight: 600}}>
