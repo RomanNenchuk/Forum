@@ -46,7 +46,7 @@ export default function TagBar() {
               </h5>
             ))}
             <Link
-              to="/tags"
+              to={`/tags${location.search}`}
               state={{
                 backgroundLocation: location,
               }}

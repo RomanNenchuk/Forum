@@ -36,12 +36,12 @@ const reactionList = [
 
 export default function TopicList({
   topicInfoList,
-  className,
+  className = "",
   scrollContainerRef,
   onTopicClick,
 }) {
   const { t } = useTranslation();
-  const { setTopicInfoList, switchTopicSaved, loading } = useTopicList();
+  const { setTopicInfoList } = useTopicList();
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [topicToDeleteId, setTopicToDeleteId] = useState(null);
   const [actionMenu, setActionMenu] = useState({
@@ -116,8 +116,8 @@ export default function TopicList({
   const deleteTopic = async id => {
     try {
       const res = await axios.delete(`http://localhost:5000/topics/${id}`);
-      if (res.data.done)
-        setTopicInfoList(prev => prev.filter(item => item.id !== id));
+      if (res.data.done) console.log("done");
+      // setTopicInfoList(prev => prev.filter(item => item.id !== id));
     } catch (error) {
       console.error(error);
     } finally {
@@ -151,7 +151,7 @@ export default function TopicList({
 
   return (
     <ul className={`topic-list ${className}`}>
-      {topicInfoList.length === 0 && !loading ? (
+      {topicInfoList.length === 0 ? (
         <div className="topics-not-found">{t("topic.topicNotFound")}</div>
       ) : (
         topicInfoList.map((topic, index) => (
@@ -159,8 +159,8 @@ export default function TopicList({
             key={index}
             topicItem={topic}
             reactionList={reactionList}
-            initialReactions={topic.reactions}
-            userReaction={topic.user_reaction?.name}
+            initialReactions={topic?.reactions}
+            userReaction={topic?.user_reaction?.name}
             setTopics={setTopicInfoList}
             handleOnActionMenu={handleOnActionMenu}
             onTopicClick={onTopicClick}
@@ -175,7 +175,6 @@ export default function TopicList({
         resetActionMenu={resetActionMenu}
         actionMenu={actionMenu}
         onDeleteClick={handleDeleteClick}
-        switchTopicSaved={switchTopicSaved}
         isTopicSaved={isTopicSaved}
       />
       {isConfirmModalOpen ? (

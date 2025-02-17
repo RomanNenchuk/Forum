@@ -17,90 +17,12 @@ export function useTopicList() {
 }
 
 export function TopicListProvider({ children }) {
-  const [topicInfoList, setTopicInfoList] = useState([]);
-  const [savedTopicList, setSavedTopicList] = useState([]);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
-  const { currentUser } = useAuth();
-  const { queryParams, setQueryParams } = useTopicSearch();
-
-  useEffect(() => {
-    setQueryParams(prev => ({
-      ...prev,
-      page: 1,
-    }));
-  }, [currentUser]);
-
-  function debounce(func, delay) {
-    let timeout;
-    function debounced(...args) {
-      const context = this;
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        func.apply(context, args);
-      }, delay);
-    }
-    debounced.cancel = () => {
-      clearTimeout(timeout);
-    };
-    return debounced;
-  }
-  // логіка для отримання тем на головній сторінці
-  const fetchTopics = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get(
-        `http://localhost:5000/topics?page=${queryParams.page}&sort=${queryParams.sortOrder}` +
-          `${currentUser ? "&user_id=" + currentUser.uid : ""}` +
-          `${queryParams.tags ? "&tags=" + queryParams.tags : ""}` +
-          `${queryParams.authors ? "&authors=" + queryParams.authors : ""}`
-      );
-
-      const topics = response.data || [];
-      setTopicInfoList(prev =>
-        queryParams.page === 1 ? topics : [...prev, ...topics]
-      );
-      setHasMore(topics.length > 0);
-    } catch (error) {
-      console.error("Failed to fetch topics", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [queryParams, currentUser]);
-
-  const debouncedFetchTopics = useMemo(
-    () => debounce(fetchTopics, 200),
-    [fetchTopics]
-  );
-
-  useEffect(() => {
-    setLoading(true);
-    debouncedFetchTopics();
-  }, [queryParams, debouncedFetchTopics]);
-
-  async function switchTopicSaved(user_id, topic) {
-    try {
-      const res = await axios.patch(`http://localhost:5000/topics/switch`, {
-        user_id,
-        topic_id: topic?.id,
-      });
-      if (res.data.status === "saved")
-        setSavedTopicList(prev => [topic, ...prev]);
-      else if (res.data.status === "deleted")
-        setSavedTopicList(prev => prev.filter(item => item.id !== topic?.id));
-      console.log(savedTopicList);
-    } catch (error) {
-      console.error(error);
-    }
-  }
 
   const value = {
-    topicInfoList,
-    setTopicInfoList,
-    switchTopicSaved,
     hasMore,
     loading,
-    debounce,
   };
 
   return (

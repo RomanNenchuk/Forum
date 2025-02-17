@@ -9,7 +9,6 @@ import deleteIcon from "../../assets/delete-context-menu.svg";
 import copyIcon from "../../assets/copy-icon.svg";
 import savePlusIcon from "../../assets/save-plus.svg";
 import saveMinusIcon from "../../assets/save-minus.svg";
-import axios from "axios";
 
 export default function TopicActionMenu({
   positionX,
