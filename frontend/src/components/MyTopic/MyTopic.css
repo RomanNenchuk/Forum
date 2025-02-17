@@ -5,9 +5,12 @@
   width: 100%;
   align-items: center;
 }
+.topic-mobile{
+  width: 90%;
+}
 
 .topics-content {
-  margin-top: 14vh;
+  margin-top: 10vh;
   width: 100%;
 }
 

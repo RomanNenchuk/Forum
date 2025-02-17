@@ -292,9 +292,10 @@ ul {
   
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .topic-card{
     margin-bottom: 3vh;
+    box-shadow: none;
   }
   .topic-content{
     gap: 2vh;
@@ -343,7 +344,7 @@ ul {
   border-radius: 20px;
   
   margin-left: 2%;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
 }
 .subscribe{
   color: black;

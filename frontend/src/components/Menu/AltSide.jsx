@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Avatar from "../Avatar";
 import { Link } from "react-router-dom";
 import { CiLight } from "react-icons/ci";
@@ -11,6 +11,8 @@ import helpIcon from "../../assets/help.svg";
 import aboutIcon from "../../assets/about.svg";
 import teamIcon from "../../assets/team.svg";
 import themeIcon from "../../assets/side-theme.svg";
+import { useTranslation } from "react-i18next";
+import ChangeLanguageModal from "./ChangeLanguageModal";
 import "./AltSide.css"
 import "./Menu.css"
 import { useUserInfo } from "../../contexts/UserInfoContext";
@@ -20,9 +22,16 @@ export default function AltSide({ setExpand }){
 
     const { user } = useUserInfo()
     const { currentUser } = useAuth()
-
+    const { t } = useTranslation();
     const location = useLocation();
     const isActive = path => location.pathname.startsWith(path);
+    const [isChangeLanguageModalOpen, setIsChangeLanguageModalOpen] =
+    useState(false);
+    
+
+    function onChangeLanguageClick() {
+        setIsChangeLanguageModalOpen(true);
+    }
 
     
     return (
@@ -42,14 +51,14 @@ export default function AltSide({ setExpand }){
                     </div>}
                     <div style = {{display: "flex", flexDirection: "column", justifyContent: "flex-start", width: "50%", alignItems:"flex-end"}}>
                         <CiLight size = "4vh"/>
-                        <TbMessageLanguage size="4vh"/>
+                        <TbMessageLanguage size="4vh" onClick={()=>{onChangeLanguageClick(true)}}/>
                     </div>
                 </div>
             <div style={{borderTop: "2px solid black"}}>
                 <div className={`mn-menu-elem ${location.pathname === '/' ? "active" : ""}`}>
                     <Link to="/" id="/mn-menu-home">
                         <img src={homeIcon} alt="Home" />
-                        <span>Головна сторінка</span>
+                        <span>{t("menu.home")}</span>
                     </Link>
                 </div>
                 <div className={`mn-menu-elem ${isActive("/chats") ? "active" : ""}`}>
@@ -62,41 +71,48 @@ export default function AltSide({ setExpand }){
                         }}
                         >
                             <img src={chatsIcon} alt="Chats" />
-                            <span>Чати</span>
+                            <span>{t("menu.chats")}</span>
                         </Link>
                     </div>
                     <div className={`mn-menu-elem ${isActive("/poptopics") ? "active" : ""}`}>
                         <Link id="mn-menu-events" to="/poptopics">
                             <img src={eventsIcon} alt="Events" />
-                            <span>Популярне</span>
+                            <span>{t("menu.popular")}</span>
                         </Link>
                     </div>
                     <div className={`mn-menu-elem ${isActive("/mytopics") ? "active" : ""}`}>
                         <Link id="mn-menu-events" to={currentUser ? `/mytopics` : "/login"}>
                         <img src={themeIcon} alt="Events" />
-                        <span>Теми</span>
+                        <span>{t("menu.myTopics")}</span>
                         </Link>
                     </div>
                     <div className={`mn-menu-elem ${isActive("/about") ? "active" : ""}`}>
                         <Link id="mn-menu-about">
                             <img src={aboutIcon} alt="About" />
-                            <span>Про застосунок</span>
+                            <span>{t("menu.about")}</span>
                         </Link>
                     </div>
                     <div className={`mn-menu-elem ${isActive("/team") ? "active" : ""}`}>
                         <Link id="mn-menu-team">
                             <img src={teamIcon} alt="Team" />
-                            <span>Команда</span>
+                            <span>{t("menu.team")}</span>
                         </Link>
                     </div>
                     <div className={`mn-menu-elem ${isActive("/help") ? "active" : ""}`}>
                         <Link id="mn-menu-help">
                             <img src={helpIcon} alt="Help" />
-                            <span>Допомога</span>
+                            <span>{t("menu.help")}</span>
                         </Link>
                     </div>
             </div>
         </div>
+        {isChangeLanguageModalOpen ? (
+        <ChangeLanguageModal
+          onClose={() => {setIsChangeLanguageModalOpen(false)}}
+        />
+      ) : null}
         </div>
+        
+
     )
 }

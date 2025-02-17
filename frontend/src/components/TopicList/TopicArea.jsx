@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import AttachedFiles from "../AttachedFiles/AttachedFiles.jsx";
 import { useWidth } from "../../contexts/ScreenWidthContext.jsx";
@@ -9,13 +10,13 @@ import { VscSettings } from "react-icons/vsc";
 import { IoChatboxEllipsesOutline } from "react-icons/io5";
 import ProfileHeader from "../ProfileHeader.jsx";
 import "./TopicList.css";
-import subscribe from "./../../assets/subscribe.svg";
-import subscribed from "./../../assets/subscribed.svg";
+
 import axios from "axios";
 
 export default function TopicArea({ topicItem, reactionList, initialReactions, userReaction, setTopics, handleOnActionMenu }) {
   const [topic, setTopic] = useState(topicItem);
   const { width }= useWidth()
+  const { t } = useTranslation()
   const [activeReactions, setActiveReactions] = useState(
     reactionListSetter(initialReactions, userReaction)
   );
@@ -132,17 +133,17 @@ export default function TopicArea({ topicItem, reactionList, initialReactions, u
             {topic.subscribed !== "none" && (
               <button className={`subs ${topic.subscribed ? "subscribed"  : "subscribe"}`}
                 onClick={handleSubscribeClick}
-              >{topic.subscribed ? "Відстежується" : "Стежити"}</button>
+              >{topic.subscribed ? t("topic.subscribed")  : t("topic.subscribe")}</button>
             )}
           </div> 
-          <div style = {{display: "flex", flexDirection: "row"}}>
+          <div style = {{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
             <span className="topic-title" style={{
               marginBottom: "1vh",
               overflowWrap: "break-word",
               width: width <= 768 && topic.cover ? "70%" : "100%"}}
             >
             {topic.title}</span>
-            {width <= 768 && topic.cover && <AttachedFiles urls={[topic.cover]} imgstyle={"alt-media-image"}/>}
+            {width <= 768 && topic.cover && <AttachedFiles urls={[topic.cover]} imgstyle={"alt-media-image"} videoStyle={"alt-media-video"}/>}
           </div>
             <div style={{ textAlign: "right", fontSize: width > 768 ? "2.5vh" : "0.8rem", color: "gray" }}>
               {topic.tag_list.length > 0 && "#" + topic.tag_list.join(" #")}
@@ -156,7 +157,7 @@ export default function TopicArea({ topicItem, reactionList, initialReactions, u
             {activeReactions.map((reaction, index) => (
               <button key={index} className={`reaction-button ${reaction.active ? "my-reaction" : ""}`} onClick={() => handleClick(reaction)}>
                 <span>{reaction.icon}</span>
-                <span className="reaction-button-count">{reaction.count || ""}</span>
+                <span className="reaction-button-count">{reaction.count}</span>
               </button>
             ))}
           </div>

@@ -44,9 +44,9 @@ export default function TopicListSettings({ sortOrder, handleChange }) {
           value={sortOrder}
           onChange={handleChange}
         >
-          <option key="desc" value="desc">Новіші</option>
-          <option key="asc" value="asc">Давніші</option>
-          <option key="rating" value="rating">Популярні</option>
+          <option key="desc" value="desc">{t("topic.newest")}</option>
+          <option key="asc" value="asc">{t("topic.oldest")}</option>
+          <option key="rating" value="rating">{t("topic.topRated")}</option>
         </select>
       </div>
       <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
@@ -62,7 +62,7 @@ export default function TopicListSettings({ sortOrder, handleChange }) {
             className="add-topic-button"
             style={{ width: "100%", marginBottom: "2vh" }}
           >
-            + Додати тему
+            {t("topic.addTopicButton")}
           </button>
         </Link>
       </div>

@@ -81,7 +81,7 @@ header {
 }
 .hd-logo span {
   font-family: "InriaSans-Bold";
-  font-size: 8vh;
+  font-size: 6vh;
   font-weight: 700;
   color: #000000;
   font-weight: 700;
@@ -91,7 +91,7 @@ header {
   color: #ff0000;
 }
 .hd-logo img {
-  height: 10vh;
+  height: 9vh;
   width: auto;
 }
 .hd-search {
@@ -99,6 +99,7 @@ header {
   border-radius: 3vh;
   padding-left: 3vh;
   gap: 2vh;
+  height: 6vh;
   width: 100%;
 }
 .hd-search input {
@@ -117,7 +118,7 @@ header {
   padding: 0.9vmin 1.5vmin;
   margin-left: 1.5vmin;
   font-size: 4vmin;
-  height: 8vmin;
+  height: 6vh;
   background-color: #659287;
   border: none;
   border-radius: 3vh;
@@ -127,7 +128,7 @@ header {
   outline: none;
 }
 .hd-search img {
-  height: 4vh;
+  height: 3vh;
   width: auto;
 }
 .hd-btn-sep {
@@ -165,8 +166,8 @@ header {
 /* ~~~~~~~~~~~~~~~~ */
 
 .main-page-menu {
-  height: 87vh;
-  top: 12.97vh;
+  height: 88.6vh;
+  top: 11.4vh;
   overflow-y: auto;
   position: sticky;
   display: flex;

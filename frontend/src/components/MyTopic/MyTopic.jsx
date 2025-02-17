@@ -103,14 +103,12 @@ export default function MyTopic() {
               <div className="topics-not-found">
                 {t("topic.topicsNotFound")}
               </div>
-            ) : width > 768 ? (
+            ) : (
               <TopicList
                 topicInfoList={topicInfoList}
-                className="topics-grid"
+                className= {width > 768 ? "topics-grid" : 'topic-mobile'}
               />
-            ) : (<TopicList
-              topicInfoList={topicInfoList}
-            />)
+            ) 
           ) : (
             <AltSpinner />
           )}

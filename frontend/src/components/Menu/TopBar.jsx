@@ -7,7 +7,7 @@ import { useTopicSearch } from "../../contexts/TopicSearchContext.jsx";
 import { useWidth } from "../../contexts/ScreenWidthContext.jsx";
 import { MdMenu } from "react-icons/md";
 import { IoIosSearch } from "react-icons/io";
-import { PiDotsThreeCircleVerticalFill } from "react-icons/pi";
+
 import ProfileHeader from "../ProfileHeader";
 import logo from "../../assets/logo.svg";
 import seachIcon from "../../assets/search.svg";
@@ -145,7 +145,6 @@ export default function TopBar({setExpand}) {
                 <div style = {{marginRight: "2vh"}}><Avatar avatar={user.avatar} handleImageClick={handlerClick}  size="5vh" /></div>
               )}
               <IoIosSearch size = "5vh" />
-              <PiDotsThreeCircleVerticalFill size = "5vh"/>
             </div>
           </>)}
         
