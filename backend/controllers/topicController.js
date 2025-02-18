@@ -537,19 +537,9 @@ export const getSavedTopics = async (req, res) => {
   const offset = (page - 1) * limit;
 
   try {
-    const topicsId = await pool.query(
-      `
-      SELECT topic_id FROM saved_topics WHERE user_id = $1
-      `,
-      [user_id]
-    );
-    let topicsIdArray = [];
-    for (let el of topicsId.rows) {
-      topicsIdArray.push(el.topic_id);
-    }
     const topicsResult = await pool.query(
       `
-      SELECT 
+        SELECT 
         topics.id, 
         fullname AS author_full_name, 
         username, 
@@ -560,20 +550,21 @@ export const getSavedTopics = async (req, res) => {
         COALESCE(SUM(emoji.score), 0) AS rating,
         topics.date,
         cover,
-        COALESCE(ARRAY_AGG(DISTINCT tags.tag_name) FILTER (WHERE tags.tag_name IS NOT NULL), '{}') AS tag_list
+        COALESCE(ARRAY_AGG(DISTINCT tags.tag_name) FILTER (WHERE tags.tag_name IS NOT NULL), '{}') AS tag_list,
+        saved_topics.timestamp
       FROM topics
       INNER JOIN users ON users.uid = topics.author
+      INNER JOIN saved_topics ON topics.id = saved_topics.topic_id
       LEFT JOIN topic_tags on topics.id = topic_tags.topic_id
       LEFT JOIN tags on topic_tags.tag_id = tags.tag_id
-      LEFT JOIN topic_reactions
-        ON topics.id = topic_reactions.topic_id
-      LEFT JOIN emoji
-        ON emoji.id = topic_reactions.emoji_id
-      WHERE topics.id = ANY($1)
-      GROUP BY topics.id, fullname, username, avatar, title, email, author, topics.date
-      LIMIT $2 OFFSET $3
+      LEFT JOIN topic_reactions ON topics.id = topic_reactions.topic_id
+      LEFT JOIN emoji ON emoji.id = topic_reactions.emoji_id
+      WHERE saved_topics.user_id = $1
+      GROUP BY topics.id, fullname, username, avatar, title, email, author, topics.date, saved_topics.timestamp
+      ORDER BY saved_topics.timestamp DESC
+      LIMIT $2 OFFSET $3;
       `,
-      [topicsIdArray, limit, offset]
+      [user_id, limit, offset]
     );
     const topics = topicsResult.rows;
     const reactionsResult = await pool.query(

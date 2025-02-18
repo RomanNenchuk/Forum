@@ -7,7 +7,6 @@ import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
 import "./TopicList.css";
 import axios from "axios";
-import { useTopicList } from "../../contexts/TopicListContext.jsx";
 
 const reactionList = [
   { icon: "😁", name: "beaming_face_with_smiling_eyes" },
@@ -41,7 +40,6 @@ export default function TopicList({
   onTopicClick,
 }) {
   const { t } = useTranslation();
-  const { setTopicInfoList } = useTopicList();
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [topicToDeleteId, setTopicToDeleteId] = useState(null);
   const [actionMenu, setActionMenu] = useState({
@@ -117,7 +115,6 @@ export default function TopicList({
     try {
       const res = await axios.delete(`http://localhost:5000/topics/${id}`);
       if (res.data.done) console.log("done");
-      // setTopicInfoList(prev => prev.filter(item => item.id !== id));
     } catch (error) {
       console.error(error);
     } finally {
@@ -161,7 +158,6 @@ export default function TopicList({
             reactionList={reactionList}
             initialReactions={topic?.reactions}
             userReaction={topic?.user_reaction?.name}
-            setTopics={setTopicInfoList}
             handleOnActionMenu={handleOnActionMenu}
             onTopicClick={onTopicClick}
           />

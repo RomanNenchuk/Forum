@@ -8,7 +8,6 @@ import { UserInfoProvider } from "../contexts/UserInfoContext";
 import { ChatProvider } from "../contexts/ChatContext";
 import { SocketProvider } from "../contexts/SocketProviderContext";
 import { TopicSearchProvider } from "../contexts/TopicSearchContext.jsx";
-import { TopicListProvider } from "../contexts/TopicListContext.jsx";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import PrivateRoute from "./PrivateRoute";
 import NotFound from "./NotFound";
@@ -48,18 +47,10 @@ function AppRoutes() {
     <>
       <Routes location={backgroundLocation}>
         <Route element={<Menu />}>
-          <Route
-            element={
-              <TopicListProvider>
-                <Outlet />
-              </TopicListProvider>
-            }
-          >
-            <Route path="/" element={<Home />} />
-            <Route path="/topics/:id" element={<Topic />} />
-            <Route path="/poptopics" element={<PopulTopic />} />
-            <Route path="/mytopics" element={<MyTopic />} />
-          </Route>
+          <Route path="/" element={<Home />} />
+          <Route path="/topics/:id" element={<Topic />} />
+          <Route path="/poptopics" element={<PopulTopic />} />
+          <Route path="/mytopics" element={<MyTopic />} />
 
           <Route element={<PrivateRoute />}>
             <Route path="/create-topic" element={<CreateTopic />} />

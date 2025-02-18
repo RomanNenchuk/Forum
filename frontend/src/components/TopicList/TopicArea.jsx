@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext.jsx";
+import { useTopicSearch } from "../../contexts/TopicSearchContext.jsx";
 import AttachedFiles from "../AttachedFiles/AttachedFiles.jsx";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import reactionListSetter from "../../utils/reactionListSetter.jsx";
 import InteractWindow from "./InteractWindow.jsx";
 import { VscSettings } from "react-icons/vsc";
@@ -17,14 +19,15 @@ export default function TopicArea({
   reactionList,
   initialReactions,
   userReaction,
-  setTopics,
   handleOnActionMenu,
   onTopicClick,
 }) {
+  const queryClient = useQueryClient();
   const [topic, setTopic] = useState(topicItem);
   const [activeReactions, setActiveReactions] = useState(
     reactionListSetter(initialReactions, userReaction)
   );
+  const { queryParams } = useTopicSearch();
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -37,6 +40,81 @@ export default function TopicArea({
   useEffect(() => {
     setActiveReactions(reactionListSetter(initialReactions, userReaction));
   }, [initialReactions, userReaction]);
+
+  const addSubscribeMutation = useMutation({
+    mutationFn: async () => {
+      const res = await axios.post("http://localhost:5000/subscriptions", {
+        user1_id: currentUser.uid,
+        user2_id: topic.author,
+      });
+      return res.data;
+    },
+    onSuccess: data => {
+      if (data.done) {
+        queryClient.setQueryData(
+          ["topics", queryParams, currentUser?.uid],
+          oldData => {
+            if (!oldData || !oldData.pages) return oldData;
+
+            setTopic(prev => ({ ...prev, subscribed: true }));
+
+            return {
+              ...oldData,
+              pages: oldData.pages.map(page => ({
+                ...page,
+                topics: page.topics.map(el =>
+                  el.author === topic.author ? { ...el, subscribed: true } : el
+                ),
+              })),
+            };
+          }
+        );
+
+        queryClient.invalidateQueries([
+          "topics",
+          queryParams,
+          currentUser?.uid,
+        ]);
+      }
+    },
+  });
+
+  const deleteSubscribeMutation = useMutation({
+    mutationFn: async () => {
+      const res = await axios.delete("http://localhost:5000/subscriptions", {
+        data: { user1_id: currentUser.uid, user2_id: topic.author },
+      });
+      return res.data;
+    },
+    onSuccess: data => {
+      if (data.done) {
+        queryClient.setQueryData(
+          ["topics", queryParams, currentUser?.uid],
+          oldData => {
+            if (!oldData || !oldData.pages) return oldData;
+
+            setTopic(prev => ({ ...prev, subscribed: false }));
+
+            return {
+              ...oldData,
+              pages: oldData.pages.map(page => ({
+                ...page,
+                topics: page.topics.map(el =>
+                  el.author === topic.author ? { ...el, subscribed: false } : el
+                ),
+              })),
+            };
+          }
+        );
+
+        queryClient.invalidateQueries([
+          "topics",
+          queryParams,
+          currentUser?.uid,
+        ]);
+      }
+    },
+  });
 
   async function handleClick(emoji) {
     if (!currentUser)
@@ -67,45 +145,6 @@ export default function TopicArea({
     }
   }
 
-  async function addSubscribe() {
-    try {
-      const res = await axios.post("http://localhost:5000/subscriptions", {
-        user1_id: currentUser.uid,
-        user2_id: topic.author,
-      });
-
-      if (res.data.done) {
-        setTopics(prevState =>
-          prevState.map(el =>
-            el.author === topic.author ? { ...el, subscribed: true } : el
-          )
-        );
-        setTopic(prev => ({ ...prev, subscribed: true }));
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  async function delSubscribe() {
-    try {
-      const res = await axios.delete("http://localhost:5000/subscriptions", {
-        data: { user1_id: currentUser.uid, user2_id: topic.author },
-      });
-
-      if (res.data.done) {
-        setTopics(prevState =>
-          prevState.map(el =>
-            el.author === topic.author ? { ...el, subscribed: false } : el
-          )
-        );
-        setTopic(prev => ({ ...prev, subscribed: false }));
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
   const handleTopicClick = topicId => {
     onTopicClick();
     navigate(`/topics/${topicId}${location.search}`, {
@@ -125,7 +164,9 @@ export default function TopicArea({
       });
     } else
       setTimeout(() => {
-        topic.subscribed ? delSubscribe() : addSubscribe();
+        topic.subscribed
+          ? deleteSubscribeMutation.mutate()
+          : addSubscribeMutation.mutate();
       }, 200);
   };
 

@@ -74,3 +74,23 @@ export const fetchTopics = async ({ pageParam = 1, queryKey }) => {
     console.error(error);
   }
 };
+
+async function addSubscribe() {
+  try {
+    const res = await axios.post("http://localhost:5000/subscriptions", {
+      user1_id: currentUser.uid,
+      user2_id: topic.author,
+    });
+
+    if (res.data.done) {
+      setTopics(prevState =>
+        prevState.map(el =>
+          el.author === topic.author ? { ...el, subscribed: true } : el
+        )
+      );
+      setTopic(prev => ({ ...prev, subscribed: true }));
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
