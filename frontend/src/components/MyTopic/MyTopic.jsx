@@ -112,7 +112,8 @@ export default function MyTopic() {
         <div className="topics-container">
           {(showMyTopics ? isFetchingMyTopics : isFetchingSavedTopics) &&
           !isFetchingNextMyTopics &&
-          !isFetchingNextSavedTopics ? (
+          !isFetchingNextSavedTopics &&
+          topicInfoList?.length === 0 ? (
             <AltSpinner />
           ) : topicInfoList.length === 0 ? (
             <div className="topics-not-found">{t("topic.topicsNotFound")}</div>

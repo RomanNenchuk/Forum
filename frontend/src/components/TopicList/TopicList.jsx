@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import TopicArea from "./TopicArea.jsx";
 import { useTranslation } from "react-i18next";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { useTopicSearch } from "../../contexts/TopicSearchContext.jsx";
+import { useLocation } from "react-router-dom";
 import TopicActionMenu from "./TopicActionMenu.jsx";
 import ConfirmationModal from "../ConfirmationModal/ConfirmationModal.jsx";
 import { useAuth } from "../../contexts/AuthContext.jsx";
@@ -40,6 +43,9 @@ export default function TopicList({
   onTopicClick,
 }) {
   const { t } = useTranslation();
+  const location = useLocation();
+  const { queryParams } = useTopicSearch();
+  const queryClient = useQueryClient();
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [topicToDeleteId, setTopicToDeleteId] = useState(null);
   const [actionMenu, setActionMenu] = useState({
@@ -114,14 +120,49 @@ export default function TopicList({
   const deleteTopic = async id => {
     try {
       const res = await axios.delete(`http://localhost:5000/topics/${id}`);
-      if (res.data.done) console.log("done");
+      return res.data; // Повертаємо результат, щоб його можна було використати в onSuccess
     } catch (error) {
       console.error(error);
-    } finally {
-      setIsConfirmModalOpen(false);
-      setTopicToDeleteId(null);
+      throw error; // Прокидуємо помилку для обробки у useMutation
     }
   };
+
+  const confirmDeleteMutation = useMutation({
+    mutationFn: deleteTopic,
+    onSuccess: (data, variables) => {
+      if (data.done) {
+        const updateSubscriptionStatus = oldData => {
+          if (!oldData || !oldData.pages) return oldData;
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map(page => ({
+              ...page,
+              topics: page.topics.filter(el => el.id !== variables),
+            })),
+          };
+        };
+
+        queryClient.setQueryData(
+          ["topics", queryParams, currentUser?.uid],
+          updateSubscriptionStatus
+        );
+        queryClient.setQueryData(
+          ["myTopics", currentUser?.uid],
+          updateSubscriptionStatus
+        );
+        queryClient.setQueryData(["popularTopics"], updateSubscriptionStatus);
+
+        queryClient.invalidateQueries([
+          "topics",
+          queryParams,
+          currentUser?.uid,
+        ]);
+        queryClient.invalidateQueries(["myTopics", currentUser?.uid]);
+        queryClient.invalidateQueries(["popularTopics"]);
+      }
+    },
+  });
 
   const handleDeleteClick = id => {
     setTopicToDeleteId(id);
@@ -130,8 +171,13 @@ export default function TopicList({
 
   const handleConfirmDelete = () => {
     if (topicToDeleteId) {
-      deleteTopic(topicToDeleteId);
-      navigate("/");
+      confirmDeleteMutation.mutate(topicToDeleteId, {
+        onSuccess: () => {
+          if (location.pathname.startsWith("/topics/")) navigate(-1);
+        },
+      });
+      setIsConfirmModalOpen(false);
+      setTopicToDeleteId(null);
     }
   };
 

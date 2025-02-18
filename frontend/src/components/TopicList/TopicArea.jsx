@@ -51,30 +51,39 @@ export default function TopicArea({
     },
     onSuccess: data => {
       if (data.done) {
+        setTopic(prev => ({ ...prev, subscribed: true }));
+
+        const updateSubscriptionStatus = oldData => {
+          if (!oldData || !oldData.pages) return oldData;
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map(page => ({
+              ...page,
+              topics: page.topics.map(el =>
+                el.author === topic.author ? { ...el, subscribed: true } : el
+              ),
+            })),
+          };
+        };
+
         queryClient.setQueryData(
           ["topics", queryParams, currentUser?.uid],
-          oldData => {
-            if (!oldData || !oldData.pages) return oldData;
-
-            setTopic(prev => ({ ...prev, subscribed: true }));
-
-            return {
-              ...oldData,
-              pages: oldData.pages.map(page => ({
-                ...page,
-                topics: page.topics.map(el =>
-                  el.author === topic.author ? { ...el, subscribed: true } : el
-                ),
-              })),
-            };
-          }
+          updateSubscriptionStatus
         );
+        queryClient.setQueryData(
+          ["savedTopics", currentUser?.uid],
+          updateSubscriptionStatus
+        );
+        queryClient.setQueryData(["popularTopics"], updateSubscriptionStatus);
 
         queryClient.invalidateQueries([
           "topics",
           queryParams,
           currentUser?.uid,
         ]);
+        queryClient.invalidateQueries(["savedTopics", currentUser?.uid]);
+        queryClient.invalidateQueries(["popularTopics"]);
       }
     },
   });
@@ -88,30 +97,39 @@ export default function TopicArea({
     },
     onSuccess: data => {
       if (data.done) {
+        setTopic(prev => ({ ...prev, subscribed: false }));
+
+        const updateSubscriptionStatus = oldData => {
+          if (!oldData || !oldData.pages) return oldData;
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map(page => ({
+              ...page,
+              topics: page.topics.map(el =>
+                el.author === topic.author ? { ...el, subscribed: false } : el
+              ),
+            })),
+          };
+        };
+
         queryClient.setQueryData(
           ["topics", queryParams, currentUser?.uid],
-          oldData => {
-            if (!oldData || !oldData.pages) return oldData;
-
-            setTopic(prev => ({ ...prev, subscribed: false }));
-
-            return {
-              ...oldData,
-              pages: oldData.pages.map(page => ({
-                ...page,
-                topics: page.topics.map(el =>
-                  el.author === topic.author ? { ...el, subscribed: false } : el
-                ),
-              })),
-            };
-          }
+          updateSubscriptionStatus
         );
+        queryClient.setQueryData(
+          ["savedTopics", currentUser?.uid],
+          updateSubscriptionStatus
+        );
+        queryClient.setQueryData(["popularTopics"], updateSubscriptionStatus);
 
         queryClient.invalidateQueries([
           "topics",
           queryParams,
           currentUser?.uid,
         ]);
+        queryClient.invalidateQueries(["savedTopics", currentUser?.uid]);
+        queryClient.invalidateQueries(["popularTopics"]);
       }
     },
   });

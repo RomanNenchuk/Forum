@@ -75,22 +75,23 @@ export const fetchTopics = async ({ pageParam = 1, queryKey }) => {
   }
 };
 
-async function addSubscribe() {
+export const deleteTopic = async id => {
   try {
-    const res = await axios.post("http://localhost:5000/subscriptions", {
-      user1_id: currentUser.uid,
-      user2_id: topic.author,
-    });
-
-    if (res.data.done) {
-      setTopics(prevState =>
-        prevState.map(el =>
-          el.author === topic.author ? { ...el, subscribed: true } : el
-        )
-      );
-      setTopic(prev => ({ ...prev, subscribed: true }));
-    }
-  } catch (err) {
-    console.error(err);
+    const res = await axios.delete(`http://localhost:5000/topics/${id}`);
+    if (res.data.done) console.log("done");
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setIsConfirmModalOpen(false);
+    setTopicToDeleteId(null);
   }
-}
+};
+
+export const createTopic = async (formData, token) => {
+  const response = await axios.post("http://localhost:5000/topics", formData, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (response.status !== 201) throw new Error("Failed to create topic");
+  return response.data;
+};

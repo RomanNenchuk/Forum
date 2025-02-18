@@ -36,16 +36,6 @@ export default function TopicActionMenu({
           page.topics.some(t => t.id === topic.id)
         );
 
-        /*
-          useInfiniteQuery очікує структуру:
-
-          {
-            pages: [{ topics: [...] }, { topics: [...] }],
-            pageParams: [...]
-          }        
-        
-        */
-
         return {
           ...oldData,
           pages: oldData.pages.map((page, index) => ({

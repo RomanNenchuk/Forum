@@ -56,3 +56,9 @@
 .observer-element {
   min-height: 1px;
 }
+
+.topics-not-found {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 18px;
+}

@@ -1,8 +1,10 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
 import { Form, Alert } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { createTopic } from "../../api/topics.js";
 import CoverUploader from "./CoverUploader.jsx";
 import TopicFileUploader from "./TopicFileUploader.jsx";
 import ActionButton from "../ActionButton/ActionButton.jsx";
@@ -12,10 +14,10 @@ import SearchInput from "./SearchInput.jsx";
 import DescriptionInput from "./DescriptionInput.jsx";
 import arrowBackIcon from "../../assets/arrow-back.svg";
 import "./CreateTopic.css";
-import axios from "axios";
 
 export default function CreateTopic() {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const { currentUser, token } = useAuth();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -31,11 +33,29 @@ export default function CreateTopic() {
   const [cover, setCover] = useState(null);
   const navigate = useNavigate();
 
+  const createTopicMutation = useMutation({
+    mutationFn: formData => createTopic(formData, token),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["myTopics", currentUser?.uid]);
+      queryClient.invalidateQueries(["topics"]);
+
+      setSuccess(t("createTopic.successTopic"));
+      setTimeout(() => navigate("/"), 1000);
+    },
+    onError: err => {
+      setError(err.message);
+    },
+    onSettled: () => {
+      setLoading(false);
+    },
+  });
+
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
     setSuccess("");
     setLoading(true);
+
     try {
       const formData = new FormData();
       formData.append("title", title);
@@ -49,17 +69,9 @@ export default function CreateTopic() {
           .slice(0, 10)
           .forEach(file => formData.append("attachments", file));
 
-      const response = await axios.post(
-        "http://localhost:5000/topics",
-        formData,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      if (response.status !== 201) throw new Error("Failed to create topic");
-      setSuccess(t("createTopic.successTopic"));
-      setTimeout(() => navigate("/"), 1000);
+      createTopicMutation.mutate(formData);
     } catch (err) {
       setError(err.message);
-    } finally {
       setLoading(false);
     }
   }

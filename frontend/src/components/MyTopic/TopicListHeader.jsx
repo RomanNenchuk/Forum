@@ -18,7 +18,6 @@ export default function TopicListHeader({ chooseMyTopics, showMyTopics }) {
           <div
             className={`tab ${!showMyTopics ? "active-tab" : ""}`}
             onClick={() => {
-              console.log("AAAAAAAAAAAAAA");
               chooseMyTopics(false);
             }}
           >
