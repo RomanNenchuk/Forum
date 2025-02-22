@@ -1,7 +1,7 @@
 /* Chat.css */
 .chat-win-container {
   display: flex;
-  height: calc(100% - 14vh);
+  height: 88.8vh;
   margin-top: 11vh;
   width: 100%;
   background: #f9f9f9;
@@ -10,7 +10,7 @@
 /* Ліва колонка */
 .chat-list-ct {
   width: 383px;
-  height: 86vh;
+  height: 88.9vh;
 }
 .chat-hd {
   display: flex;
@@ -93,6 +93,7 @@
 .chat-container {
   width: 100%;
   height: 100%;
+  flex: 1;
   display: flex;
   flex-direction: column;
 }
@@ -180,7 +181,7 @@
 }
 ul.chat-messages {
   height: 100%;
-  max-height: calc(100vh - 14vh - 88px - 77px);
+  max-height: calc(100vh - 11vh - 88px - 77px);
   margin: 0;
   list-style-type: none;
   overflow-x: hidden;

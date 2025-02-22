@@ -156,7 +156,7 @@ header {
 }
 
 @media (max-width: 768px) {
-  .hd-logo span{
+  .hd-logo span {
     font-size: 4vh;
   }
 }
