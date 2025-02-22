@@ -638,3 +638,30 @@ export const getSavedTopics = async (req, res) => {
     console.error(error);
   }
 };
+
+export const refreshTopicPopularityView = async () => {
+  try {
+    await pool.query("REFRESH MATERIALIZED VIEW topic_popularity");
+    console.log("Materialized view 'topic_popularity' refreshed");
+  } catch (err) {
+    console.error("Error refreshing materialized view:", err);
+  }
+};
+
+export const getPopularTopics = async (req, res) => {
+  try {
+    const { period = 'day' } = req.query;
+    const QUERY = `
+    SELECT id FROM topic_popularity ORDER BY ${period}_rating DESC;
+    `;
+    const idArray = await pool.query(QUERY);
+    let result = [];
+    for (let el of idArray.rows) {
+      result.push(el.id)
+    }
+    res.status(200).json(result);
+  } catch (err) {
+    console.error(err);
+    res.status(404).json("Server error");
+  }
+}

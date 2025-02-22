@@ -2,7 +2,7 @@ import pkg from "pg";
 import dotenv from "dotenv";
 dotenv.config({ path: "./config/.env" });
 import { refreshPopuarTagsView } from "./controllers/tagController.js";
-
+import { refreshTopicPopularityView } from "./controllers/topicController.js";
 const { Pool } = pkg;
 
 const { PGHOST, PGDATABASE, PGUSER, PGPASSWORD } = process.env;
@@ -54,4 +54,9 @@ setInterval(keepAliveQuery, 4 * 60 * 1000);
 // кожні 15хв оновлюю представлення популярних тегів
 setInterval(refreshPopuarTagsView, 15 * 60 * 1000);
 
+// оновлюю представлення популярних тем
+setInterval(refreshTopicPopularityView, 1 * 60 * 1000);
+
+// 
+setInterval(refreshPopuarTagsView, 15 * 60 * 1000);
 export { pool, connectDB };
