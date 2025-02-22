@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import { useWidth } from "../../contexts/ScreenWidthContext";
 
-export default function LazyVideo({ src, videoId }) {
+export default function LazyVideo({ src, videoId, className }) {
   const videoRef = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
   const [videoSrc, setVideoSrc] = useState(""); // Додаємо стан для збереження src
@@ -29,7 +30,7 @@ export default function LazyVideo({ src, videoId }) {
       ref={videoRef}
       controls
       preload="metadata"
-      className="media-video"
+      className={className}
       onClick={e => e.stopPropagation()}
       autoPlay
       loop

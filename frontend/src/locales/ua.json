@@ -119,7 +119,9 @@
     "oldest": "Старіші",
     "topRated": "Найкращі",
     "author": "Автор",
-    "subs": "Підписки"
+    "subs": "Підписки",
+    "subscribe" : "Стежити",
+    "subscribed" : "Відстежується"
   },
   "profile": {
     "unknown": "Невідомо",

@@ -5,9 +5,12 @@
   width: 100%;
   align-items: center;
 }
+.topic-mobile {
+  width: 90%;
+}
 
 .topics-content {
-  margin-top: 14vh;
+  margin-top: 10vh;
   width: 100%;
 }
 
@@ -61,4 +64,21 @@
   margin-top: 10px;
   text-align: center;
   font-size: 18px;
+}
+
+@media (max-width: 767px) {
+  .topics-navigation-container {
+    width: 80%;
+    gap: 20px;
+  }
+  .tab {
+    font-size: 1rem;
+  }
+  .topics-content {
+    margin-top: 8vh;
+  }
+  .topics-header {
+    margin-top: 20px;
+    margin-bottom: 10px;
+  }
 }

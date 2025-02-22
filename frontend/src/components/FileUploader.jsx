@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import addFileIcon from "../assets/add-file.svg";
 
-export default function FileUploader({ setFiles, setIsSendModalOpen }) {
+export default function FileUploader({ setFiles, setIsSendModalOpen, style }) {
   const fileInputRef = useRef();
 
   function handleImageClick() {
@@ -13,7 +13,7 @@ export default function FileUploader({ setFiles, setIsSendModalOpen }) {
     <div>
       <img
         src={addFileIcon}
-        style={{ cursor: "pointer" }}
+        style={{ cursor: "pointer" , ...style}}
         alt="Add file"
         onClick={handleImageClick}
       />

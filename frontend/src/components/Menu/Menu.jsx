@@ -1,15 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
+import { useWidth } from "../../contexts/ScreenWidthContext.jsx";
+
+import { useUserInfo } from "../../contexts/UserInfoContext.jsx";
 import TopBar from "./TopBar.jsx";
 import SideBar from "./SideBar.jsx";
 import "./Menu.css";
+import AltSide from "./AltSide.jsx";
 
 export default function Menu() {
+  const [isExpanded, setExpand] = useState(false)
+  const { avatar, fullName, currentUser } = useUserInfo()
+  const { width } = useWidth()
   return (
     <div className="wrapper">
-      <TopBar />
+      <TopBar setExpand={setExpand}/>
       <div className="forum-container">
-        <SideBar />
+      {width > 768 ?<SideBar /> : !isExpanded ? <AltSide setExpand={setExpand} /> : ""}
+
         <Outlet />
       </div>
     </div>

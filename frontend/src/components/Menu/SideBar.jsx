@@ -66,6 +66,7 @@ export default function SideBar() {
           </Link>
         </div>
         <div className={`mn-menu-el ${isActive("/poptopics") ? "active" : ""}`}>
+
           <Link id="mn-menu-popular" to="/poptopics">
             <img src={eventsIcon} alt="Popular" />
             {isExpanded && <span>{t("menu.popular")}</span>}

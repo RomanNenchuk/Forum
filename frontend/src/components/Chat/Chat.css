@@ -2,7 +2,7 @@
 .chat-win-container {
   display: flex;
   height: calc(100% - 14vh);
-  margin-top: 14vh;
+  margin-top: 11vh;
   width: 100%;
   background: #f9f9f9;
 }

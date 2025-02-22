@@ -56,7 +56,7 @@ ul {
   align-items: center;
   background: rgb(220, 220, 220);
   border: 1px solid #5f8575;
-  border-radius: 2vh;
+  border-radius: 2vmin;
   left: 0px;
   bottom: 100%;
   height: auto;
@@ -156,7 +156,7 @@ ul {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: "center";
   margin: 0.8vh;
   gap: 10px;
 }
@@ -208,7 +208,7 @@ ul {
   justify-content: center;
   gap: 2.5vh;
   list-style: none;
-  padding: 2.6vh;
+  padding: 2.6vmin;
   font-family: Arial, sans-serif;
   width: 100%;
   margin-bottom: 5vh;
@@ -222,7 +222,7 @@ ul {
 .topic-content {
   display: flex;
   flex-direction: column;
-  gap: 3.5vh;
+  gap: 3vh;
   border: 0.6vh solid #fdbe10;
   border-radius: 2.9vh;
   padding: 2.5vh;
@@ -230,13 +230,14 @@ ul {
 }
 
 .topic-title-container {
-  font-size: 3vh;
   color: #333;
+  padding: 2.5vmin;
 }
 
 .topic-title {
-  margin-bottom: "1vh";
-  overflow-wrap: "break-word";
+  font-size: 3vh;
+  margin-bottom: 1vh;
+  overflow-wrap: break-word;
   word-wrap: break-word;
   white-space: pre-wrap;
 }
@@ -270,6 +271,57 @@ ul {
   font-size: 18px;
 }
 
+.custom-select {
+  background-color: rgb(244, 236, 224); /* Колір фону */
+  border: none;
+  border-radius: 8px;
+  padding: 3px 6px;
+  text-align: center;
+  font-size: 2.5vh;
+  cursor: pointer;
+}
+
+.custom-select:focus {
+  outline: none;
+}
+
+@media (max-width: 767px) {
+  .topic-card {
+    margin-bottom: 3vh;
+    box-shadow: none;
+  }
+  .topic-content {
+    gap: 2vh;
+  }
+  .topic-title {
+    font-size: 1rem;
+  }
+  .add-topic-button {
+    font-size: 0.8rem;
+  }
+  .emo-container {
+    font-size: 0.8rem;
+  }
+  .reaction-button-count {
+    font-size: 0.8rem;
+  }
+  .reaction-button {
+    font-size: 0.8rem;
+  }
+  .custom-select {
+    font-size: 0.8rem;
+  }
+  .emo-container {
+    font-size: 1.3rem;
+  }
+  .reaction-button {
+    font-size: 1rem;
+  }
+  .reaction-button-count {
+    font-size: 1rem;
+  }
+}
+
 .topics-grid {
   display: grid;
   gap: 5vh;
@@ -278,4 +330,25 @@ ul {
   justify-content: center;
   margin-top: 4vh;
   grid-template-rows: repeat(auto-fill, 1fr);
+}
+
+.subs {
+  padding: 0 5px;
+  border-radius: 20px;
+
+  margin-left: 2%;
+  font-size: 0.7rem;
+}
+.subscribe {
+  color: black;
+  background-color: #ffffff00;
+  border: 1px solid black;
+  font-size: 2vh;
+}
+
+.subscribed {
+  color: white;
+  background-color: #5f8575;
+  border: 1px solid #5f8575;
+  font-size: 2vh;
 }

@@ -13,7 +13,7 @@ let baseStyle = {
   },
   title: {
     fontFamily: "Inter",
-    fontSize: "19px",
+    fontSize: "1rem",
     fontWeight: "500",
     lineHeight: "22.99px",
     textAlign: "left",

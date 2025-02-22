@@ -4,14 +4,21 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTopicSearch } from "../../contexts/TopicSearchContext.jsx";
+import { useWidth } from "../../contexts/ScreenWidthContext.jsx";
+import { MdMenu } from "react-icons/md";
+import { IoIosSearch } from "react-icons/io";
+
 import ProfileHeader from "../ProfileHeader";
 import logo from "../../assets/logo.svg";
 import seachIcon from "../../assets/search.svg";
 import "./Menu.css";
+import Avatar from "../Avatar.jsx";
 
-export default function TopBar() {
+
+export default function TopBar({setExpand}) {
   const { t } = useTranslation();
   const { currentUser } = useAuth();
+
   const location = useLocation();
   const {
     searchInput,
@@ -40,9 +47,20 @@ export default function TopBar() {
     });
   }
 
+
+  function handlerClick(e){
+    e.preventDefault();
+    e.stopPropagation();
+    navigate(`profiles/${currentUser.uid}`, {
+      state: { backgroundLocation: location },
+    })
+  }
+  const { width } = useWidth()
+
   return (
     <header>
       <div className="header-inr">
+      
         <Link
           to="/"
           className="hd-col home-link"
@@ -51,14 +69,15 @@ export default function TopBar() {
             setSearchInput("");
           }}
         >
+          {width < 768 ? (<MdMenu onClick = {()=>{setExpand(0)}} size="5vh"/>) : ""}
           <div className="hd-logo">
-            <img src={logo} alt="UFORUM" />
+            {width > 768 ? (<img src={logo} alt="UFORUM" />) : ''}
             <span>
               <span>U</span>FORUM
             </span>
           </div>
         </Link>
-        <div className="hd-col">
+        {width > 768 ? (<><div className="hd-col">
           <form className="hd-search" onSubmit={handleSearch}>
             <img src={seachIcon} alt="Search" />
             <input
@@ -109,7 +128,28 @@ export default function TopBar() {
               </button>
             </Link>
           )}
-        </div>
+          </div></>) : (<>
+            <div style = {{display: "flex", flexDirection: "row",alignItems: "center"}}>
+            {!currentUser ? (<Link
+                to="/login"
+                state={{
+                  backgroundLocation: {
+                    pathname: location.pathname,
+                    search: location.search,
+                  },
+                  redirectPath: location,
+                }}
+              >
+                <button className="hd-btn">
+                  Вхід
+                </button>
+              </Link>) : (
+                <div style = {{marginRight: "2vh"}}><Avatar avatar={user.avatar} handleImageClick={handlerClick}  size="5vh" /></div>
+              )}
+              <IoIosSearch size = "5vh" />
+            </div>
+          </>)}
+        
       </div>
     </header>
   );

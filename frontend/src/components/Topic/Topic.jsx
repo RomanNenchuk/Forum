@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useUserInfo } from "../../contexts/UserInfoContext";
+import { useWidth } from "../../contexts/ScreenWidthContext.jsx";
 import handleUpload from "../../utils/uploadFiles.jsx";
 import LoadingSpinner from "../Spinner";
 import TopicList from "../TopicList/TopicList";
@@ -28,6 +29,7 @@ export default function Topic() {
   const [commentLoading, setCommentLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
+  const { width } = useWidth()
   const [extendInfo, setExtendInfo] = useState();
 
   const [text, setText] = useState("");

@@ -7,9 +7,13 @@ import TopicList from "../TopicList/TopicList.jsx";
 import TopicListHeader from "./TopicListHeader.jsx";
 import { fetchMyTopics, fetchSavedTopics } from "../../api/topics.js";
 import "./MyTopic.css";
+import { useWidth } from "../../contexts/ScreenWidthContext.jsx";
+
+import axios from "axios";
 
 export default function MyTopic() {
   const { currentUser } = useAuth();
+  const { width } = useWidth();
   const { t } = useTranslation();
   const observerRef = useRef(null);
   const [showMyTopics, setShowMyTopics] = useState(
@@ -122,7 +126,7 @@ export default function MyTopic() {
               <TopicList
                 topicInfoList={topicInfoList}
                 onTopicClick={handleTopicClick}
-                className="topics-grid"
+                className={width > 768 ? "topics-grid" : "topic-mobile"}
               />
               {(isFetchingNextMyTopics || isFetchingNextSavedTopics) && (
                 <AltSpinner />

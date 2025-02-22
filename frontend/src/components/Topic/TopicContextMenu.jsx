@@ -20,7 +20,7 @@ export default function TopicContextMenu({
   setFiles,
   setIsEditModalOpen,
 }) {
-  const { currentUser } = useAuth;
+  const { currentUser } = useAuth();
   const { t } = useTranslation();
   const buttons = [
     {

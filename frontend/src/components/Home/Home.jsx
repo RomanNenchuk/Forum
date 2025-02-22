@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useTopicSearch } from "../../contexts/TopicSearchContext.jsx";
+
+import { useWidth } from "../../contexts/ScreenWidthContext.jsx";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useTranslation } from "react-i18next";
 import TopicListSettings from "../TopicList/TopicListSettings.jsx";
@@ -12,6 +14,9 @@ import { fetchTopics } from "../../api/topics.js";
 
 export default function Home() {
   const [tagBarLoading, setTagBarLoading] = useState(true);
+
+  const { width } = useWidth();
+
   const topicListRef = useRef(null);
   const observerRef = useRef(null);
   const { currentUser } = useAuth();
@@ -117,10 +122,14 @@ export default function Home() {
           style={{ minHeight: "10px" }}
         />
       </ul>
-      <TagBar
-        tagBarLoading={tagBarLoading}
-        setTagBarLoading={setTagBarLoading}
-      />
+      {width > 768 ? (
+        <TagBar
+          tagBarLoading={tagBarLoading}
+          setTagBarLoading={setTagBarLoading}
+        />
+      ) : (
+        ""
+      )}
     </>
   );
 }

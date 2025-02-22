@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useTopicSearch } from "../../contexts/TopicSearchContext.jsx";
 import AttachedFiles from "../AttachedFiles/AttachedFiles.jsx";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useWidth } from "../../contexts/ScreenWidthContext.jsx";
 import reactionListSetter from "../../utils/reactionListSetter.jsx";
 import InteractWindow from "./InteractWindow.jsx";
 import { VscSettings } from "react-icons/vsc";
 import { IoChatboxEllipsesOutline } from "react-icons/io5";
 import ProfileHeader from "../ProfileHeader.jsx";
 import "./TopicList.css";
-import subscribe from "./../../assets/subscribe.svg";
-import subscribed from "./../../assets/subscribed.svg";
+
 import axios from "axios";
 
 export default function TopicArea({
@@ -24,6 +25,8 @@ export default function TopicArea({
 }) {
   const queryClient = useQueryClient();
   const [topic, setTopic] = useState(topicItem);
+  const { width } = useWidth();
+  const { t } = useTranslation();
   const [activeReactions, setActiveReactions] = useState(
     reactionListSetter(initialReactions, userReaction)
   );
@@ -200,40 +203,68 @@ export default function TopicArea({
               display: "flex",
               flexDirection: "row",
               alignItems: "center",
+              justifyContent: "flex-start",
             }}
           >
             <ProfileHeader
               id={topic.author}
               avatar={topic.author_avatar}
-              size="6vh"
-              sizeFont="3vh"
-              avThickness="0.4vh"
+              size={width > 768 ? "6vh" : "4vh"}
+              sizeFont={width > 768 ? "3vh" : "1.1rem"}
+              avThickness="0.4vmin"
               profileName={topic.author_full_name}
             />
-            {topic.subscribed === "none" ? (
-              ""
-            ) : (
-              <img
-                style={{ height: "5vh", width: "auto", marginLeft: "2%" }}
-                src={topic.subscribed ? subscribe : subscribed}
-                onClick={e => handleSubscribeClick(e)}
+            {topic.subscribed !== "none" && (
+              <button
+                className={`subs ${
+                  topic.subscribed ? "subscribed" : "subscribe"
+                }`}
+                onClick={handleSubscribeClick}
+              >
+                {topic.subscribed
+                  ? t("topic.subscribed")
+                  : t("topic.subscribe")}
+              </button>
+            )}
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <span
+              className="topic-title"
+              style={{
+                marginBottom: "1vh",
+                overflowWrap: "break-word",
+                width: width <= 768 && topic.cover ? "70%" : "100%",
+              }}
+            >
+              {topic.title}
+            </span>
+            {width <= 768 && topic.cover && (
+              <AttachedFiles
+                urls={[topic.cover]}
+                imgstyle={"alt-media-image"}
+                videoStyle={"alt-media-video"}
               />
             )}
           </div>
-          <div className="topic-title-container">
-            <span className="topic-title">{topic.title}</span>
-            <div
-              style={{ textAlign: "right", fontSize: "2.5vh", color: "gray" }}
-            >
-              {topic.tag_list.map((el, index) => {
-                return index !== topic.tag_list.length - 1
-                  ? `#${el} `
-                  : `#${el}`;
-              })}
-            </div>
+          <div
+            style={{
+              textAlign: "right",
+              fontSize: width > 768 ? "2.5vh" : "0.8rem",
+              color: "gray",
+            }}
+          >
+            {topic.tag_list.length > 0 && "#" + topic.tag_list.join(" #")}
           </div>
-          {topic.cover ? <AttachedFiles urls={[topic.cover]} /> : null}
+
+          {width > 768 && topic.cover && <AttachedFiles urls={[topic.cover]} />}
         </div>
+
         <div className="icons-menu">
           <div className="active-reactions">
             {activeReactions.map((reaction, index) => (
@@ -244,16 +275,19 @@ export default function TopicArea({
                 }`}
                 onClick={() => handleClick(reaction)}
               >
-                <span>{reaction.icon}</span>{" "}
+                <span>{reaction.icon}</span>
                 <span className="reaction-button-count">
                   {reaction.count ? reaction.count : ""}
                 </span>
               </button>
             ))}
           </div>
+
           <div className="chat-settings">
-            <Link to={`/topics/${topic.id}`} style={{ textDecoration: "none" }}>
-              <IoChatboxEllipsesOutline size="3.5vh" />
+            <Link to={`/topics/${topic.id}`}>
+              <IoChatboxEllipsesOutline
+                size={width > 768 ? "3.5vh" : "1.2rem"}
+              />
             </Link>
             <div className="emo-container">
               😀
@@ -263,8 +297,7 @@ export default function TopicArea({
               />
             </div>
             <VscSettings
-              size="3.5vh"
-              style={{ cursor: "pointer" }}
+              size={width > 768 ? "3.5vh" : "1.2rem"}
               onClick={e => handleOnActionMenu(e, topic)}
             />
           </div>

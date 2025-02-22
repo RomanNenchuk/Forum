@@ -3,8 +3,10 @@ import { useTranslation } from "react-i18next";
 import { Form } from "react-bootstrap";
 import "./CreateTopic.css";
 
-const TitleInput = ({ title, setTitle, limit, value }) => {
+
+const TitleInput = ({ title, setTitle, limit, value, showCounter }) => {
   const { t } = useTranslation();
+
   const countRef = useRef();
   const titleRef = useRef(null);
   const [counter, setCounter] = useState(0);
@@ -36,9 +38,9 @@ const TitleInput = ({ title, setTitle, limit, value }) => {
         placeholder={t("createTopic.titleInputPlaceholder")}
         required
       />
-      <span ref={countRef} className="right-counter">
-        {counter}/{limit}
-      </span>
+      {showCounter ? <span ref={countRef} className="right-counter">
+        {counter}/{limit} 
+      </span> : ''}
     </Form.Group>
   );
 };
