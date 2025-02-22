@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useOutletContext, useParams } from "react-router-dom";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useChat } from "../../contexts/ChatContext";
@@ -16,6 +16,9 @@ import ChatActionMenu from "./ChatActionMenu.jsx";
 import ChatMessages from "./ChatMessages.jsx";
 import LoadingSpinner from "../Spinner.jsx";
 import chatControllerIcon from "../../assets/chat-controller.svg";
+
+import { IoArrowBack } from "react-icons/io5";
+
 
 export default function Chat() {
   const [text, setText] = useState("");
@@ -42,6 +45,9 @@ export default function Chat() {
     },
     toggled: false,
   });
+
+  const context = useOutletContext()
+
 
   const actionMenuRef = useRef(null);
   const settingsRef = useRef(null);
@@ -439,6 +445,7 @@ export default function Chat() {
     <div className="chat-container">
       <div className="chat-ct-hd">
         <div className="chat-ct-hd-name">
+        <IoArrowBack size={24} style={{marginRight: "10px"}} onClick={()=>{context(false)}}/>
           <Link
             to={`/profiles/${receiverId}`}
             state={{ backgroundLocation: location }}
@@ -453,7 +460,7 @@ export default function Chat() {
         >
           <img
             src={chatControllerIcon}
-            style={{ height: "4vh", width: "auto" }}
+            style={{ height: "23px", width: "auto" }}
             alt="Settings"
           />
         </div>
@@ -490,7 +497,7 @@ export default function Chat() {
         resetActionMenu={resetActionMenu}
       />
 
-      <ChatInput
+<ChatInput
         isEditModalOpen={isEditModalOpen}
         isSendModalOpen={isSendModalOpen}
         setIsEditModalOpen={setIsEditModalOpen}
