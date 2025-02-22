@@ -173,13 +173,14 @@ function FirstStep({
         selectedTagList={selectedTagList}
         setSelectedTagList={setSelectedTagList}
       />
-      {!isFirstTopicType && (
+      {!isFirstTopicType && (<>
+        {width < 768 ? <p>{t("createTopic.mediaHeader")}</p> : ""}
         <CoverUploader
           coverPreview={coverPreview}
           setCoverPreview={setCoverPreview}
           setCover={setCover}
           setError={setError}
-        />
+        /></>
       )}
       {width > 768 ? <ActionButton
         className="my-4"
@@ -200,12 +201,14 @@ function SecondStep({
   loading,
 }) {
   const { t } = useTranslation();
+  const { width } = useWidth()
   return (
     <>
       <DescriptionInput
         description={description}
         setDescription={setDescription}
       />
+      {width < 768 ? <p>{t("createTopic.additionalMedia")}</p> : ""}
       <TopicFileUploader
         files={descriptionFiles}
         setFiles={setDescriptionFiles}

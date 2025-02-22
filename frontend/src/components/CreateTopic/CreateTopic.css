@@ -285,7 +285,7 @@
 
 @media (max-width: 768px){
   .create-topic-container{
-    margin-top: calc(13vh + 2rem);
+    margin-top: calc(11vh + 2rem);
   }
   .title-container {
     margin-bottom: 1vh;

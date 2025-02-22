@@ -43,7 +43,9 @@
     "titleInputPlaceholder": "Enter topic title",
     "selectTagsPlaceholder": "Select tags",
     "tagsLimitReached": "Limit reached",
-    "addTagButton": "Add"
+    "addTagButton": "Add",
+    "mediaHeader": "Preview media",
+    "additionalMedia" : "Additional information"
   },
   "auth": {
     "resetPassword": "Reset password",
