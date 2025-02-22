@@ -266,6 +266,7 @@ ul.chat-messages {
   }
   .chat-list-ct{
     height: 100%;
+    width: 100%;
   }
   .chat-list{
     padding-top: 37px;
