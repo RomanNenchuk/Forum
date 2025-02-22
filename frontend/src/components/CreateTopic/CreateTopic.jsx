@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
+import { useWidth } from "../../contexts/ScreenWidthContext.jsx";
 import { Form, Alert } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import CoverUploader from "./CoverUploader.jsx";
@@ -30,6 +31,7 @@ export default function CreateTopic() {
   const [coverPreview, setCoverPreview] = useState(null);
   const [cover, setCover] = useState(null);
   const navigate = useNavigate();
+  const {width} = useWidth()
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -63,7 +65,7 @@ export default function CreateTopic() {
       setLoading(false);
     }
   }
-
+  console.log(`${(isFirstStep) || (width > 768)} here`)
   return (
     <>
       <main className="create-topic-container">
@@ -80,7 +82,11 @@ export default function CreateTopic() {
             ) : (
               ""
             )}
-            <h3 className="title">{t("createTopic.createTopicCaption")}</h3>
+            {width > 768 ? <h3 className="title">Створення теми</h3> : 
+            <div style={{position: "fixed", top: "8vh", left: 0, width: "100%",paddingTop: "1vh",backgroundColor: "#d2dbe0"}}>
+              <h3 className="title">{t("createTopic.createTopicCaption")}</h3></div>
+            }
+
           </div>
           {error && <Alert variant="danger">{error}</Alert>}
           {success && <Alert variant="success">{success}</Alert>}
@@ -102,7 +108,7 @@ export default function CreateTopic() {
                 setError={setError}
               />
             </div>
-            <div style={isFirstStep ? { display: "none" } : {}}>
+            <div style={(!isFirstStep) || (width <= 768) ? { display: "block" } : { display: "none" }}>
               <SecondStep
                 descriptionFiles={descriptionFiles}
                 setDescriptionFiles={setDescriptionFiles}
@@ -116,7 +122,7 @@ export default function CreateTopic() {
           </Form>
         </div>
       </main>
-      <TagBar />
+      {width > 768 ? <TagBar /> : ''}
     </>
   );
 }
@@ -141,6 +147,7 @@ function FirstStep({
     if (title.length < 15) return setError(t("createTopic.errorTitle"));
     setIsFirstStep(false);
   }
+  const {width} = useWidth()
   return (
     <>
       <div className="topic-type">
@@ -161,7 +168,7 @@ function FirstStep({
           {t("createTopic.mediaType")}
         </div>
       </div>
-      <TitleInput title={title} setTitle={setTitle} limit={255} />
+      <TitleInput title={title} setTitle={setTitle} limit={255} showCounter={width > 768 ? true: false}/>
       <SearchInput
         selectedTagList={selectedTagList}
         setSelectedTagList={setSelectedTagList}
@@ -174,12 +181,12 @@ function FirstStep({
           setError={setError}
         />
       )}
-      <ActionButton
+      {width > 768 ? <ActionButton
         className="my-4"
         onClick={handleContinueClick}
         label={t("continue")}
         type="button"
-      />
+      /> : <div style = {{width: "100%", height: "2px", backgroundColor: "gray", marginBottom: "2vh"}}></div>}
     </>
   );
 }

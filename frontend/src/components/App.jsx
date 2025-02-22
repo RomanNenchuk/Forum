@@ -8,7 +8,10 @@ import { UserInfoProvider } from "../contexts/UserInfoContext";
 import { ChatProvider } from "../contexts/ChatContext";
 import { SocketProvider } from "../contexts/SocketProviderContext";
 import { TopicSearchProvider } from "../contexts/TopicSearchContext.jsx";
+
 import { TopicListProvider } from "../contexts/TopicListContext.jsx";
+
+import { ScreenWidthProvider } from "../contexts/ScreenWidthContext.jsx";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import PrivateRoute from "./PrivateRoute";
 import NotFound from "./NotFound";
@@ -33,7 +36,9 @@ function App() {
       <AuthProvider>
         <UserInfoProvider>
           <TopicSearchProvider>
-            <AppRoutes />
+            <ScreenWidthProvider>
+              <AppRoutes />
+              </ScreenWidthProvider>
           </TopicSearchProvider>
         </UserInfoProvider>
       </AuthProvider>
@@ -54,6 +59,7 @@ function AppRoutes() {
                 <Outlet />
               </TopicListProvider>
             }
+
           >
             <Route path="/" element={<Home />} />
             <Route path="/topics/:id" element={<Topic />} />

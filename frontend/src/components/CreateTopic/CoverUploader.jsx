@@ -59,7 +59,7 @@ export default function CoverUploader({
   };
 
   return (
-    <div className="text-center my-5">
+    <div className="text-center my-4">
       <Cover
         coverPreview={coverPreview}
         handleImageClick={handleImageClick}

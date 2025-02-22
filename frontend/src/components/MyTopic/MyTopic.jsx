@@ -5,6 +5,9 @@ import AltSpinner from "../AltSpinner/AltSpinner";
 import TopicList from "../TopicList/TopicList.jsx";
 import TopicListHeader from "./TopicListHeader.jsx";
 import "./MyTopic.css";
+import { useWidth } from "../../contexts/ScreenWidthContext.jsx";
+
+import axios from "axios";
 
 export default function MyTopic() {
   const {
@@ -19,6 +22,7 @@ export default function MyTopic() {
     setShowMyTopics,
     debounce,
   } = useTopicList();
+  const { width } = useWidth()
   const { t } = useTranslation();
   const [topicInfoList, setTopicInfoList] = useState([]);
 
@@ -86,7 +90,7 @@ export default function MyTopic() {
     }
   }, []);
 
-  return (
+    return (
     <div className="topics-container">
       <div className="topics-content">
         <TopicListHeader
@@ -102,9 +106,9 @@ export default function MyTopic() {
             ) : (
               <TopicList
                 topicInfoList={topicInfoList}
-                className="topics-grid"
+                className= {width > 768 ? "topics-grid" : 'topic-mobile'}
               />
-            )
+            ) 
           ) : (
             <AltSpinner />
           )}

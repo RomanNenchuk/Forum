@@ -112,12 +112,13 @@ export default function Chat() {
   }, []);
 
   useEffect(() => {
-    // Блокування скролу при монтуванні
-    document.body.style.overflow = "hidden";
+    
+    document.querySelector(".forum-container").style.overflowY = "auto";
+    document.querySelector(".forum-container").style.overflowX = "hidden";
+
 
     return () => {
-      // Розблокування скролу перед розмонтуванням
-      document.body.style.overflow = "auto";
+      document.querySelector(".forum-container").style.overflow = ""
     };
   }, []);
 

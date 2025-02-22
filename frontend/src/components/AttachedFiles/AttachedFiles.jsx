@@ -4,7 +4,7 @@ import MediaModal from "../MediaModal/MediaModal.jsx";
 import fileIcon from "../../assets/file.svg";
 import "./AttachedFiles.css";
 
-export default function AttachedFiles({ urls, onImageLoad }) {
+export default function AttachedFiles({ urls, onImageLoad, imgstyle, videoStyle = "media-video" }) {
   const [mediaModalInfo, setMediaModalInfo] = useState({
     isOpen: false,
     url: null,
@@ -24,7 +24,7 @@ export default function AttachedFiles({ urls, onImageLoad }) {
                 src={url}
                 alt={`media-${index}`}
                 onLoad={onImageLoad}
-                className="media-image"
+                className={imgstyle ? imgstyle:"media-image"}
                 onClick={e => {
                   e.stopPropagation();
                   setMediaModalInfo({
@@ -34,7 +34,7 @@ export default function AttachedFiles({ urls, onImageLoad }) {
                 }}
               />
             ) : isVideo ? (
-              <LazyVideo key={index} videoId={index} src={url} />
+              <LazyVideo key={index} videoId={index} src={url} className={videoStyle} />
             ) : (
               <a
                 key={index}
