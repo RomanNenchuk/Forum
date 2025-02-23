@@ -649,19 +649,105 @@ export const refreshTopicPopularityView = async () => {
 };
 
 export const getPopularTopics = async (req, res) => {
+  const { user_id, period = "month", page = 1, limit = 20 } = req.query;
+  const offset = (page - 1) * limit;
   try {
-    const { period = 'day' } = req.query;
-    const QUERY = `
-    SELECT id FROM topic_popularity ORDER BY ${period}_rating DESC;
-    `;
-    const idArray = await pool.query(QUERY);
-    let result = [];
-    for (let el of idArray.rows) {
-      result.push(el.id)
+    const topicsResult = await pool.query(
+      `
+      SELECT 
+      topics.id, 
+      fullname AS author_full_name, 
+      username, 
+      avatar AS author_avatar, 
+      title, 
+      email, 
+      author, 
+      COALESCE(SUM(emoji.score), 0) AS rating,
+      cover,
+      topics.date,
+      topic_popularity.${period}_rating,
+      COALESCE(ARRAY_AGG(DISTINCT tags.tag_name) FILTER (WHERE tags.tag_name IS NOT NULL), '{}') AS tag_list
+      FROM topics
+      INNER JOIN topic_popularity ON topic_popularity.id = topics.id
+      INNER JOIN users ON users.uid = topics.author
+      left join topic_tags on topics.id = topic_tags.topic_id
+      left join tags on topic_tags.tag_id = tags.tag_id
+      LEFT JOIN topic_reactions
+        ON topics.id = topic_reactions.topic_id
+      LEFT JOIN emoji
+        ON emoji.id = topic_reactions.emoji_id
+      GROUP BY topics.id, fullname, username, avatar, title, email, author, topics.date, topic_popularity.${period}_rating
+      ORDER BY ${period}_rating DESC
+      LIMIT $1 OFFSET $2;
+      `,
+      [limit, offset]
+    );
+    const topics = topicsResult.rows;
+    const reactionsResult = await pool.query(
+      `
+      SELECT 
+        topic_id,
+        emoji.name,
+        emoji.icon,
+        COUNT(*) AS count
+      FROM topic_reactions
+      INNER JOIN emoji ON topic_reactions.emoji_id = emoji.id
+      
+      GROUP BY topic_id, emoji.name, emoji.icon;
+      `
+    );
+    const reactions = reactionsResult.rows;
+
+    let userReactions = [];
+    if (user_id) {
+      const userReactionsResult = await pool.query(
+        `SELECT topic_id, emoji.name AS name
+         FROM topic_reactions
+         LEFT JOIN emoji ON topic_reactions.emoji_id = emoji.id
+         WHERE user_id = $1;`,
+        [user_id]
+      );
+      userReactions = userReactionsResult.rows;
     }
-    res.status(200).json(result);
-  } catch (err) {
-    console.error(err);
-    res.status(404).json("Server error");
+
+    let userSubscriptions = [];
+    if (user_id) {
+      const resSubs = await pool.query(
+        `SELECT subscription_id FROM user_subscriptions WHERE user_id = $1`,
+        [user_id]
+      );
+      userSubscriptions = resSubs.rows.map(row => row.subscription_id);
+    }
+
+    const topicsWithReactions = topics.map(topic => {
+      const topicReactions = reactions
+        .filter(reaction => reaction.topic_id === topic.id)
+        .map(reaction => ({
+          icon: reaction.icon,
+          name: reaction.name,
+          count: parseInt(reaction.count, 10),
+        }));
+
+      const userReaction = userReactions.find(
+        reaction => reaction.topic_id === topic.id
+      );
+
+      topic.subscribed = userSubscriptions.includes(topic.author)
+        ? true
+        : topic.author === user_id
+        ? "none"
+        : false;
+
+      return {
+        ...topic,
+        reactions: topicReactions,
+        user_reaction: userReaction || null,
+      };
+    });
+
+    res.status(200).json(topicsWithReactions);
+  } catch (error) {
+    res.status(500).json("Internal server error");
+    console.error(error);
   }
-}
+};

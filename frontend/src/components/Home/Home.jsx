@@ -40,7 +40,7 @@ export default function Home() {
   });
 
   useEffect(() => {
-    refetch();
+    if (!isFetching) refetch();
   }, [queryParams, currentUser]);
 
   useEffect(() => {

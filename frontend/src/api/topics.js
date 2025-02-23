@@ -23,6 +23,25 @@ export const fetchMyTopics = async ({ pageParam = 1, userId }) => {
   }
 };
 
+export const fetchPopularTopics = async ({ pageParam = 1, userId }) => {
+  try {
+    const response = await axios.get(`http://localhost:5000/topics/popular`, {
+      params: { user_id: userId, page: pageParam },
+    });
+
+    const topics = response.data || [];
+
+    return {
+      topics,
+      hasMore: topics.length > 0, // Позначаємо, чи є ще теми
+      nextPage: topics.length > 0 ? pageParam + 1 : undefined, // Передаємо наступну сторінку, якщо є ще дані
+    };
+  } catch (error) {
+    console.error("Error fetching user topics:", error);
+    throw error;
+  }
+};
+
 export const fetchSavedTopics = async ({ pageParam = 1, userId }) => {
   try {
     const response = await axios.get(`http://localhost:5000/topics/saved`, {

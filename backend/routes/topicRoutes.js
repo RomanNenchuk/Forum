@@ -39,7 +39,7 @@ router.get("/save", getIsTopicSaved);
 
 router.get("/saved", getSavedTopics);
 
-router.get("/popularTopics", getPopularTopics);
+router.get("/popular", getPopularTopics);
 
 router.get("/:id", getTopic);
 
