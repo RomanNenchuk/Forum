@@ -2,6 +2,10 @@ import React, { useContext, useState, useEffect, createContext } from "react";
 import { useSearchParams, useLocation } from "react-router-dom";
 import axios from "axios";
 
+const PROTOCOL = import.meta.env.VITE_PROTOCOL;
+const HOST = import.meta.env.VITE_HOST;
+const PORT = import.meta.env.VITE_PORT;
+
 const TopicSearchContext = createContext();
 
 export function useTopicSearch() {
@@ -52,7 +56,7 @@ export function TopicSearchProvider({ children, backgroundLocation }) {
     const fetchTags = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:5000/tags?page=1&limit=15"
+          `${PROTOCOL}://${HOST}:${PORT}/tags?page=1&limit=15`
         );
         setPopularTagList(res.data);
       } catch (error) {

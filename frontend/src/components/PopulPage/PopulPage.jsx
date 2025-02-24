@@ -7,6 +7,10 @@ import TopicArea from "../TopicList/TopicArea";
 import TopicActionMenu from "../TopicList/TopicActionMenu";
 import axios from "axios";
 
+const PROTOCOL = import.meta.env.VITE_PROTOCOL;
+const HOST = import.meta.env.VITE_HOST;
+const PORT = import.meta.env.VITE_PORT;
+
 const PopulTopic = () => {
   const { currentUser } = useAuth();
   const [data, setData] = useState([]);
@@ -110,7 +114,7 @@ const PopulTopic = () => {
     if (confirm("Ви впевнені, що хочете видалити тему?")) {
       console.log("On delete topic " + id);
       try {
-        const res = await axios.delete(`http://localhost:5000/topics/${id}`);
+        const res = await axios.delete(`${PROTOCOL}://${HOST}:${PORT}/topics/${id}`);
         if (res.data.done)
           setTopicInfoList(prev => prev.filter(item => item.id != id));
       } catch (error) {
@@ -123,7 +127,7 @@ const PopulTopic = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `http://localhost:5000/topics/popularTopics?user_id=${currentUser.uid}&period=day`
+        `${PROTOCOL}://${HOST}:${PORT}/topics/popularTopics?user_id=${currentUser.uid}&period=day`
       );
       setData(response.data);
       console.log(response.data);

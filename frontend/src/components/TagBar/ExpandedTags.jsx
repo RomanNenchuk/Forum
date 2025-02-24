@@ -19,6 +19,10 @@ import TagList from "./TagList.jsx";
 import axios from "axios";
 import "../CreateTopic/CreateTopic.css";
 
+const PROTOCOL = import.meta.env.VITE_PROTOCOL;
+const HOST = import.meta.env.VITE_HOST;
+const PORT = import.meta.env.VITE_PORT;
+
 export default function ExpandedTags({ onClose }) {
   const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,7 +42,7 @@ export default function ExpandedTags({ onClose }) {
         const params = prompt
           ? `?search=${prompt}&page=${pageNum}&limit=${LIMIT}`
           : `?page=${pageNum}&limit=${LIMIT}`;
-        const response = await axios.get("http://localhost:5000/tags" + params);
+        const response = await axios.get(`${PROTOCOL}://${HOST}:${PORT}/tags` + params);
 
         if (pageNum === 1) {
           setTags(response.data);

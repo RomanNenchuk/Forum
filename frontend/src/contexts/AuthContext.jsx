@@ -14,6 +14,10 @@ import { auth, googleAuthProvider } from "../config/firebase-config.js"; // Ім
 import { useTranslation } from "react-i18next";
 import axios from "axios";
 
+const PROTOCOL = import.meta.env.VITE_PROTOCOL;
+const HOST = import.meta.env.VITE_HOST;
+const PORT = import.meta.env.VITE_PORT;
+
 const AuthContext = createContext();
 
 export function useAuth() {
@@ -105,7 +109,7 @@ export function AuthProvider({ children }) {
   async function checkUsername(username) {
     try {
       const response = await axios.get(
-        `http://localhost:5000/auth/check-username/${username}`
+        `${PROTOCOL}://${HOST}:${PORT}/auth/check-username/${username}`
       );
       return response.data.email;
     } catch (error) {
@@ -116,7 +120,7 @@ export function AuthProvider({ children }) {
   async function checkUserRegistration(id) {
     try {
       const response = await axios.get(
-        `http://localhost:5000/auth/check-registration/${id}`
+        `${PROTOCOL}://${HOST}:${PORT}/auth/check-registration/${id}`
       );
       return true;
     } catch (error) {

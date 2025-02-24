@@ -12,8 +12,15 @@ import tagRoutes from "./routes/tagRoutes.js";
 import commentRoutes from "./routes/commentRoutes.js";
 import { Server } from "socket.io";
 import { chatSocket } from "./sockets/chatSocket.js";
+import dotenv from "dotenv";
+dotenv.config({ path: "./config/.env" });
+
 const app = express();
-const PORT = 5000;
+
+const PROTOCOL = process.env.PROTOCOL;
+const HOST = process.env.HOST;
+const BACKEND_PORT = process.env.BACKEND_PORT;
+const FRONTEND_PORT = process.env.FRONTEND_PORT;
 
 // Підключення до бази даних
 connectDB().catch(err => {
@@ -47,13 +54,13 @@ app.use("/tags", tagRoutes);
 
 app.use("/subscriptions", subscriptionRoutes);
 
-const expressServer = app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+const expressServer = app.listen(BACKEND_PORT, () => {
+  console.log(`Server is running on ${PROTOCOL}://${HOST}:${BACKEND_PORT}`);
 });
 
 const io = new Server(expressServer, {
   cors: {
-    origin: "http://localhost:5173", // порт, на якому запущений фронтенд
+    origin: `${PROTOCOL}://${HOST}:${FRONTEND_PORT}`,
     methods: ["GET", "POST"],
   },
 });

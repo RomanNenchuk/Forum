@@ -15,6 +15,10 @@ import UpdateProfileForm from "./UpdateProfileForm.jsx";
 import ModalHeader from "../ModalHeader/ModalHeader.jsx";
 import axios from "axios";
 
+const PROTOCOL = import.meta.env.VITE_PROTOCOL;
+const HOST = import.meta.env.VITE_HOST;
+const PORT = import.meta.env.VITE_PORT;
+
 export default function UpdateProfile({ onClose }) {
   const { t } = useTranslation();
   const {
@@ -51,7 +55,7 @@ export default function UpdateProfile({ onClose }) {
   async function updateUserOnServer(token, userId, userData) {
     try {
       const response = await axios.put(
-        `http://localhost:5000/users/${userId}`,
+        `${PROTOCOL}://${HOST}:${PORT}/users/${userId}`,
         userData,
         {
           headers: { Authorization: `Bearer ${token}` },

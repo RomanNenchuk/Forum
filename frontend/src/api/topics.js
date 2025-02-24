@@ -1,8 +1,12 @@
 import axios from "axios";
 
+const PROTOCOL = import.meta.env.VITE_PROTOCOL;
+const HOST = import.meta.env.VITE_HOST;
+const PORT = import.meta.env.VITE_PORT;
+
 export const fetchMyTopics = async ({ pageParam = 1, userId }) => {
   try {
-    const response = await axios.get(`http://localhost:5000/topics/mytopics`, {
+    const response = await axios.get(`${PROTOCOL}://${HOST}:${PORT}/topics/mytopics`, {
       params: { user_id: userId, page: pageParam },
     });
 
@@ -25,7 +29,7 @@ export const fetchMyTopics = async ({ pageParam = 1, userId }) => {
 
 export const fetchSavedTopics = async ({ pageParam = 1, userId }) => {
   try {
-    const response = await axios.get(`http://localhost:5000/topics/saved`, {
+    const response = await axios.get(`${PROTOCOL}://${HOST}:${PORT}/topics/saved`, {
       params: { user_id: userId, page: pageParam },
     });
 
@@ -44,7 +48,7 @@ export const fetchSavedTopics = async ({ pageParam = 1, userId }) => {
 
 export const switchSavedTopic = async ({ user_id, topic }) => {
   console.log(user_id, topic);
-  const res = await axios.patch(`http://localhost:5000/topics/switch`, {
+  const res = await axios.patch(`${PROTOCOL}://${HOST}:${PORT}/topics/switch`, {
     user_id,
     topic_id: topic?.id,
   });
@@ -54,7 +58,7 @@ export const switchSavedTopic = async ({ user_id, topic }) => {
 export const fetchTopics = async ({ pageParam = 1, queryKey }) => {
   const [, queryParams, userId] = queryKey; // Дістаємо queryParams
   try {
-    const response = await axios.get(`http://localhost:5000/topics`, {
+    const response = await axios.get(`${PROTOCOL}://${HOST}:${PORT}/topics`, {
       params: {
         page: pageParam,
         sort: queryParams?.sortOrder || "desc",
@@ -77,7 +81,7 @@ export const fetchTopics = async ({ pageParam = 1, queryKey }) => {
 
 export const deleteTopic = async id => {
   try {
-    const res = await axios.delete(`http://localhost:5000/topics/${id}`);
+    const res = await axios.delete(`${PROTOCOL}://${HOST}:${PORT}/topics/${id}`);
     if (res.data.done) console.log("done");
   } catch (error) {
     console.error(error);
@@ -88,7 +92,7 @@ export const deleteTopic = async id => {
 };
 
 export const createTopic = async (formData, token) => {
-  const response = await axios.post("http://localhost:5000/topics", formData, {
+  const response = await axios.post(`${PROTOCOL}://${HOST}:${PORT}/topics`, formData, {
     headers: { Authorization: `Bearer ${token}` },
   });
 

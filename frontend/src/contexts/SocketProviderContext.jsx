@@ -2,6 +2,10 @@ import React, { useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
 import io from "socket.io-client";
 
+const PROTOCOL = import.meta.env.VITE_PROTOCOL;
+const HOST = import.meta.env.VITE_HOST;
+const PORT = import.meta.env.VITE_PORT;
+
 const SocketContext = React.createContext();
 
 export function useSocket() {
@@ -15,7 +19,7 @@ export function SocketProvider({ children }) {
   useEffect(() => {
     if (!currentUser) return;
 
-    const newSocket = io("http://localhost:5000", {
+    const newSocket = io(`${PROTOCOL}://${HOST}:${PORT}`, {
       query: { id: currentUser.uid },
     });
 

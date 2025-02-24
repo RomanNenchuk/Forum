@@ -2,6 +2,10 @@ import React, { useContext, useState, createContext, useEffect } from "react";
 import { useAuth } from "./AuthContext";
 import axios from "axios";
 
+const PROTOCOL = import.meta.env.VITE_PROTOCOL;
+const HOST = import.meta.env.VITE_HOST;
+const PORT = import.meta.env.VITE_PORT;
+
 const UserInfoContext = createContext();
 
 export function useUserInfo() {
@@ -35,7 +39,7 @@ export function UserInfoProvider({ children }) {
 
   async function getUserInfo(id) {
     try {
-      const response = await axios.get(`http://localhost:5000/users/${id}`, {
+      const response = await axios.get(`${PROTOCOL}://${HOST}:${PORT}/users/${id}`, {
         params:
           currentUser && currentUser.uid !== id
             ? { currentUserId: currentUser.uid }
@@ -64,7 +68,7 @@ export function UserInfoProvider({ children }) {
   async function saveUserInDB(token, userData) {
     try {
       const response = await axios.post(
-        "http://localhost:5000/users",
+        `${PROTOCOL}://${HOST}:${PORT}/users`,
         userData,
         {
           headers: {
@@ -85,7 +89,7 @@ export function UserInfoProvider({ children }) {
     formData.append("profileImage", image);
     try {
       const response = await axios.post(
-        `http://localhost:5000/attachments/${uid}/profile-image`,
+        `${PROTOCOL}://${HOST}:${PORT}/attachments/${uid}/profile-image`,
         formData,
         {
           headers: {
@@ -107,7 +111,7 @@ export function UserInfoProvider({ children }) {
   async function deleteAvatar(uid, token) {
     try {
       const response = await axios.delete(
-        `http://localhost:5000/attachments/${uid}/profile-image`,
+        `${PROTOCOL}://${HOST}:${PORT}/attachments/${uid}/profile-image`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

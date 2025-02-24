@@ -12,6 +12,10 @@ import { RxCross2 } from "react-icons/rx";
 import "./CreateTopic.css";
 import axios from "axios";
 
+const PROTOCOL = import.meta.env.VITE_PROTOCOL;
+const HOST = import.meta.env.VITE_HOST;
+const PORT = import.meta.env.VITE_PORT;
+
 const SearchInput = ({ selectedTagList, setSelectedTagList }) => {
   const { t } = useTranslation();
   const tagsRef = useRef();
@@ -22,7 +26,7 @@ const SearchInput = ({ selectedTagList, setSelectedTagList }) => {
     async prompt => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/tags?page=1&limit=12${
+          `${PROTOCOL}://${HOST}:${PORT}/tags?page=1&limit=12${
             prompt ? "&search=" + prompt : ""
           }`
         );
