@@ -83,8 +83,8 @@ export default function CreateTopic() {
               ""
             )}
             {width > 768 ? <h3 className="title">Створення теми</h3> : 
-            <div style={{position: "fixed", top: "8vh", left: 0, width: "100%",paddingTop: "1vh",backgroundColor: "#d2dbe0"}}>
-              <h3 className="title">{t("createTopic.createTopicCaption")}</h3></div>
+            <div style={{position: "fixed", top: "8vh", left: 0, width: "100%",paddingTop: "1vh",backgroundColor: "#d2dbe0", zIndex: 13}}>
+              <h3 className="title" >{t("createTopic.createTopicCaption")}</h3></div>
             }
 
           </div>
