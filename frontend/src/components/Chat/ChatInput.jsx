@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import FileUploader from "../FileUploader.jsx";
 import { useChat } from "../../contexts/ChatContext.jsx";
 import { useTranslation } from "react-i18next";
+import { useWidth } from "../../contexts/ScreenWidthContext.jsx";
 import sendMessageIcon from "../../assets/send-message.svg";
 import { MdEdit } from "react-icons/md";
 import cancelIcon from "../../assets/cancel.svg";
@@ -25,6 +26,7 @@ export default function ChatInput({
   const inputRef = useRef();
   const { messages } = useChat();
   const { t } = useTranslation();
+  const { width } = useWidth()
 
   const [scaleValue, setScaleValue] = useState(window.innerHeight * 0.0015);
   const updateScaleValue = () => {
@@ -66,6 +68,11 @@ export default function ChatInput({
     }
   }
 
+  const style = {
+    ...{ width: "auto" },
+    ...(width > 768 ? { height: "30px" } : { height: "1.7em" })
+  };
+
   return (
     <div className="chat-input">
       {reply.id !== -1 && (
@@ -81,12 +88,12 @@ export default function ChatInput({
                 t("chat.deletedMessageLabel")}
             </span>
           </div>
-          <img src={cancelIcon} alt={t("cancel")} onClick={resetReply} />
+          <img src={cancelIcon} style ={style} alt={t("cancel")} onClick={resetReply} />
         </div>
       )}
 
       {editId === -1 && !hasAttachments() ? (
-        <div style={{ transform: `scale(${scaleValue})` }}>
+
           <FileUploader
             setFiles={setFiles}
             editId={editId}
@@ -94,8 +101,9 @@ export default function ChatInput({
             setIsSendModalOpen={setIsSendModalOpen}
             text={text}
             setText={text}
+            style = {{...style,height: width > 768 ? "30px" : "1.7rem"}}
           />
-        </div>
+
       ) : null}
 
       <input
@@ -108,22 +116,17 @@ export default function ChatInput({
         ref={inputRef}
         placeholder={t("chat.writeMessageLabel")}
       />
-      <div style={{ transform: `scale(${scaleValue})` }}>
-        <EmojiPickerButton setText={setText} />
-      </div>
+
+        <EmojiPickerButton setText={setText} style={{...style, left: "-40px" }} />
       {(editId === -1 || isEditModalOpen || isSendModalOpen) && (
         <div className="send-msg-btn" onClick={sendMessage}>
-          <div style={{ transform: `scale(${scaleValue})` }}>
-            <img src={sendMessageIcon} alt={t("send")} />
-          </div>
+            <img src={sendMessageIcon} style = {style} alt={t("send")} />
         </div>
       )}
       {editId !== -1 && !isEditModalOpen && !isSendModalOpen && (
         <>
-          <MdEdit size="3vh" onClick={editMessage} />
-          <div style={{ transform: `scale(${scaleValue})` }}>
-            <img src={cancelIcon} alt={t("cancel")} onClick={onCancel} />
-          </div>
+          <MdEdit size={width > 768 ? "30px" : "1.2rem"} onClick={editMessage} />
+            <img src={cancelIcon} style = {style} alt={t("cancel")} onClick={onCancel} />
         </>
       )}
     </div>

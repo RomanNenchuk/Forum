@@ -35,3 +35,22 @@ ul {
 .card {
   background-color: #fff7eb;
 }
+.card-profile{
+  min-width: "480px"
+}
+
+@media (max-width: 767px) {
+  .glob-reg{
+    width: 90%;
+  }
+  .card{
+    min-width: none;
+  }
+  .card-body {
+    width: 100%;
+    padding: 0 10px;
+  }
+  .card-profile{
+    min-width: "100%^"
+  }
+}

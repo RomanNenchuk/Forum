@@ -49,7 +49,7 @@ export default function TopicInput({
                 t("topic.deletedCommentLabel")}
             </span>
           </div>
-          <img src={cancelIcon} alt="Cancel" onClick={resetReply} />
+          <img src={cancelIcon}  style = {style} alt="Cancel" onClick={resetReply} />
         </div>
       )}
 

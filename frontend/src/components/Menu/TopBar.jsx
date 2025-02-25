@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useUserInfo } from "../../contexts/UserInfoContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
@@ -18,6 +18,7 @@ import Avatar from "../Avatar.jsx";
 export default function TopBar({setExpand}) {
   const { t } = useTranslation();
   const { currentUser } = useAuth();
+  const [ appendSearch, setAppendSearch] = useState(false)
 
   const location = useLocation();
   const {
@@ -57,6 +58,11 @@ export default function TopBar({setExpand}) {
   }
   const { width } = useWidth()
 
+  useEffect(()=>{
+      if(width >= 768) setAppendSearch(false)
+    },[width]
+  )
+
   return (
     <header>
       <div className="header-inr">
@@ -71,10 +77,10 @@ export default function TopBar({setExpand}) {
         >
           {width < 768 ? (<MdMenu onClick = {()=>{setExpand(0)}} size="5vh"/>) : ""}
           <div className="hd-logo">
-            {width > 768 ? (<img src={logo} alt="UFORUM" />) : ''}
-            <span>
+            {width > 768? (<img src={logo} alt="UFORUM" />) : ''}
+            {!appendSearch ? <span>
               <span>U</span>FORUM
-            </span>
+            </span> : '' }
           </div>
         </Link>
         {width > 768 ? (<><div className="hd-col">
@@ -130,7 +136,8 @@ export default function TopBar({setExpand}) {
           )}
           </div></>) : (<>
             <div style = {{display: "flex", flexDirection: "row",alignItems: "center"}}>
-            {!currentUser ? (<Link
+              
+            {!appendSearch ? !currentUser ? (<Link
                 to="/login"
                 state={{
                   backgroundLocation: {
@@ -145,8 +152,21 @@ export default function TopBar({setExpand}) {
                 </button>
               </Link>) : (
                 <div style = {{marginRight: "2vh"}}><Avatar avatar={user.avatar} handleImageClick={handlerClick}  size="5vh" /></div>
+              ) : (
+                <form className="hd-search" onSubmit={handleSearch}>
+                  <input
+                    className="hd-search-input"
+                    type="text"
+                    value={searchInput}
+                  onChange={e => setSearchInput(e.target.value)}
+                  placeholder={t("menu.searchPlaceholder")}
+                  />
+                  <button className="hd-search-btn" type="submit">
+                    <span>{t("menu.searchButton")}</span>
+                  </button>
+                </form>
               )}
-              <IoIosSearch size = "5vh" />
+              <IoIosSearch size = "5vh" onClick={()=>{setAppendSearch((prev)=>!prev)}}/>
             </div>
           </>)}
         

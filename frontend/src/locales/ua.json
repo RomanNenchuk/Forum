@@ -43,7 +43,9 @@
     "titleInputPlaceholder": "Введіть заголовок теми",
     "selectTagsPlaceholder": "Виберіть теги",
     "tagsLimitReached": "Досягнуто ліміту",
-    "addTagButton": "Додати"
+    "addTagButton": "Додати",
+    "mediaHeader": "Прев'ю-медіа",
+    "additionalMedia" : "Additional information"
   },
   "auth": {
     "resetPassword": "Скидання паролю",

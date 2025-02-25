@@ -113,7 +113,7 @@ const SearchInput = ({ selectedTagList, setSelectedTagList }) => {
             onBlur={() => setIsDropdownListOpen(false)}
             onKeyDown={handleKeyDown}
             maxLength={100}
-            style={{ position: "relative", zIndex: 2 }}
+            style={{ position: "relative", zIndex: 12 }}
           />
           <div
             className="tag-select-button"

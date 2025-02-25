@@ -159,6 +159,23 @@ header {
   .hd-logo span{
     font-size: 4vh;
   }
+
+  .hd-search-btn span{
+    font-size: 18px;
+  }
+  .hd-search-input{
+    font-size: 18px
+  }
+  .hd-search{
+    padding-left: 10px;
+    gap:2px;
+  }
+  .hd-search input{
+    font-size: 18px;
+  }
+  .hd-search input::placeholder{
+    font-size: 16px;
+  }
 }
 
 /* ~~~~~~~~~~~~~~~~ */

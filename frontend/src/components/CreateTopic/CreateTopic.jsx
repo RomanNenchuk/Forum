@@ -95,8 +95,8 @@ export default function CreateTopic() {
               ""
             )}
             {width > 768 ? <h3 className="title">Створення теми</h3> : 
-            <div style={{position: "fixed", top: "8vh", left: 0, width: "100%",paddingTop: "1vh",backgroundColor: "#d2dbe0"}}>
-              <h3 className="title">{t("createTopic.createTopicCaption")}</h3></div>
+            <div style={{position: "fixed", top: "8vh", left: 0, width: "100%",paddingTop: "1vh",backgroundColor: "#d2dbe0", zIndex: 13}}>
+              <h3 className="title" >{t("createTopic.createTopicCaption")}</h3></div>
             }
 
           </div>
@@ -185,13 +185,14 @@ function FirstStep({
         selectedTagList={selectedTagList}
         setSelectedTagList={setSelectedTagList}
       />
-      {!isFirstTopicType && (
+      {!isFirstTopicType && (<>
+        {width < 768 ? <p>{t("createTopic.mediaHeader")}</p> : ""}
         <CoverUploader
           coverPreview={coverPreview}
           setCoverPreview={setCoverPreview}
           setCover={setCover}
           setError={setError}
-        />
+        /></>
       )}
       {width > 768 ? <ActionButton
         className="my-4"
@@ -212,12 +213,14 @@ function SecondStep({
   loading,
 }) {
   const { t } = useTranslation();
+  const { width } = useWidth()
   return (
     <>
       <DescriptionInput
         description={description}
         setDescription={setDescription}
       />
+      {width < 768 ? <p>{t("createTopic.additionalMedia")}</p> : ""}
       <TopicFileUploader
         files={descriptionFiles}
         setFiles={setDescriptionFiles}

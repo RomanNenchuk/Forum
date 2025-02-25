@@ -6,7 +6,6 @@ export default function ModalLoading({ modalLoading, children }) {
   const styles = {
     maxHeight: modalLoading ? "400px" : "1000px",
     minHeight: "400px",
-    minWidth: "480px",
     display: "flex",
     justifyContent: "center",
     transition: "all 0.3s ease-in-out",
@@ -14,6 +13,6 @@ export default function ModalLoading({ modalLoading, children }) {
     overflow: "hidden",
   };
   return (
-    <Card style={styles}>{modalLoading ? <LoadingSpinner /> : children}</Card>
+    <Card className = "card-profile" style={styles}>{modalLoading ? <LoadingSpinner /> : children}</Card>
   );
 }
