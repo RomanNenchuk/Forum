@@ -23,10 +23,29 @@ export const fetchMyTopics = async ({ pageParam = 1, userId }) => {
   }
 };
 
-export const fetchPopularTopics = async ({ pageParam = 1, userId }) => {
+export const fetchMonthlyPopularTopics = async ({ pageParam = 1, userId }) => {
   try {
     const response = await axios.get(`http://localhost:5000/topics/popular`, {
-      params: { user_id: userId, page: pageParam },
+      params: { user_id: userId, period: "month", page: pageParam },
+    });
+
+    const topics = response.data || [];
+
+    return {
+      topics,
+      hasMore: topics.length > 0, // Позначаємо, чи є ще теми
+      nextPage: topics.length > 0 ? pageParam + 1 : undefined, // Передаємо наступну сторінку, якщо є ще дані
+    };
+  } catch (error) {
+    console.error("Error fetching user topics:", error);
+    throw error;
+  }
+};
+
+export const fetchDailyPopularTopics = async ({ pageParam = 1, userId }) => {
+  try {
+    const response = await axios.get(`http://localhost:5000/topics/popular`, {
+      params: { user_id: userId, period: "day", page: pageParam },
     });
 
     const topics = response.data || [];

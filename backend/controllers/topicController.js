@@ -677,7 +677,7 @@ export const getPopularTopics = async (req, res) => {
       LEFT JOIN emoji
         ON emoji.id = topic_reactions.emoji_id
       GROUP BY topics.id, fullname, username, avatar, title, email, author, topics.date, topic_popularity.${period}_rating
-      ORDER BY ${period}_rating DESC
+      ORDER BY ${period}_rating DESC, topics.date DESC
       LIMIT $1 OFFSET $2;
       `,
       [limit, offset]

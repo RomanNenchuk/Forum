@@ -9,8 +9,6 @@ import { fetchMyTopics, fetchSavedTopics } from "../../api/topics.js";
 import "./MyTopic.css";
 import { useWidth } from "../../contexts/ScreenWidthContext.jsx";
 
-import axios from "axios";
-
 export default function MyTopic() {
   const { currentUser } = useAuth();
   const { width } = useWidth();
@@ -110,8 +108,11 @@ export default function MyTopic() {
     <div className="topics-container">
       <div className="topics-content">
         <TopicListHeader
-          chooseMyTopics={chooseMyTopics}
-          showMyTopics={showMyTopics}
+          choseFirstTab={chooseMyTopics}
+          showFirstTab={showMyTopics}
+          showCreateButton={true}
+          firstTabCaption={t("topic.myTopicsCaption")}
+          secondTabCaption={t("topic.savedTopicsCaption")}
         />
         <div className="topics-container">
           {(showMyTopics ? isFetchingMyTopics : isFetchingSavedTopics) &&

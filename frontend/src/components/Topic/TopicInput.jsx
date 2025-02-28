@@ -21,8 +21,7 @@ export default function TopicInput({
   reply,
   resetReply,
 }) {
-
-  const { width } = useWidth()
+  const { width } = useWidth();
 
   const { t } = useTranslation();
 
@@ -32,7 +31,7 @@ export default function TopicInput({
   }
   const style = {
     ...{ width: "auto" },
-    ...(width > 768 ? { height: "30px" } : { height: "1.2rem" })
+    ...(width > 768 ? { height: "30px" } : { height: "1.2rem" }),
   };
   return (
     <div className="comment-input-container">
@@ -56,7 +55,7 @@ export default function TopicInput({
       <FileUploader
         setFiles={setFiles}
         setIsSendModalOpen={setIsSendModalOpen}
-        style = {{...style,height: width > 768 ? "30px" : "1.2rem"}}
+        style={{ ...style, height: width > 768 ? "30px" : "1.2rem" }}
       />
       <input
         id="comment-input"
@@ -66,16 +65,19 @@ export default function TopicInput({
         placeholder={t("topic.writeCommentLabel")}
         autoComplete="off"
       />
-      <EmojiPickerButton setText={setText} style={{...style, left: "-40px" }} />
+      <EmojiPickerButton setText={setText} style={{ left: "-40px" }} />
       {(editId === -1 || isEditModalOpen || isSendModalOpen) && (
         <div onClick={sendComment}>
-          <img src={sendMessageIcon} style = {style} alt="Send" />
+          <img src={sendMessageIcon} style={style} alt="Send" />
         </div>
       )}
       {editId !== -1 && !isEditModalOpen && !isSendModalOpen && (
         <>
-          <MdEdit size={width > 768 ? "30px" : "1.2rem"} onClick={editComment} />
-          <img src={cancelIcon} style = {style} alt="Cancel" onClick={onCancel} />
+          <MdEdit
+            size={width > 768 ? "30px" : "1.2rem"}
+            onClick={editComment}
+          />
+          <img src={cancelIcon} style={style} alt="Cancel" onClick={onCancel} />
         </>
       )}
     </div>

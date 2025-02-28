@@ -14,9 +14,9 @@
 .send-smile-btn:hover ~ .emoji-picker,
 .invisible-gap:hover + .emoji-picker,
 .emoji-picker:hover {
-  opacity: 1; /* Робимо видимим */
-  visibility: visible; /* Дозволяємо взаємодію */
-  pointer-events: auto; /* Знімаємо блокування взаємодії */
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
 }
 .invisible-gap {
   z-index: 200;

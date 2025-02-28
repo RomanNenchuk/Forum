@@ -11,7 +11,7 @@ export default function EmojiPickerButton({ setText, style }) {
   return (
     <div className="send-smile-container">
       <div className="send-smile-btn">
-        <img src={sendSmileIcon} alt="Smile" style = {style} />
+        <img src={sendSmileIcon} alt="Smile" style={style} />
       </div>
       <div className="invisible-gap"></div>
       <div className="emoji-picker" style={style}>

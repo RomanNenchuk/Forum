@@ -78,7 +78,14 @@ export default function TopicArea({
           ["savedTopics", currentUser?.uid],
           updateSubscriptionStatus
         );
-        queryClient.setQueryData(["popularTopics"], updateSubscriptionStatus);
+        queryClient.setQueryData(
+          ["monthlyPopularTopics"],
+          updateSubscriptionStatus
+        );
+        queryClient.setQueryData(
+          ["dailyPopularTopics"],
+          updateSubscriptionStatus
+        );
 
         queryClient.invalidateQueries([
           "topics",
@@ -86,7 +93,8 @@ export default function TopicArea({
           currentUser?.uid,
         ]);
         queryClient.invalidateQueries(["savedTopics", currentUser?.uid]);
-        queryClient.invalidateQueries(["popularTopics"]);
+        queryClient.invalidateQueries(["monthlyPopularTopics"]);
+        queryClient.invalidateQueries(["dailyPopularTopics"]);
       }
     },
   });
@@ -124,7 +132,14 @@ export default function TopicArea({
           ["savedTopics", currentUser?.uid],
           updateSubscriptionStatus
         );
-        queryClient.setQueryData(["popularTopics"], updateSubscriptionStatus);
+        queryClient.setQueryData(
+          ["monthlyPopularTopics"],
+          updateSubscriptionStatus
+        );
+        queryClient.setQueryData(
+          ["dailyPopularTopics"],
+          updateSubscriptionStatus
+        );
 
         queryClient.invalidateQueries([
           "topics",
@@ -132,7 +147,8 @@ export default function TopicArea({
           currentUser?.uid,
         ]);
         queryClient.invalidateQueries(["savedTopics", currentUser?.uid]);
-        queryClient.invalidateQueries(["popularTopics"]);
+        queryClient.invalidateQueries(["monthlyPopularTopics"]);
+        queryClient.invalidateQueries(["dailyPopularTopics"]);
       }
     },
   });

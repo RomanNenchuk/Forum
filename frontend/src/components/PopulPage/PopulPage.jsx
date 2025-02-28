@@ -1,42 +1,84 @@
-import React, { useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import AltSpinner from "../AltSpinner/AltSpinner";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import TopicList from "../TopicList/TopicList.jsx";
 import "../MyTopic/MyTopic.css";
-import { fetchPopularTopics } from "../../api/topics.js";
+import {
+  fetchDailyPopularTopics,
+  fetchMonthlyPopularTopics,
+} from "../../api/topics.js";
+import TopicListHeader from "../MyTopic/TopicListHeader.jsx";
+import { useWidth } from "../../contexts/ScreenWidthContext.jsx";
 
 export default function PopulTopic() {
   const { t } = useTranslation();
   const { currentUser } = useAuth();
+  const { width } = useWidth();
   const observerRef = useRef(null);
+  const [showDayPeriod, setShowDayPeriod] = useState(
+    sessionStorage.getItem("isDayPeriod") === "true"
+  );
 
-  // React Query для кешування попередніх завантажених сторінок
-  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage } =
-    useInfiniteQuery({
-      queryKey: ["popularTopics", currentUser?.uid],
-      queryFn: ({ pageParam = 1 }) =>
-        fetchPopularTopics({ pageParam, userId: currentUser?.uid }),
-      getNextPageParam: lastPage => lastPage.nextPage,
-      staleTime: 1000 * 60 * 5, // зберігати кеш 5 хвилин
-      cacheTime: 1000 * 60 * 10, // не видаляти кеш 10 хвилин
-    });
+  const {
+    data: monthPeriodData,
+    fetchNextPage: fetchNextMonthPeriod,
+    hasNextPage: hasMoreMonthPeriod,
+    isFetching: isFetchingMonthPeriod,
+    isFetchingNextPage: isFetchingNextMonthPeriod,
+  } = useInfiniteQuery({
+    queryKey: ["monthlyPopularTopics", currentUser?.uid],
+    queryFn: ({ pageParam = 1 }) =>
+      fetchMonthlyPopularTopics({ pageParam, userId: currentUser?.uid }),
+    getNextPageParam: lastPage => lastPage.nextPage,
+    staleTime: 1000 * 60 * 5, // зберігати кеш 5 хвилин
+    cacheTime: 1000 * 60 * 10, // не видаляти кеш 10 хвилин
+  });
+
+  const {
+    data: dayPeriodData,
+    fetchNextPage: fetchNextDayPeriod,
+    hasNextPage: hasMoreMyTopics,
+    isFetching: isFetchingDayPeriod,
+    isFetchingNextPage: isFetchingNextDayPeriod,
+  } = useInfiniteQuery({
+    queryKey: ["dailyPopularTopics", currentUser?.uid],
+    queryFn: ({ pageParam = 1 }) =>
+      fetchDailyPopularTopics({ pageParam, userId: currentUser?.uid }),
+    getNextPageParam: lastPage => lastPage.nextPage,
+    enabled: !!currentUser,
+    staleTime: 1000 * 60 * 5,
+    cacheTime: 1000 * 60 * 10,
+  });
 
   useEffect(() => {
     if (!observerRef.current) return;
     const observer = new IntersectionObserver(
       entries => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
+        if (entries[0].isIntersecting) {
+          if (showDayPeriod && hasMoreMyTopics && !isFetchingNextMonthPeriod) {
+            fetchNextDayPeriod();
+          } else if (
+            !showDayPeriod &&
+            hasMoreMonthPeriod &&
+            !isFetchingNextMonthPeriod
+          ) {
+            fetchNextMonthPeriod();
+          }
         }
       },
-      { threshold: 1.0 }
+      { threshold: 0.1 }
     );
 
     observer.observe(observerRef.current);
     return () => observer.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [
+    hasMoreMyTopics,
+    isFetchingDayPeriod,
+    hasMoreMonthPeriod,
+    isFetchingNextMonthPeriod,
+  ]);
 
   // відновлення прокрутки
   useEffect(() => {
@@ -59,24 +101,43 @@ export default function PopulTopic() {
     );
   };
 
-  const topics = data?.pages.flatMap(page => page.topics) || [];
+  const choseDayPeriod = choice => {
+    sessionStorage.setItem("isDayPeriod", choice);
+    setShowDayPeriod(choice);
+  };
+
+  // const topics = data?.pages.flatMap(page => page.topics) || [];
+  const topicInfoList = showDayPeriod
+    ? dayPeriodData?.pages.flatMap(page => page.topics) || []
+    : monthPeriodData?.pages.flatMap(page => page.topics) || [];
 
   return (
     <div className="topics-container">
       <div className="topics-content">
+        <TopicListHeader
+          choseFirstTab={choseDayPeriod}
+          showFirstTab={showDayPeriod}
+          firstTabCaption={"Сьогодні"}
+          secondTabCaption={"За місяць"}
+        />
         <div className="topics-container">
-          {isFetching && !isFetchingNextPage ? (
+          {(showDayPeriod ? isFetchingDayPeriod : isFetchingMonthPeriod) &&
+          !isFetchingNextDayPeriod &&
+          !isFetchingNextMonthPeriod &&
+          topicInfoList?.length === 0 ? (
             <AltSpinner />
-          ) : topics.length === 0 ? (
+          ) : topicInfoList.length === 0 ? (
             <div className="topics-not-found">{t("topic.topicsNotFound")}</div>
           ) : (
             <>
               <TopicList
-                topicInfoList={topics}
-                className="topics-grid"
+                topicInfoList={topicInfoList}
                 onTopicClick={handleTopicClick}
+                className={width > 768 ? "topics-grid" : "topic-mobile"}
               />
-              {isFetchingNextPage && <AltSpinner />}
+              {(isFetchingNextDayPeriod || isFetchingNextMonthPeriod) && (
+                <AltSpinner />
+              )}
             </>
           )}
           <div ref={observerRef} className="observer-element" />
