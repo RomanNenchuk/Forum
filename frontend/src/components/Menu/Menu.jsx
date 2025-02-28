@@ -16,7 +16,7 @@ export default function Menu() {
     <div className="wrapper">
       <TopBar setExpand={setExpand}/>
       <div className="forum-container">
-      {width > 768 ?<SideBar /> : !isExpanded ? <AltSide setExpand={setExpand} /> : ""}
+      {width > 768 ?<SideBar /> : <AltSide display={isExpanded ? "block" : "none"} setExpand={setExpand} />}
 
         <Outlet />
       </div>

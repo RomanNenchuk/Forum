@@ -15,6 +15,10 @@ import "./TopicList.css";
 
 import axios from "axios";
 
+const PROTOCOL = import.meta.env.VITE_PROTOCOL;
+const HOST = import.meta.env.VITE_HOST;
+const PORT = import.meta.env.VITE_PORT;
+
 export default function TopicArea({
   topicItem,
   reactionList,
@@ -46,7 +50,7 @@ export default function TopicArea({
 
   const addSubscribeMutation = useMutation({
     mutationFn: async () => {
-      const res = await axios.post("http://localhost:5000/subscriptions", {
+      const res = await axios.post(`${PROTOCOL}://${HOST}:${PORT}/subscriptions`, {
         user1_id: currentUser.uid,
         user2_id: topic.author,
       });
@@ -101,7 +105,7 @@ export default function TopicArea({
 
   const deleteSubscribeMutation = useMutation({
     mutationFn: async () => {
-      const res = await axios.delete("http://localhost:5000/subscriptions", {
+      const res = await axios.delete(`${PROTOCOL}://${HOST}:${PORT}/subscriptions`, {
         data: { user1_id: currentUser.uid, user2_id: topic.author },
       });
       return res.data;
@@ -163,7 +167,7 @@ export default function TopicArea({
       });
     try {
       const response = await axios.put(
-        `http://localhost:5000/topics/${topic.id}/reactions`,
+        `${PROTOCOL}://${HOST}:${PORT}/topics/${topic.id}/reactions`,
         {
           reaction: emoji.name,
         },

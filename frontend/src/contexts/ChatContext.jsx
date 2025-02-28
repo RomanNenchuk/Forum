@@ -4,6 +4,10 @@ import { useAuth } from "./AuthContext";
 import { useSocket } from "./SocketProviderContext";
 import axios from "axios";
 
+const PROTOCOL = import.meta.env.VITE_PROTOCOL;
+const HOST = import.meta.env.VITE_HOST;
+const PORT = import.meta.env.VITE_PORT;
+
 const ChatContext = createContext();
 
 export function useChat() {
@@ -41,7 +45,7 @@ export function ChatProvider({ children }) {
 
   async function fetchChatList() {
     try {
-      const result = await axios.get("http://localhost:5000/chats", {
+      const result = await axios.get(`${PROTOCOL}://${HOST}:${PORT}/chats`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -83,7 +87,7 @@ export function ChatProvider({ children }) {
 
     try {
       const response = await axios.put(
-        `http://localhost:5000/chats/${chat_id}`,
+        `${PROTOCOL}://${HOST}:${PORT}/chats/${chat_id}`,
         {
           receiver_id,
           sender_id,
@@ -108,7 +112,7 @@ export function ChatProvider({ children }) {
       .join("_");
     try {
       const response = await axios.delete(
-        `http://localhost:5000/chats/${chat_id}`,
+        `${PROTOCOL}://${HOST}:${PORT}/chats/${chat_id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -126,7 +130,7 @@ export function ChatProvider({ children }) {
       .join("_");
     try {
       const response = await axios.delete(
-        `http://localhost:5000/chats/${chat_id}/messages`,
+        `${PROTOCOL}://${HOST}:${PORT}/chats/${chat_id}/messages`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

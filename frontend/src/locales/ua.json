@@ -43,7 +43,9 @@
     "titleInputPlaceholder": "Введіть заголовок теми",
     "selectTagsPlaceholder": "Виберіть теги",
     "tagsLimitReached": "Досягнуто ліміту",
-    "addTagButton": "Додати"
+    "addTagButton": "Додати",
+    "mediaHeader": "Прев'ю-медіа",
+    "additionalMedia": "Additional information"
   },
   "auth": {
     "resetPassword": "Скидання паролю",
@@ -120,8 +122,8 @@
     "topRated": "Найкращі",
     "author": "Автор",
     "subs": "Підписки",
-    "subscribe" : "Стежити",
-    "subscribed" : "Відстежується"
+    "subscribe": "Стежити",
+    "subscribed": "Відстежується"
   },
   "profile": {
     "unknown": "Невідомо",
@@ -165,6 +167,8 @@
     "months_ago": "{{count}} місяць тому",
     "months_ago_plural": "{{count}} місяців тому",
     "years_ago": "{{count}} рік тому",
-    "years_ago_plural": "{{count}} років тому"
+    "years_ago_plural": "{{count}} років тому",
+    "for_today": "Сьогодні",
+    "for_this_month": "Цього місяця"
   }
 }

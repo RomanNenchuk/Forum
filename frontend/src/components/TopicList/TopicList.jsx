@@ -11,6 +11,10 @@ import { useNavigate } from "react-router-dom";
 import "./TopicList.css";
 import axios from "axios";
 
+const PROTOCOL = import.meta.env.VITE_PROTOCOL;
+const HOST = import.meta.env.VITE_HOST;
+const PORT = import.meta.env.VITE_PORT;
+
 const reactionList = [
   { icon: "😁", name: "beaming_face_with_smiling_eyes" },
   { icon: "😅", name: "grinning_face_with_sweat" },
@@ -119,7 +123,7 @@ export default function TopicList({
 
   const deleteTopic = async id => {
     try {
-      const res = await axios.delete(`http://localhost:5000/topics/${id}`);
+      const res = await axios.delete(`${PROTOCOL}://${HOST}:${PORT}/topics/${id}`);
       return res.data; // Повертаємо результат, щоб його можна було використати в onSuccess
     } catch (error) {
       console.error(error);
@@ -184,7 +188,7 @@ export default function TopicList({
   async function checkIfTopicIsSaved(user_id, topic_id) {
     try {
       const res = await axios.get(
-        `http://localhost:5000/topics/save?user_id=${user_id}&topic_id=${topic_id}`
+        `${PROTOCOL}://${HOST}:${PORT}/topics/save?user_id=${user_id}&topic_id=${topic_id}`
       );
       setIsTopicSaved(res.data.saved);
     } catch (error) {

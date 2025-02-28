@@ -158,6 +158,7 @@
   }
   .topic-and-comments {
     overflow: scroll;
+    height: 83.5vh;
     margin-top: 11vh;
   }
   .in-block-for-flex {

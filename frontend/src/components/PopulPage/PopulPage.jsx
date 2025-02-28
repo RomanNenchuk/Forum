@@ -117,8 +117,8 @@ export default function PopulTopic() {
         <TopicListHeader
           choseFirstTab={choseDayPeriod}
           showFirstTab={showDayPeriod}
-          firstTabCaption={"Сьогодні"}
-          secondTabCaption={"За місяць"}
+          firstTabCaption={t("time.for_today")}
+          secondTabCaption={t("time.for_this_month")}
         />
         <div className="topics-container">
           {(showDayPeriod ? isFetchingDayPeriod : isFetchingMonthPeriod) &&

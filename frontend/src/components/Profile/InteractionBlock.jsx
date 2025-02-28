@@ -5,6 +5,10 @@ import { useAuth } from "../../contexts/AuthContext";
 import axios from "axios";
 import "./Profile.css";
 
+const PROTOCOL = import.meta.env.VITE_PROTOCOL;
+const HOST = import.meta.env.VITE_HOST;
+const PORT = import.meta.env.VITE_PORT;
+
 export default function InteractionBlock({ userProfile, setUserProfile }) {
   const { t } = useTranslation();
   const { id } = useParams();
@@ -23,7 +27,7 @@ export default function InteractionBlock({ userProfile, setUserProfile }) {
       });
     }
     try {
-      const result = await axios.post(`http://localhost:5000/subscriptions`, {
+      const result = await axios.post(`${PROTOCOL}://${HOST}:${PORT}/subscriptions`, {
         user1_id: currentUser.uid,
         user2_id: id,
       });
@@ -39,7 +43,7 @@ export default function InteractionBlock({ userProfile, setUserProfile }) {
   }
   async function onUnsubscribe() {
     try {
-      const result = await axios.delete(`http://localhost:5000/subscriptions`, {
+      const result = await axios.delete(`${PROTOCOL}://${HOST}:${PORT}/subscriptions`, {
         data: {
           user1_id: currentUser.uid,
           user2_id: id,

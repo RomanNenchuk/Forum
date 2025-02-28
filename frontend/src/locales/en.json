@@ -43,7 +43,9 @@
     "titleInputPlaceholder": "Enter topic title",
     "selectTagsPlaceholder": "Select tags",
     "tagsLimitReached": "Limit reached",
-    "addTagButton": "Add"
+    "addTagButton": "Add",
+    "mediaHeader": "Preview media",
+    "additionalMedia": "Additional information"
   },
   "auth": {
     "resetPassword": "Reset password",
@@ -121,9 +123,8 @@
     "topRated": "Top rated",
     "author": "Author",
     "subs": "Subscriptions",
-    "subscribe" : "Subscribe",
-    "subscribed" : "Subscribed"
-    
+    "subscribe": "Subscribe",
+    "subscribed": "Subscribed"
   },
   "profile": {
     "unknown": "Unknown",
@@ -167,6 +168,8 @@
     "months_ago": "{{count}} month ago",
     "months_ago_plural": "{{count}} months ago",
     "years_ago": "{{count}} year ago",
-    "years_ago_plural": "{{count}} years ago"
+    "years_ago_plural": "{{count}} years ago",
+    "for_today": "Today",
+    "for_this_month": "This month"
   }
 }

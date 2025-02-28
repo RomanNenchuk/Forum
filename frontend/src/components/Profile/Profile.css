@@ -68,3 +68,17 @@
   font-size: 14px;
   color: #666;
 }
+
+@media (max-width: 767px) {
+  .profile-modal-card-body{
+    width: 100%;
+    padding:10px 15px;
+  }
+  .interaction-container{
+    flex-direction: column;
+    gap: 2px;
+  }
+  .interaction-button {
+    margin: 10px 0;
+  }
+}

@@ -1,16 +1,17 @@
 /* Chat.css */
 .chat-win-container {
   display: flex;
-  height: 88.8vh;
+  height: calc(100% - 11vh);
   margin-top: 11vh;
   width: 100%;
+  overflow: hidden;
   background: #f9f9f9;
 }
 
 /* Ліва колонка */
 .chat-list-ct {
-  width: 383px;
-  height: 88.9vh;
+  width: 350px;
+  height: 89vh;
 }
 .chat-hd {
   display: flex;
@@ -27,7 +28,7 @@
 }
 .chat-list {
   width: 100%;
-  height: calc(100% - 85.5px);
+  height: calc(89vh - 85px);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -102,7 +103,7 @@
   align-items: center;
   justify-content: space-between;
   background: #acc3d3a8;
-  padding: 31px 55px 20px 61px;
+  padding: 28px 55px 23px 40px;
   border-bottom: 2px solid #fff7ebf2;
 }
 .chat-ct-hd-name {
@@ -112,7 +113,7 @@
 }
 .chat-ct-hd-name p {
   margin: 0;
-  font-size: 23px;
+  font-size: 18px;
   font-family: "Inter-SemiBold";
 }
 .chat-ct-hd-pre-svg {
@@ -133,7 +134,7 @@
   display: flex;
   align-items: flex-end;
   gap: 43px;
-  padding: 22px 60px 22px 29px;
+  padding: 15px 30px 15px 30px;
   background: #acc3d3a8;
 }
 .chat-reply {
@@ -172,7 +173,7 @@
   font-family: "Inter";
   background: transparent;
   outline: none;
-  padding: 3px 10px;
+  padding: 0;
   outline: none;
 }
 #chat-message-input::placeholder {
@@ -180,15 +181,14 @@
   letter-spacing: 0.02em;
 }
 ul.chat-messages {
-  height: 100%;
-  max-height: calc(100vh - 11vh - 88px - 77px);
+  height: 89vh;
   margin: 0;
   list-style-type: none;
   overflow-x: hidden;
   overflow-y: auto;
 }
 .message-timestamp {
-  font-size: 20px;
+  font-size: 14px;
   font-weight: 100;
 }
 .message-author-name {
@@ -219,14 +219,12 @@ ul.chat-messages {
   user-select: none;
   position: relative;
   display: flex;
-  gap: 2vh;
+  gap: 30px;
   flex-direction: column;
   background-color: gray;
-  /* все летить, якщо використовувати відсотки */
-  /* max-width: 50%; */
   word-wrap: break-word;
   white-space: pre-wrap;
-  max-width: 35vw;
+  max-width: 55%;
   margin: 20px;
   border-radius: 20px;
   padding: 2vh;
@@ -247,4 +245,40 @@ ul.chat-messages {
   clip-path: polygon(50% 0%, 0% 100%, 100% 100%); /* Створення трикутника */
   transform: translateY(50%);
   z-index: 1;
+}
+
+@media (max-width: 767px) {
+  .chat-win-container {
+    margin-top: 8vh;
+    height: calc(100% - 8vh);
+    width: 100vw;
+  }
+  .chat-hd {
+    position: fixed;
+    top: 8vh;
+    padding: 0 10px;
+    font-size: 18px;
+    background-color: #c6d5e0;
+  }
+  .chat-list-ct {
+    height: 100%;
+    width: 100%;
+  }
+  .chat-list {
+    padding-top: 37px;
+    height: 100%;
+  }
+  .chat-window {
+    width: 100%;
+  }
+  .chat-ct-hd {
+    padding: 0px;
+
+    width: 100%;
+  }
+
+  .chat-input {
+    gap: 5px;
+    padding: 5px 10px;
+  }
 }

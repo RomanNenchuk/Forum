@@ -1,11 +1,15 @@
 import { useTranslation } from "react-i18next";
 import axios from "axios";
 
+const PROTOCOL = import.meta.env.VITE_PROTOCOL;
+const HOST = import.meta.env.VITE_HOST;
+const PORT = import.meta.env.VITE_PORT;
+
 // функція для перевірки, чи користувач з таким ім'ям та імейлом вже існує
 export async function usernameOrEmailTaken(email, username) {
   try {
     const response = await axios.get(
-      `http://localhost:5000/auth/verify-username-email?email=${email}&username=${username}`
+      `${PROTOCOL}://${HOST}:${PORT}/auth/verify-username-email?email=${email}&username=${username}`
     );
     const { emailExists, usernameExists } = response.data;
     return { emailExists, usernameExists };

@@ -18,6 +18,10 @@ import arrowBackIcon from "../../assets/arrow-back.svg";
 import axios from "axios";
 import "./Topic.css";
 
+const PROTOCOL = import.meta.env.VITE_PROTOCOL;
+const HOST = import.meta.env.VITE_HOST;
+const PORT = import.meta.env.VITE_PORT;
+
 export const commentsOnOnePageCount = 10;
 
 export default function Topic() {
@@ -29,7 +33,7 @@ export default function Topic() {
   const [commentLoading, setCommentLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
-  const { width } = useWidth()
+  const { width } = useWidth();
   const [extendInfo, setExtendInfo] = useState();
 
   const [text, setText] = useState("");
@@ -88,7 +92,7 @@ export default function Topic() {
   async function fetchTopic() {
     try {
       const result = await axios.get(
-        `http://localhost:5000/topics/${id}${
+        `${PROTOCOL}://${HOST}:${PORT}/topics/${id}${
           currentUser ? "?user_id=" + currentUser.uid : ""
         }`
       );
@@ -111,7 +115,7 @@ export default function Topic() {
   async function fetchTopicComments() {
     try {
       const response = await axios.get(
-        `http://localhost:5000/topics/${id}/comments${
+        `${PROTOCOL}://${HOST}:${PORT}/topics/${id}/comments${
           currentUser ? "?user_id=" + currentUser.uid : ""
         }`
       );
@@ -156,7 +160,7 @@ export default function Topic() {
         reply_timestamp: reply?.timestamp || null,
       };
       const result = await axios.post(
-        `http://localhost:5000/topics/comments`,
+        `${PROTOCOL}://${HOST}:${PORT}/topics/comments`,
         comm
       );
       comm.id = result.data.id;
@@ -192,7 +196,7 @@ export default function Topic() {
           reply_timestamp: reply?.timestamp || null,
         };
         const result = await axios.post(
-          `http://localhost:5000/topics/comments`,
+          `${PROTOCOL}://${HOST}:${PORT}/topics/comments`,
           comm
         );
         comm.id = result.data.id;
@@ -264,7 +268,7 @@ export default function Topic() {
       if (newComm) {
         setComments(newComments);
         await axios.patch(
-          `http://localhost:5000/topics/comments/${editId}`,
+          `${PROTOCOL}://${HOST}:${PORT}/topics/comments/${editId}`,
           newComm
         );
       }
@@ -275,7 +279,9 @@ export default function Topic() {
 
   async function deleteComment(commId) {
     try {
-      await axios.delete(`http://localhost:5000/topics/comments/${commId}`);
+      await axios.delete(
+        `${PROTOCOL}://${HOST}:${PORT}/topics/comments/${commId}`
+      );
       for (const comm of comments) {
         if (comm.id === commId) {
           setComments(prev => prev.filter(item => item.id !== commId));
@@ -328,7 +334,6 @@ export default function Topic() {
   }
 
   function handleArrowBackClick() {
-    console.log(location.state);
     navigate(location.state?.returnPath || "/");
   }
 
