@@ -75,7 +75,9 @@ export default function TopBar({setExpand}) {
             setSearchInput("");
           }}
         >
-          {width < 768 ? (<MdMenu onClick = {()=>{setExpand(0)}} size="5vh"/>) : ""}
+          {width < 768 ? (<MdMenu onClick={(e) => {e.preventDefault(); e.stopPropagation(); setExpand(1); }}
+
+ size="5vh"/>) : ""}
           <div className="hd-logo">
             {width > 768? (<img src={logo} alt="UFORUM" />) : ''}
             {!appendSearch ? <span>
@@ -148,7 +150,7 @@ export default function TopBar({setExpand}) {
                 }}
               >
                 <button className="hd-btn">
-                  Вхід
+                  {t("auth.logIn")}
                 </button>
               </Link>) : (
                 <div style = {{marginRight: "2vh"}}><Avatar avatar={user.avatar} handleImageClick={handlerClick}  size="5vh" /></div>

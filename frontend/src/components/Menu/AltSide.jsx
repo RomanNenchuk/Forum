@@ -18,7 +18,7 @@ import "./Menu.css";
 import { useUserInfo } from "../../contexts/UserInfoContext";
 import { useAuth } from "../../contexts/AuthContext";
 
-export default function AltSide({ setExpand }) {
+export default function AltSide({ setExpand, display }) {
   const { user } = useUserInfo();
   const { currentUser } = useAuth();
   const { t } = useTranslation();
@@ -34,6 +34,7 @@ export default function AltSide({ setExpand }) {
   return (
     <div
       style={{
+        display: display,
         position: "fixed",
         top: 0,
         left: 0,
@@ -42,9 +43,7 @@ export default function AltSide({ setExpand }) {
         backgroundColor: "rgba(0, 0, 0, 0.38)",
         zIndex: 100000,
       }}
-      onClick={() => {
-        setExpand(1);
-      }}
+      onClick={(e) => {e.preventDefault(); setExpand(0); e.stopPropagation()      }}
     >
       <div
         style={{
@@ -54,6 +53,7 @@ export default function AltSide({ setExpand }) {
           border: "2px solid black",
           zIndex: 100001,
         }}
+        
       >
         <div
           style={{
@@ -63,6 +63,7 @@ export default function AltSide({ setExpand }) {
             padding: "4%",
             backgroundColor: "#ffe6a9",
           }}
+          
         >
           {currentUser ? (
             <div
@@ -86,7 +87,7 @@ export default function AltSide({ setExpand }) {
                 style={{ width: "100%", textAlign: "center" }}
                 className="hd-btn"
               >
-                Вхід
+                {t("auth.logIn")}
               </button>
             </div>
           )}

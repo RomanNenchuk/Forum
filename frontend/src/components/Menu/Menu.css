@@ -155,7 +155,7 @@ header {
   /* font-size: 32px; */
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .hd-logo span{
     font-size: 4vh;
   }
@@ -175,6 +175,9 @@ header {
   }
   .hd-search input::placeholder{
     font-size: 16px;
+  }
+  .hd-btn{
+    font-size: 1rem;
   }
 }
 
