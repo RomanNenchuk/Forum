@@ -19,7 +19,6 @@ import chatControllerIcon from "../../assets/chat-controller.svg";
 
 import { IoArrowBack } from "react-icons/io5";
 
-
 export default function Chat() {
   const [text, setText] = useState("");
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
@@ -46,8 +45,7 @@ export default function Chat() {
     toggled: false,
   });
 
-  const context = useOutletContext()
-
+  const context = useOutletContext();
 
   const actionMenuRef = useRef(null);
   const settingsRef = useRef(null);
@@ -118,13 +116,11 @@ export default function Chat() {
   }, []);
 
   useEffect(() => {
-    
     document.querySelector(".forum-container").style.overflowY = "auto";
     document.querySelector(".forum-container").style.overflowX = "hidden";
 
-
     return () => {
-      document.querySelector(".forum-container").style.overflow = ""
+      document.querySelector(".forum-container").style.overflow = "";
     };
   }, []);
 
@@ -445,7 +441,13 @@ export default function Chat() {
     <div className="chat-container">
       <div className="chat-ct-hd">
         <div className="chat-ct-hd-name">
-        <IoArrowBack size={24} style={{marginRight: "10px"}} onClick={()=>{context(false)}}/>
+          <IoArrowBack
+            size={24}
+            style={{ marginRight: "10px" }}
+            onClick={() => {
+              context(false);
+            }}
+          />
           <Link
             to={`/profiles/${receiverId}`}
             state={{ backgroundLocation: location }}
@@ -497,7 +499,7 @@ export default function Chat() {
         resetActionMenu={resetActionMenu}
       />
 
-<ChatInput
+      <ChatInput
         isEditModalOpen={isEditModalOpen}
         isSendModalOpen={isSendModalOpen}
         setIsEditModalOpen={setIsEditModalOpen}

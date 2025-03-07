@@ -5,16 +5,35 @@ export default defineConfig(({ mode }) => {
   // Завантажуємо змінні оточення
   const env = loadEnv(mode, process.cwd(), "");
 
-  // Оголошуємо змінні перед використанням
-  const PROTOCOL = env.VITE_PROTOCOL;
-  const HOST = env.VITE_HOST;
-  const PORT = env.VITE_PORT;
+  // Безпечне отримання змінних (якщо вони відсутні, буде значення за замовчуванням)
+  const PROTOCOL = env.VITE_PROTOCOL || "http";
+  const HOST = env.VITE_HOST || "localhost";
+  const PORT = env.VITE_PORT || "3000";
 
   return {
     plugins: [react()],
+
+    build: {
+      minify: "esbuild", // Швидша мініфікація
+      chunkSizeWarningLimit: 1000, // Прибираємо зайві попередження, якщо не критично
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes("node_modules")) {
+              return "vendor"; // Відокремлюємо бібліотеки в окремий файл
+            }
+          },
+        },
+      },
+    },
+
     server: {
       proxy: {
-        "/api": `${PROTOCOL}://${HOST}:${PORT}`, // Проксі для API-запитів
+        "/api": {
+          target: `${PROTOCOL}://${HOST}:${PORT}`,
+          changeOrigin: true, // Допомагає уникнути CORS-проблем
+          secure: PROTOCOL === "https", // Автоматично визначаємо, чи вмикати `secure`
+        },
       },
     },
   };

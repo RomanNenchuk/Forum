@@ -47,7 +47,6 @@ export default function PopulTopic() {
     queryFn: ({ pageParam = 1 }) =>
       fetchDailyPopularTopics({ pageParam, userId: currentUser?.uid }),
     getNextPageParam: lastPage => lastPage.nextPage,
-    enabled: !!currentUser,
     staleTime: 1000 * 60 * 5,
     cacheTime: 1000 * 60 * 10,
   });

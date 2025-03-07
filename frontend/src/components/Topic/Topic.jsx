@@ -35,10 +35,8 @@ export default function Topic() {
   const location = useLocation();
   const { width } = useWidth();
   const [extendInfo, setExtendInfo] = useState();
-
   const [text, setText] = useState("");
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
-
   const [files, setFiles] = useState([]);
   const [filesToDelete, setFilesToDelete] = useState([]); // Список файлів на видалення
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);

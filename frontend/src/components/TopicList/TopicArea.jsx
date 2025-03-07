@@ -11,8 +11,8 @@ import InteractWindow from "./InteractWindow.jsx";
 import { VscSettings } from "react-icons/vsc";
 import { IoChatboxEllipsesOutline } from "react-icons/io5";
 import ProfileHeader from "../ProfileHeader.jsx";
+import reactionList from "../../data/reactionList.js";
 import "./TopicList.css";
-
 import axios from "axios";
 
 const PROTOCOL = import.meta.env.VITE_PROTOCOL;
@@ -21,7 +21,6 @@ const PORT = import.meta.env.VITE_PORT;
 
 export default function TopicArea({
   topicItem,
-  reactionList,
   initialReactions,
   userReaction,
   handleOnActionMenu,
@@ -50,10 +49,13 @@ export default function TopicArea({
 
   const addSubscribeMutation = useMutation({
     mutationFn: async () => {
-      const res = await axios.post(`${PROTOCOL}://${HOST}:${PORT}/subscriptions`, {
-        user1_id: currentUser.uid,
-        user2_id: topic.author,
-      });
+      const res = await axios.post(
+        `${PROTOCOL}://${HOST}:${PORT}/subscriptions`,
+        {
+          user1_id: currentUser.uid,
+          user2_id: topic.author,
+        }
+      );
       return res.data;
     },
     onSuccess: data => {
@@ -105,9 +107,12 @@ export default function TopicArea({
 
   const deleteSubscribeMutation = useMutation({
     mutationFn: async () => {
-      const res = await axios.delete(`${PROTOCOL}://${HOST}:${PORT}/subscriptions`, {
-        data: { user1_id: currentUser.uid, user2_id: topic.author },
-      });
+      const res = await axios.delete(
+        `${PROTOCOL}://${HOST}:${PORT}/subscriptions`,
+        {
+          data: { user1_id: currentUser.uid, user2_id: topic.author },
+        }
+      );
       return res.data;
     },
     onSuccess: data => {

@@ -219,7 +219,7 @@ ul.chat-messages {
   user-select: none;
   position: relative;
   display: flex;
-  gap: 30px;
+  gap: 1.5vh;
   flex-direction: column;
   background-color: gray;
   word-wrap: break-word;
