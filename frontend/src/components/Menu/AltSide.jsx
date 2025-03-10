@@ -48,7 +48,7 @@ export default function AltSide({ setExpand, display }) {
       <div
         style={{
           width: "max-content",
-          height: "60vh",
+          height: "70vh",
           backgroundColor: "#fff2d3",
           border: "2px solid black",
           zIndex: 100001,

@@ -50,7 +50,7 @@ export default function ChatList() {
                 >
                   <div className="chat-header">
                     <div className="chat-name-ct">
-                      <Avatar size={50} avatar={chat.other_user_avatar} />
+                      <Avatar size={42} avatar={chat.other_user_avatar} />
                       <div className="chat-name-text">
                         <p className="chat-name">{chat.other_user_name}</p>
                       </div>

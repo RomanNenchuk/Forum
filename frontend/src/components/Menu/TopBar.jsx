@@ -113,7 +113,7 @@ export default function TopBar({setExpand}) {
               avThickness="0.4vh"
               gap="1.5vh"
               order="text-first"
-              style={{ textAlign: "right" }}
+              style={{ textAlign: "right", marginRight: "10px"}}
               textStyle={{ color: "#000" }}
             />
           ) : (

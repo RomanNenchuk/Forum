@@ -31,7 +31,7 @@ export default function TopicInput({
   }
   const style = {
     ...{ width: "auto" },
-    ...(width > 768 ? { height: "30px" } : { height: "1.2rem" }),
+    ...(width > 768 ? { height: "20px" } : { height: "1.2rem" }),
   };
   return (
     <div className="comment-input-container">
@@ -55,7 +55,7 @@ export default function TopicInput({
       <FileUploader
         setFiles={setFiles}
         setIsSendModalOpen={setIsSendModalOpen}
-        style={{ ...style, height: width > 768 ? "30px" : "1.2rem" }}
+        style={{ ...style, height: width > 768 ? "20px" : "1.2rem" }}
       />
       <input
         id="comment-input"
@@ -74,7 +74,7 @@ export default function TopicInput({
       {editId !== -1 && !isEditModalOpen && !isSendModalOpen && (
         <>
           <MdEdit
-            size={width > 768 ? "30px" : "1.2rem"}
+            size={width > 768 ? "20px" : "1.2rem"}
             onClick={editComment}
           />
           <img src={cancelIcon} style={style} alt="Cancel" onClick={onCancel} />

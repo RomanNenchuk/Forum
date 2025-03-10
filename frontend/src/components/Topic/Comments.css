@@ -12,10 +12,11 @@
 }
 .comment-outer {
   /* border: 0.1vh solid black; */
-  border-radius: 2vh;
   padding: 1vh;
-  width: 75%;
-  margin-top: 70px;
+  width: 90%;
+  margin-top: 50px;
+  border: 1px solid black;
+  border-radius: 10px;
 }
 .header-container {
   display: flex;
@@ -38,10 +39,11 @@
 }
 .comment-outer-reply {
   /* border: 0.1vh solid black; */
-  border-radius: 2vh;
   padding: 1vh;
-  width: 70%;
-  margin: 10px 0 0 8vw;
+  width: 80%;
+  margin: 10px 0 0 5vw;
+  border: 1px solid black;
+  border-radius: 10px;
 }
 .comment-input-container {
   position: relative;
@@ -49,7 +51,7 @@
   align-items: center;
   gap: 43px;
   width: 100%;
-  padding: 17px 22px;
+  padding: 5px 22px;
   background: #acc3d3a8;
 }
 #comment-input {
@@ -57,11 +59,14 @@
   background-color: #acc3d3a8;
   border: none;
   border-radius: 1vh;
-  font-size: 18px;
+  font-size: 0.9rem;
   font-family: "Inter";
   background: transparent;
   outline: none;
   padding: 3px 10px;
+}
+#comment-input::placeholder{
+  font-size: 0.9rem;
 }
 #chat-message-input::placeholder {
   color: #659290;

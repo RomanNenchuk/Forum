@@ -2,7 +2,7 @@
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    padding: 1vh 1.5vh;
+    padding: 1.5vh 100px 1.5vh 10px;
     text-decoration: none;
 }
 .mn-menu-elem img{

@@ -7,7 +7,7 @@ export default function ProfileHeader({
   avatar,
   profileName,
   size = "50px",
-  sizeFont = "1.2rem",
+  sizeFont = "rem",
   avThickness,
   gap = "1vh",
   className = "",
