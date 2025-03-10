@@ -6,8 +6,8 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
 
   // Безпечне отримання змінних (якщо вони відсутні, буде значення за замовчуванням)
-  const PROTOCOL = env.VITE_PROTOCOL || "http";
   const VITE_API_URL = env.VITE_API_URL;
+  const PROD_MODE = env.NODE_ENV === "production";
 
   return {
     plugins: [react()],
@@ -31,7 +31,7 @@ export default defineConfig(({ mode }) => {
         "/api": {
           target: `${VITE_API_URL}`,
           changeOrigin: true, // Допомагає уникнути CORS-проблем
-          secure: PROTOCOL === "https", // Автоматично визначаємо, чи вмикати `secure`
+          secure: PROD_MODE, // Автоматично визначаємо, чи вмикати `secure`
         },
       },
     },

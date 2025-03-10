@@ -20,10 +20,8 @@ const __dirname = path.resolve();
 
 const app = express();
 
-const PROTOCOL = process.env.PROTOCOL;
-const HOST = process.env.HOST;
+const FRONTEND_URL_API = process.env.FRONTEND_URL_API;
 const BACKEND_PORT = process.env.BACKEND_PORT;
-const FRONTEND_PORT = process.env.FRONTEND_PORT;
 
 // Підключення до бази даних
 connectDB().catch(err => {
@@ -61,12 +59,12 @@ app.get("*", (req, res) => {
 });
 
 const expressServer = app.listen(BACKEND_PORT, () => {
-  console.log(`Server is running on ${PROTOCOL}://${HOST}:${BACKEND_PORT}`);
+  console.log(`Server is running on http://localhost:${BACKEND_PORT}`);
 });
 
 const io = new Server(expressServer, {
   cors: {
-    origin: `${PROTOCOL}://${HOST}:${FRONTEND_PORT}`,
+    origin: `${FRONTEND_URL_API}`,
     methods: ["GET", "POST"],
   },
 });
