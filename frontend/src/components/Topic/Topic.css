@@ -10,7 +10,7 @@
 .topic-and-comments {
   display: block;
   overflow: hidden;
-  height: 79vh;
+  height: 81vh;
 }
 .header {
   display: flex;
@@ -19,7 +19,7 @@
   background-color: #acc3d3;
   margin-top: 11vh;
   padding-left: 77px;
-  height: 10vmin;
+  height: 8vh;
   width: 100%;
   gap: 20px;
   z-index: 0;
@@ -45,7 +45,7 @@
   justify-content: space-between;
   overflow-x: hidden;
   overflow: hidden;
-  height: 79vh;
+  height: 100%;
 }
 
 .left {
@@ -117,9 +117,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 23px;
   font-family: Inter;
-  font-size: 23px;
+  font-size: 1.2rem;
   font-weight: 500;
   line-height: 27.84px;
   letter-spacing: -0.01em;

@@ -2,10 +2,10 @@
   position: relative;
   display: inline-block;
 }
-.send-smile-btn svg,
+.send-smile-btn img,
 .send-msg-btn svg {
-  width: 100%;
-  height: 100%;
+  width: auto;
+  height: 20px;
 }
 .send-smile-btn {
   position: relative;

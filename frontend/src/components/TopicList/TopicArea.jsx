@@ -234,9 +234,10 @@ export default function TopicArea({
             <ProfileHeader
               id={topic.author}
               avatar={topic.author_avatar}
-              size={width > 768 ? "6vh" : "4vh"}
-              sizeFont={width > 768 ? "3vh" : "1.1rem"}
+              size={width > 768 ? "2.5rem" : "4vh"}
+              sizeFont={width > 768 ? "1rem" : "1.1rem"}
               avThickness="0.4vmin"
+              style = {{gap: "10px"}}
               profileName={topic.author_full_name}
             />
             {topic.subscribed !== "none" && (
@@ -280,7 +281,7 @@ export default function TopicArea({
           <div
             style={{
               textAlign: "right",
-              fontSize: width > 768 ? "2.5vh" : "0.8rem",
+              fontSize: width > 768 ? "0.8rem" : "0.8rem",
               color: "gray",
             }}
           >

@@ -50,6 +50,7 @@ export default function TagBar() {
               state={{
                 backgroundLocation: location,
               }}
+              id = "show-more"
             >
               {t("tag.showMore")}
             </Link>

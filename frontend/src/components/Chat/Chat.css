@@ -15,7 +15,7 @@
 }
 .chat-hd {
   display: flex;
-  padding: 35px 0 14px 40px;
+  padding: 13px 0 10px 40px;
   width: inherit;
   background: #d9d9d9b2;
   border-bottom: 2px solid #cbcbcca8;
@@ -23,12 +23,12 @@
 
 .chat-hd p {
   margin: 0;
-  font-size: 23px;
+  font-size: 20px;
   font-family: "Inter-SemiBold";
 }
 .chat-list {
   width: 100%;
-  height: calc(89vh - 85px);
+  height: calc(89vh - 53px);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -40,11 +40,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 38px;
+  gap: 25px;
 }
 .chat-name-text p {
   margin: 0;
-  font-size: 21px;
+  font-size: 17px;
   font-family: "Inter";
   color: #000;
 }
@@ -103,7 +103,7 @@
   align-items: center;
   justify-content: space-between;
   background: #acc3d3a8;
-  padding: 28px 55px 23px 40px;
+  padding: 10px 55px 10px 40px;
   border-bottom: 2px solid #fff7ebf2;
 }
 .chat-ct-hd-name {
@@ -134,7 +134,7 @@
   display: flex;
   align-items: flex-end;
   gap: 43px;
-  padding: 15px 30px 15px 30px;
+  padding: 8px 30px 8px 30px;
   background: #acc3d3a8;
 }
 .chat-reply {
@@ -169,7 +169,7 @@
 #chat-message-input {
   flex-grow: 1;
   border: none;
-  font-size: 18px;
+  font-size: 16px;
   font-family: "Inter";
   background: transparent;
   outline: none;
@@ -179,6 +179,7 @@
 #chat-message-input::placeholder {
   color: #659290;
   letter-spacing: 0.02em;
+  font-size: 16px;
 }
 ul.chat-messages {
   height: 89vh;
@@ -219,7 +220,9 @@ ul.chat-messages {
   user-select: none;
   position: relative;
   display: flex;
-  gap: 1.5vh;
+
+  gap: 10px;
+
   flex-direction: column;
   background-color: gray;
   word-wrap: break-word;

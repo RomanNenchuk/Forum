@@ -175,3 +175,15 @@
 .confirmationButtons {
   margin: 25px 0;
 }
+
+@media(max-width: 767px){
+  .cardBody{
+    padding: 0 20px;
+  }
+  .cancelButton,
+  .submitButton,
+  .addButton{
+  padding: 10px 5px;
+
+}
+}
