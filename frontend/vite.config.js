@@ -6,8 +6,8 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
 
   // Безпечне отримання змінних (якщо вони відсутні, буде значення за замовчуванням)
-  const VITE_API_URL = env.VITE_API_URL;
-  const PROD_MODE = env.NODE_ENV === "production";
+  // const VITE_API_URL = env.VITE_API_URL;
+  // const PROD_MODE = env.NODE_ENV === "production";
 
   return {
     plugins: [react()],
@@ -26,14 +26,14 @@ export default defineConfig(({ mode }) => {
       },
     },
 
-    server: {
-      proxy: {
-        "/api": {
-          target: `${VITE_API_URL}`,
-          changeOrigin: true, // Допомагає уникнути CORS-проблем
-          secure: PROD_MODE, // Автоматично визначаємо, чи вмикати `secure`
-        },
-      },
-    },
+    // server: {
+    //   proxy: {
+    //     "/api": {
+    //       target: `${VITE_API_URL}`,
+    //       changeOrigin: true, // Допомагає уникнути CORS-проблем
+    //       secure: PROD_MODE, // Автоматично визначаємо, чи вмикати `secure`
+    //     },
+    //   },
+    // },
   };
 });

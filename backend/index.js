@@ -30,7 +30,11 @@ connectDB().catch(err => {
 });
 
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: FRONTEND_URL_API,
+  })
+);
 app.use(express.json());
 // app.use(middleware.decodeToken);
 
