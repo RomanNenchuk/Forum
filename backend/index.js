@@ -21,7 +21,7 @@ const __dirname = path.resolve();
 const app = express();
 
 const FRONTEND_URL_API = process.env.FRONTEND_URL_API;
-const BACKEND_PORT = process.env.PORT;
+const BACKEND_PORT = process.env.PORT || 4000;
 
 // Підключення до бази даних
 connectDB().catch(err => {
