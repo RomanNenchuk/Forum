@@ -4,10 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "../../contexts/AuthContext";
 import axios from "axios";
 import "./Profile.css";
-
-const PROTOCOL = import.meta.env.VITE_PROTOCOL;
-const HOST = import.meta.env.VITE_HOST;
-const PORT = import.meta.env.VITE_PORT;
+import { VITE_API_URL } from "../../constants/config";
 
 export default function InteractionBlock({ userProfile, setUserProfile }) {
   const { t } = useTranslation();
@@ -27,7 +24,7 @@ export default function InteractionBlock({ userProfile, setUserProfile }) {
       });
     }
     try {
-      const result = await axios.post(`${PROTOCOL}://${HOST}:${PORT}/subscriptions`, {
+      const result = await axios.post(`${VITE_API_URL}/subscriptions`, {
         user1_id: currentUser.uid,
         user2_id: id,
       });
@@ -43,7 +40,7 @@ export default function InteractionBlock({ userProfile, setUserProfile }) {
   }
   async function onUnsubscribe() {
     try {
-      const result = await axios.delete(`${PROTOCOL}://${HOST}:${PORT}/subscriptions`, {
+      const result = await axios.delete(`${VITE_API_URL}/subscriptions`, {
         data: {
           user1_id: currentUser.uid,
           user2_id: id,

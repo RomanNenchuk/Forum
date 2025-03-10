@@ -1,10 +1,7 @@
 import React, { useContext, useState, createContext, useEffect } from "react";
 import { useAuth } from "./AuthContext";
 import axios from "axios";
-
-const PROTOCOL = import.meta.env.VITE_PROTOCOL;
-const HOST = import.meta.env.VITE_HOST;
-const PORT = import.meta.env.VITE_PORT;
+import { VITE_API_URL } from "../constants/config";
 
 const UserInfoContext = createContext();
 
@@ -39,7 +36,7 @@ export function UserInfoProvider({ children }) {
 
   async function getUserInfo(id) {
     try {
-      const response = await axios.get(`${PROTOCOL}://${HOST}:${PORT}/users/${id}`, {
+      const response = await axios.get(`${VITE_API_URL}/users/${id}`, {
         params:
           currentUser && currentUser.uid !== id
             ? { currentUserId: currentUser.uid }
@@ -67,15 +64,11 @@ export function UserInfoProvider({ children }) {
 
   async function saveUserInDB(token, userData) {
     try {
-      const response = await axios.post(
-        `${PROTOCOL}://${HOST}:${PORT}/users`,
-        userData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.post(`${VITE_API_URL}/users`, userData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       return response.data; // Повертаємо відповідь, якщо потрібна
     } catch (error) {
@@ -89,7 +82,7 @@ export function UserInfoProvider({ children }) {
     formData.append("profileImage", image);
     try {
       const response = await axios.post(
-        `${PROTOCOL}://${HOST}:${PORT}/attachments/${uid}/profile-image`,
+        `${VITE_API_URL}/attachments/${uid}/profile-image`,
         formData,
         {
           headers: {
@@ -111,7 +104,7 @@ export function UserInfoProvider({ children }) {
   async function deleteAvatar(uid, token) {
     try {
       const response = await axios.delete(
-        `${PROTOCOL}://${HOST}:${PORT}/attachments/${uid}/profile-image`,
+        `${VITE_API_URL}/attachments/${uid}/profile-image`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

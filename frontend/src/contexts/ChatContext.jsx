@@ -3,10 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import { useSocket } from "./SocketProviderContext";
 import axios from "axios";
-
-const PROTOCOL = import.meta.env.VITE_PROTOCOL;
-const HOST = import.meta.env.VITE_HOST;
-const PORT = import.meta.env.VITE_PORT;
+import { VITE_API_URL } from "../constants/config";
 
 const ChatContext = createContext();
 
@@ -45,7 +42,7 @@ export function ChatProvider({ children }) {
 
   async function fetchChatList() {
     try {
-      const result = await axios.get(`${PROTOCOL}://${HOST}:${PORT}/chats`, {
+      const result = await axios.get(`${VITE_API_URL}/chats`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -87,7 +84,7 @@ export function ChatProvider({ children }) {
 
     try {
       const response = await axios.put(
-        `${PROTOCOL}://${HOST}:${PORT}/chats/${chat_id}`,
+        `${VITE_API_URL}/chats/${chat_id}`,
         {
           receiver_id,
           sender_id,
@@ -111,14 +108,11 @@ export function ChatProvider({ children }) {
       .sort((a, b) => a.localeCompare(b))
       .join("_");
     try {
-      const response = await axios.delete(
-        `${PROTOCOL}://${HOST}:${PORT}/chats/${chat_id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.delete(`${VITE_API_URL}/chats/${chat_id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       navigate("/chats");
     } catch (error) {
       console.error(error);
@@ -130,7 +124,7 @@ export function ChatProvider({ children }) {
       .join("_");
     try {
       const response = await axios.delete(
-        `${PROTOCOL}://${HOST}:${PORT}/chats/${chat_id}/messages`,
+        `${VITE_API_URL}/chats/${chat_id}/messages`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

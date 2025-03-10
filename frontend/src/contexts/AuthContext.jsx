@@ -13,10 +13,7 @@ import {
 import { auth, googleAuthProvider } from "../config/firebase-config.js"; // Імпортуємо вже ініціалізований екземпляр auth
 import { useTranslation } from "react-i18next";
 import axios from "axios";
-
-const PROTOCOL = import.meta.env.VITE_PROTOCOL;
-const HOST = import.meta.env.VITE_HOST;
-const PORT = import.meta.env.VITE_PORT;
+import { VITE_API_URL } from "../constants/config.js";
 
 const AuthContext = createContext();
 
@@ -109,7 +106,7 @@ export function AuthProvider({ children }) {
   async function checkUsername(username) {
     try {
       const response = await axios.get(
-        `${PROTOCOL}://${HOST}:${PORT}/auth/check-username/${username}`
+        `${VITE_API_URL}/auth/check-username/${username}`
       );
       return response.data.email;
     } catch (error) {
@@ -120,7 +117,7 @@ export function AuthProvider({ children }) {
   async function checkUserRegistration(id) {
     try {
       const response = await axios.get(
-        `${PROTOCOL}://${HOST}:${PORT}/auth/check-registration/${id}`
+        `${VITE_API_URL}/auth/check-registration/${id}`
       );
       return true;
     } catch (error) {

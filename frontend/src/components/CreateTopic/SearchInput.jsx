@@ -11,10 +11,7 @@ import debounce from "../../utils/debounce.jsx";
 import { RxCross2 } from "react-icons/rx";
 import "./CreateTopic.css";
 import axios from "axios";
-
-const PROTOCOL = import.meta.env.VITE_PROTOCOL;
-const HOST = import.meta.env.VITE_HOST;
-const PORT = import.meta.env.VITE_PORT;
+import { VITE_API_URL } from "../../constants/config.js";
 
 const SearchInput = ({ selectedTagList, setSelectedTagList }) => {
   const { t } = useTranslation();
@@ -26,7 +23,7 @@ const SearchInput = ({ selectedTagList, setSelectedTagList }) => {
     async prompt => {
       try {
         const res = await axios.get(
-          `${PROTOCOL}://${HOST}:${PORT}/tags?page=1&limit=12${
+          `${VITE_API_URL}/tags?page=1&limit=12${
             prompt ? "&search=" + prompt : ""
           }`
         );
@@ -124,37 +121,36 @@ const SearchInput = ({ selectedTagList, setSelectedTagList }) => {
             {t("add")}
           </div>
         </div>
-        <div style={{position: "relative", width:"100%"}}>
-        <div
-          style={{
-            position: "absolute",
-            width: "100%",
-            ...(tagList.length === 0 && { display: "none" }),
-          }}
-        >
-          {isDropdownListOpen && (
-            <ul className="find-list">
-              {tagList
-                .filter(
-                  tag =>
-                    !selectedTagList.some(
-                      selectedTag => selectedTag === tag.tag_name
-                    )
-                )
-                .slice(0, 7)
-                .map(tag => (
-                  <li
-                    key={tag.id || tag.tag_name}
-                    className="find-list-item"
-                    onMouseDown={e => handleTagClick(e, tag)}
-                  >
-                    {tag.tag_name}
-                  </li>
-                ))}
-            </ul>
-          )}
-        </div>
-
+        <div style={{ position: "relative", width: "100%" }}>
+          <div
+            style={{
+              position: "absolute",
+              width: "100%",
+              ...(tagList.length === 0 && { display: "none" }),
+            }}
+          >
+            {isDropdownListOpen && (
+              <ul className="find-list">
+                {tagList
+                  .filter(
+                    tag =>
+                      !selectedTagList.some(
+                        selectedTag => selectedTag === tag.tag_name
+                      )
+                  )
+                  .slice(0, 7)
+                  .map(tag => (
+                    <li
+                      key={tag.id || tag.tag_name}
+                      className="find-list-item"
+                      onMouseDown={e => handleTagClick(e, tag)}
+                    >
+                      {tag.tag_name}
+                    </li>
+                  ))}
+              </ul>
+            )}
+          </div>
         </div>
       </div>
     </Form.Group>

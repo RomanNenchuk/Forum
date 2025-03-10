@@ -10,10 +10,7 @@ import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
 import "./TopicList.css";
 import axios from "axios";
-
-const PROTOCOL = import.meta.env.VITE_PROTOCOL;
-const HOST = import.meta.env.VITE_HOST;
-const PORT = import.meta.env.VITE_PORT;
+import { VITE_API_URL } from "../../constants/config.js";
 
 export default function TopicList({
   topicInfoList,
@@ -98,9 +95,7 @@ export default function TopicList({
 
   const deleteTopic = async id => {
     try {
-      const res = await axios.delete(
-        `${PROTOCOL}://${HOST}:${PORT}/topics/${id}`
-      );
+      const res = await axios.delete(`${VITE_API_URL}/topics/${id}`);
       return res.data; // Повертаємо результат, щоб його можна було використати в onSuccess
     } catch (error) {
       console.error(error);
@@ -165,7 +160,7 @@ export default function TopicList({
   async function checkIfTopicIsSaved(user_id, topic_id) {
     try {
       const res = await axios.get(
-        `${PROTOCOL}://${HOST}:${PORT}/topics/save?user_id=${user_id}&topic_id=${topic_id}`
+        `${VITE_API_URL}/topics/save?user_id=${user_id}&topic_id=${topic_id}`
       );
       setIsTopicSaved(res.data.saved);
     } catch (error) {

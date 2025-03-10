@@ -1,10 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
 import io from "socket.io-client";
-
-const PROTOCOL = import.meta.env.VITE_PROTOCOL;
-const HOST = import.meta.env.VITE_HOST;
-const PORT = import.meta.env.VITE_PORT;
+import { VITE_API_URL } from "../constants/config";
 
 const SocketContext = React.createContext();
 
@@ -19,7 +16,7 @@ export function SocketProvider({ children }) {
   useEffect(() => {
     if (!currentUser) return;
 
-    const newSocket = io(`${PROTOCOL}://${HOST}:${PORT}`, {
+    const newSocket = io(`${VITE_API_URL}`, {
       query: { id: currentUser.uid },
     });
 

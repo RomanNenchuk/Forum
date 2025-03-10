@@ -18,10 +18,7 @@ import LoadingSpinner from "../AltSpinner/AltSpinner.jsx";
 import TagList from "./TagList.jsx";
 import axios from "axios";
 import "../CreateTopic/CreateTopic.css";
-
-const PROTOCOL = import.meta.env.VITE_PROTOCOL;
-const HOST = import.meta.env.VITE_HOST;
-const PORT = import.meta.env.VITE_PORT;
+import { VITE_API_URL } from "../../constants/config.js";
 
 export default function ExpandedTags({ onClose }) {
   const [tags, setTags] = useState([]);
@@ -42,7 +39,7 @@ export default function ExpandedTags({ onClose }) {
         const params = prompt
           ? `?search=${prompt}&page=${pageNum}&limit=${LIMIT}`
           : `?page=${pageNum}&limit=${LIMIT}`;
-        const response = await axios.get(`${PROTOCOL}://${HOST}:${PORT}/tags` + params);
+        const response = await axios.get(`${VITE_API_URL}/tags` + params);
 
         if (pageNum === 1) {
           setTags(response.data);

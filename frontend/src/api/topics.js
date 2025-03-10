@@ -1,17 +1,11 @@
 import axios from "axios";
-
-const PROTOCOL = import.meta.env.VITE_PROTOCOL;
-const HOST = import.meta.env.VITE_HOST;
-const PORT = import.meta.env.VITE_PORT;
+import { VITE_API_URL } from "../constants/config";
 
 export const fetchMyTopics = async ({ pageParam = 1, userId }) => {
   try {
-    const response = await axios.get(
-      `${PROTOCOL}://${HOST}:${PORT}/topics/mytopics`,
-      {
-        params: { user_id: userId, page: pageParam },
-      }
-    );
+    const response = await axios.get(`${VITE_API_URL}/topics/mytopics`, {
+      params: { user_id: userId, page: pageParam },
+    });
 
     const topics =
       response.data?.map(topic => ({
@@ -32,12 +26,9 @@ export const fetchMyTopics = async ({ pageParam = 1, userId }) => {
 
 export const fetchMonthlyPopularTopics = async ({ pageParam = 1, userId }) => {
   try {
-    const response = await axios.get(
-      `${PROTOCOL}://${HOST}:${PORT}/topics/popular`,
-      {
-        params: { user_id: userId, period: "month", page: pageParam },
-      }
-    );
+    const response = await axios.get(`${VITE_API_URL}/topics/popular`, {
+      params: { user_id: userId, period: "month", page: pageParam },
+    });
 
     const topics = response.data || [];
 
@@ -54,12 +45,9 @@ export const fetchMonthlyPopularTopics = async ({ pageParam = 1, userId }) => {
 
 export const fetchDailyPopularTopics = async ({ pageParam = 1, userId }) => {
   try {
-    const response = await axios.get(
-      `${PROTOCOL}://${HOST}:${PORT}/topics/popular`,
-      {
-        params: { user_id: userId, period: "day", page: pageParam },
-      }
-    );
+    const response = await axios.get(`${VITE_API_URL}/topics/popular`, {
+      params: { user_id: userId, period: "day", page: pageParam },
+    });
 
     const topics = response.data || [];
 
@@ -76,12 +64,9 @@ export const fetchDailyPopularTopics = async ({ pageParam = 1, userId }) => {
 
 export const fetchSavedTopics = async ({ pageParam = 1, userId }) => {
   try {
-    const response = await axios.get(
-      `${PROTOCOL}://${HOST}:${PORT}/topics/saved`,
-      {
-        params: { user_id: userId, page: pageParam },
-      }
-    );
+    const response = await axios.get(`${VITE_API_URL}/topics/saved`, {
+      params: { user_id: userId, page: pageParam },
+    });
 
     const topics = response.data || [];
 
@@ -98,7 +83,7 @@ export const fetchSavedTopics = async ({ pageParam = 1, userId }) => {
 
 export const switchSavedTopic = async ({ user_id, topic }) => {
   console.log(user_id, topic);
-  const res = await axios.patch(`${PROTOCOL}://${HOST}:${PORT}/topics/switch`, {
+  const res = await axios.patch(`${VITE_API_URL}/topics/switch`, {
     user_id,
     topic_id: topic?.id,
   });
@@ -108,7 +93,7 @@ export const switchSavedTopic = async ({ user_id, topic }) => {
 export const fetchTopics = async ({ pageParam = 1, queryKey }) => {
   const [, queryParams, userId] = queryKey; // Дістаємо queryParams
   try {
-    const response = await axios.get(`${PROTOCOL}://${HOST}:${PORT}/topics`, {
+    const response = await axios.get(`${VITE_API_URL}/topics`, {
       params: {
         page: pageParam,
         sort: queryParams?.sortOrder || "desc",
@@ -131,9 +116,7 @@ export const fetchTopics = async ({ pageParam = 1, queryKey }) => {
 
 export const deleteTopic = async id => {
   try {
-    const res = await axios.delete(
-      `${PROTOCOL}://${HOST}:${PORT}/topics/${id}`
-    );
+    const res = await axios.delete(`${VITE_API_URL}/topics/${id}`);
     if (res.data.done) console.log("done");
   } catch (error) {
     console.error(error);
@@ -144,13 +127,9 @@ export const deleteTopic = async id => {
 };
 
 export const createTopic = async (formData, token) => {
-  const response = await axios.post(
-    `${PROTOCOL}://${HOST}:${PORT}/topics`,
-    formData,
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    }
-  );
+  const response = await axios.post(`${VITE_API_URL}/topics`, formData, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 
   if (response.status !== 201) throw new Error("Failed to create topic");
   return response.data;

@@ -10,10 +10,7 @@ import InteractWindow from "../TopicList/InteractWindow.jsx";
 import ProfileHeader from "../ProfileHeader.jsx";
 import axios from "axios";
 import "./Comments.css";
-
-const PROTOCOL = import.meta.env.VITE_PROTOCOL;
-const HOST = import.meta.env.VITE_HOST;
-const PORT = import.meta.env.VITE_PORT;
+import { VITE_API_URL } from "../../constants/config.js";
 
 export default function CommentArea({
   comment,
@@ -43,7 +40,7 @@ export default function CommentArea({
 
     try {
       const response = await axios.put(
-        `${PROTOCOL}://${HOST}:${PORT}/comments/${comment.id}/reactions`,
+        `${VITE_API_URL}/comments/${comment.id}/reactions`,
         {
           reaction: emoji.name,
         },

@@ -14,10 +14,7 @@ import AvatarUploader from "../AvatarUploader.jsx";
 import UpdateProfileForm from "./UpdateProfileForm.jsx";
 import ModalHeader from "../ModalHeader/ModalHeader.jsx";
 import axios from "axios";
-
-const PROTOCOL = import.meta.env.VITE_PROTOCOL;
-const HOST = import.meta.env.VITE_HOST;
-const PORT = import.meta.env.VITE_PORT;
+import { VITE_API_URL } from "../../constants/config.js";
 
 export default function UpdateProfile({ onClose }) {
   const { t } = useTranslation();
@@ -55,7 +52,7 @@ export default function UpdateProfile({ onClose }) {
   async function updateUserOnServer(token, userId, userData) {
     try {
       const response = await axios.put(
-        `${PROTOCOL}://${HOST}:${PORT}/users/${userId}`,
+        `${VITE_API_URL}/users/${userId}`,
         userData,
         {
           headers: { Authorization: `Bearer ${token}` },

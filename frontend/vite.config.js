@@ -7,8 +7,7 @@ export default defineConfig(({ mode }) => {
 
   // Безпечне отримання змінних (якщо вони відсутні, буде значення за замовчуванням)
   const PROTOCOL = env.VITE_PROTOCOL || "http";
-  const HOST = env.VITE_HOST || "localhost";
-  const PORT = env.VITE_PORT || "3000";
+  const VITE_API_URL = env.VITE_API_URL;
 
   return {
     plugins: [react()],
@@ -30,7 +29,7 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: {
         "/api": {
-          target: `${PROTOCOL}://${HOST}:${PORT}`,
+          target: `${VITE_API_URL}`,
           changeOrigin: true, // Допомагає уникнути CORS-проблем
           secure: PROTOCOL === "https", // Автоматично визначаємо, чи вмикати `secure`
         },

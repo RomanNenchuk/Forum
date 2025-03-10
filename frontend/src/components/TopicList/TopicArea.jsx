@@ -14,10 +14,7 @@ import ProfileHeader from "../ProfileHeader.jsx";
 import reactionList from "../../data/reactionList.js";
 import "./TopicList.css";
 import axios from "axios";
-
-const PROTOCOL = import.meta.env.VITE_PROTOCOL;
-const HOST = import.meta.env.VITE_HOST;
-const PORT = import.meta.env.VITE_PORT;
+import { VITE_API_URL } from "../../constants/config.js";
 
 export default function TopicArea({
   topicItem,
@@ -49,13 +46,10 @@ export default function TopicArea({
 
   const addSubscribeMutation = useMutation({
     mutationFn: async () => {
-      const res = await axios.post(
-        `${PROTOCOL}://${HOST}:${PORT}/subscriptions`,
-        {
-          user1_id: currentUser.uid,
-          user2_id: topic.author,
-        }
-      );
+      const res = await axios.post(`${VITE_API_URL}/subscriptions`, {
+        user1_id: currentUser.uid,
+        user2_id: topic.author,
+      });
       return res.data;
     },
     onSuccess: data => {
@@ -107,12 +101,9 @@ export default function TopicArea({
 
   const deleteSubscribeMutation = useMutation({
     mutationFn: async () => {
-      const res = await axios.delete(
-        `${PROTOCOL}://${HOST}:${PORT}/subscriptions`,
-        {
-          data: { user1_id: currentUser.uid, user2_id: topic.author },
-        }
-      );
+      const res = await axios.delete(`${VITE_API_URL}/subscriptions`, {
+        data: { user1_id: currentUser.uid, user2_id: topic.author },
+      });
       return res.data;
     },
     onSuccess: data => {
@@ -172,7 +163,7 @@ export default function TopicArea({
       });
     try {
       const response = await axios.put(
-        `${PROTOCOL}://${HOST}:${PORT}/topics/${topic.id}/reactions`,
+        `${VITE_API_URL}/topics/${topic.id}/reactions`,
         {
           reaction: emoji.name,
         },
@@ -237,7 +228,7 @@ export default function TopicArea({
               size={width > 768 ? "2.5rem" : "4vh"}
               sizeFont={width > 768 ? "1rem" : "1.1rem"}
               avThickness="0.4vmin"
-              style = {{gap: "10px"}}
+              style={{ gap: "10px" }}
               profileName={topic.author_full_name}
             />
             {topic.subscribed !== "none" && (

@@ -7,13 +7,16 @@ import topicRoutes from "./routes/topicRoutes.js";
 import chatsRoutes from "./routes/chatRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import fileUploadRoutes from "./routes/fileUploadRoutes.js";
-import subscriptionRoutes from "./routes/userSubscriptionRoutes.js"
+import subscriptionRoutes from "./routes/userSubscriptionRoutes.js";
 import tagRoutes from "./routes/tagRoutes.js";
 import commentRoutes from "./routes/commentRoutes.js";
 import { Server } from "socket.io";
 import { chatSocket } from "./sockets/chatSocket.js";
+import path from "path";
 import dotenv from "dotenv";
 dotenv.config({ path: "./config/.env" });
+
+const __dirname = path.resolve();
 
 const app = express();
 
@@ -34,25 +37,28 @@ app.use(express.json());
 // app.use(middleware.decodeToken);
 
 // Маршрут для API
-app.get("/", (req, res) => {
-  res.send("Hello world!");
+
+app.use("/api/auth", authRoutes);
+
+app.use("/api/users", userRoutes);
+
+app.use("/api/topics", topicRoutes);
+
+app.use("/api/comments", commentRoutes);
+
+app.use("/api/chats", middleware.decodeToken, chatsRoutes);
+
+app.use("/api/attachments", fileUploadRoutes);
+
+app.use("/api/tags", tagRoutes);
+
+app.use("/api/subscriptions", subscriptionRoutes);
+
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
 });
-
-app.use("/auth", authRoutes);
-
-app.use("/users", userRoutes);
-
-app.use("/topics", topicRoutes);
-
-app.use("/comments", commentRoutes);
-
-app.use("/chats", middleware.decodeToken, chatsRoutes);
-
-app.use("/attachments", fileUploadRoutes);
-
-app.use("/tags", tagRoutes);
-
-app.use("/subscriptions", subscriptionRoutes);
 
 const expressServer = app.listen(BACKEND_PORT, () => {
   console.log(`Server is running on ${PROTOCOL}://${HOST}:${BACKEND_PORT}`);

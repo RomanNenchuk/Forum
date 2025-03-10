@@ -1,10 +1,7 @@
 import React, { useContext, useState, useEffect, createContext } from "react";
 import { useSearchParams, useLocation } from "react-router-dom";
 import axios from "axios";
-
-const PROTOCOL = import.meta.env.VITE_PROTOCOL;
-const HOST = import.meta.env.VITE_HOST;
-const PORT = import.meta.env.VITE_PORT;
+import { VITE_API_URL } from "../constants/config";
 
 const TopicSearchContext = createContext();
 
@@ -55,9 +52,7 @@ export function TopicSearchProvider({ children, backgroundLocation }) {
   useEffect(() => {
     const fetchTags = async () => {
       try {
-        const res = await axios.get(
-          `${PROTOCOL}://${HOST}:${PORT}/tags?page=1&limit=15`
-        );
+        const res = await axios.get(`${VITE_API_URL}/tags?page=1&limit=15`);
         setPopularTagList(res.data);
       } catch (error) {
         console.error("Error fetching tags:", error);

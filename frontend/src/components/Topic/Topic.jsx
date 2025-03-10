@@ -17,10 +17,7 @@ import TopicContextMenu from "./TopicContextMenu";
 import arrowBackIcon from "../../assets/arrow-back.svg";
 import axios from "axios";
 import "./Topic.css";
-
-const PROTOCOL = import.meta.env.VITE_PROTOCOL;
-const HOST = import.meta.env.VITE_HOST;
-const PORT = import.meta.env.VITE_PORT;
+import { VITE_API_URL } from "../../constants/config.js";
 
 export const commentsOnOnePageCount = 10;
 
@@ -90,7 +87,7 @@ export default function Topic() {
   async function fetchTopic() {
     try {
       const result = await axios.get(
-        `${PROTOCOL}://${HOST}:${PORT}/topics/${id}${
+        `${VITE_API_URL}/topics/${id}${
           currentUser ? "?user_id=" + currentUser.uid : ""
         }`
       );
@@ -113,7 +110,7 @@ export default function Topic() {
   async function fetchTopicComments() {
     try {
       const response = await axios.get(
-        `${PROTOCOL}://${HOST}:${PORT}/topics/${id}/comments${
+        `${VITE_API_URL}/topics/${id}/comments${
           currentUser ? "?user_id=" + currentUser.uid : ""
         }`
       );
@@ -157,10 +154,7 @@ export default function Topic() {
         reply_text: null,
         reply_timestamp: reply?.timestamp || null,
       };
-      const result = await axios.post(
-        `${PROTOCOL}://${HOST}:${PORT}/topics/comments`,
-        comm
-      );
+      const result = await axios.post(`${VITE_API_URL}/topics/comments`, comm);
       comm.id = result.data.id;
       comm.reply_text = result.data.reply_text;
 
@@ -194,7 +188,7 @@ export default function Topic() {
           reply_timestamp: reply?.timestamp || null,
         };
         const result = await axios.post(
-          `${PROTOCOL}://${HOST}:${PORT}/topics/comments`,
+          `${VITE_API_URL}/topics/comments`,
           comm
         );
         comm.id = result.data.id;
@@ -265,10 +259,7 @@ export default function Topic() {
       resetReply();
       if (newComm) {
         setComments(newComments);
-        await axios.patch(
-          `${PROTOCOL}://${HOST}:${PORT}/topics/comments/${editId}`,
-          newComm
-        );
+        await axios.patch(`${VITE_API_URL}/topics/comments/${editId}`, newComm);
       }
     } catch (error) {
       console.error("Error with editComment: ", error);
@@ -277,9 +268,7 @@ export default function Topic() {
 
   async function deleteComment(commId) {
     try {
-      await axios.delete(
-        `${PROTOCOL}://${HOST}:${PORT}/topics/comments/${commId}`
-      );
+      await axios.delete(`${VITE_API_URL}/topics/comments/${commId}`);
       for (const comm of comments) {
         if (comm.id === commId) {
           setComments(prev => prev.filter(item => item.id !== commId));
