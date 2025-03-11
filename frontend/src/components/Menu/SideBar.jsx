@@ -103,19 +103,19 @@ export default function SideBar() {
       </div>
       <div className="mn-menu-row mn-menu-row3">
         <div className={`mn-menu-el ${isActive("/about") ? "active" : ""}`}>
-          <Link id="mn-menu-about">
+          <Link id="mn-menu-about" to="/about">
             <img src={aboutIcon} alt="About" />
             {isExpanded && <span>{t("menu.about")}</span>}
           </Link>
         </div>
         <div className={`mn-menu-el ${isActive("/team") ? "active" : ""}`}>
-          <Link id="mn-menu-team">
+          <Link id="mn-menu-team" to="/team">
             <img src={teamIcon} alt="Team" />
             {isExpanded && <span>{t("menu.team")}</span>}
           </Link>
         </div>
         <div className={`mn-menu-el ${isActive("/help") ? "active" : ""}`}>
-          <Link id="mn-menu-help">
+          <Link id="mn-menu-help" to="/FaQ">
             <img src={helpIcon} alt="Help" />
             {isExpanded && <span>{t("menu.help")}</span>}
           </Link>

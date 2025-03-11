@@ -25,6 +25,9 @@ import Modal from "./Modal.jsx";
 import MyTopic from "./MyTopic/MyTopic.jsx";
 import PopulTopic from "./PopulPage/PopulPage.jsx";
 import ExpandedTags from "./TagBar/ExpandedTags.jsx";
+import AboutPage from "./AboutUforum/About.jsx";
+import FAQ from "./FAQ/FAQ.jsx";
+import TeamPage from "./Team/TeamPage.jsx"
 import { useBackgroundLocation } from "../hooks/useBackgroundLocation.jsx";
 import DefaultChatScreen from "./DefaultChatScreen.jsx";
 
@@ -55,6 +58,9 @@ function AppRoutes() {
           <Route path="/topics/:id" element={<Topic />} />
           <Route path="/poptopics" element={<PopulTopic />} />
           <Route path="/mytopics" element={<MyTopic />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/FaQ" element={<FAQ/>} />
+          <Route path="/team" element={<TeamPage/>} />
 
           <Route element={<PrivateRoute />}>
             <Route path="/create-topic" element={<CreateTopic />} />

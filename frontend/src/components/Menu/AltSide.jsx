@@ -84,7 +84,7 @@ export default function AltSide({ setExpand, display }) {
               style={{ display: "flex", alignItems: "center", width: "100%" }}
             >
               <button
-                style={{ width: "100%", textAlign: "center" }}
+                style={{ width: "100%", textAlign: "center", justifyContent: "center" }}
                 className="hd-btn"
               >
                 {t("auth.logIn")}
@@ -150,19 +150,19 @@ export default function AltSide({ setExpand, display }) {
             </Link>
           </div>
           <div className={`mn-menu-elem ${isActive("/about") ? "active" : ""}`}>
-            <Link id="mn-menu-about">
+            <Link id="mn-menu-about" to="/about">
               <img src={aboutIcon} alt="About" />
               <span>{t("menu.about")}</span>
             </Link>
           </div>
           <div className={`mn-menu-elem ${isActive("/team") ? "active" : ""}`}>
-            <Link id="mn-menu-team">
+            <Link id="mn-menu-team" to="/team">
               <img src={teamIcon} alt="Team" />
               <span>{t("menu.team")}</span>
             </Link>
           </div>
           <div className={`mn-menu-elem ${isActive("/help") ? "active" : ""}`}>
-            <Link id="mn-menu-help">
+            <Link id="mn-menu-help" to="/FaQ">
               <img src={helpIcon} alt="Help" />
               <span>{t("menu.help")}</span>
             </Link>
