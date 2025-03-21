@@ -103,7 +103,7 @@ export default function CreateTopic() {
                   top: "8vh",
                   left: 0,
                   width: "100%",
-                  paddingTop: "1vh",
+                  height:"4vh",
                   backgroundColor: "#d2dbe0",
                   zIndex: 13,
                 }}

@@ -6,7 +6,7 @@
     grid-template-rows: repeat(2,1fr);
     gap: 30px;
     width: 90%;
-    margin-top: 50px;
+    margin-top: 25px;
 }
 .person-card {
     display: flex;

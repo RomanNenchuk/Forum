@@ -295,18 +295,20 @@ ul {
 }
 
 @media (max-width: 767px) {
+
   .topic-card {
     margin-bottom: 3vh;
     box-shadow: none;
   }
   .topic-content {
     gap: 2vh;
+    border: 3px solid #fdbe10;
   }
   .topic-title {
     font-size: 1rem;
   }
   .add-topic-button {
-    font-size: 0.8rem;
+    font-size: 1rem;
   }
   .emo-container {
     font-size: 0.8rem;
@@ -318,7 +320,7 @@ ul {
     font-size: 0.8rem;
   }
   .custom-select {
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
   .emo-container {
     font-size: 1.3rem;
@@ -360,4 +362,10 @@ ul {
   background-color: #5f8575;
   border: 1px solid #5f8575;
   font-size: 2vh;
+}
+
+@media(max-width: 767px){
+  .subscribe{
+    font-size: 0.85rem;
+  }
 }

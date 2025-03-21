@@ -70,7 +70,7 @@ export default function ChatInput({
 
   const style = {
     ...{ width: "auto" },
-    ...(width > 768 ? { height: "20px" } : { height: "1.7em" }),
+    ...(width > 768 ? { height: "20px" } : { height: "20px" }),
   };
 
   return (
@@ -105,7 +105,7 @@ export default function ChatInput({
           setIsSendModalOpen={setIsSendModalOpen}
           text={text}
           setText={text}
-          style={{ ...style, height: width > 768 ? "20px" : "1.7rem" }}
+          style={{ ...style, height: width > 768 ? "20px" : "20px" }}
         />
       ) : null}
 
@@ -129,7 +129,7 @@ export default function ChatInput({
       {editId !== -1 && !isEditModalOpen && !isSendModalOpen && (
         <>
           <MdEdit
-            size={width > 768 ? "20px" : "1.2rem"}
+            size={width > 768 ? "20px" : "20px"}
             onClick={editMessage}
           />
           <img

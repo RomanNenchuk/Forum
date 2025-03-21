@@ -35,7 +35,7 @@ export default function TopicListSettings({ sortOrder, handleChange }) {
         style={{
           width: "100%",
           borderBottom: "1px solid black",
-          paddingBottom: "2%",
+          paddingBottom: "0.8%",
           marginBottom: "2vh",
         }}
       >

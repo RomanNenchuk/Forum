@@ -78,7 +78,7 @@ export default function TopBar({setExpand}) {
           {width < 768 ? (<MdMenu onClick={(e) => {e.preventDefault(); e.stopPropagation(); setExpand(1); }}
 
  size="5vh"/>) : ""}
-          <div className="hd-logo">
+          <div className="hd-logo" >
             {width > 768? (<img src={logo} alt="UFORUM" />) : ''}
             {!appendSearch ? <span>
               <span>U</span>FORUM

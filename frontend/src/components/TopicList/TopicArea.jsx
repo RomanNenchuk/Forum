@@ -215,11 +215,18 @@ export default function TopicArea({
           onClick={() => handleTopicClick(topic.id)}
         >
           <div
-            style={{
+            style={width > 768 ? {
               display: "flex",
               flexDirection: "row",
               alignItems: "center",
               justifyContent: "flex-start",
+
+            }: {
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+
             }}
           >
             <ProfileHeader

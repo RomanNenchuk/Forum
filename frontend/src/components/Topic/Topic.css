@@ -154,6 +154,10 @@
   .header {
     margin-top: 8vh;
     padding-left: 20px;
+    height: 4vh;
+  }
+  .header span{
+    font-size: 16px;
   }
   .topic-and-comments {
     overflow: scroll;

@@ -16,7 +16,7 @@ export default function FAQ(){
             <div className="topics-content content-center">
                 <div className="content-cards">
                     <h5>Часті питання</h5>
-                    <div className="card">
+                    <div className=" card card-add">
                         <div className="card-head">
                             <h6>Чи можу я змінити ім’я користувача?</h6>
                             <IoIosArrowDown size={25} onClick={() => setExt(1)}
@@ -24,7 +24,7 @@ export default function FAQ(){
                         </div>
                         {uniqueExtension === 1 ? (<p>Ні, обравши ім’я користувача на етапі реєстрації, Ви не маєте змогу змінити його пізніше.</p>) : ''}
                     </div>
-                    <div className="card">
+                    <div className="card card-add">
                         <div className="card-head">
                             <h6>Як зайти в акаунт, якщо забув пароль?</h6>
                             <IoIosArrowDown size={25} onClick={() => setExt(2)}
@@ -33,7 +33,7 @@ export default function FAQ(){
                         {uniqueExtension === 2 ? (<p>Натисніть «Забули пароль?» на сторінці входу до
                              облікового запису та дотримуйтеся подальших інструкцій.</p>) : ''}
                     </div>
-                    <div className="card">
+                    <div className="card card-add">
                         <div className="card-head">
                             <h6>Як працює пошукова система?</h6>
                             <IoIosArrowDown size={25} onClick={() => setExt(3)}

@@ -169,19 +169,29 @@ header {
 }
 
 @media (max-width: 767px) {
+  .header-inr{
+    height: 8.2vh
+  }
+  .hd-logo{
+    gap: 0px;
+    padding-left: 7px;
+  }
   .hd-logo span {
     font-size: 4vh;
   }
-
+  .hd-search-btn{
+    height: 4vh;
+  }
   .hd-search-btn span {
-    font-size: 18px;
+    font-size: 1rem;
   }
   .hd-search-input {
-    font-size: 18px;
+    font-size: 1rem;
   }
   .hd-search {
     padding-left: 10px;
     gap: 2px;
+    height: 4vh;
   }
   .hd-search input {
     font-size: 18px;
@@ -191,6 +201,7 @@ header {
   }
   .hd-btn {
     font-size: 1rem;
+    height: 4.5vh;
   }
 }
 
