@@ -55,8 +55,6 @@ setInterval(keepAliveQuery, 4 * 60 * 1000);
 setInterval(refreshPopuarTagsView, 15 * 60 * 1000);
 
 // оновлюю представлення популярних тем
-setInterval(refreshTopicPopularityView, 1 * 60 * 1000);
+setInterval(refreshTopicPopularityView, 10 * 60 * 1000);
 
-// 
-setInterval(refreshPopuarTagsView, 15 * 60 * 1000);
 export { pool, connectDB };

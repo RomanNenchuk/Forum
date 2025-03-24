@@ -55,17 +55,20 @@ export default function ChatList() {
                   >
                     <div className="chat-header">
                       <div className="chat-name-ct">
-                        <Avatar size={45} avThickness="2px" avatar={chat.other_user_avatar} />
+                        <Avatar
+                          size={45}
+                          avThickness="2px"
+                          avatar={chat.other_user_avatar}
+                        />
                         <div className="chat-name-text">
                           <p className="chat-name">{chat.other_user_name}</p>
                         </div>
                       </div>
-                        <div className="chat-unread-msg">
-                          <p className="unread-badge">
-                            {chat.unread_messages_count}
-                          </p>
-                        </div>
-                      
+                      <div className="chat-unread-msg">
+                        <p className="unread-badge">
+                          {chat.unread_messages_count}
+                        </p>
+                      </div>
                     </div>
                   </Link>
                 </div>

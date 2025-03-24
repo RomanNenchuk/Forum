@@ -171,5 +171,66 @@
     "years_ago_plural": "{{count}} years ago",
     "for_today": "Today",
     "for_this_month": "This month"
+  },
+
+  "about": {
+    "description": " is an online forum for students who want to find answers to questions together and solve problems collectively.",
+    "mission": "Our mission is to unite students on a single platform where they can easily communicate and quickly get answers to their questions.",
+    "how_it_works": "How does UFORUM work?",
+    "features": {
+      "create_topic": "Creating a topic: users can create new topics for discussion.",
+      "commenting": "Commenting: other users leave comments, sharing their thoughts.",
+      "reactions": "Reactions: likes and other reactions push popular topics higher in the list."
+    }
+  },
+
+  "team": {
+    "members": [
+      {
+        "name": "Roman",
+        "role": "Frontend/Backend Developer"
+      },
+      {
+        "name": "Bogdan",
+        "role": "Backend Developer"
+      },
+      {
+        "name": "Matviy",
+        "role": "Backend Developer"
+      },
+      {
+        "name": "Vitaliy",
+        "role": "Frontend Developer"
+      },
+      {
+        "name": "Dmytro",
+        "role": "Frontend Developer"
+      },
+      {
+        "name": "Nazar",
+        "role": "UI&UX Designer / Project Manager"
+      }
+    ]
+  },
+
+  "faq": "Frequently Asked Questions",
+  "questions": {
+    "username_change": {
+      "title": "Can I change my username?",
+      "answer": "Yes, you can always change your username on the profile update page. However, it is important to note that you cannot choose a username that has already been used by another user."
+    },
+    "forgot_password": {
+      "title": "How can I log in if I forgot my password?",
+      "answer": "Click 'Forgot password?' on the login page and follow the further instructions."
+    },
+    "search_system": {
+      "title": "How does the search system work?",
+      "answer": {
+        "general": "The search system allows you to find UFORUM users and tags used for creating topics, or a combination of both.",
+        "first": "1. The ‘@’ symbol is used to search for users in the application.",
+        "second": "2. The ‘#’ symbol is used to search for tags.",
+        "third": "3. A combination of these symbols will suggest topics created by the specified user with the specified tag. Users and tags entered should be separated by punctuation marks: comma, slash, semicolon."
+      }
+    }
   }
 }
