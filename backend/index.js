@@ -14,7 +14,7 @@ import { Server } from "socket.io";
 import { chatSocket } from "./sockets/chatSocket.js";
 import path from "path";
 import dotenv from "dotenv";
-dotenv.config({ path: "./config/.env" });
+dotenv.config();
 
 const __dirname = path.resolve();
 
