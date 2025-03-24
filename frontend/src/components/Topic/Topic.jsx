@@ -158,10 +158,7 @@ export default function Topic() {
       comm.id = result.data.id;
       comm.reply_text = result.data.reply_text;
 
-      setComments(prev => {
-        console.log([...prev, comm]);
-        return [...prev, comm];
-      });
+      setComments(prev => [...prev, comm]);
     } else {
       // якщо користувач обере більше 10 файлів, то розбиваємо їх на частини по 10
       const CHUNK_SIZE = 10;
@@ -183,7 +180,7 @@ export default function Topic() {
           attachments,
           reply: reply?.id || -1,
           author_fullname: user.fullName,
-          avatar: avatar,
+          avatar: user.avatar,
           reply_text: null,
           reply_timestamp: reply?.timestamp || null,
         };

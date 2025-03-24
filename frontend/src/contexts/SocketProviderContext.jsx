@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
 import io from "socket.io-client";
-import { VITE_API_URL } from "../constants/config";
 
 const SocketContext = React.createContext();
 
@@ -12,11 +11,11 @@ export function useSocket() {
 export function SocketProvider({ children }) {
   const [socket, setSocket] = useState();
   const { currentUser } = useAuth();
+  const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 
   useEffect(() => {
     if (!currentUser) return;
-
-    const newSocket = io(`${VITE_API_URL}`, {
+    const newSocket = io(SERVER_URL, {
       query: { id: currentUser.uid },
     });
 

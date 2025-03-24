@@ -183,10 +183,12 @@ export default function TopicArea({
   }
 
   const handleTopicClick = topicId => {
-    onTopicClick();
-    navigate(`/topics/${topicId}${location.search}`, {
-      state: { returnPath: location },
-    });
+    if (onTopicClick) {
+      onTopicClick();
+      navigate(`/topics/${topicId}${location.search}`, {
+        state: { returnPath: location },
+      });
+    }
   };
 
   const handleSubscribeClick = e => {
@@ -215,19 +217,21 @@ export default function TopicArea({
           onClick={() => handleTopicClick(topic.id)}
         >
           <div
-            style={width > 768 ? {
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "flex-start",
-
-            }: {
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-
-            }}
+            style={
+              width > 768
+                ? {
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                  }
+                : {
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }
+            }
           >
             <ProfileHeader
               id={topic.author}
