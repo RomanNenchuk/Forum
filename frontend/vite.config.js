@@ -25,15 +25,5 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
-
-    // server: {
-    //   proxy: {
-    //     "/api": {
-    //       target: `${VITE_API_URL}`,
-    //       changeOrigin: true, // Допомагає уникнути CORS-проблем
-    //       secure: PROD_MODE, // Автоматично визначаємо, чи вмикати `secure`
-    //     },
-    //   },
-    // },
   };
 });
