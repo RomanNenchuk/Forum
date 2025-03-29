@@ -89,7 +89,7 @@
 
 /* ~~~   Chat Window   ~~~ */
 .chat-window {
-  flex: 1;
+  width: 72%;
 }
 .chat-container {
   width: 100%;
