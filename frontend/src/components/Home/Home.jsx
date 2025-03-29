@@ -99,16 +99,16 @@ export default function Home() {
   return (
     <>
       <ul className="submain-in" ref={topicListRef}>
+        <TopicListSettings
+          sortOrder={queryParams.sortOrder}
+          handleChange={handleChange}
+        />
         {isFetching && topicInfoList?.length === 0 ? (
           <AltSpinner />
         ) : topicInfoList.length === 0 ? (
           <div className="topics-not-found">{t("topic.topicsNotFound")}</div>
         ) : (
           <>
-            <TopicListSettings
-              sortOrder={queryParams.sortOrder}
-              handleChange={handleChange}
-            />
             <TopicList
               topicInfoList={topicInfoList}
               onTopicClick={handleTopicClick}

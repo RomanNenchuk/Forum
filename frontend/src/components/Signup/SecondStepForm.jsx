@@ -51,24 +51,6 @@ export default function SecondStepForm({
             required
           />
 
-          {/* <Form.Group id="major">
-            <select
-              id="major"
-              style={{ width: "100%" }}
-              className="input_enter for-text mt-2 mt-xl-3  mb-3 mb-sm-2 "
-              ref={majorRef}
-              required
-            >
-              <option value="">Оберіть спеціальність</option>
-              <option value="dog">Dog</option>
-              <option value="cat">Cat</option>
-              <option value="hamster">Hamster</option>
-              <option value="parrot">Parrot</option>
-              <option value="spider">Spider</option>
-              <option value="goldfish">Goldfish</option>
-              <option value="Chervanchuk">Chervanchuk</option>
-            </select>
-          </Form.Group> */}
           <ActionButton
             label={t("auth.register")}
             loading={loading}

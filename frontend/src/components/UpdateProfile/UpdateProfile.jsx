@@ -85,7 +85,7 @@ export default function UpdateProfile({ onClose }) {
 
       // перевіряємо пароль користувача, якщо він реєструвався як email + password
       if (!isGoogleSignIn) {
-        if (!checkPasswordsValidity(setError, passwordRef, newPasswordRef))
+        if (!checkPasswordsValidity(setError, passwordRef, newPasswordRef, t))
           return;
         const verified = await verifyPassword(passwordRef.current.value);
         if (!verified) throw new Error(t("profile.incorrectPassword"));

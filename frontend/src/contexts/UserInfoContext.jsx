@@ -70,6 +70,13 @@ export function UserInfoProvider({ children }) {
         },
       });
 
+      setUser({
+        fullName: userData.fullName,
+        userName: userData.userName,
+        createdAt: userData.createdAt,
+        email: userData.email,
+      });
+
       return response.data; // Повертаємо відповідь, якщо потрібна
     } catch (error) {
       console.error("Error registering user on server:", error);

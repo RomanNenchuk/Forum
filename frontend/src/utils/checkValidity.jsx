@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { VITE_API_URL } from "../constants/config";
 
@@ -16,10 +15,14 @@ export async function usernameOrEmailTaken(email, username) {
   }
 }
 
-export function checkPasswordsValidity(setError, passwordRef, newPasswordRef) {
-  const { t } = useTranslation();
+export function checkPasswordsValidity(
+  setError,
+  passwordRef,
+  newPasswordRef,
+  t
+) {
   const password = passwordRef.current.value.trim();
-  const newPassword = newPasswordRef?.current.value.trim();
+  const newPassword = newPasswordRef?.current?.value?.trim();
 
   if (password.length <= 5) {
     passwordRef.current.classList.add("border", "border-danger");

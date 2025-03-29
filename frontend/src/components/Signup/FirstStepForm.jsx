@@ -38,7 +38,10 @@ export default function FirstStepForm({
     setAllInputsValid(emailRef, usernameRef, passwordRef);
 
     // якщо всі поля форми заповнені та користувачів з такими email і username нема, то показую наступну форму
-    if (form.checkValidity() && checkPasswordsValidity(setError, passwordRef)) {
+    if (
+      form.checkValidity() &&
+      checkPasswordsValidity(setError, passwordRef, t)
+    ) {
       const { emailExists, usernameExists } = await usernameOrEmailTaken(
         emailRef.current.value,
         usernameRef.current.value
