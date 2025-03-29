@@ -227,7 +227,8 @@ ul.chat-messages {
   background-color: gray;
   word-wrap: break-word;
   white-space: pre-wrap;
-  max-width: 55%;
+  max-width: 40vw;
+  width: max-content;
   margin: 20px;
   border-radius: 20px;
   padding: 2vh;
@@ -295,5 +296,8 @@ ul.chat-messages {
   .chat-input {
     gap: 10px;
     padding: 5px 10px;
+  }
+  .uTou-message{
+    max-width: 55%;
   }
 }
