@@ -14,11 +14,10 @@ import seachIcon from "../../assets/search.svg";
 import "./Menu.css";
 import Avatar from "../Avatar.jsx";
 
-
-export default function TopBar({setExpand}) {
+export default function TopBar({ setExpand }) {
   const { t } = useTranslation();
   const { currentUser } = useAuth();
-  const [ appendSearch, setAppendSearch] = useState(false)
+  const [appendSearch, setAppendSearch] = useState(false);
 
   const location = useLocation();
   const {
@@ -48,25 +47,22 @@ export default function TopBar({setExpand}) {
     });
   }
 
-
-  function handlerClick(e){
+  function handlerClick(e) {
     e.preventDefault();
     e.stopPropagation();
     navigate(`profiles/${currentUser.uid}`, {
       state: { backgroundLocation: location },
-    })
+    });
   }
-  const { width } = useWidth()
+  const { width } = useWidth();
 
-  useEffect(()=>{
-      if(width >= 768) setAppendSearch(false)
-    },[width]
-  )
+  useEffect(() => {
+    if (width >= 768) setAppendSearch(false);
+  }, [width]);
 
   return (
     <header>
       <div className="header-inr">
-      
         <Link
           to="/"
           className="hd-col home-link"
@@ -75,103 +71,139 @@ export default function TopBar({setExpand}) {
             setSearchInput("");
           }}
         >
-          {width < 768 ? (<MdMenu onClick={(e) => {e.preventDefault(); e.stopPropagation(); setExpand(1); }}
-
- size="5vh"/>) : ""}
-          <div className="hd-logo" >
-            {width > 768? (<img src={logo} alt="UFORUM" />) : ''}
-            {!appendSearch ? <span>
-              <span>U</span>FORUM
-            </span> : '' }
-          </div>
-        </Link>
-        {width > 768 ? (<><div className="hd-col">
-          <form className="hd-search" onSubmit={handleSearch}>
-            <img src={seachIcon} alt="Search" />
-            <input
-              className="hd-search-input"
-              type="text"
-              value={searchInput}
-              onChange={e => setSearchInput(e.target.value)}
-              placeholder={t("menu.searchPlaceholder")}
-            />
-            <button className="hd-search-btn" type="submit">
-              <span>{t("menu.searchButton")}</span>
-            </button>
-          </form>
-        </div>
-        <div className="hd-col">
-          {currentUser && user ? (
-            <ProfileHeader
-              id={currentUser.uid}
-              avatar={user?.avatar}
-              profileName={`${t("menu.welcomeMessage")} ${
-                user?.fullName || "user"
-              }!`}
-              size="9vh"
-              sizeFont="3vh"
-              avThickness="0.4vh"
-              gap="1.5vh"
-              order="text-first"
-              style={{ textAlign: "right", marginRight: "10px"}}
-              textStyle={{ color: "#000" }}
+          {width < 768 ? (
+            <MdMenu
+              onClick={e => {
+                e.preventDefault();
+                e.stopPropagation();
+                setExpand(1);
+              }}
+              size="5vh"
             />
           ) : (
-            <Link
-              to={`/login${location.search}`}
-              state={{
-                backgroundLocation: {
-                  pathname: location.pathname,
-                  search: location.search,
-                },
-                redirectPath: location,
+            ""
+          )}
+          <div className="hd-logo">
+            {width > 768 ? <img src={logo} alt="UFORUM" /> : ""}
+            {!appendSearch ? (
+              <span>
+                <span>U</span>FORUM
+              </span>
+            ) : (
+              ""
+            )}
+          </div>
+        </Link>
+        {width > 768 ? (
+          <>
+            <div className="hd-col">
+              <form className="hd-search" onSubmit={handleSearch}>
+                <img src={seachIcon} alt="Search" />
+                <input
+                  className="hd-search-input"
+                  type="text"
+                  value={searchInput}
+                  onChange={e => setSearchInput(e.target.value)}
+                  placeholder={t("menu.searchPlaceholder")}
+                />
+                <button className="hd-search-btn" type="submit">
+                  <span>{t("menu.searchButton")}</span>
+                </button>
+              </form>
+            </div>
+            <div className="hd-col">
+              {currentUser && user ? (
+                <ProfileHeader
+                  id={currentUser.uid}
+                  avatar={user?.avatar}
+                  profileName={`${t("menu.welcomeMessage")} ${
+                    user?.fullName || "user"
+                  }!`}
+                  size="9vh"
+                  sizeFont="3vh"
+                  avThickness="0.4vh"
+                  gap="1.5vh"
+                  order="text-first"
+                  style={{ textAlign: "right", marginRight: "10px" }}
+                  textStyle={{ color: "#000" }}
+                />
+              ) : (
+                <Link
+                  to={`/login${location.search}`}
+                  state={{
+                    backgroundLocation: {
+                      pathname: location.pathname,
+                      search: location.search,
+                    },
+                    redirectPath: location,
+                  }}
+                >
+                  <button className="hd-btn">
+                    {t("menu.logIn")}
+                    <div className="hd-btn-sep">
+                      <span> | </span>
+                    </div>
+                    {t("menu.signUp")}
+                  </button>
+                </Link>
+              )}
+            </div>
+          </>
+        ) : (
+          <>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
               }}
             >
-              <button className="hd-btn">
-                {t("menu.logIn")}
-                <div className="hd-btn-sep">
-                  <span> | </span>
-                </div>
-                {t("menu.signUp")}
-              </button>
-            </Link>
-          )}
-          </div></>) : (<>
-            <div style = {{display: "flex", flexDirection: "row",alignItems: "center"}}>
-              
-            {!appendSearch ? !currentUser ? (<Link
-                to="/login"
-                state={{
-                  backgroundLocation: {
-                    pathname: location.pathname,
-                    search: location.search,
-                  },
-                  redirectPath: location,
-                }}
-              >
-                <button className="hd-btn">
-                  {t("auth.logIn")}
-                </button>
-              </Link>) : (
-                <div style = {{marginRight: "2vh"}}><Avatar avatar={user.avatar} handleImageClick={handlerClick}  size="5vh" /></div>
+              {!appendSearch ? (
+                !currentUser ? (
+                  <Link
+                    to="/login"
+                    state={{
+                      backgroundLocation: {
+                        pathname: location.pathname,
+                        search: location.search,
+                      },
+                      redirectPath: location,
+                    }}
+                  >
+                    <button className="hd-btn">{t("auth.logIn")}</button>
+                  </Link>
+                ) : (
+                  <div style={{ marginRight: "2vh" }}>
+                    <Avatar
+                      avatar={user?.avatar}
+                      handleImageClick={handlerClick}
+                      size="5vh"
+                    />
+                  </div>
+                )
               ) : (
                 <form className="hd-search" onSubmit={handleSearch}>
                   <input
                     className="hd-search-input"
                     type="text"
                     value={searchInput}
-                  onChange={e => setSearchInput(e.target.value)}
-                  placeholder={t("menu.searchPlaceholder")}
+                    onChange={e => setSearchInput(e.target.value)}
+                    placeholder={t("menu.searchPlaceholder")}
                   />
                   <button className="hd-search-btn" type="submit">
                     <span>{t("menu.searchButton")}</span>
                   </button>
                 </form>
               )}
-              <IoIosSearch size = "5vh" onClick={()=>{setAppendSearch((prev)=>!prev)}}/>
+              <IoIosSearch
+                size="5vh"
+                onClick={() => {
+                  setAppendSearch(prev => !prev);
+                }}
+              />
             </div>
-          </>)}
-        
+          </>
+        )}
       </div>
     </header>
   );

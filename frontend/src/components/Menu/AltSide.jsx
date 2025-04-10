@@ -43,7 +43,11 @@ export default function AltSide({ setExpand, display }) {
         backgroundColor: "rgba(0, 0, 0, 0.38)",
         zIndex: 100000,
       }}
-      onClick={(e) => {e.preventDefault(); setExpand(0); e.stopPropagation()      }}
+      onClick={e => {
+        e.preventDefault();
+        setExpand(0);
+        e.stopPropagation();
+      }}
     >
       <div
         style={{
@@ -53,7 +57,6 @@ export default function AltSide({ setExpand, display }) {
           border: "2px solid black",
           zIndex: 100001,
         }}
-        
       >
         <div
           style={{
@@ -63,7 +66,6 @@ export default function AltSide({ setExpand, display }) {
             padding: "4%",
             backgroundColor: "#ffe6a9",
           }}
-          
         >
           {currentUser ? (
             <div
@@ -76,15 +78,19 @@ export default function AltSide({ setExpand, display }) {
                 fontWeight: 600,
               }}
             >
-              <Avatar size="5vh" avatar={user.avatar} />
-              <span>{user.fullName}</span>
+              <Avatar size="5vh" avatar={user?.avatar} />
+              <span>{user?.fullName}</span>
             </div>
           ) : (
             <div
               style={{ display: "flex", alignItems: "center", width: "100%" }}
             >
               <button
-                style={{ width: "100%", textAlign: "center", justifyContent: "center" }}
+                style={{
+                  width: "100%",
+                  textAlign: "center",
+                  justifyContent: "center",
+                }}
                 className="hd-btn"
               >
                 {t("auth.logIn")}

@@ -27,11 +27,15 @@ export default function TopicActionMenu({
 
   const switchSavedMutation = useMutation({
     mutationFn: ({ user_id, topic }) => switchSavedTopic({ user_id, topic }),
-    onSuccess: (_, { topic }) => {
-      queryClient.setQueryData(["savedTopics", currentUser?.uid], oldData => {
-        if (!oldData) return { pages: [], pageParams: [] };
+    onMutate: async ({ topic }) => {
+      const previousData = queryClient.getQueryData([
+        "savedTopics",
+        currentUser?.uid,
+      ]);
 
-        // пошук, чи тема була збережена
+      queryClient.setQueryData(["savedTopics", currentUser?.uid], oldData => {
+        if (!oldData) return { pages: [{ topics: [topic] }], pageParams: [] };
+
         const isAlreadySaved = oldData.pages.some(page =>
           page.topics.some(t => t.id === topic.id)
         );
@@ -41,13 +45,23 @@ export default function TopicActionMenu({
           pages: oldData.pages.map((page, index) => ({
             ...page,
             topics: isAlreadySaved
-              ? page.topics.filter(t => t.id !== topic.id) // видаляю з тієї сторінки, де вона присутня
+              ? page.topics.filter(t => t.id !== topic.id)
               : index === 0
-              ? [topic, ...page.topics] // додаю тільки до першої сторінки
-              : page.topics, // інші сторінки залишаю без змін
+              ? [topic, ...page.topics]
+              : page.topics,
           })),
         };
       });
+      return { previousData };
+    },
+    onError: (err, variables, context) => {
+      queryClient.setQueryData(
+        ["savedTopics", currentUser?.uid],
+        context.previousData
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["savedTopics", currentUser?.uid]);
     },
   });
 
